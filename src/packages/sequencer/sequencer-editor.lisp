@@ -860,7 +860,7 @@
 This is a sequencer editor window.
 
 Switch between the 'tracks' and the classic 'maquette' view with the icons of the toolbar at the top.
-Open the 'control patch' with the other icon of the toolbar.
+Open the 'control patch' with the other icon on the left.
 CMD-click to add boxes. Play contents, etc.
 ")
 
@@ -995,14 +995,6 @@ CMD-click to add boxes. Play contents, etc.
                :delta 5
                :subviews
                (list
-                (om-make-graphic-object
-                 'om-icon-button :size (omp 16 16)
-                 :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
-                 :lock-push t :enabled t :pushed (show-control-patch editor)
-                 :action #'(lambda (b)
-                             (show-hide-control-patch-editor editor (pushed b))
-                             ))
-
                 (om-make-graphic-object
                  'om-icon-button :size (omp 16 16)
                  :icon :eval-black :icon-pushed :eval-gray
@@ -1151,6 +1143,7 @@ CMD-click to add boxes. Play contents, etc.
 
 
 (defun make-maquette-view (sequencer-editor)
+
   (let* ((ruler-maquette (om-make-view 'time-ruler
                                        :size (om-make-point 30 20)
                                        :x1 (or (getf (get-range sequencer-editor) :x1) 10000)
@@ -1167,6 +1160,7 @@ CMD-click to add boxes. Play contents, etc.
                                 :scrollbars nil :bg-color +track-color-1+))
          (maq-view (om-make-view 'maquette-view :editor sequencer-editor :scrollbars nil :bg-color +track-color-1+))
          layout)
+
     (set-g-component sequencer-editor :track-views nil)
     (set-g-component sequencer-editor :maq-view maq-view)
     (set-g-component sequencer-editor :metric-ruler metric-ruler)
@@ -1187,23 +1181,39 @@ CMD-click to add boxes. Play contents, etc.
                   :subviews
                   (list
 
-                   ;;; lock here
-                   (om-make-graphic-object
-                    'lock-view-area
-                    :size (omp *track-control-w* 18)
-                    :editor sequencer-editor)
+                   (om-make-view
+                    'om-view
+                    :size (omp *track-control-w* 20)
+                    :subviews
+                    (list
+                     (om-make-graphic-object
+                      'om-icon-button
+                      :position (omp 8 2)
+                      :size (omp 16 16)
+                      :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
+                      :lock-push t :enabled t :pushed (show-control-patch sequencer-editor)
+                      :action #'(lambda (b)
+                                  (show-hide-control-patch-editor sequencer-editor (pushed b))
+                                  ))))
 
                    metric-ruler
-                   y-ruler ; (om-make-view 'om-view :bg-color +track-color-1+)
+                   y-ruler
                    maq-view
-                   (om-make-di 'om-simple-text
-                               :size (om-make-point *track-control-w* 20)
-                               :text "" ;"ms"
-                               :font (om-def-font :font1)
-                               :fg-color (om-def-color :black)
-                               :bg-color +track-color-2+)
+
+                   (om-make-view
+                    'om-view
+                    :size (omp *track-control-w* 20)
+                    :subviews
+                    (list
+                     (om-make-graphic-object
+                      'lock-view-area
+                      :size (omp *track-control-w* 20)
+                      :editor sequencer-editor)))
+
                    ruler-maquette)))
+
     (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
+
     layout
     ))
 
@@ -1262,15 +1272,27 @@ CMD-click to add boxes. Play contents, etc.
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
 
-                            (om-make-graphic-object
-                             'lock-view-area
-                             :size (omp *track-control-w* 18)
-                             :editor sequencer-editor)
+                            (om-make-view
+                             'om-view
+                             :size (omp *track-control-w* 20)
+                             :subviews
+                             (list
+                              (om-make-graphic-object
+                               'om-icon-button
+                               :position (omp 8 2)
+                               :size (omp 16 16)
+                               :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
+                               :lock-push t :enabled t :pushed (show-control-patch sequencer-editor)
+                               :action #'(lambda (b)
+                                           (show-hide-control-patch-editor sequencer-editor (pushed b))
+                                           ))))
 
                             metric-ruler))
-                ;;; allows to scroll he sub-layout
+
+                ;;; allows to scroll the sub-layout
                 (om-make-layout
-                 'om-simple-layout :subviews
+                 'om-simple-layout
+                 :subviews
                  (list
                   (om-make-layout
                    'om-column-layout :delta 2 :scrollbars :v
@@ -1281,15 +1303,23 @@ CMD-click to add boxes. Play contents, etc.
                           :subviews (list
                                      (make-track-control n sequencer-editor)
                                      (nth (1- n) track-views)))))))
+
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
-                 :subviews (list (om-make-di 'om-simple-text
-                                             :size (om-make-point *track-control-w* 20)
-                                             :text "" ; "ms"
-                                             :font (om-def-font :font1)
-                                             :fg-color (om-def-color :black)
-                                             :bg-color +track-color-2+)
-                                 ruler-tracks))))))
+                 :subviews (list
+
+                            (om-make-view
+                             'om-view
+                             :size (omp *track-control-w* 20)
+                             :subviews
+                             (list
+                              (om-make-graphic-object
+                               'lock-view-area
+                               :size (omp *track-control-w* 20)
+                               :editor sequencer-editor)))
+
+                            ruler-tracks))
+                ))))
 
 
 ;;; when a box changes track
