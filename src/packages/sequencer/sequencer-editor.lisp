@@ -994,45 +994,49 @@ CMD-click to add boxes. Play contents, etc.
                'om-row-layout
                :delta 5
                :subviews
-               (let (b1 b2 b3 b4)
-                 (setq b1 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
-                           :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
-                           :lock-push t :enabled t :pushed (show-control-patch editor)
-                           :action #'(lambda (b)
-                                       (show-hide-control-patch-editor editor (pushed b))
-                                       )))
-                 (setq b2 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
-                           :icon :eval-black :icon-pushed :eval-gray
-                           :lock-push nil :enabled t
-                           :action #'(lambda (b)
-                                       (declare (ignore b))
-                                       (let ((seq (get-obj-to-play editor)))
-                                         (eval-sequencer seq)
-                                         (om-invalidate-view tracks-or-maq-view)
-                                         ))))
-                 (setq b3 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
-                           :icon :icon-trash-black :icon-pushed :icon-trash-gray
-                           :lock-push nil :enabled t
-                           :action #'(lambda (b)
-                                       (declare (ignore b))
-                                       (when (and (boxes (get-obj-to-play editor))
-                                                  (om-y-or-n-dialog "This will remove all boxes in the sequencer."))
-                                         (m-flush (get-obj-to-play editor))
-                                         (om-invalidate-view tracks-or-maq-view)
-                                         ))))
-                 (setq b4 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
-                           :icon :icon-mute-black :icon-pushed :icon-mute-gray
-                           :lock-push t :enabled t
-                           :action #'(lambda (b)
-                                       (declare (ignore b))
-                                       (with-schedulable-object seq
-                                                                (setf (no-exec seq)
-                                                                      (not (no-exec seq)))))))
-                 (list b1 b2 b3 b4)))
+               (list
+                (om-make-graphic-object
+                 'om-icon-button :size (omp 16 16)
+                 :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
+                 :lock-push t :enabled t :pushed (show-control-patch editor)
+                 :action #'(lambda (b)
+                             (show-hide-control-patch-editor editor (pushed b))
+                             ))
+
+                (om-make-graphic-object
+                 'om-icon-button :size (omp 16 16)
+                 :icon :eval-black :icon-pushed :eval-gray
+                 :lock-push nil :enabled t
+                 :action #'(lambda (b)
+                             (declare (ignore b))
+                             (let ((seq (get-obj-to-play editor)))
+                               (eval-sequencer seq)
+                               (om-invalidate-view tracks-or-maq-view)
+                               )))
+
+                (om-make-graphic-object
+                 'om-icon-button :size (omp 16 16)
+                 :icon :icon-trash-black :icon-pushed :icon-trash-gray
+                 :lock-push nil :enabled t
+                 :action #'(lambda (b)
+                             (declare (ignore b))
+                             (when (and (boxes (get-obj-to-play editor))
+                                        (om-y-or-n-dialog "This will remove all boxes in the sequencer."))
+                               (m-flush (get-obj-to-play editor))
+                               (om-invalidate-view tracks-or-maq-view)
+                               )))
+
+                (om-make-graphic-object
+                 'om-icon-button :size (omp 16 16)
+                 :icon :icon-mute-black :icon-pushed :icon-mute-gray
+                 :lock-push t :enabled t
+                 :action #'(lambda (b)
+                             (declare (ignore b))
+                             (with-schedulable-object seq
+                                                      (setf (no-exec seq)
+                                                            (not (no-exec seq))))))
+                ))
+
               (om-make-layout
                'om-row-layout
                :delta 5
@@ -1093,7 +1097,7 @@ CMD-click to add boxes. Play contents, etc.
                         :divider))
                 ;;; MAIN
                 (list (om-make-layout
-                       'om-column-layout :delta nil :ratios '(nil 100 nil 1)
+                       'om-column-layout :delta 2 :ratios '(nil 100 nil 1)
                        :subviews (list
                                   (get-g-component editor :ctrl-view)
                                   (get-g-component editor :main-sequencer-view)
