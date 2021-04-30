@@ -570,7 +570,7 @@
   (make-button-view
    (setf (repeat-button editor)
          (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
-                                 :icon :icon-repeat-black :icon-pushed :icon-repeat-orange :icon-disabled :icon-repeat-gray
+                                 :icon :icon-repeat-black :icon-pushed :icon-repeat-blue :icon-disabled :icon-repeat-gray
                                  :lock-push t :enabled enable
                                  :pushed (loop-play editor)
                                  :action #'(lambda (b)
