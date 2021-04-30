@@ -157,9 +157,12 @@
   ((editor :accessor editor :initarg :editor :initform nil)))
 
 (defmethod om-draw-contents ((self lock-view-area))
-  (om-draw-picture (if (lock (object (editor self))) :lock :unlock)
-                   :x 0 :y 0 :w 20 :h 20
-                   ))
+  (let ((w 18) (h 18))
+    (om-draw-picture (if (lock (object (editor self))) :lock :unlock)
+                     :x (/ (- (w self) w) 2)
+                     :y (/ (- (h self) h) 2)
+                     :w w :h h
+                     )))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
   (declare (ignore position))
