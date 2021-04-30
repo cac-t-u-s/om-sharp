@@ -28,6 +28,8 @@
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
+(defparameter *version-beta* t)
+
 (defparameter *version*
   (+ *version-major*
      (/ *version-minor* 100.0)
@@ -37,6 +39,7 @@
 (defparameter *version-string*
   (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
                (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) "")
+               (if *version-beta* "-beta" "")
                (if (and *version-update* (plusp *version-update*)) (format nil "-u~d" *version-update*) "")
                ))
 
