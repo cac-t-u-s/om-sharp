@@ -260,11 +260,11 @@
 
 ;; the value internally is always an integer
 (defmethod set-value ((self numbox) value)
-  (setf (value self) (if (zerop (decimals self)) value
+  (setf (value self) (if (zerop (decimals self)) (round value)
                        (round (* value (expt 10 (decimals self))))))
   (om-set-text self
                (if (zerop (decimals self))
-                   (format () " ~D" value)
+                   (format () " ~D" (round value))
                  (format () " ~v$" (decimals self) value)
                  ))
   (om-invalidate-view self))
