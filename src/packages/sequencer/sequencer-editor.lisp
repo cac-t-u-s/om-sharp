@@ -1142,6 +1142,35 @@ CMD-click to add boxes. Play contents, etc.
   (mapc 'update-connections (boxes (object editor))))
 
 
+(defun make-control-patch-button (editor)
+  (om-make-view
+   'om-view
+   :size (omp *track-control-w* 20)
+   :subviews
+   (list
+    (om-make-graphic-object
+     'om-icon-button
+     :position (omp 8 2)
+     :size (omp 16 16)
+     :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
+     :lock-push t :enabled t :pushed (show-control-patch editor)
+     :action #'(lambda (b)
+                 (show-hide-control-patch-editor editor (pushed b))
+                 )))))
+
+
+(defun make-lock-button (editor)
+  (om-make-view
+   'om-view
+   :size (omp *track-control-w* 20)
+   :subviews
+   (list
+    (om-make-graphic-object
+     'lock-view-area
+     :size (omp *track-control-w* 20)
+     :editor editor))))
+
+
 (defun make-maquette-view (sequencer-editor)
 
   (let* ((ruler-maquette (om-make-view 'time-ruler
@@ -1175,42 +1204,18 @@ CMD-click to add boxes. Play contents, etc.
 
     (update-span metric-ruler)
 
-    (setf layout (om-make-layout
-                  'om-grid-layout
-                  :delta 2 :dimensions '(2 3) :ratios '((1 99) (1 99 1))
-                  :subviews
-                  (list
-
-                   (om-make-view
-                    'om-view
-                    :size (omp *track-control-w* 20)
-                    :subviews
-                    (list
-                     (om-make-graphic-object
-                      'om-icon-button
-                      :position (omp 8 2)
-                      :size (omp 16 16)
-                      :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
-                      :lock-push t :enabled t :pushed (show-control-patch sequencer-editor)
-                      :action #'(lambda (b)
-                                  (show-hide-control-patch-editor sequencer-editor (pushed b))
-                                  ))))
-
-                   metric-ruler
-                   y-ruler
-                   maq-view
-
-                   (om-make-view
-                    'om-view
-                    :size (omp *track-control-w* 20)
-                    :subviews
-                    (list
-                     (om-make-graphic-object
-                      'lock-view-area
-                      :size (omp *track-control-w* 20)
-                      :editor sequencer-editor)))
-
-                   ruler-maquette)))
+    (setf layout
+          (om-make-layout
+           'om-grid-layout
+           :delta 2 :dimensions '(2 3) :ratios '((1 99) (1 99 1))
+           :subviews
+           (list
+            (make-control-patch-button sequencer-editor)
+            metric-ruler
+            y-ruler
+            maq-view
+            (make-lock-button sequencer-editor)
+            ruler-maquette)))
 
     (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
 
@@ -1271,22 +1276,7 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
-
-                            (om-make-view
-                             'om-view
-                             :size (omp *track-control-w* 20)
-                             :subviews
-                             (list
-                              (om-make-graphic-object
-                               'om-icon-button
-                               :position (omp 8 2)
-                               :size (omp 16 16)
-                               :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
-                               :lock-push t :enabled t :pushed (show-control-patch sequencer-editor)
-                               :action #'(lambda (b)
-                                           (show-hide-control-patch-editor sequencer-editor (pushed b))
-                                           ))))
-
+                            (make-control-patch-button sequencer-editor)
                             metric-ruler))
 
                 ;;; allows to scroll the sub-layout
@@ -1307,17 +1297,7 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
-
-                            (om-make-view
-                             'om-view
-                             :size (omp *track-control-w* 20)
-                             :subviews
-                             (list
-                              (om-make-graphic-object
-                               'lock-view-area
-                               :size (omp *track-control-w* 20)
-                               :editor sequencer-editor)))
-
+                            (make-lock-button sequencer-editor)
                             ruler-tracks))
                 ))))
 
