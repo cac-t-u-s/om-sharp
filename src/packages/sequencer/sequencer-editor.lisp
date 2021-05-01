@@ -21,7 +21,7 @@
 
 (in-package :om)
 
-(defparameter *track-control-w* 30)
+(defparameter *track-control-w* 36)
 (defparameter *track-h* 40)
 (defparameter *ruler-view-h* 20)
 (defparameter *control-view-h* 20)
@@ -896,6 +896,62 @@ CMD-click to add boxes. Play contents, etc.
     ))
 
 
+;;;================================
+;;; Metronome / Tempo
+;;;================================
+
+(defclass tempo-view (om-view)
+  ((metronome :accessor metronome :initarg :metronome :initform nil)))
+
+(defmethod om-draw-contents ((self tempo-view))
+  (let* ((fontsize 9)
+         (maincolor (om-def-color :black))
+         (metrotextcolor (if (metronome-on (metronome self))
+                             maincolor
+                           (om-def-color :gray))))
+    (om-draw-char 2 9 (tempo-note :quater)
+                  :font (om-make-font *score-font* fontsize)
+                  :color maincolor)
+    (om-draw-string 7 9
+                    "="
+                    :font (om-def-font :font1 :size fontsize)
+                    :color maincolor)
+    (om-draw-string 1 18
+                    "Metro"
+                    :font (om-def-font :font1 :size fontsize)
+                    :color metrotextcolor)
+    (om-draw-rect 28 12 6 6
+                  :color metrotextcolor
+                  :fill (metronome-on (metronome self)))
+    ))
+
+
+(defmethod initialize-instance ((self tempo-view) &rest args)
+  (call-next-method)
+  (om-set-bg-color self +track-color-1+)
+  (om-add-subviews
+   self
+   (om-make-graphic-object
+    'numbox
+    :value (tempo (metronome self))
+    :border nil
+    :decimals 0
+    :position (om-make-point 13 0)
+    :size (om-make-point 40 10)
+    :fg-color (om-def-color :black)
+    :font (om-def-font :font1 :size 9)
+    :min-val 20 :max-val 400
+    :change-fun #'(lambda (item)
+                    (set-tempo (metronome self) (value item))))))
+
+
+(defmethod om-view-click-handler ((self tempo-view) position)
+  (when (om-point-in-rect-p position 0 10 (w self) 10)
+    (metronome-on/off (metronome self)
+                      (not (metronome-on (metronome self))))
+    (om-invalidate-view self)))
+
+
 ;;;========================
 ;;; GENERAL CONSTRUCTOR
 ;;;========================
@@ -926,10 +982,17 @@ CMD-click to add boxes. Play contents, etc.
 
            (list
 
+            (om-make-graphic-object
+             'lock-view-area
+             :locked-icon :lock-dark :unlocked-icon :unlock-light
+             :position (omp 2 2)
+             :size (omp 16 16)
+             :editor editor)
+
             (om-make-layout
              'om-row-layout :delta 30
              :position (om-make-point (+ *track-control-w* 2) 2) :align :top
-             :ratios '(1 1 100 1 1 1)
+             :ratios '(1 1 100 1 1)
              :subviews
              (list
 
@@ -1018,17 +1081,6 @@ CMD-click to add boxes. Play contents, etc.
                                                             (not (no-exec seq))))))
                 ))
 
-              (om-make-layout
-               'om-row-layout
-               :delta 5
-               :position (om-make-point (+ *track-control-w* 2) 2)
-               :align :bottom
-               :size (om-make-point 90 15)
-               :subviews (when (metronome editor)
-                           (list ;(metronome-make-signature-box editor (metronome editor):bg-color +track-color-2+)
-                            (metronome-make-tempo-box editor (metronome editor) :bg-color +track-color-2+)
-                            ))
-               )
               )))))
 
          (bottom-view
@@ -1136,25 +1188,13 @@ CMD-click to add boxes. Play contents, etc.
    (list
     (om-make-graphic-object
      'om-icon-button
-     :position (omp 8 2)
+     :position (omp 2 2)
      :size (omp 16 16)
      :icon :ctrlpatch-open :icon-pushed :ctrlpatch-close
      :lock-push t :enabled t :pushed (show-control-patch editor)
      :action #'(lambda (b)
                  (show-hide-control-patch-editor editor (pushed b))
                  )))))
-
-
-(defun make-lock-button (editor)
-  (om-make-view
-   'om-view
-   :size (omp *track-control-w* *ruler-view-h*)
-   :subviews
-   (list
-    (om-make-graphic-object
-     'lock-view-area
-     :size (omp *track-control-w* 20)
-     :editor editor))))
 
 
 (defun make-maquette-view (sequencer-editor)
@@ -1196,11 +1236,13 @@ CMD-click to add boxes. Play contents, etc.
            :delta 2 :dimensions '(2 3) :ratios '((1 99) (1 99 1))
            :subviews
            (list
-            (make-control-patch-button sequencer-editor)
+            (om-make-view
+             'tempo-view :metronome (metronome sequencer-editor)
+             :size (omp *track-control-w* *ruler-view-h*))
             metric-ruler
             y-ruler
             maq-view
-            (make-lock-button sequencer-editor)
+            (make-control-patch-button sequencer-editor)
             ruler-maquette)))
 
     (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
@@ -1266,7 +1308,9 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
-                            (make-control-patch-button sequencer-editor)
+                            (om-make-view
+                             'tempo-view :metronome (metronome sequencer-editor)
+                             :size (omp *track-control-w* *ruler-view-h*))
                             metric-ruler))
 
                 ;;; allows to scroll the sub-layout
@@ -1287,7 +1331,7 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
-                            (make-lock-button sequencer-editor)
+                            (make-control-patch-button sequencer-editor)
                             ruler-tracks))
                 ))))
 
