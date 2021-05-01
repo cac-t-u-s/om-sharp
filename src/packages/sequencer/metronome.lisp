@@ -60,10 +60,10 @@
                  :key 'car)))
 
 
-(defmethod metronome-on/off ((self metronome) t-or-nil)
-  (setf (metronome-on self) t-or-nil)
+(defmethod metronome-on/off ((self metronome) on)
+  (setf (metronome-on self) on)
   (when (editor self)
-    (if t-or-nil
+    (if on
         ;;; activate:
         (if (eq (state (get-obj-to-play (editor self))) :play)
             (player-play-object (player (editor self)) self nil
