@@ -1152,7 +1152,7 @@ CMD-click to add boxes. Play contents, etc.
      'om-icon-button
      :position (omp 8 2)
      :size (omp 16 16)
-     :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
+     :icon :ctrlpatch-open :icon-pushed :ctrlpatch-close
      :lock-push t :enabled t :pushed (show-control-patch editor)
      :action #'(lambda (b)
                  (show-hide-control-patch-editor editor (pushed b))
