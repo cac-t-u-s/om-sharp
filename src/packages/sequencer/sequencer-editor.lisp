@@ -23,6 +23,9 @@
 
 (defparameter *track-control-w* 30)
 (defparameter *track-h* 40)
+(defparameter *ruler-view-h* 20)
+(defparameter *control-view-h* 20)
+
 (defparameter +maq-bg-color+ (om-gray-color 0.65))
 (defparameter +track-color-1+ (om-gray-color 0.5))
 (defparameter +track-color-2+ (om-gray-color 0.6))
@@ -931,7 +934,7 @@ CMD-click to add boxes. Play contents, etc.
            'om-view
            :direct-draw nil
            :scrollbars :nil
-           :size (om-make-point nil 20)
+           :size (om-make-point nil *control-view-h*)
            :bg-color +track-color-2+
            :subviews
 
@@ -1145,7 +1148,7 @@ CMD-click to add boxes. Play contents, etc.
 (defun make-control-patch-button (editor)
   (om-make-view
    'om-view
-   :size (omp *track-control-w* 20)
+   :size (omp *track-control-w* *ruler-view-h*)
    :subviews
    (list
     (om-make-graphic-object
@@ -1162,7 +1165,7 @@ CMD-click to add boxes. Play contents, etc.
 (defun make-lock-button (editor)
   (om-make-view
    'om-view
-   :size (omp *track-control-w* 20)
+   :size (omp *track-control-w* *ruler-view-h*)
    :subviews
    (list
     (om-make-graphic-object
@@ -1174,18 +1177,18 @@ CMD-click to add boxes. Play contents, etc.
 (defun make-maquette-view (sequencer-editor)
 
   (let* ((ruler-maquette (om-make-view 'time-ruler
-                                       :size (om-make-point 30 20)
+                                       :size (om-make-point 30 *ruler-view-h*)
                                        :x1 (or (getf (get-range sequencer-editor) :x1) 10000)
                                        :x2 (or (getf (get-range sequencer-editor) :x2) 10000)
                                        :scrollbars nil :bg-color +track-color-1+))
          (metric-ruler (om-make-view 'metric-ruler
                                      :tempo (tempo (metronome sequencer-editor))
-                                     :size (om-make-point 30 20)
+                                     :size (om-make-point 30 *ruler-view-h*)
                                      :scrollbars nil :bg-color +track-color-1+))
          (y-ruler (om-make-view 'y-ruler-view
                                 :y1 (or (getf (get-range sequencer-editor) :y1) 100)
                                 :y2 (or (getf (get-range sequencer-editor) :y2) 0)
-                                :size (om-make-point 30 20)
+                                :size (om-make-point *track-control-w* 20)
                                 :scrollbars nil :bg-color +track-color-1+))
          (maq-view (om-make-view 'maquette-view :editor sequencer-editor :scrollbars nil :bg-color +track-color-1+))
          layout)
@@ -1238,7 +1241,7 @@ CMD-click to add boxes. Play contents, etc.
 
 (defun make-tracks-view (sequencer-editor)
 
-  (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20)
+  (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 *ruler-view-h*)
                                      :x1 (or (getf (get-range sequencer-editor) :x1) 0)
                                      :x2 (or (getf (get-range sequencer-editor) :x2) 10000)
                                      :scrollbars nil :bg-color +track-color-1+
@@ -1248,7 +1251,7 @@ CMD-click to add boxes. Play contents, etc.
                                           :scrollbars nil :editor sequencer-editor
                                           :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+)))))
          (metric-ruler (om-make-view 'metric-ruler
-                                     :size (om-make-point 30 20)
+                                     :size (om-make-point 30 *ruler-view-h*)
                                      :scrollbars nil :bg-color +track-color-1+
                                      :tempo (tempo (metronome sequencer-editor))
                                      :markers-p t)))  ;;; enable/disable markers here
