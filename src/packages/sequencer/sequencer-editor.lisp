@@ -821,6 +821,7 @@
       (paste-command-for-view (editor (selected-view editor)) view)
     (call-next-method)))
 
+
 ;;;========================
 ;;; TIME MARKERS API
 ;;;========================
@@ -835,6 +836,7 @@
     (when box (select-box box t))
     (update-to-editor editor self)))
 
+
 ;;==============================
 ;; MARKER API SPECIAL SEQUENCER
 ;;==============================
@@ -848,6 +850,7 @@
     (when (editor self)
       (update-to-editor (editor self) self))
     ))
+
 
 ;;;========================
 ;;; INSPECTOR IN SEQUENCER...
@@ -866,6 +869,7 @@ Switch between the 'tracks' and the classic 'maquette' view with the icons of th
 Open the 'control patch' with the other icon on the left.
 CMD-click to add boxes. Play contents, etc.
 ")
+
 
 ;;;========================
 ;;; CONTROL PATCH
@@ -902,6 +906,7 @@ CMD-click to add boxes. Play contents, etc.
 
       pl)))
 
+
 (defun show-hide-control-patch-editor (sequencer-editor show)
 
   (unless (equal (show-control-patch sequencer-editor) show)
@@ -922,6 +927,7 @@ CMD-click to add boxes. Play contents, etc.
   (setf (play-interval editor) (interval (get-obj-to-play editor))))
 
 (defmethod make-editor-window-contents ((editor sequencer-editor))
+
   (let* ((seq (get-obj-to-play editor))
 
          (tracks-or-maq-view
@@ -1043,8 +1049,6 @@ CMD-click to add boxes. Play contents, etc.
                             (metronome-make-tempo-box editor (metronome editor) :bg-color +track-color-2+)
                             ))
                )
-
-
               )))))
 
          (bottom-view
@@ -1063,7 +1067,6 @@ CMD-click to add boxes. Play contents, etc.
     (set-g-component editor :bottom-view bottom-view)
     (set-g-component editor :ctrl-view ctrl-view)
     (set-g-component editor :main-sequencer-view (om-make-layout 'om-simple-layout))
-
 
     ;;; the inspector must be created first because
     ;;; it is used in the control-patch-view creation
@@ -1225,9 +1228,11 @@ CMD-click to add boxes. Play contents, etc.
     layout
     ))
 
+
 (defmethod play-editor-get-ruler-views ((self sequencer-editor))
   (list (get-g-component self :abs-ruler)
         (get-g-component self :metric-ruler)))
+
 
 (defun make-track-control (n editor)
   (declare (ignore editor))
@@ -1236,8 +1241,10 @@ CMD-click to add boxes. Play contents, etc.
    :size (om-make-point *track-control-w* *track-h*)
    :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+))))
 
+
 (defun n-track-views (sequencer-editor)
   (length (get-g-component sequencer-editor :track-views)))
+
 
 (defun make-tracks-view (sequencer-editor)
 
@@ -1321,6 +1328,7 @@ CMD-click to add boxes. Play contents, etc.
 ;;;=====================
 ;;; PLAYER INTERFACE
 ;;;=====================
+
 (defmethod editor-make-player ((self sequencer-editor))
   ;;; create a metronome
   (setf (metronome self) (make-instance 'metronome :editor self))
