@@ -1060,18 +1060,6 @@ CMD-click to add boxes. Play contents, etc.
 
                 (om-make-graphic-object
                  'om-icon-button :size (omp 16 16)
-                 :icon :trash-black :icon-pushed :trash-gray
-                 :lock-push nil :enabled t
-                 :action #'(lambda (b)
-                             (declare (ignore b))
-                             (when (and (boxes (get-obj-to-play editor))
-                                        (om-y-or-n-dialog "This will remove all boxes in the sequencer."))
-                               (m-flush (get-obj-to-play editor))
-                               (om-invalidate-view tracks-or-maq-view)
-                               )))
-
-                (om-make-graphic-object
-                 'om-icon-button :size (omp 16 16)
                  :icon :mute-black :icon-pushed :mute-gray
                  :lock-push t :enabled t
                  :action #'(lambda (b)
