@@ -151,15 +151,20 @@
 ;;;==========================
 
 (defclass lock-view-area (om-item-view)
-  ((editor :accessor editor :initarg :editor :initform nil)))
+  ((editor :accessor editor :initarg :editor :initform nil)
+   (locked-icon :accessor locked-icon :initarg :locked-icon :initform :lock)
+   (unlocked-icon :accessor unlocked-icon :initarg :unlocked-icon :initform :unlock)
+   ))
 
 (defmethod om-draw-contents ((self lock-view-area))
-  (let ((w 18) (h 18))
-    (om-draw-picture (if (lock (object (editor self))) :lock :unlock)
-                     :x (/ (- (w self) w) 2)
-                     :y (/ (- (h self) h) 2)
-                     :w w :h h
-                     )))
+  (let ((w (min (w self) 18))
+        (h (min (h self) 18)))
+    (om-draw-picture
+     (if (lock (object (editor self))) (locked-icon self) (unlocked-icon self))
+     :x (/ (- (w self) w) 2)
+     :y (/ (- (h self) h) 2)
+     :w w :h h
+     )))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
   (declare (ignore position))
