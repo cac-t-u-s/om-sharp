@@ -32,12 +32,10 @@
 ;;===========================================================================
 ;;;Tempo Automation = An automation for tempo
 ;;===========================================================================
-;;;Structure
+
 (defclass tempo-automation (automation)
   ((past-beat :initform 0 :initarg :past-beat :accessor past-beat)
    (past-time :initform 0 :initarg :past-time :accessor past-time)))
-
-; (make-instance 'tempo-automation)
 
 (defmethod beat-date ((self tempo-point) (obj tempo-automation) beat)
   (let* ((dm (start-date self))
@@ -84,18 +82,22 @@
 
 (defmethod tp-start-date ((self tempo-point) (obj tempo-automation))
   (get-beat-date obj (tp-x self)))
+
 (defmethod tp-end-date ((self tempo-point) (obj tempo-automation))
   (get-beat-date obj (tp-x (or (next-point obj self) self))))
 
 (defmethod tp-start-beat ((self tempo-point))
   (tp-x self))
+
 (defmethod (setf tp-start-beat) (beat (self tempo-point))
   (setf (tp-x self) beat))
+
 (defmethod tp-end-beat ((self tempo-point) (obj tempo-automation))
   (tp-x (or (next-point obj self) self)))
 
 (defmethod tp-start-value ((self tempo-point))
   (tp-y self))
+
 (defmethod tp-end-value ((self tempo-point) (obj tempo-automation))
   (tp-y (or (next-point obj self) self)))
 
@@ -129,7 +131,6 @@
     (if pt
         (funcall (get-function pt self) beat)
       0)))
-
 
 (defmethod tempo-automation-get-beat-grid ((self tempo-automation) tmin tmax &optional (beat-rate 1))
   (let* ((pt-index (position-if #'(lambda (x)
@@ -179,7 +180,6 @@
       (expt 2 (round (log (1+ (/ factor 40)) 2))))))
 
 
-
 #|
 ;;;============================================
 ;;; never called anywhere
@@ -210,4 +210,3 @@
          ti
          #'(lambda () (funcall (action self) (tempo-at-date self ti))))))
 |#
-
