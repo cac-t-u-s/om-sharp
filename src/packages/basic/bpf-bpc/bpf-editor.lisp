@@ -1300,57 +1300,6 @@
          ))
       )))
 
-
-
-;;; Timeline specific code
-
-(defmethod get-timeline-foldable-views ((self bpc-editor) &key obj time-ruler)
-  (let* ((decimals (decimals obj))
-         (x-label (om-make-graphic-object 'om-item-text :text " x/t" :size (omp 30 15) :font (om-def-font :font1)))
-         (x-editor (make-instance 'bpf-editor :object (object self)  :container-editor self :decimals decimals
-                                  :x-axis-key :time :y-axis-key :x))
-         (x-panel (om-make-view 'bpf-panel :direct-draw t :bg-color (om-def-color :white) :scrollbars nil :size (omp 50 80) ;:scale-fact (expt 10 decimals)
-                                :editor x-editor))
-         (x-y-ruler (om-make-view 'y-ruler-view :related-views (list x-panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
-         (x-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 120 15) :font (om-def-font :font1)))
-         (y-label (om-make-graphic-object 'om-item-text :text " y/t" :size (omp 30 15) :font (om-def-font :font1)))
-         (y-editor (make-instance 'bpf-editor :object (object self)  :container-editor self :decimals decimals
-                                  :x-axis-key :time :y-axis-key :y))
-         (y-panel (om-make-view 'bpf-panel :direct-draw t :bg-color (om-def-color :white) :scrollbars nil :size (omp 50 80) ;:scale-fact (expt 10 decimals)
-                                :editor y-editor))
-         (y-y-ruler (om-make-view 'y-ruler-view :related-views (list y-panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
-         (y-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 120 15) :font (om-def-font :font1))))
-
-    (set-g-component x-editor :main-panel x-panel)
-    ;(setf (grid x-editor) t)
-    (set-g-component x-editor :mousepos-txt x-mousepos-txt)
-    (setf (y-ruler x-panel) x-y-ruler)
-    (setf (related-views time-ruler) (append (list x-panel) (related-views time-ruler)))
-   ; (reinit-ranges x-editor)
-
-    (set-g-component y-editor :main-panel y-panel)
-    ;(setf (grid y-editor) t)
-    (set-g-component y-editor :mousepos-txt y-mousepos-txt)
-    (setf (y-ruler y-panel) y-y-ruler)
-    (setf (related-views time-ruler) (append (list y-panel) (related-views time-ruler)))
-   ; (reinit-ranges y-editor)
-
-    (list
-     (om-make-layout 'om-column-layout
-                     :ratios '(0.01 1)
-                     :subviews
-                     (list
-                      (om-make-layout 'om-row-layout :subviews (list x-label x-mousepos-txt) :align :bottom)
-                      (om-make-layout 'om-row-layout :subviews (list x-y-ruler x-panel) :ratios '(0.001 1))))
-     (om-make-layout 'om-column-layout
-                     :ratios '(0.01 1)
-                     :subviews
-                     (list
-                      (om-make-layout 'om-row-layout :subviews (list y-label y-mousepos-txt) :align :bottom)
-                      (om-make-layout 'om-row-layout :subviews (list y-y-ruler y-panel) :ratios '(0.001 1)))))))
-
-
-
 (defmethod get-color ((self bpf))
   (or (color self) (om-def-color :dark-gray)))
 
