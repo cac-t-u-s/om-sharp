@@ -300,26 +300,6 @@
      (om-draw-string (- (round (w self) 2) 20) (+ (round (h self) 2) 24)
                      (number-to-string (num self))))))
 
-#|
-(defmethod om-draw-contents ((self sequencer-track-view))
-  (let* ((editor (editor (om-view-window self)))
-         (seq (object editor)))
-    (when (get-g-component editor :metric-ruler) ;; just in case
-     (om-with-fg-color (om-gray-color 0 0.1)
-       (draw-grid-from-ruler self (get-g-component editor :metric-ruler))))
-    (loop for tb in (get-track-boxes seq (num self))
-          when (and (> (+ (get-box-onset tb) (get-box-duration tb)) (x1 self))
-                    (< (get-box-onset tb) (x2 self)))
-          do
-          (let ((x1 (x-to-pix self (get-box-onset tb)))
-                (x2 (if (scale-in-x-? tb)
-                               (x-to-pix self (get-box-end-date tb))
-                             (box-w tb))))
-            (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (get-obj-time seq) (get-box-onset tb)))
-            (when (selected tb)
-              (om-with-fg-color (om-make-color-alpha (om-def-color :gray) 0.5)
-                (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))))))
-|#
 
 (defmethod om-draw-contents-area ((self sequencer-track-view) x y w h)
   (let* ((editor (editor (om-view-window self)))
