@@ -972,7 +972,7 @@ CMD-click to add boxes. Play contents, etc.
                (let (b1 b2)
                  (setq b1 (om-make-graphic-object
                            'om-icon-button :size (omp 16 16)
-                           :icon :icon-maqview-black :icon-disabled :icon-maqview-gray
+                           :icon :maqview-black :icon-disabled :maqview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :maquette)
@@ -981,7 +981,7 @@ CMD-click to add boxes. Play contents, etc.
                                          ))))
                  (setq b2 (om-make-graphic-object
                            'om-icon-button :size (omp 16 16)
-                           :icon :icon-trackview-black :icon-disabled :icon-trackview-gray
+                           :icon :trackview-black :icon-disabled :trackview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :tracks)
@@ -1016,7 +1016,7 @@ CMD-click to add boxes. Play contents, etc.
 
                 (om-make-graphic-object
                  'om-icon-button :size (omp 16 16)
-                 :icon :icon-trash-black :icon-pushed :icon-trash-gray
+                 :icon :trash-black :icon-pushed :trash-gray
                  :lock-push nil :enabled t
                  :action #'(lambda (b)
                              (declare (ignore b))
@@ -1028,7 +1028,7 @@ CMD-click to add boxes. Play contents, etc.
 
                 (om-make-graphic-object
                  'om-icon-button :size (omp 16 16)
-                 :icon :icon-mute-black :icon-pushed :icon-mute-gray
+                 :icon :mute-black :icon-pushed :mute-gray
                  :lock-push t :enabled t
                  :action #'(lambda (b)
                              (declare (ignore b))
