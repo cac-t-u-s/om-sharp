@@ -146,9 +146,6 @@
   (format nil "~A  [~A]" (name self) "internal patch"))
 
 
-;(defmethod init-editor ((self patch-editor))
-;  (setf (saved? (object self)) t))
-
 ;;;==========================
 ;;; LOCK
 ;;;==========================
