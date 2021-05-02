@@ -164,12 +164,12 @@
                               :editor editor))
          (rx (om-make-view 'x-ruler-view :related-views (list panel) :size (omp nil 20) :bg-color (om-def-color :white) :decimals (decimals editor)))
          (ry (om-make-view 'y-ruler-view :related-views (list panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals (decimals editor)))
-         (mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 200 16)))
+         (mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 200 20)))
          ;(name-txt (om-make-graphic-object 'om-item-text :size (omp 60 16) :text (name object)))
 
          (timeline-editor (timeline-editor editor))
          (timeline (om-make-layout 'om-row-layout))
-         (top-area (om-make-layout 'om-row-layout ;:align :center
+         (top-area (om-make-layout 'om-row-layout :align :center
                                    :ratios '(nil nil 0.5 0.05 0.05)
                                    :subviews (list nil mousepos-txt ;; name-txt
                                                    nil

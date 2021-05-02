@@ -594,9 +594,9 @@
 
 (defmethod make-time-monitor ((editor play-editor-mixin) &key time color background font)
   (setf (time-monitor editor)
-        (om-make-di 'om-simple-text :size (omp 100 20)
+        (om-make-di 'om-simple-text :size (omp 76 20)
                     :text (if time (time-display time) "")
-                    :font (or font (om-def-font :font2))
+                    :font (or font (om-def-font :font1))
                     :bg-color background
                     :fg-color (or color (om-def-color :black)))))
 
