@@ -64,7 +64,6 @@
           om-make-font
           om-font-p
           om-font-face
-          om-font-family
           om-font-size
           om-font-style
           om-def-font
@@ -299,9 +298,6 @@
 
 (defun om-font-size (font)
   (gp::font-description-attribute-value font :size))
-
-(defun om-font-family (font)
-  (gp::font-description-attribute-value font :family))
 
 (defun om-font-style (font)
   (cond ((and (equal (gp::font-description-attribute-value font :weight) :bold)
