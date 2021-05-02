@@ -1851,52 +1851,60 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
   (om-make-layout
    'om-column-layout
    :subviews (append
-
               (when (editor-window-config editor)
                 (list
-                 (om-make-graphic-object
-                  'om-icon-button :icon :xx :icon-pushed :xx-pushed
-                  :size (omp 12 12)
-                  :action #'(lambda (b)
-                              (declare (ignore b))
-                              (patch-editor-set-window-config editor nil))
-                  )
+                 (om-make-view
+                  'om-view
+                  :subviews
+                  (list (om-make-graphic-object
+                         'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                         :size (omp 12 12)
+                         :action #'(lambda (b)
+                                     (declare (ignore b))
+                                     (patch-editor-set-window-config editor nil))
+                         )))
                  nil))
 
               (list
-               (om-make-graphic-object
-                'om-icon-button :size (omp 16 16)
-                :icon :info-gray :icon-disabled :info
-                :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
-                :action #'(lambda (b)
-                            (declare (ignore b))
-                            (patch-editor-set-window-config
-                             editor
-                             (if (equal (editor-window-config editor) :inspector) nil :inspector)))
-                )
+               (om-make-view
+                'om-view
+                :subviews
+                (list
+                 (om-make-graphic-object
+                  'om-icon-button :size (omp 16 16)
+                  :position (omp 0 0)
+                  :icon :info-gray :icon-disabled :info
+                  :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
+                  :action #'(lambda (b)
+                              (declare (ignore b))
+                              (patch-editor-set-window-config
+                               editor
+                               (if (equal (editor-window-config editor) :inspector) nil :inspector)))
+                  )
 
-               (om-make-graphic-object
-                'om-icon-button :size (omp 16 16)
-                :icon :lisp-gray :icon-disabled :lisp
-                :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
-                :action #'(lambda (b)
-                            (declare (ignore b))
-                            (patch-editor-set-window-config
-                             editor
-                             (if (equal (editor-window-config editor) :lisp-code) nil :lisp-code)))
-                )
+                 (om-make-graphic-object
+                  'om-icon-button :size (omp 16 16)
+                  :position (omp 0 18)
+                  :icon :lisp-gray :icon-disabled :lisp
+                  :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
+                  :action #'(lambda (b)
+                              (declare (ignore b))
+                              (patch-editor-set-window-config
+                               editor
+                               (if (equal (editor-window-config editor) :lisp-code) nil :lisp-code)))
+                  )
 
-               (om-make-graphic-object
-                'om-icon-button :size (omp 16 16)
-                :icon :listen-gray :icon-disabled :listen
-                :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
-                :action #'(lambda (b)
-                            (declare (ignore b))
-                            (patch-editor-set-window-config
-
-                             editor
-                             (if (equal (editor-window-config editor) :listener) nil :listener)))
-                )
+                 (om-make-graphic-object
+                  'om-icon-button :size (omp 16 16)
+                  :position (omp 0 36)
+                  :icon :listen-gray :icon-disabled :listen
+                  :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
+                  :action #'(lambda (b)
+                              (declare (ignore b))
+                              (patch-editor-set-window-config
+                               editor
+                               (if (equal (editor-window-config editor) :listener) nil :listener)))
+                  )))
 
                nil ;;; space at the bottom
                ))
