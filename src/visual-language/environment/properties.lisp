@@ -478,73 +478,48 @@
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
 
-  (flet ((font-to-str (font)
-           (if (om-font-p font)
-               (format nil "~A ~Dpt" (om-font-face font) (round (om-font-size font))
-                       (if nil ;(om-font-style font)
-                           (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
-             "-"))
-         )
+  (let* ((def (or default (om-def-font :font1)))
 
-    (let* ((def (or default (om-def-font :font1)))
-           (current (and (valid-property-p object prop-id)
-                         (if (font-? (get-property object prop-id))
-                             (font-font (get-property object prop-id))
-                           (get-default-value def))))
-           (font (om-def-font :font1 :style (om-font-style (font-font current))))
-           fontbutton checkbox)
-
-      (setf fontbutton
-
-            (om-make-di 'om-button
-                        :resizable nil
+         (font-chooser
+          (om-make-view 'font-chooser-view
+                        :font (or (font-font (get-property object prop-id))
+                                  (and update (om-get-font update)))
                         :enabled (and (valid-property-p object prop-id)
                                       (get-property object prop-id)
                                       (font-? (get-property object prop-id)))
-                        :focus nil :default nil
-                        :text (font-to-str (font-font current))
-                        :size (om-make-point 100
-                                             #+cocoa 26 #-cocoa 20)
-                        :font font
-                        :di-action #'(lambda (item)
-                                       (let ((choice (om-choose-font-dialog
-                                                      :font (or (font-font (get-property object prop-id))
-                                                                (and update (om-get-font update))))))
-                                         (when choice
-                                           (om-set-dialog-item-text item (font-to-str choice))
-                                           (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
-                                           (set-property object prop-id
-                                                         (make-font-or-nil :font choice
-                                                                           :t-or-nil t))
-                                           (when update (update-after-prop-edit update object))))))
+                        :after-fun #'(lambda (font)
+                                       (set-property object prop-id
+                                                     (make-font-or-nil :font font
+                                                                       :t-or-nil t))
+                                       (when update (update-after-prop-edit update object)))))
 
-            )
-      (setf checkbox
-            (om-make-di 'om-check-box
-                        :checked-p (and (valid-property-p object prop-id)
-                                        (get-property object prop-id)
-                                        (font-? (get-property object prop-id)))
-                        :text ""
-                        :resizable nil
-                        :size (om-make-point 20 14)
-                        :font (om-def-font :font1)
-                        :di-action #'(lambda (item)
-                                       (om-enable-dialog-item fontbutton (om-checked-p item))
-                                       (unless (om-checked-p item)
-                                         (om-set-dialog-item-text fontbutton (font-to-str (get-default-value def))))
-                                       (set-property
-                                        object prop-id
-                                        (make-font-or-nil :font (if (om-checked-p item)
-                                                                    (get-default-value default)
-                                                                  nil)
-                                                          :t-or-nil (om-checked-p item)))
-                                       (when update (update-after-prop-edit update object))
-                                       )))
-      (om-make-layout 'om-row-layout
-                      :subviews (list checkbox fontbutton)
-                      :align :center
-                      :delta nil)
-      )))
+         (checkbox
+          (om-make-di 'om-check-box
+                      :checked-p (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (font-? (get-property object prop-id)))
+                      :text ""
+                      :resizable nil
+                      :size (om-make-point 20 14)
+                      :font (om-def-font :font1)
+                      :di-action #'(lambda (item)
+                                     (set-enabled font-chooser (om-checked-p item))
+                                     (unless (om-checked-p item)
+                                       (set-font font-chooser (get-default-value def)))
+                                     (set-property
+                                      object prop-id
+                                      (make-font-or-nil :font (if (om-checked-p item)
+                                                                  (get-default-value default)
+                                                                nil)
+                                                        :t-or-nil (om-checked-p item)))
+                                     (when update (update-after-prop-edit update object))
+                                     ))))
+
+    (om-make-layout 'om-row-layout
+                    :subviews (list checkbox font-chooser)
+                    :align :center
+                    :delta nil)
+    ))
 
 
 ;;;====================================
