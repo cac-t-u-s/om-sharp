@@ -896,6 +896,38 @@ CMD-click to add boxes. Play contents, etc.
     ))
 
 
+(defun make-control-patch-buttons (editor)
+  (om-make-view
+   'om-view
+   :size (omp *track-control-w* *ruler-view-h*)
+   :subviews
+   (list
+    (om-make-graphic-object
+     'om-icon-button
+     :position (omp 0 0)
+     :size (omp 16 16)
+     :icon :ctrlpatch-open :icon-pushed :ctrlpatch-close
+     :lock-push t :enabled t
+     :pushed (show-control-patch editor)
+     :action #'(lambda (b)
+                 (show-hide-control-patch-editor editor (pushed b))
+                 ))
+
+    (om-make-graphic-object
+     'om-icon-button
+     :position (omp 20 0)
+     :size (omp 16 16)
+     :icon :eval-black :icon-pushed :eval-gray
+     :lock-push nil :enabled t
+     :action #'(lambda (b)
+                 (declare (ignore b))
+                 (let ((seq (get-obj-to-play editor)))
+                   (eval-sequencer seq)
+                   (om-invalidate-view (get-g-component editor :main-sequencer-view))
+                   )))
+    )))
+
+
 ;;;================================
 ;;; Metronome / Tempo
 ;;;================================
@@ -1051,24 +1083,6 @@ CMD-click to add boxes. Play contents, etc.
                                          (set-main-view editor :tracks)
                                          ))))
                  (list b1 b2)))
-
-              (om-make-layout
-               'om-row-layout
-               :delta 5
-               :subviews
-               (list
-                (om-make-graphic-object
-                 'om-icon-button :size (omp 16 16)
-                 :icon :eval-black :icon-pushed :eval-gray
-                 :lock-push nil :enabled t
-                 :action #'(lambda (b)
-                             (declare (ignore b))
-                             (let ((seq (get-obj-to-play editor)))
-                               (eval-sequencer seq)
-                               (om-invalidate-view tracks-or-maq-view)
-                               )))
-                ))
-
               )))))
 
          (bottom-view
@@ -1168,23 +1182,6 @@ CMD-click to add boxes. Play contents, etc.
   (mapc 'update-connections (boxes (object editor))))
 
 
-(defun make-control-patch-button (editor)
-  (om-make-view
-   'om-view
-   :size (omp *track-control-w* *ruler-view-h*)
-   :subviews
-   (list
-    (om-make-graphic-object
-     'om-icon-button
-     :position (omp 2 2)
-     :size (omp 16 16)
-     :icon :ctrlpatch-open :icon-pushed :ctrlpatch-close
-     :lock-push t :enabled t :pushed (show-control-patch editor)
-     :action #'(lambda (b)
-                 (show-hide-control-patch-editor editor (pushed b))
-                 )))))
-
-
 (defun make-maquette-view (sequencer-editor)
 
   (let* ((ruler-maquette (om-make-view 'time-ruler
@@ -1230,7 +1227,7 @@ CMD-click to add boxes. Play contents, etc.
             metric-ruler
             y-ruler
             maq-view
-            (make-control-patch-button sequencer-editor)
+            (make-control-patch-buttons sequencer-editor)
             ruler-maquette)))
 
     (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
@@ -1319,7 +1316,7 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout :delta 2 :ratios '(1 99)
                  :subviews (list
-                            (make-control-patch-button sequencer-editor)
+                            (make-control-patch-buttons sequencer-editor)
                             ruler-tracks))
                 ))))
 
