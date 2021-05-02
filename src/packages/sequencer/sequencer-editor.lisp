@@ -996,76 +996,89 @@ CMD-click to add boxes. Play contents, etc.
 
 (defmethod make-editor-window-contents ((editor sequencer-editor))
 
-  (let* ((seq (get-obj-to-play editor))
-
-         (tracks-or-maq-view
+  (let* ((tracks-or-maq-view
           (if (equal (view-mode editor) :maquette)
               (make-maquette-view editor)
             (make-tracks-view editor)))
 
          (ctrl-view
-          (om-make-view
-           'om-view
-           :direct-draw nil
+          (om-make-layout
+           'om-row-layout
            :scrollbars :nil
-           :size (om-make-point nil *control-view-h*)
+           :delta 2
            :bg-color +track-color-2+
+           :ratios '(1 1000)
+           :align :center
            :subviews
 
            (list
 
-            (om-make-graphic-object
-             'lock-view-area
-             :locked-icon :lock-dark :unlocked-icon :unlock-light
-             :position (omp 2 2)
-             :size (omp 16 16)
-             :editor editor)
+            (om-make-view
+             'om-view
+             :size (omp *track-control-w* nil)
+             :subviews (list (om-make-graphic-object
+                              'lock-view-area
+                              :locked-icon :lock-dark :unlocked-icon :unlock-light
+                              :position (omp 2 2)
+                              :size (omp 16 16)
+                              :editor editor)))
 
             (om-make-layout
-             'om-row-layout :delta 30
-             :position (om-make-point (+ *track-control-w* 2) 2) :align :top
-             :ratios '(1 1 100 1 1)
+             'om-row-layout
+             :delta 30
+             :align :bottom
+             :ratios '(1 1 100 1)
              :subviews
              (list
 
-              (om-make-layout
-               'om-simple-layout
-               :align :top
-               :subviews (list (make-time-monitor editor
-                                                  :font (om-def-font :font2b)
-                                                  #-macosx :background #-macosx +track-color-2+
-                                                  :color (om-def-color :white)
-                                                  :time 0)))
+              (make-time-monitor editor
+                                 :font (om-def-font :font2b)
+                                 :background +track-color-2+
+                                 :color (om-def-color :white)
+                                 :time 0)
 
-              (om-make-layout
-               'om-row-layout
-               :delta 5
-               :position (om-make-point (+ *track-control-w* 2) 2)
-               :size (om-make-point 90 15)
-               :subviews (list (make-play-button editor :enable t)
-                               (make-pause-button editor :enable t)
-                               (make-stop-button editor :enable t)
-                               (make-previous-button editor :enable t)
-                               (make-next-button editor :enable t)
-                               (make-repeat-button editor :enable t)))
+              (om-make-view
+               'om-view ;; needed to position the layout inside..
+               :subviews
+               (list
+                (om-make-layout
+                 'om-row-layout
+                 :delta 5
+                 :position (omp nil 2)
+                 :subviews (list (make-play-button editor :enable t)
+                                 (make-pause-button editor :enable t)
+                                 (make-stop-button editor :enable t)
+                                 (make-previous-button editor :enable t)
+                                 (make-next-button editor :enable t)
+                                 (make-repeat-button editor :enable t)
+                                 (om-make-view 'om-view :size (omp 24 12))
+                                 (om-make-view
+                                  'om-view
+                                  :subviews
+                                  (list (om-make-graphic-object
+                                         'om-icon-button :size (omp 16 16)
+                                         :icon :mute-off :icon-pushed :mute-on
+                                         :lock-push t :enabled t
+                                         :action #'(lambda (b)
+                                                     (declare (ignore b))
+                                                     (let ((seq (get-obj-to-play editor)))
+                                                       (with-schedulable-object
+                                                        seq
+                                                        (setf (no-exec seq)
+                                                              (not (no-exec seq)))))))))
+                                 ))
+                ))
 
-              (om-make-graphic-object
-               'om-icon-button :size (omp 16 16)
-               :icon :mute-off :icon-pushed :mute-on
-               :lock-push t :enabled t
-               :action #'(lambda (b)
-                           (declare (ignore b))
-                           (with-schedulable-object seq
-                                                    (setf (no-exec seq)
-                                                          (not (no-exec seq))))))
               nil
-              (om-make-layout
-               'om-row-layout
-               :delta 5
+
+              (om-make-view
+               'om-view
                :subviews
                (let (b1 b2)
                  (setq b1 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
+                           'om-icon-button
+                           :position (omp 0 2)
+                           :size (omp 16 16)
                            :icon :maqview-black :icon-disabled :maqview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b)
@@ -1074,7 +1087,9 @@ CMD-click to add boxes. Play contents, etc.
                                          (set-main-view editor :maquette)
                                          ))))
                  (setq b2 (om-make-graphic-object
-                           'om-icon-button :size (omp 16 16)
+                           'om-icon-button
+                           :position (omp 20 2)
+                           :size (omp 16 16)
                            :icon :trackview-black :icon-disabled :trackview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b)
