@@ -464,7 +464,7 @@
                   :resizable nil
                   :focus nil :default nil
                   :text (font-to-str (get-property object prop-id))
-                  :size (om-make-point (om-string-size (font-to-str (get-property object prop-id)) font) 26)
+                  :size (om-make-point 80 26)
                   :font font
                   :di-action #'(lambda (item)
                                  (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
@@ -503,7 +503,7 @@
                                       (font-? (get-property object prop-id)))
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
-                        :size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current)) font))
+                        :size (om-make-point 100
                                              #+cocoa 26 #-cocoa 20)
                         :font font
                         :di-action #'(lambda (item)

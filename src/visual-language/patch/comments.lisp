@@ -37,7 +37,7 @@
 (defmethod get-properties-list ((self OMComment))
   `(("Appearance" ;;; category
      (:fgcolor "Text color" :color-or-nil text-color (:appearance :comment-fgcolor))
-     (:bgcolor "Background color" :color-or-nil color (:appearance :comment-bgcolor))
+     (:bgcolor "Background" :color-or-nil color (:appearance :comment-bgcolor))
      (:border "Border" ,(make-number-or-nil :min 0 :max 4 :decimals 1) border (:appearance :comment-border))
      (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :comment-roundness))
      (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))

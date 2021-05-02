@@ -1707,9 +1707,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                    )
                                   (loop for prop in (cdr category) append
                                         (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (om-point-mv
-                                                                 (apply #'om-make-point (multiple-value-list (om-string-size (string (nth 1 prop)) text-font)))
-                                                                 :x 2))
+                                                          :size (omp 80 16))
                                               (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
                                                               :update (get-update-frame object))
                                               ))
@@ -1740,7 +1738,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                        (om-make-di 'om-multi-text
                                    :size (om-make-point nil (min 100 (* line-h (+ 2 n-lines))))
                                    :text (format nil "~%~A" doc)
-                                  ;:scrollbars :v
                                    :fg-color (om-def-color :dark-gray)
                                    :font text-font)
                        )
