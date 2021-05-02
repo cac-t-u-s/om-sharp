@@ -201,6 +201,125 @@
         (when (after-fun self) (funcall (after-fun self) self))))))
 
 
+
+;==========================================================
+; custom view to pick a font
+;==========================================================
+
+(defclass font-chooser-view (om-view)
+  ((font :accessor font :initarg :font :initform nil)
+   (after-fun :accessor after-fun :initarg :after-fun :initform nil)
+   (enabled :accessor enabled :initarg :enabled :initform t)
+   (face-chooser :accessor face-chooser)
+   (size-chooser :accessor size-chooser)
+   (style-chooser :accessor style-chooser)))
+
+
+(defmethod initialize-instance :after ((self font-chooser-view) &rest args)
+  (om-add-subviews
+   self
+   (om-make-layout
+    'om-column-layout
+    :delta 0
+    :subviews
+    (list
+     (setf (face-chooser self)
+           (om-make-di 'om-popup-list
+                       :enabled (enabled self)
+                       :size (omp 116 22)
+                       :font (om-def-font :font1)
+                       :items (om-list-all-fonts)
+                       :selected-item (and (font self) (om-font-face (font self)))
+                       :di-action #'(lambda (list)
+                                      (setf (font self)
+                                            (om-make-font
+                                             (om-get-selected-item list)
+                                             (om-font-size (font self))
+                                             :style (om-font-style (font self))))
+
+                                      (when (after-fun self)
+                                        (funcall (after-fun self) (font self))))
+                       ))
+
+     (om-make-layout
+      'om-row-layout
+      :delta 2
+      :subviews
+      (list
+       (setf (size-chooser self)
+             (om-make-di 'om-popup-list
+                         :enabled (enabled self)
+                         :size (omp 50 22)
+                         :font (om-def-font :font1)
+                         :items '(8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 28 32 36 40 52 64)
+                         :selected-item (and (font self) (om-font-size (font self)))
+                         :di-action #'(lambda (list)
+                                        (setf (font self)
+                                              (om-make-font
+                                               (om-font-face (font self))
+                                               (om-get-selected-item list)
+                                               :style (om-font-style (font self))))
+
+                                        (when (after-fun self)
+                                          (funcall (after-fun self) (font self))))
+                         ))
+       (setf (style-chooser self)
+             (om-make-di 'om-popup-list
+                         :enabled (enabled self)
+                         :size (omp 64 22)
+                         :font (om-def-font :font1)
+                         :items '("plain" "bold" "italic" "bold-italic")
+                         :selected-item (cond ((and (font self)
+                                                    (find :bold (om-font-style (font self)))
+                                                    (find :italic (om-font-style (font self))))
+                                               "bold-italic")
+                                              ((and (font self)
+                                                    (find :bold (om-font-style (font self))))
+                                               "bold")
+                                              ((and (font self)
+                                                    (find :italic (om-font-style (font self))))
+                                               "italic")
+                                              (t "plain"))
+                         :di-action #'(lambda (list)
+                                        (setf (font self)
+                                              (om-make-font
+                                               (om-font-face (font self))
+                                               (om-font-size (font self))
+                                               :style (case (om-get-selected-item-index list)
+                                                        (1 '(:bold))
+                                                        (2 '(:italic))
+                                                        (3 '(:bold :italic))
+                                                        (otherwise '(:plain)))))
+                                        (when (after-fun self)
+                                          (funcall (after-fun self) (font self))))
+                         ))
+       ))
+     ))
+   ))
+
+
+(defmethod set-enabled ((self font-chooser-view) enabled)
+  (om-enable-dialog-item (face-chooser self) enabled)
+  (om-enable-dialog-item (size-chooser self) enabled)
+  (om-enable-dialog-item (style-chooser self) enabled))
+
+(defmethod set-font ((self font-chooser-view) font)
+  (setf (font self) font)
+  (om-set-selected-item (face-chooser self) (om-font-face font))
+  (om-set-selected-item (size-chooser self) (om-font-size font))
+  (om-set-selected-item (style-chooser self)
+                        (cond ((and (font self)
+                                    (find :bold (om-font-style (font self)))
+                                    (find :italic (om-font-style (font self))))
+                               "bold-italic")
+                              ((and (font self)
+                                    (find :bold (om-font-style (font self))))
+                               "bold")
+                              ((and (font self)
+                                    (find :italic (om-font-style (font self))))
+                               "italic")
+                              (t "plain"))))
+
 ;==========================================================
 ; custom view to change a text
 ;==========================================================
