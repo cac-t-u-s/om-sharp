@@ -125,7 +125,6 @@
   (om-view-click-handler self where))
 
 (defmethod om-view-click-handler ((self om-icon-button) where)
-  "this function call the slot action of SELF with the parameter SELF"
   (declare (ignore where))
   (when (enabled self)
     (if (lock-push self)

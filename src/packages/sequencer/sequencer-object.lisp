@@ -36,8 +36,6 @@
   (:default-initargs :icon :sequencer)
   (:metaclass omstandardclass))
 
-; (class-precedence-list (find-class 'OMSequencerfile))
-
 
 ;;;===========================
 
@@ -300,8 +298,6 @@
 ;;; MODIFY/UPDATE SEQUENCER CONTENTS
 ;;;===============================
 
-;(defmethod allowed-element ((self OMSequencer) (elem t)) (call-next-method))
-
 (defmethod allowed-element ((self OMSequencer) (elem time-sequence)) t)
 
 (defmethod allowed-element ((self OMSequencer) (elem timed-object))
@@ -332,7 +328,8 @@
 (defmethod omng-remove-element ((seq OMSequencer) (tb OMBox))
   ;;;If the box is under the sequencer cursor (that is being rendered), stop it.
   ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
-  (if (box-being-rendered? seq tb) (player-stop-object *general-player* (get-box-value tb)))
+  (when (box-being-rendered? seq tb)
+    (player-stop-object *general-player* (get-box-value tb)))
   ;;;Perform the remove operation asking the scheduler for a replan.
   (with-schedulable-object seq (call-next-method)))
 
@@ -460,7 +457,8 @@
     seq))
 
 (defmethod om-load-from-id ((id (eql :sequencer)) data)
-  (let ((seq (make-instance 'OMSequencerInternal :name (find-value-in-kv-list data :name))))
+  (let ((seq (make-instance 'OMSequencerInternal
+                            :name (find-value-in-kv-list data :name))))
     (load-patch-contents seq data)
     seq))
 
@@ -485,7 +483,9 @@
 
             ;;; no pathname-directory can occur while loading old patch abstractions from OM6
             ;;; in this case we look for a not-yet-save file with same name in registered documents
-            (let ((registered-entry (find (pathname-name path) *open-documents* :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
+            (let ((registered-entry (find (pathname-name path) *open-documents*
+                                          :test 'string-equal
+                                          :key #'(lambda (entry) (name (doc-entry-doc entry))))))
               (when registered-entry
                 (doc-entry-doc registered-entry)))
             )))
