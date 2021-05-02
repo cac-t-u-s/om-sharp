@@ -1016,6 +1016,16 @@ CMD-click to add boxes. Play contents, etc.
                                (make-previous-button editor :enable t)
                                (make-next-button editor :enable t)
                                (make-repeat-button editor :enable t)))
+
+              (om-make-graphic-object
+               'om-icon-button :size (omp 16 16)
+               :icon :mute-black :icon-pushed :mute-gray
+               :lock-push t :enabled t
+               :action #'(lambda (b)
+                           (declare (ignore b))
+                           (with-schedulable-object seq
+                                                    (setf (no-exec seq)
+                                                          (not (no-exec seq))))))
               nil
               (om-make-layout
                'om-row-layout
@@ -1057,16 +1067,6 @@ CMD-click to add boxes. Play contents, etc.
                                (eval-sequencer seq)
                                (om-invalidate-view tracks-or-maq-view)
                                )))
-
-                (om-make-graphic-object
-                 'om-icon-button :size (omp 16 16)
-                 :icon :mute-black :icon-pushed :mute-gray
-                 :lock-push t :enabled t
-                 :action #'(lambda (b)
-                             (declare (ignore b))
-                             (with-schedulable-object seq
-                                                      (setf (no-exec seq)
-                                                            (not (no-exec seq))))))
                 ))
 
               )))))
