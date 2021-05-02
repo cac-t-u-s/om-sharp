@@ -846,7 +846,7 @@
 This is a sequencer editor window.
 
 Switch between the 'tracks' and the classic 'maquette' view with the icons of the toolbar at the top.
-Open the 'control patch' with the other icon on the left.
+Open the 'control patch' with the icon in the bottom-left corner.
 CMD-click to add boxes. Play contents, etc.
 ")
 
