@@ -376,116 +376,117 @@
     (om-invalidate-view (om-view-window self))
     ;; (when selected-box (move-selection-in-track-action self editor selected-box position)) ;; ???
 
-    (unless (edit-lock editor)
 
-      (cond
-       (selected-box
+    (cond
+     ((and selected-box (not (edit-lock editor)))
 
-        (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
-                                        (time-to-pixel self (get-box-end-date selected-box)))))
+      (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
+                                      (time-to-pixel self (get-box-end-date selected-box)))))
 
-          (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
-                   (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
-              ;;; resize the box
-              (progn
-                (store-current-state-for-undo editor :action :resize :item selected-box)
-                (om-init-temp-graphics-motion
-                 self position nil
-                 :motion #'(lambda (view pos)
-                             (declare (ignore view))
-                             (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
-
-                               (if (scale-in-x-? selected-box)
-                                   (set-box-duration selected-box
-                                                     (- (round (pix-to-x self (om-point-x pos)))
-                                                        (get-box-onset selected-box)))
-                                 (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
-                               (om-invalidate-view self)))
-                 :release #'(lambda (view pos)
-                              (declare (ignore view pos))
-                              (notify-scheduler (object editor))
-                              (report-modifications editor)
-                              (om-invalidate-view self))
-                 :min-move 4)
-                )
-
-            ;;; move the selection
-            (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
-                  (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
-
-              (when copy?
-                (store-current-state-for-undo editor)
-                (select-unselect-all editor nil)
-                (mapcar #'(lambda (b)
-                            (setf (group-id b) NIL)
-                            (select-box b t))
-                        copy?))
-
-              (store-current-state-for-undo editor :action :move :item selected-box)
-
+        (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
+                 (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
+            ;;; resize the box
+            (progn
+              (store-current-state-for-undo editor :action :resize :item selected-box)
               (om-init-temp-graphics-motion
                self position nil
                :motion #'(lambda (view pos)
                            (declare (ignore view))
-                           (let ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
-                                 (py (om-point-y pos)))
+                           (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
 
-                             (when copy?
-                               (mapcar #'(lambda (b)
-                                           (unless (group-id b)
-                                             (add-box-in-track (object editor) b (num self))
-                                             (setf (frame b) self)))
-                                       copy?))
-
-                             (let ((diff-track-id (floor py (h self))))
-                               (loop for tb in (get-selected-boxes editor)
-                                     for init-track in init-tracks do
-                                     (let ((new-box-id (+ init-track diff-track-id)))
-                                       (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
-                                         (update-inspector-for-object tb) ;; here ?
-                                         (setf (group-id tb) new-box-id)
-                                         ))))
-
-                             (move-editor-selection editor :dx dx)
-
-                             (setf p0 pos)
-                             (om-invalidate-view (om-view-window self))
-                             ))
-
+                             (if (scale-in-x-? selected-box)
+                                 (set-box-duration selected-box
+                                                   (- (round (pix-to-x self (om-point-x pos)))
+                                                      (get-box-onset selected-box)))
+                               (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
+                             (om-invalidate-view self)))
                :release #'(lambda (view pos)
                             (declare (ignore view pos))
                             (notify-scheduler (object editor))
                             (report-modifications editor)
-                            (om-invalidate-view (om-view-window self)))
-
+                            (om-invalidate-view self))
                :min-move 4)
               )
+
+          ;;; move the selection
+          (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
+                (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
+
+            (when copy?
+              (store-current-state-for-undo editor)
+              (select-unselect-all editor nil)
+              (mapcar #'(lambda (b)
+                          (setf (group-id b) NIL)
+                          (select-box b t))
+                      copy?))
+
+            (store-current-state-for-undo editor :action :move :item selected-box)
+
+            (om-init-temp-graphics-motion
+             self position nil
+             :motion #'(lambda (view pos)
+                         (declare (ignore view))
+                         (let ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
+                               (py (om-point-y pos)))
+
+                           (when copy?
+                             (mapcar #'(lambda (b)
+                                         (unless (group-id b)
+                                           (add-box-in-track (object editor) b (num self))
+                                           (setf (frame b) self)))
+                                     copy?))
+
+                           (let ((diff-track-id (floor py (h self))))
+                             (loop for tb in (get-selected-boxes editor)
+                                   for init-track in init-tracks do
+                                   (let ((new-box-id (+ init-track diff-track-id)))
+                                     (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
+                                       (update-inspector-for-object tb) ;; here ?
+                                       (setf (group-id tb) new-box-id)
+                                       ))))
+
+                           (move-editor-selection editor :dx dx)
+
+                           (setf p0 pos)
+                           (om-invalidate-view (om-view-window self))
+                           ))
+
+             :release #'(lambda (view pos)
+                          (declare (ignore view pos))
+                          (notify-scheduler (object editor))
+                          (report-modifications editor)
+                          (om-invalidate-view (om-view-window self)))
+
+             :min-move 4)
             )
-          ))
-       ((om-add-key-down)
-        (let ((box (new-box-in-track-view editor (omp time 0) (num self))))
-          (setf (frame box) self)
-          (om-set-view-cursor self (om-get-cursor :h-size))
-          (set-box-duration box nil) ;;; will set a default duration
-          (om-init-temp-graphics-motion
-           self position nil
-           :motion #'(lambda (view pos)
-                       (declare (ignore view))
-                       (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset box))) 10)
-                         (set-box-duration box
-                                           (- (round (pix-to-x self (om-point-x pos)))
-                                              (get-box-onset box)))
-                         (om-invalidate-view self)))
-           :release #'(lambda (view pos)
-                        (declare (ignore view pos))
-                        (notify-scheduler (object editor))
-                        (report-modifications editor)
-                        (om-invalidate-view self))
-           :min-move 4)
-          (report-modifications editor)
-          ))
-       (t (call-next-method))
-       ))
+          )
+        ))
+
+     ((and (om-add-key-down) (not (edit-lock editor)))
+      (let ((box (new-box-in-track-view editor (omp time 0) (num self))))
+        (setf (frame box) self)
+        (om-set-view-cursor self (om-get-cursor :h-size))
+        (set-box-duration box nil) ;;; will set a default duration
+        (om-init-temp-graphics-motion
+         self position nil
+         :motion #'(lambda (view pos)
+                     (declare (ignore view))
+                     (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset box))) 10)
+                       (set-box-duration box
+                                         (- (round (pix-to-x self (om-point-x pos)))
+                                            (get-box-onset box)))
+                       (om-invalidate-view self)))
+         :release #'(lambda (view pos)
+                      (declare (ignore view pos))
+                      (notify-scheduler (object editor))
+                      (report-modifications editor)
+                      (om-invalidate-view self))
+         :min-move 4)
+        (report-modifications editor)
+        ))
+
+     (t (call-next-method))
+     )
     ))
 
 
