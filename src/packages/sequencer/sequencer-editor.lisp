@@ -1017,26 +1017,29 @@ CMD-click to add boxes. Play contents, etc.
             (om-make-view
              'om-view
              :size (omp *track-control-w* nil)
-             :subviews (list (om-make-graphic-object
-                              'lock-view-area
-                              :locked-icon :lock-dark :unlocked-icon :unlock-light
-                              :position (omp 0 5)
-                              :size (omp 14 14)
-                              :editor editor)
-                             (om-make-graphic-object
-                              'om-icon-button
-                              :size (omp 14 14)
-                              :position (omp 16 5)
-                              :icon :mute-off :icon-pushed :mute-on
-                              :lock-push t :enabled t
-                              :action #'(lambda (b)
-                                          (declare (ignore b))
-                                          (let ((seq (get-obj-to-play editor)))
-                                            (with-schedulable-object
-                                             seq
-                                             (setf (no-exec seq)
-                                                   (not (no-exec seq)))))))
-                             ))
+             :subviews (list
+
+                        (om-make-graphic-object
+                         'lock-view-area
+                         :locked-icon :lock-dark :unlocked-icon :unlock-dark
+                         :position (omp 0 4)
+                         :size (omp 16 14)
+                         :editor editor)
+
+                        (om-make-graphic-object
+                         'om-icon-button
+                         :size (omp 14 14)
+                         :position (omp 16 4)
+                         :icon :mute-off :icon-pushed :mute-on
+                         :lock-push t :enabled t
+                         :action #'(lambda (b)
+                                     (declare (ignore b))
+                                     (let ((seq (get-obj-to-play editor)))
+                                       (with-schedulable-object
+                                        seq
+                                        (setf (no-exec seq)
+                                              (not (no-exec seq)))))))
+                        ))
 
             (om-make-layout
              'om-row-layout
