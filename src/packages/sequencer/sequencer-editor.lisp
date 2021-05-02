@@ -1045,12 +1045,6 @@ CMD-click to add boxes. Play contents, etc.
              :subviews
              (list
 
-              (make-time-monitor editor
-                                 :font (om-def-font :font2b)
-                                 :background +track-color-2+
-                                 :color (om-def-color :white)
-                                 :time 0)
-
               (om-make-view
                'om-view ;; needed to position the layout inside..
                :subviews
@@ -1058,7 +1052,7 @@ CMD-click to add boxes. Play contents, etc.
                 (om-make-layout
                  'om-row-layout
                  :delta 5
-                 :position (omp nil 2)
+                 :position (omp 30 2)
                  :subviews (list (make-play-button editor :enable t)
                                  (make-pause-button editor :enable t)
                                  (make-stop-button editor :enable t)
@@ -1067,6 +1061,12 @@ CMD-click to add boxes. Play contents, etc.
                                  (make-repeat-button editor :enable t)
                                  ))
                 ))
+
+              (make-time-monitor editor
+                                 :font (om-def-font :font2b)
+                                 :background +track-color-2+
+                                 :color (om-def-color :white)
+                                 :time 0)
 
               nil
 
