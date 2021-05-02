@@ -50,9 +50,9 @@
 
 
 (defparameter *control-patch-help-comment*
-  "This patch is a general controller for the sequencer...
+  "This patch is a general controller for the sequencer.
 
-Additional inputs/outputs are accesses on the sequencer box.
+Additional inputs/outputs will appear on the sequencer box.
 ")
 
 (defmethod initialize-instance :after ((self OMSequencer) &rest args)
@@ -63,17 +63,18 @@ Additional inputs/outputs are accesses on the sequencer box.
 
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMControlPatch :name "Control Patch"))
-           (inbox (omng-make-special-box 'mysequence (omp 150 12)))
-           (outbox (omng-make-special-box 'out (omp 150 200)))
+           (inbox (omng-make-special-box 'mysequence (omp 30 12)))
+           (outbox (omng-make-special-box 'out (omp 52 140)))
            (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
-           (comment (omng-make-new-comment *control-patch-help-comment* (omp 10 40))))
+           ;(comment (omng-make-new-comment *control-patch-help-comment* (omp 60 40)))
+           )
       (setf (index (reference inbox)) 0
             (defval (reference inbox)) self)
       (omng-add-element patch inbox)
       (omng-add-element patch outbox)
       (omng-add-element patch connection)
-      (omng-resize comment (omp 120 120))
-      (omng-add-element patch comment)
+      ;(omng-resize comment (omp 120 120))
+      ;(omng-add-element patch comment)
       (set-control-patch self patch)
       ))
   self)
@@ -113,7 +114,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 
 (defmethod omNG-make-special-box ((reference (eql 'mysequence)) pos &optional init-args)
   (omNG-make-new-boxcall
-   (make-instance 'OMSequenceIn :name "CONTAINER-SEQUENCE")
+   (make-instance 'OMSequenceIn :name "SEQUENCER")
    pos init-args))
 
 (defmethod register-patch-io ((self OMPatch) (elem OMSequenceIn))
