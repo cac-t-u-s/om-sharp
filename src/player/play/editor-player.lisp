@@ -607,10 +607,19 @@
 
 
 (defmethod enable-play-controls ((self play-editor-mixin) t-or-nil)
+
   (mapc
    #'(lambda (b) (when b (setf (enabled b) t-or-nil) (om-invalidate-view b)))
-   (list (play-button self) (pause-button self) (stop-button self) (rec-button self) (repeat-button self) (prev-button self) (next-button self)))
-  (when (time-monitor self) (set-time-display self (if t-or-nil 0 nil))))
+   (list (play-button self)
+         (pause-button self)
+         (stop-button self)
+         (rec-button self)
+         (repeat-button self)
+         (prev-button self)
+         (next-button self)))
+
+  (when (time-monitor self)
+    (set-time-display self (if t-or-nil 0 nil))))
 
 
 ;;;==========================
