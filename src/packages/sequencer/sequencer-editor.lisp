@@ -1232,18 +1232,38 @@ CMD-click to add boxes. Play contents, etc.
 
     (setf layout
           (om-make-layout
-           'om-grid-layout
-           :delta 2 :dimensions '(2 3) :ratios '((1 99) (1 99 1))
+           'om-column-layout
+           :delta 2
+           :ratios '(1 100 1)
            :subviews
            (list
-            (om-make-view
-             'tempo-view :metronome (metronome sequencer-editor)
-             :size (omp *track-control-w* *ruler-view-h*))
-            metric-ruler
-            y-ruler
-            maq-view
-            (make-control-patch-buttons sequencer-editor)
-            ruler-maquette)))
+
+            (om-make-layout
+             'om-row-layout
+             :delta 0
+             :ratios '(1 100)
+             :subviews
+             (list
+              (om-make-view
+               'tempo-view :metronome (metronome sequencer-editor)
+               :size (omp (+ 2 *track-control-w*) *ruler-view-h*))
+              metric-ruler))
+
+            (om-make-layout
+             'om-row-layout
+             :delta 2
+             :ratios '(1 100)
+             :subviews (list y-ruler maq-view))
+
+            (om-make-layout
+             'om-row-layout
+             :delta 2
+             :ratios '(1 100)
+             :subviews
+             (list
+              (make-control-patch-buttons sequencer-editor)
+              ruler-maquette))
+            )))
 
     (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
 
@@ -1306,11 +1326,11 @@ CMD-click to add boxes. Play contents, etc.
      :subviews (list
                 ;;; the ruler bar
                 (om-make-layout
-                 'om-row-layout :delta 2 :ratios '(1 99)
+                 'om-row-layout :delta 0 :ratios '(1 99)
                  :subviews (list
                             (om-make-view
                              'tempo-view :metronome (metronome sequencer-editor)
-                             :size (omp *track-control-w* *ruler-view-h*))
+                             :size (omp (+ 2 *track-control-w*) *ruler-view-h*))
                             metric-ruler))
 
                 ;;; allows to scroll the sub-layout
