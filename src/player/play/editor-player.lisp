@@ -592,9 +592,9 @@
             (format nil "~2,'0d:~2,'0d:~2,'0d:~3,'0d" h m s ms)))))))
 
 
-(defmethod make-time-monitor ((editor play-editor-mixin) &key time color background font)
+(defmethod make-time-monitor ((editor play-editor-mixin) &key time color background font (h 20))
   (setf (time-monitor editor)
-        (om-make-di 'om-simple-text :size (omp 76 20)
+        (om-make-di 'om-simple-text :size (omp 76 h)
                     :text (if time (time-display time) "")
                     :font (or font (om-def-font :font1))
                     :bg-color background
