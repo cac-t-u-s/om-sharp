@@ -69,6 +69,7 @@
           om-def-font
           om-font-lambda
           om-font-equal
+          om-list-all-fonts
 
           om-string-size
           om-string-wrap
@@ -392,3 +393,9 @@
           (om-make-font "Times" (or size 12))))
 
 ;;; #+win32 (gp::font-description capi-win32-lib::*win32-default-gui-font*))
+
+
+(defun om-list-all-fonts ()
+  (mapcar #'(lambda (font)
+              (gp::font-description-attribute-value font :family))
+          (gp:list-all-font-names *dummy-view*)))
