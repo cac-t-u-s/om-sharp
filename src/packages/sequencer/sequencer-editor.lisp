@@ -1019,7 +1019,7 @@ CMD-click to add boxes. Play contents, etc.
 
               (om-make-graphic-object
                'om-icon-button :size (omp 16 16)
-               :icon :mute-black :icon-pushed :mute-gray
+               :icon :mute-off :icon-pushed :mute-on
                :lock-push t :enabled t
                :action #'(lambda (b)
                            (declare (ignore b))
