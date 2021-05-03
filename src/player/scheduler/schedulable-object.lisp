@@ -101,13 +101,15 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                (setf (play-planned? self) nil))
            nil)))
      '())
-   (if (>= (cadr time-interval) (get-obj-dur self))
-       (list
-        (list
-         (get-obj-dur self)
-         #'(lambda ()
-             (player-stop-object *scheduler* self))
-         nil)))))
+   (when (and
+          (>= (cadr time-interval) (get-obj-dur self))
+          (not (is-looping self)))
+     (list
+      (list
+       (get-obj-dur self)
+       #'(lambda ()
+           (player-stop-object *scheduler* self))
+       nil)))))
 
 ;; TO REDEFINE FOR YOUR SUBCLASS
 ;; It should return a list of lists containing a date when a computation can start, its deadline, a function and its arguments
