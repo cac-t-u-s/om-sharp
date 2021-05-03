@@ -87,6 +87,3 @@
 
 (defmethod jump-to-time ((self buffer-player) time)
   (juce::setAudioSourcePos (bp-pointer self) (min (max 0 (round (* time (/ (bp-sample-rate self) 1000.0)))) (bp-size self))))
-
-(defmethod get-buffer-player-frame ((self buffer-player))
-  (juce::getAudioSourcePos (bp-pointer self)))
