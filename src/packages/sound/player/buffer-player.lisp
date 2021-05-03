@@ -83,7 +83,9 @@
     (juce::stopAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod jump-to-frame ((self buffer-player) frame)
-  (juce::setAudioSourcePos (bp-pointer self) frame))
+  (juce::setAudioSourcePos (bp-pointer self) frame)
+  (when (eq (bp-state self) :play)
+    (juce::startAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod jump-to-time ((self buffer-player) time)
   (jump-to-frame
