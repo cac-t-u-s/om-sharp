@@ -446,7 +446,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 
 ;; RESCHEDULING OF AN OBJECT
-;; From 'time if provided, instantaneous otherwise
+;; From <time> if provided, instantaneous otherwise
+;; <preserve> keeps the plan before rescheduling date
 (defmethod reschedule ((self schedulable-object) (sched scheduler) &optional time (preserve t))
 
   (let ((switch-date (if time (+ time *Lmin*)
@@ -462,7 +463,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
               (subseq (plan self)
                       0 (position switch-date (plan self) :test '< :key 'act-timestamp)))))
 
-    (interleave-tasks self (list switch-date (time-window self)))
+    (interleave-tasks self (list switch-date (+ switch-date (time-window self))))
 
     (schedule sched self)))
 
