@@ -13,14 +13,11 @@
 ; File author: J. Bresson
 ;============================================================================
 
-
 ;;;=================
 ;;; SOUND OBJECT
 ;;;=================
 
 (in-package :om)
-
-
 
 ;;; use as :ptr for OM-SOUND-BUFFER
 (defun make-audio-buffer (nch size &optional (type :float))
@@ -56,11 +53,11 @@
 
 ;;; not useful if cleanup buffer works
 ;(defmethod oa::om-release ((ptr om-sound-buffer))
-  ;(om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
+; (om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
 ;  (when (<= (decf (oa::om-pointer-count ptr)) 0)
-    ;(om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
-    ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr))
-    ;  (audio-io::om-free-audio-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
+;    (om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
+;    (unless (om-null-pointer-p (oa::om-pointer-ptr ptr))
+;      (audio-io::om-free-audio-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
 ;    ))
 
 
@@ -92,7 +89,6 @@
   (append (call-next-method) '(mute)))
 
 (defmethod excluded-slots-from-copy ((from om-internal-sound))  '(buffer))
-
 
 
 ;;; CLONE A SOUND
@@ -149,8 +145,6 @@ The other inputs/outputs :
 Press 'space' to play/stop the sound file.
 "))
 
-;(references-to (find-class 'sound))
-;(setf (references-to (find-class 'sound)) nil)
 
 (defmethod additional-class-attributes ((self sound))
   '(markers
@@ -324,7 +318,6 @@ Press 'space' to play/stop the sound file.
   (when (label frame)
     (om-draw-string (+ x 4) (+ y 12) (format nil "~A" (label frame)) :color (if selected (om-def-color :dark-red) nil)))
   t)
-
 
 
 (defmethod markers-time ((self sound))
@@ -575,8 +568,6 @@ Press 'space' to play/stop the sound file.
      ))
 
 
-
-
 (defun set-sound-data (sound path)
 
   (when (buffer sound) (oa::om-release (buffer sound)))
@@ -656,11 +647,9 @@ Press 'space' to play/stop the sound file.
     ))
 
 
-
 ;;;===========================
 ;;; METHODS
 ;;;===========================
-
 
 (defmethod* sound-points ((self sound) (num integer) &optional channel)
   :initvals '(nil 1000 1)
@@ -727,6 +716,7 @@ Press 'space' to play/stop the sound file.
                          :start-frame (if (car interval)
                                           (round (* (car interval) (/ (sample-rate object) 1000.0)))
                                         (or (car interval) 0))))
+
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
@@ -758,7 +748,6 @@ Press 'space' to play/stop the sound file.
 ;;; UTIL FUNCTION FOR JUST PLAYING A SOUND (NOW) E.G. IN A PATCH
 (defmethod play-sound ((sound om-internal-sound))
   (player-play-object *general-player* sound nil))
-
 
 
 ;;;============================================
@@ -876,8 +865,6 @@ Press 'space' to play/stop the sound file.
 (defmethod get-cache-display-for-draw ((self sound) box)
   (declare (ignore box))
   (get-pict-from-sound self))
-
-
 
 
 ;;;===========================
@@ -1019,9 +1006,7 @@ Press 'space' to play/stop the sound file.
     ))
 
 
-
 #|
-
 (defmethod om-draw-waveform ((self soundPanel))
   (multiple-value-bind (data smplevel)
       (om-get-display-slice self)
@@ -1068,7 +1053,6 @@ Press 'space' to play/stop the sound file.
                                              ,(om-make-point pixtime (- (+ offset-y (* c channels-h) (- pixpoint)) 9)))))
                       (om-draw-line pixtprev (- (+ offset-y (* c channels-h) (- pixprev)) 10) pixtime (- (+ offset-y (* c channels-h) (- pixpoint)) 10)))
                     (setq pixprev pixpoint pixtprev pixtime))))))))))
-
 
 
 (defmethod om-get-display-slice ((self soundpanel))
@@ -1163,7 +1147,6 @@ Press 'space' to play/stop the sound file.
          self)))))
 
 
-
 (defun om-get-sound-display-array-slice (path nsmp-out start-time end-time)
   #+libsndfile
   (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
@@ -1247,8 +1230,4 @@ Press 'space' to play/stop the sound file.
              (setq result (om-get-sound-display-array-slice (namestring (filename self)) nbpix start-time end-time))))
       (values result (< (cadr (array-dimensions result)) nbpix)))))
 
-
-
-
 |#
-

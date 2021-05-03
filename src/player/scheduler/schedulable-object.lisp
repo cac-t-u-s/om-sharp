@@ -272,7 +272,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (if (and (auto-adapt-time-window self) (not (user-time-window self)))
       (setf (time-window self) (min *Lmax* (* 2 (time-window self))))))
 
-;; Data
 (defmethod destroy-data ((self schedulable-object))
   (setf (scheduler-data self) (list :plan-lock (plan-lock self)
                                     :task-plan-lock (task-plan-lock self)))
@@ -449,6 +448,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;; RESCHEDULING OF AN OBJECT
 ;; From 'time if provided, instantaneous otherwise
 (defmethod reschedule ((self schedulable-object) (sched scheduler) &optional time (preserve t))
+
   (let ((switch-date (if time (+ time *Lmin*)
                        (get-obj-time self))))
 
