@@ -162,6 +162,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;; Happens when the object loops.
 (defmethod set-time-callback ((self schedulable-object) time) nil)
 
+;; CALLBACK USED WHEN THE SYSTEM RESCHEDULES THE OBJECT
+(defmethod reschedule-callback ((self schedulable-object) interval) nil)
+
+
 ;; SET THE OBJECT SCHEDULER TIME WINDOW
 (defmethod set-object-time-window ((self schedulable-object) window)
   (setf (user-time-window self) window)) ;(max window *Lmin*)
@@ -457,13 +461,17 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           (time-window self) (or (user-time-window self) *lmin*)
           (current-local-time self) switch-date)
 
-    (mp:with-lock ((plan-lock self))
-      (setf (plan self)
-            (when preserve
-              (subseq (plan self)
-                      0 (position switch-date (plan self) :test '< :key 'act-timestamp)))))
+    (let ((interval (list switch-date (+ switch-date (time-window self)))))
 
-    (interleave-tasks self (list switch-date (+ switch-date (time-window self))))
+      (reschedule-callback self interval)
+
+      (mp:with-lock ((plan-lock self))
+        (setf (plan self)
+              (when preserve
+                (subseq (plan self)
+                        0 (position switch-date (plan self) :test '< :key 'act-timestamp)))))
+
+      (interleave-tasks self interval))
 
     (schedule sched self)))
 
