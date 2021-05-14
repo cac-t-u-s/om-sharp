@@ -114,13 +114,14 @@
       )))
 
 
-(defun om-y-or-n-dialog (message &key (default-button nil))
-  (capi::prompt-for-confirmation message :default-button (if (equal default-button :yes) :ok nil)))
+(defun om-y-or-n-dialog (message &key (default nil))
+  (capi::prompt-for-confirmation message :default-button (if (equal default :yes) :ok nil)))
 
-(defun om-y-n-cancel-dialog (message &key (default-button nil))
+
+(defun om-y-n-cancel-dialog (message &key (default nil))
   (multiple-value-bind (answer successp)
       (capi:prompt-for-confirmation message :cancel-button t
-                                    :default-button (if (equal default-button :yes) :ok nil))
+                                    :default-button (if (equal default :yes) :ok nil))
     (if successp answer :cancel)))
 
 
@@ -192,7 +193,7 @@
                                                             :size (om-make-point 80 24)
                                                             :text "OK"
                                                             :focus t
-                                                            :default-button t
+                                                            :default t
                                                             :di-action #'(lambda (item)
                                                                            (declare (ignore item))
                                                                            (om-return-from-modal-dialog win (color coloritem)))))
