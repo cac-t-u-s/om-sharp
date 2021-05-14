@@ -233,6 +233,11 @@
         ))
 
 
+(defmethod get-undoable-object-state ((self OMComment))
+  (list (call-next-method)
+        (value self)))
+
+
 ;;; the reference is shared by the different states of a soem undo-ed box
 (defmethod get-object-slots-for-undo ((self OMBox))
   (remove 'reference (call-next-method)))
@@ -261,6 +266,13 @@
   (restore-outputs self (nth 2 state))
 
   self)
+
+
+(defmethod restore-undoable-object-state ((self OMComment) (state list))
+  (call-next-method self (car state))
+  (setf (value self) (cadr state))
+  self)
+
 
 (defmethod restore-undoable-object-state ((self OMBoxAbstraction) (state list))
   (let ((patch (reference self)))
