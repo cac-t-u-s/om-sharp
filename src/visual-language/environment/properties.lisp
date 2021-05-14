@@ -483,7 +483,8 @@
          (font-chooser
           (om-make-view 'font-chooser-view
                         :font (or (font-font (get-property object prop-id))
-                                  (and update (om-get-font update)))
+                                  (and update (subtypep (type-of update) 'oa::om-graphic-object)
+                                       (om-get-font update)))
                         :enabled (and (valid-property-p object prop-id)
                                       (get-property object prop-id)
                                       (font-? (get-property object prop-id)))
