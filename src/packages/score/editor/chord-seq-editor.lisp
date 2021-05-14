@@ -474,15 +474,19 @@
 
 (defmethod editor-record-off ((self chord-seq-editor))
 
-  (om-midi::portmidi-in-stop (record-process self))
+  (when (record-process self)
+
+    (om-print-format "Stop recording in ~A"
+                     (list (or (name (object self)) (type-of (get-obj-to-play self))))
+                     "MIDI")
+
+    (om-midi::portmidi-in-stop (record-process self)))
+
 
   (close-recording-notes self)
 
   (setf *running-midi-recorders* (remove self *running-midi-recorders*))
 
-  (om-print-format "Stop recording in ~A"
-                   (list (or (name (object self)) (type-of (get-obj-to-play self))))
-                   "MIDI")
   (call-next-method))
 
 
