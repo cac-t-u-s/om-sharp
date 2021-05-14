@@ -80,9 +80,9 @@
                                           omquantify)
                       :subpackages nil)
                      (omNG-make-package
-                      "Extras"
+                      "Extras/Groups"
                       :doc "Extra elements attached to chords in score editors."
-                      :functions '(add-extras remove-extras get-extras)
+                      :functions '(add-extras remove-extras get-extras get-segments map-segments)
                       :classes '(score-marker head-extra vel-extra text-extra symb-extra)
                       :subpackages nil)
                      (omNG-make-package
