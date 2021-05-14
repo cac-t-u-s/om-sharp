@@ -310,14 +310,17 @@
 
 (defvar *lib-aliases* nil)
 
+
 (defun add-lib-alias (real-name alias-name)
   (let ((entry (find alias-name *lib-aliases* :key 'car :test 'string-equal)))
     (if entry (setf (cadr entry) real-name)
       (push (list alias-name real-name) *lib-aliases*))))
 
+
 ;;; when the name of a lib changes... :)
 (defun real-library-name (name)
   (or (cadr (find name *lib-aliases* :test 'string-equal :key 'car)) name))
+
 
 (defmethod om-load-from-id :before ((id (eql :box)) data)
   (let ((library-name (find-value-in-kv-list data :library)))
@@ -334,14 +337,14 @@
                   (when (or (get-pref-value :libraries :auto-load)
                             (let ((reply (om-y-n-cancel-dialog
                                           (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?"
-                                                  real-name))))
+                                                  real-name)
+                                          :default :yes)))
                               (if (equal reply :cancel) (abort) reply)))
                     (load-om-library the-library)))
               (om-message-dialog
                (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled."
                        real-name))
-              )))
-        ))))
+              )))))))
 
 
 ;;;=================================
@@ -368,6 +371,7 @@
        (setf (icon thefunction) (car (icon thefunction))))
 
      themethod))
+
 
 ; LIBRARY CLASS definition
 ; Similar to defclass* + set the flag library of the class
