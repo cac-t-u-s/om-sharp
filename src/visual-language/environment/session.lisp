@@ -407,7 +407,7 @@
         do (funcall action)))
 
 (defun quit-om-callback ()
-  (let ((rep (and ; (om-y-or-n-dialog "Quit OpenMusic ?" :default-button :yes)
+  (let ((rep (and
               (check-om-docs-before-close)
               (om-lisp::check-buffers-before-close) ;; handled by om-text-edit-window destroy callback
               )))
