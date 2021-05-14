@@ -274,30 +274,36 @@
     (add-box-in-patch-editor comment self)))
 
 (defmethod om-view-doubleclick-handler ((self CommentFrame) position)
-  (unless (edit-lock (editor (om-view-container self)))
-    (let* ((box (object self))
-           (container-view (om-view-container self))
-           (textinput (om-make-di 'om-text-edit-view
-                                  :text (value box)
-                                  :focus t
-                                  :di-action #'(lambda (item)
-                                                 (let ((newtext (om-dialog-item-text item)))
-                                                   (om-end-text-edit item)
-                                                   (om-remove-subviews container-view item)
-                                                   (set-value box newtext)
-                                                   (om-set-focus container-view)
 
-                                                   (let ((new-size (fit-comment-size box (omp (box-w box) (box-h box)) t)))
-                                                     (omng-resize box new-size)
-                                                     (reset-frame-size self))
-                                                   ))
-                                  :font (font-font (text-font box))
-                                  :border t
-                                  :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
-                                  :position (omp (box-x box) (box-y box))
-                                  )))
-      (om-add-subviews container-view textinput)
-      (om-set-text-focus textinput t))))
+  (let* ((container-view (om-view-container self))
+         (editor (editor container-view)))
+
+    (unless (edit-lock editor)
+      (let* ((box (object self))
+             (textinput (om-make-di 'om-text-edit-view
+                                    :text (value box)
+                                    :focus t
+                                    :di-action #'(lambda (item)
+                                                   (let ((newtext (om-dialog-item-text item)))
+                                                     (om-end-text-edit item)
+                                                     (om-remove-subviews container-view item)
+
+                                                     (store-current-state-for-undo editor)
+                                                     (set-value box newtext)
+                                                     (om-set-focus container-view)
+
+                                                     (let ((new-size (fit-comment-size box (omp (box-w box) (box-h box)) t)))
+                                                       (omng-resize box new-size)
+                                                       (reset-frame-size self))
+                                                     ))
+                                    :font (font-font (text-font box))
+                                    :border t
+                                    :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
+                                    :position (omp (box-x box) (box-y box))
+                                    )))
+
+        (om-add-subviews container-view textinput)
+        (om-set-text-focus textinput t)))))
 
 
 (defmethod fit-comment-size ((box OMComment) size &optional fit)

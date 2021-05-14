@@ -63,6 +63,7 @@
     (values (name self)
             #'(lambda (box text)
                 ;;; the box name shall be updated as well
+                (store-current-state-for-undo (editor (container self)))
                 (set-name box text)
                 ))))
 
