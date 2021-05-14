@@ -767,7 +767,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                  (shift (+ y-units (calculate-staff-line-shift staff)))
                  (staff-elems (staff-split staff))
                  (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
-                 (head-box (get-font-bbox head-name))
+                 (head-box (get-font-bbox (or head-name "noteheadBlack")))
                  (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                  (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
                  (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
@@ -1211,7 +1211,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
           (rest-char head-symb)
 
         (let* ((shift (+ y-units (calculate-staff-line-shift staff)))
-               (head-box (get-font-bbox head-name))
+               (head-box (get-font-bbox (or head-name "noteheadBlack")))
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
                (staff-lines (staff-lines (car (last (staff-split staff)))))
