@@ -150,9 +150,9 @@
   (om-init-instance array)
 
   ;(cons array
-  ;             (loop for field in (cr::cs-description-params (cr::cs-instr array))
-  ;                   for field-data in data collect
-  ;                   (make-array-field :name field-name :data field-data :decimals 4))
+  ; (loop for field in (cr::cs-description-params (cr::cs-instr array))
+  ;       for field-data in data collect
+  ;           (make-array-field :name field-name :data field-data :decimals 4))
 
   (setf (slot-value array 'data)
         (if (every #'array-field-p data) data
