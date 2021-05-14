@@ -806,7 +806,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                       (y-min (line-to-ypos l-min shift unit))
                       (y-max (line-to-ypos l-max shift unit))
                       (stem? (and stem ;;; passed as argument
-                                  (not (or (listp head-symb) (member head-symb '(:head-1 :head-2 :head-4 :head-8)))))))
+                                  (not (or (consp head-symb) (member head-symb '(:head-1 :head-2 :head-4 :head-8)))))))
 
                  ;;; STEM
                  (when stem?
