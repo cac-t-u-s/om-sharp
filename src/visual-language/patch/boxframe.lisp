@@ -768,8 +768,10 @@
                                                (let ((newtext (om-dialog-item-text item)))
                                                  (om-end-text-edit item)
                                                  (om-remove-subviews container-view item)
+
                                                  (when (and action (> (length newtext) 0))
                                                    (funcall action box newtext))
+
                                                  (om-set-focus container-view)
 
                                                  (let ((newsize (if auto-resize
@@ -816,6 +818,7 @@
                                               (om-point-mv (om-add-points (om-view-position frame) pos) :x 4 :y 9)
                                             (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5))
                                 )))
+
     (om-add-subviews container-view textinput)
     ;;; if this is a multi-line, enter will erase the selected text and replace by a new line
     (om-set-text-focus
