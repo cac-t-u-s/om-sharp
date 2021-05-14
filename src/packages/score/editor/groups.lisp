@@ -145,7 +145,7 @@
                    (when draw-name
                      (om-draw-string (- x1 margin-x) (+ y2 12 margin-y) group-id :color color))
 
-                   (when (editor-get-edit-param editor :analysis)
+                   (when (and (editor-get-edit-param editor :analysis)  (analysis editor))
                      (draw-analysis-for-group (analysis editor) editor group-id x1 y1 x2 y2))
                    ))
     ))
