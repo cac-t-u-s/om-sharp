@@ -66,12 +66,15 @@
                   :checked-p (editor-get-edit-param editor :analysis)
                   :di-action #'(lambda (item)
                                  (editor-set-edit-param editor :analysis (om-checked-p item))
-                                 (om-enable-dialog-item (get-g-component editor :analysis-menu) (om-checked-p item))
-                                 (if (om-checked-p item)
-                                     (editor-update-analysis editor)
-                                   (editor-invalidate-views editor))
-                                 ))
-      ))
+                                 (let ((analysis-menu (get-g-component editor :analysis-menu)))
+                                   (om-enable-dialog-item analysis-menu (om-checked-p item))
+                                   (if (om-checked-p item)
+                                       (let ((analysis-type (om-get-selected-item analysis-menu)))
+                                         (editor-set-edit-param editor :selected-analysis analysis-type)
+                                         (setf (analysis editor) (make-instance analysis-type))
+                                         (editor-update-analysis editor))
+                                     (editor-invalidate-views editor))))
+                  )))
 
     (om-make-layout
      'om-row-layout
