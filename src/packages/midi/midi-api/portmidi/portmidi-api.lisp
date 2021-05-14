@@ -300,6 +300,7 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
           ((= res 1) t)
           (t (error (pm::pm-get-error-text res))))))
 
+
 (defstruct midi-in-process (process) (buffer))
 
 
@@ -345,15 +346,17 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
                                                           in midibuffer buffersize function portnum redirect-to-port))))
         midiprocess))))
 
-(defun portmidi-in-stop (midiprocess)
-  (when midiprocess
-    (mp:process-kill (midi-in-process-process midiprocess))
-    (prog1
-        (pm::pm-EventBufferFree (midi-in-process-buffer midiprocess))
-      ;; (when wait
-      (mp:process-wait "Wait until MIDI IN process be killed"
-                       #'(lambda () (not (mp:process-alive-p (midi-in-process-process midiprocess))))))
 
+(defun portmidi-in-stop (midiprocess)
+
+  (mp:process-kill (midi-in-process-process midiprocess))
+
+  (prog1
+      (pm::pm-EventBufferFree (midi-in-process-buffer midiprocess))
+
+    (mp:process-wait
+     "Wait until MIDI IN process be killed"
+     #'(lambda () (not (mp:process-alive-p (midi-in-process-process midiprocess)))))
     ))
 
 
