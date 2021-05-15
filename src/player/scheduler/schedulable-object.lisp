@@ -679,7 +679,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
     (interleave-tasks obj
                       (list start-t
                             (+ start-t (time-window obj))))
-    (set-time-callback obj (car (interval obj)))))
+    (set-time-callback obj (or (car (interval obj)) 0))))
 
 
 (defmethod get-caller ((self schedulable-object) (sched scheduler))
