@@ -56,6 +56,7 @@
 (defclass internal-data-stream (named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initform 'act-bundle)
    (frames :initform nil :documentation "a list of timed data chunks")
+   (locked :initform nil :accessor locked)
    ))
 
 
@@ -81,6 +82,12 @@
 (defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
   (make-instance (default-frame-type self) :onset at))
 
+
+(defmethod lock-edit ((self internal-data-stream))
+  (setf (locked self) t))
+
+(defmethod unlock-edit ((self internal-data-stream))
+  (setf (locked self) nil))
 
 ;;;======================================
 ;;; MAIN CLASS

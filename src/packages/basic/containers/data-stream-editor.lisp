@@ -576,7 +576,9 @@
 
           (cond
 
-           ((and (null selection) (om-add-key-down))
+           ((and (null selection) (om-add-key-down)
+                 (not (locked object)))
+
             (store-current-state-for-undo editor)
 
             (let ((frame (time-sequence-make-timed-item-at object (pixel-to-time self (om-point-x p0)))))
@@ -587,7 +589,7 @@
               (update-timeline-editor editor)
               (om-invalidate-view self)))
 
-           (selection
+           ((and selection (not (locked object)))
 
             (let* ((selected-frame (nth selection (data-stream-get-frames object)))
                    (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
@@ -668,7 +670,7 @@
     (case key
 
       (:om-key-delete
-       (when (selection editor)
+       (when (and (selection editor) (not (locked stream)))
          (store-current-state-for-undo editor)
          (with-schedulable-object (object-value editor)
                                   (delete-editor-selection editor))
@@ -684,27 +686,30 @@
        )
 
       (:om-key-left
-       (store-current-state-for-undo editor)
-       (with-schedulable-object
-        (object-value editor)
-        (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
-        (editor-sort-frames editor)
-        (time-sequence-update-internal-times stream))
-       (om-invalidate-view panel)
-       (update-timeline-editor editor)
-       (report-modifications editor)
-       )
-      (:om-key-right
-       (store-current-state-for-undo editor)
-       (with-schedulable-object
-        (object-value editor)
-        (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
-        (editor-sort-frames editor)
-        (time-sequence-update-internal-times stream))
+       (when (and (selection editor) (not (locked stream)))
+         (store-current-state-for-undo editor)
+         (with-schedulable-object
+          (object-value editor)
+          (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
+          (editor-sort-frames editor)
+          (time-sequence-update-internal-times stream))
+         (om-invalidate-view panel)
+         (update-timeline-editor editor)
+         (report-modifications editor)
+         ))
 
-       (om-invalidate-view panel)
-       (update-timeline-editor editor)
-       (report-modifications editor))
+      (:om-key-right
+       (when (and (selection editor) (not (locked stream)))
+         (store-current-state-for-undo editor)
+         (with-schedulable-object
+          (object-value editor)
+          (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
+          (editor-sort-frames editor)
+          (time-sequence-update-internal-times stream))
+         (om-invalidate-view panel)
+         (update-timeline-editor editor)
+         (report-modifications editor)))
+
       (:om-key-tab
        (setf (selection editor)
              (if (selection editor)
