@@ -436,6 +436,7 @@
                 x y (+ x w) (+ y h)))
         collect i))
 
+
 ;;;=======================
 ;;; EDITOR FUNCTIONS
 ;;;=======================
@@ -663,7 +664,9 @@
 (defmethod editor-key-action ((editor data-stream-editor) key)
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
+
     (case key
+
       (:om-key-delete
        (when (selection editor)
          (store-current-state-for-undo editor)
@@ -674,10 +677,12 @@
          (update-timeline-editor editor)
          ;; (time-sequence-update-obj-dur stream) ; why not ?
          (report-modifications editor)))
+
       (:om-key-esc
        ;; maybe not needed ? we already have the db-click on ruler for that...
        ;; (reinit-x-ranges editor)
        )
+
       (:om-key-left
        (store-current-state-for-undo editor)
        (with-schedulable-object
@@ -706,6 +711,7 @@
                  (list (next-element-in-editor editor (car (selection editor))))
                (list (first-element-in-editor editor))))
        (editor-invalidate-views editor))
+
       (otherwise (call-next-method))
       )))
 

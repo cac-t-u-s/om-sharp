@@ -113,6 +113,7 @@
 (defmethod display-modes-for-object ((self data-stream))
   '(:mini-view :text :hidden))
 
+
 (defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))
     (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
@@ -128,6 +129,7 @@
 ;;;======================================
 ;;; OBJECT PROPERTIES
 ;;;======================================
+
 (defmethod play-obj? ((self internal-data-stream)) t)
 
 (defmethod get-action-list-for-play ((object internal-data-stream) interval &optional parent)
@@ -138,6 +140,7 @@
    (remove-if #'(lambda (date) (not (in-interval date interval :exclude-high-bound t)))
               (data-stream-get-frames object)
               :key #'onset)))
+
 
 ;;;======================================
 ;;; OMMETHOD FOR PATCHES
@@ -166,9 +169,3 @@
 (defmethod* clear-data-stream ((self omboxeditcall))
   (clear-data-stream (get-box-value self))
   (update-after-eval self))
-
-
-
-
-
-
