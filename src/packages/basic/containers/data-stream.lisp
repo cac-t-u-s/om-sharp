@@ -115,15 +115,17 @@
 
 
 (defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
-      (multiple-value-bind (fx ox)
-          (conversion-factor-and-offset 0 (get-obj-dur self) w x)
-        (loop for frame in (data-stream-get-frames self) do
-              (om-draw-rect (+ ox (* fx (or (date frame) 0)))
-                            y 4 h
-                            :fill t)
-              )))))
+
+  (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
+
+    (multiple-value-bind (fx ox)
+        (conversion-factor-and-offset 0 (get-obj-dur self) w x)
+
+      (loop for frame in (data-stream-get-frames self) do
+            (om-draw-rect (+ ox (* fx (or (date frame) 0)))
+                          y 4 h
+                          :fill t)
+            ))))
 
 
 ;;;======================================
