@@ -28,7 +28,6 @@
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
    (port :initform nil :accessor port :initarg :port)
    (offset :initform 0 :accessor offset :initarg :offset) ;;; offset makes sense only if the note is inside a chord
-   (tie :initform nil :accessor tie)
    ))
 
 ;;; redefines only visible :initargs
