@@ -559,11 +559,12 @@
 
 (defmethod om-view-click-handler ((self stream-panel) position)
 
-  (let ((editor (editor self)))
+  (let* ((editor (editor self))
+         (object (object-value editor)))
 
     (unless (handle-selection-extent self position) ;; => play-editor-mixin handles cursor etc.
 
-      (when (object-value editor)
+      (when object
 
         (let ((p0 position)
               (selection (frame-at-pos editor position)))
@@ -576,16 +577,18 @@
 
            ((and (null selection) (om-add-key-down))
             (store-current-state-for-undo editor)
-            (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
+
+            (let ((frame (time-sequence-make-timed-item-at object (pixel-to-time self (om-point-x p0)))))
               (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
-              (with-schedulable-object (object-value editor)
-                                       (time-sequence-insert-timed-item-and-update (object-value editor) frame))
+              (with-schedulable-object object
+                                       (time-sequence-insert-timed-item-and-update object frame))
               (report-modifications editor)
               (update-timeline-editor editor)
               (om-invalidate-view self)))
 
            (selection
-            (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
+
+            (let* ((selected-frame (nth selection (data-stream-get-frames object)))
                    (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
 
               (store-current-state-for-undo editor)
@@ -605,7 +608,7 @@
                                    (om-invalidate-view self))))
                    :release #'(lambda (view pos)
                                 (declare (ignore view pos))
-                                (notify-scheduler (object-value editor))
+                                (notify-scheduler object)
                                 (report-modifications editor)
                                 (om-invalidate-view self))
                    :min-move 4)
@@ -625,16 +628,16 @@
                                ))
                  :release #'(lambda (view pos)
                               (declare (ignore view pos))
-                              (let ((selected-frames (posn-match (data-stream-get-frames (object-value editor)) (selection editor))))
+                              (let ((selected-frames (posn-match (data-stream-get-frames object) (selection editor))))
                                 (with-schedulable-object (object-value editor)
                                                          (editor-sort-frames editor)
                                                          (move-editor-selection editor :dy :round)
-                                                         (time-sequence-reorder-timed-item-list (object-value editor)))
+                                                         (time-sequence-reorder-timed-item-list object))
                                 (update-timeline-editor editor)
                                 ;;; reset the selection:
                                 (set-selection editor
                                                (loop for f in selected-frames collect
-                                                     (position f (data-stream-get-frames (object-value editor)))))
+                                                     (position f (data-stream-get-frames object))))
                                 )
                               (report-modifications editor)
                               (om-invalidate-view self))
