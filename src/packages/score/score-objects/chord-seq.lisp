@@ -30,11 +30,11 @@
   ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
-   (Lvel :initform 100 :initarg :Lvel :type list :documentation "velocities (0-127): list or list of lists")
-   (Loffset :initform 0 :initarg :Loffset :type list :documentation "offsets (ms): list or list of lists")
-   (Lchan :initform 1 :initarg :Lchan :type list :documentation "MIDI channels (1-16): list or list of lists")
-   (Lport :initform nil :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
-   (Llegato :accessor Llegato :initform nil :initarg :Llegato :initarg :legato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
+   (Lvel :initform 100 :initarg :Lvel :documentation "velocities (0-127): list or list of lists")
+   (Loffset :initform 0 :initarg :Loffset :documentation "offsets (ms): list or list of lists")
+   (Lchan :initform 1 :initarg :Lchan :documentation "MIDI channels (1-16): list or list of lists")
+   (Lport :initform nil :initarg :Lport :documentation "MIDI ports: list or list of lists")
+   (Llegato :accessor Llegato :initform nil :initarg :Llegato :initarg :legato :documentation "relative chords duration (0.0-... or NIL)")
    (name :accessor name :initform nil :initarg :name :documentation "the name of this voice")
    )
   ;; (:default-initargs :default-frame-type 'chord)
@@ -50,7 +50,7 @@
   ((Lmidic :initform '((6000)) :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :LOnset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
-   (Lvel :initform 100 :initarg :LVel :type list :documentation "velocities (0-127): list or list of lists"))
+   (Lvel :initform 100 :initarg :LVel :documentation "velocities (0-127): list or list of lists"))
 
   (:documentation "
 A sequence of chords.
