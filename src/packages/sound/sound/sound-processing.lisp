@@ -335,8 +335,8 @@
 
 
 
-(defmethod* sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
-  :icon 'sound-vol
+(defmethod* sound-gain ((s om-internal-sound) gain &optional (in 1) (out 1))
+  :icon 'sound-normalize
   :initvals '(nil 1.0 1 1)
   :indoc '("a sound" "a gain value" "fade in duration" "fade out duration")
   :doc "Adds gain effect (volume) on <s>.
@@ -376,6 +376,10 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                      :n-channels nch
                      :sample-rate sr
                      :smpl-type type))))
+
+; compatibility
+(defmethod sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
+  (sound-gain s gain in out))
 
 
 

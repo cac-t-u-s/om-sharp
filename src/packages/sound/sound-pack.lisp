@@ -31,7 +31,7 @@
                      :functions '(sound-silence
                                   sound-fade sound-loop sound-reverse sound-cut
                                   sound-mix sound-seq
-                                  sound-normalize sound-vol
+                                  sound-normalize sound-gain
                                   sound-mono-to-stereo sound-to-mono sound-stereo-pan
                                   sound-merge sound-split sound-resample
                                   ))
