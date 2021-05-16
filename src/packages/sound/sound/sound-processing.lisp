@@ -65,7 +65,8 @@
                  ("Zero-Order Hold" 3)
                  ("Linear" 4))))
   :indoc '("a sound or sound-data buffer" "new sample rate in Hz" "resampling method")
-  "Resamples a sound <s>."
+  :doc "Resamples a sound <s>."
+
   (cond ((null (oa::om-pointer-ptr (buffer s)))
          (om-beep-msg "Error: null sound buffer"))
         ((and (= (mod sample-rate 1) 0) (> (/ sample-rate (sample-rate s) 1.0) (/ 1.0 256)) (< (/ sample-rate (sample-rate s) 1.0) 256))
@@ -112,7 +113,7 @@
   :menuins '((2 (("Peak" :peak)
                  ("Peak RMS / Hard limiting" :peak-rms))))
   :indoc '("a sound" "a normalization level" "a normalization method")
-  "Normalizes a sound <s>.
+  :doc "Normalizes a sound <s>.
 
 <level> is the max level of normalized samples. It is used only in the default 'peak' normalization method.
 <method> is a normalization method. Choose between Peak detection or Peak RMS detection."
@@ -187,6 +188,7 @@
         ))))
 
 
+
 (defmethod* sound-silence ((dur float) &optional (channels 1) sample-rate)
   :icon 'sound-silence
   :initvals (list 1.0 1 nil)
@@ -196,8 +198,8 @@
 
 <channels> is the number of channel of generated audio sound.
 
-<sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from the 'Audio' preferences.
-"
+<sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from the 'Audio' preferences."
+
   (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
          (nsmpl (round (* dur sr)))
          (ch (if (< channels 1) 1 channels)))
@@ -225,9 +227,10 @@
   :icon 'sound-fade
   :initvals '(nil 0.1 0.1)
   :indoc '("a om-internal-sound" "fade in duration" "fade out duration")
-  "Generates a fade-in and/or fade-out effect on <s>.
+  :doc "Generates a fade-in and/or fade-out effect on <s>.
 
              <in> and <out> can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
+
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
 
@@ -273,7 +276,8 @@
   :icon 'sound-loop
   :initvals '(nil 3)
   :indoc '("a sound" "a number")
-  "Generates a <n>-times repetition of <s>."
+  :doc "Generates a <n>-times repetition of <s>."
+
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
     (let* ((nch (n-channels s))
@@ -298,9 +302,10 @@
   :icon 'sound-cut
   :initvals '(nil 0.0 1.0)
   :indoc '("a sound" "begin time" "end time")
-  "Cuts and returns an extract between <beg> and <end> in <s>.
+  :doc "Cuts and returns an extract between <beg> and <end> in <s>.
 
             <beg> and <end> can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
+
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
 
@@ -334,10 +339,12 @@
   :icon 'sound-vol
   :initvals '(nil 1.0 1 1)
   :indoc '("a sound" "a gain value" "fade in duration" "fade out duration")
-  "Adds gain effect (volume) on <s>.
+  :doc "Adds gain effect (volume) on <s>.
 
 <gain> is a multiplicative factor to the sound sample values.
-<in> and <out> determine fade-in / fade-out periods for the gain effect. They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
+<in> and <out> determine fade-in / fade-out periods for the gain effect.
+They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
+
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
 
@@ -376,7 +383,7 @@
   :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
   :indoc '("a sound" "a panoramic value between -100 and 100")
-  "Stereo-ize a mono sound with possible panoramic <s>.
+  :doc "Stereo-ize a mono sound with possible panoramic <s>.
 
 <pan> is a panoramic value between -100 (Left channel) and 100 (Right channel)."
 
@@ -415,7 +422,7 @@
   :icon 'sound-to-mono
   :initvals '(nil)
   :indoc '("a sound")
-  "Mono-ize a sound."
+  :doc "Mono-ize a sound."
 
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
@@ -448,7 +455,7 @@
   :icon 'sound-stereo-pan
   :initvals '(nil -100 100)
   :indoc '("a sound" "a left channel pan value" "a right channel pan value")
-  "Pan a stereo sound.
+  :doc "Pan a stereo sound.
 
 <left> is a panoramic value for the left channel between -100 (full left) and 100 (full right).
 <right> is a panoramic value for the right channel between -100 (full left) and 100 (full right)."
@@ -578,7 +585,7 @@
   :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a list of sounds")
-  "Merges several sounds into a single multi-channel sound."
+  :doc "Merges several sounds into a single multi-channel sound."
 
   (let* ((sounds (mapcar 'get-sound sound-list))
          (type (smpl-type (car sounds)))
@@ -609,12 +616,12 @@
     ))
 
 
-;;; splits the channels of a sound
+
 (defmethod* sound-split ((s om-internal-sound))
   :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a (multichannel) sounds")
-  "outputs a list of mono sounds from input channels"
+  :doc "Outputs a list of mono sounds from the channels of <s>."
 
   (let ((type (smpl-type s)))
     (with-audio-buffer (b s)
@@ -639,8 +646,9 @@
   :icon 'sound-seq
   :initvals '(nil nil 0)
   :indoc '("a sound" "a sound" "cross-fading duration (ms)")
-  "Concatenates <s1> and <s2>.
+  :doc "Concatenates <s1> and <s2>.
 <crossfade> (duration in seconds/flots or milliseconds/int) determines a fade-in/fade out overlapping between the sounds."
+
   (cond ((or (null (oa::om-pointer-ptr (buffer s1))) (null (oa::om-pointer-ptr (buffer s2))))
          (om-beep-msg "Error : buffer(s) not initialized."))
         ((and (= (n-channels s1) (n-channels s2)) (= (sample-rate s1) (sample-rate s2)))
@@ -689,7 +697,7 @@
   :icon 'sound-reverse
   :initvals '(nil -100 100)
   :indoc '("a sound")
-  "Reverse a sound."
+  :doc "Reverse a sound."
 
   (cond ((null (oa::om-pointer-ptr (buffer s)))
          (om-beep-msg "Error: null sound buffer"))
@@ -710,5 +718,3 @@
                           :n-channels nch
                           :sample-rate (sample-rate s)
                           :smpl-type type)))))
-
-
