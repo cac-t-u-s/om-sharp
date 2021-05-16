@@ -107,6 +107,34 @@
          s)))
 
 
+
+(defmethod sound-rms ((s om-internal-sound))
+  :icon 'sound-normalize
+  :indoc '("a sound")
+  :doc "Returns the linear Root-Mean-Square (RMS) value of <s>."
+
+  (with-audio-buffer (input-buffer s)
+
+    (if (null (oa::om-pointer-ptr input-buffer))
+        (om-beep-msg "Error: null sound buffer")
+
+      (let* ((ptr (oa::om-pointer-ptr input-buffer))
+             (type (smpl-type s))
+             (nch (n-channels s))
+             (size (n-samples s)))
+
+        (let ((summed-square-signal
+               (loop for i from 0 to (1- size) sum
+                     (loop for n from 0 to (1- nch)
+                           sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)
+                           into sample-sum
+                           finally return (let ((mean-value (/ sample-sum nch)))
+                                            (* mean-value mean-value))))))
+
+          (sqrt (/ summed-square-signal size)))
+        ))))
+
+
 (defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
   :icon 'sound-normalize
   :initvals '(nil 0 :peak)
