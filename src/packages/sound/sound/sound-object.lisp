@@ -591,7 +591,7 @@ Press 'space' to play/stop the sound file.
                         (sample-size sound) ss)
                   sound)))))
     (progn
-      (om-beep-msg "Unable to load soudn from: ~s" path)
+      (om-beep-msg "Unable to load sound from: ~s" path)
       (setf (buffer sound) nil)
       nil)
     ))
