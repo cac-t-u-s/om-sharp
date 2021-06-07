@@ -42,11 +42,16 @@
                    'score-marker nil))))
 
 
-(defmethod* map-segments ((self chord-seq) function)
+(defmethod* map-segments ((self chord-seq) function &rest args)
 
   :doc "Applies a function to all the segments in a chord-seq, and concatenates the results.
 
-<function> should accept a chord-seq as argument, and return another concatenable score object."
+<function> should accept a chord-seq as argument, and return another concatenable score object.
 
-  (reduce #'concat
-          (mapcar function (get-segments self))))
+If <function> has more arguments, they can also be passed as as many lists by adding optional inputs."
+
+  (let ((results (apply #'mapcar (append (list function (get-segments self)) args))))
+
+    (if (>= (length results) 2)
+        (reduce #'concat results)
+      results)))
