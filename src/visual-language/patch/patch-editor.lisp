@@ -412,6 +412,7 @@
    (om-make-menu-item "Output" #'(lambda () (new-box-from-menu "out" view position)))
    (om-make-menu-item "Internal Patch" #'(lambda () (new-box-from-menu "patch" view position)))
    (om-make-menu-item "Internal Lisp Function" #'(lambda () (new-box-from-menu "lisp" view position)))
+   (om-make-menu-item "Internal Sequencer" #'(lambda () (new-box-from-menu "sequencer" view position)))
    (om-make-menu-item "External Abstraction (p)" #'(lambda () (new-box-from-menu "import" view position)))
    (om-make-menu-item "Comment (c)" #'(lambda () (new-box-from-menu "comment" view position)))
    (om-make-menu-comp
