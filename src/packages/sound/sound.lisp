@@ -27,6 +27,7 @@
         "sound/audio-tools"
         "sound/sound-object"
         "sound/sound-processing"
+        "sound/transients"
         "sound/synthesize"
         "player/juce-player"
         "player/buffer-player"
