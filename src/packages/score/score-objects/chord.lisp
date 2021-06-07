@@ -133,59 +133,59 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
         collect (port note)))
 
 
-(defmethod (setf Lmidic) ((Lmidic list) (self chord))
+(defmethod (setf Lmidic) ((Lmidic t) (self chord))
   (do-initialize self
-                 :Lmidic Lmidic
+                 :Lmidic (list! Lmidic)
                  :Lvel (Lvel self)
                  :Loffset (Loffset self)
                  :Ldur (Ldur self)
                  :Lchan (Lchan self)
                  :Lport (Lport self)))
 
-(defmethod (setf Lchan) ((Lchan list) (self chord))
+(defmethod (setf Lchan) ((Lchan t) (self chord))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
                  :Loffset (Loffset self)
                  :Ldur (Ldur self)
-                 :Lchan Lchan
+                 :Lchan (list! Lchan)
                  :Lport (Lport self)))
 
-(defmethod (setf Lvel) ((Lvel list) (self chord))
+(defmethod (setf Lvel) ((Lvel t) (self chord))
   (do-initialize self
                  :LMidic (Lmidic self)
-                 :LVel Lvel
+                 :LVel (list! Lvel)
                  :LOffset (Loffset self)
                  :LDur (Ldur self)
                  :LChan (Lchan self)
                  :LPort (Lport self)))
 
-(defmethod (setf Loffset) ((Loffset list) (self chord))
+(defmethod (setf Loffset) ((Loffset t) (self chord))
   (do-initialize self
                  :LMidic (Lmidic self)
                  :LVel (Lvel self)
-                 :LOffset Loffset
+                 :LOffset (list! Loffset)
                  :LDur (Ldur self)
                  :LChan (Lchan self)
                  :LPort (Lport self)))
 
-(defmethod (setf Ldur) ((Ldur list) (self chord))
+(defmethod (setf Ldur) ((Ldur t) (self chord))
   (do-initialize self
                  :LMidic (Lmidic self)
-                 :LVel  (lvel self)
-                 :LOffset (loffset self)
-                 :LDur ldur
-                 :LChan (lchan self)
-                 :LPort (lport self)))
+                 :LVel  (Lvel self)
+                 :LOffset (Loffset self)
+                 :LDur (list! Ldur)
+                 :LChan (Lchan self)
+                 :LPort (Lport self)))
 
-(defmethod (setf Lport) ((Lport list) (self chord))
+(defmethod (setf Lport) ((Lport t) (self chord))
   (do-initialize self
                  :LMidic (Lmidic self)
-                 :LVel  (lvel self)
+                 :LVel  (Lvel self)
                  :LOffset (loffset self)
-                 :LDur (ldur self)
-                 :LChan (lchan self)
-                 :LPort Lport))
+                 :LDur (Ldur self)
+                 :LChan (Lchan self)
+                 :LPort (list! Lport)))
 
 
 ;;  (NoteType 'note))

@@ -108,19 +108,20 @@ Internally most of these values are just used to build a list of CHORD objects, 
         (offsets (list! Loffset))
         (chans (list! Lchan))
         (ports (list! Lport))
-        (legatos (list! Llegato)))
+        (legatos (list! Llegato))
+        (onsets (if (listp Lonset) Lonset (list 0 Lonset))))
 
     (let ((chord-list
            (cond
 
             ;;; special cases..
-            ((list-subtypep Lmidic '(chord)) ;;; this is probably a mistake but we can deal with it
+            ((list-subtypep midics '(chord)) ;;; this is probably a mistake but we can deal with it
              ;(om-print "<lmidic> slot initialized with a list of chords." "Warning")
-             (om-copy Lmidic))
+             (om-copy midics))
 
-            ((list-subtypep LMidic '(note))
+            ((list-subtypep midics '(note))
              ;(om-print "<lmidic> slot initialized with a list of notes." "Warning")
-             (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic))
+             (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) midics))
 
             (t
              (loop while (or midics vels durs offsets ports)
@@ -142,10 +143,10 @@ Internally most of these values are just used to build a list of CHORD objects, 
             ))) ;;; end chord-list definition
 
 
-      (let* ((sorted-list (sort (mat-trans (list (copy-list (first-n Lonset (length chord-list)))
-                                                 (first-n chord-list (length Lonset))))
+      (let* ((sorted-list (sort (mat-trans (list (copy-list (first-n onsets (length chord-list)))
+                                                 (first-n chord-list (length onsets))))
                                 #'< :key 'car))
-             (unsorted-chords (nthcdr (length Lonset)  chord-list))
+             (unsorted-chords (nthcdr (length onsets)  chord-list))
              (sorted-chords (append (mapcar #'second sorted-list) unsorted-chords))
              (sorted-onsets (mapcar #'first sorted-list)))
 
@@ -229,9 +230,9 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 
 
-(defmethod (setf Lmidic) ((Lmidic list) (self chord-seq))
+(defmethod (setf Lmidic) ((Lmidic t) (self chord-seq))
   (do-initialize self
-                 :Lmidic Lmidic
+                 :Lmidic (list! Lmidic)
                  :Lvel (Lvel self)
                  :Ldur (Ldur self)
                  :Loffset (Loffset self)
@@ -241,10 +242,10 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf Lvel) ((Lvel list) (self chord-seq))
+(defmethod (setf Lvel) ((Lvel t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
-                 :Lvel Lvel
+                 :Lvel (list! Lvel)
                  :Ldur (Ldur self)
                  :Loffset (Loffset self)
                  :Lchan (Lchan self)
@@ -253,23 +254,23 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf Loffset) ((Loffset list) (self chord-seq))
+(defmethod (setf Loffset) ((Loffset t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
                  :Ldur (Ldur self)
-                 :Loffset Loffset
+                 :Loffset (list! Loffset)
                  :Lchan (Lchan self)
                  :Lport (Lport self)
                  :Llegato (Llegato self)
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf Ldur) ((Ldur list) (self chord-seq))
+(defmethod (setf Ldur) ((Ldur t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
-                 :Ldur ldur
+                 :Ldur (list! Ldur)
                  :Loffset (Loffset self)
                  :Lchan (Lchan self)
                  :Lport (Lport self)
@@ -277,7 +278,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf Lonset) ((Lonset list) (self chord-seq))
+(defmethod (setf Lonset) ((Lonset t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
@@ -286,22 +287,22 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Lchan (Lchan self)
                  :Lport (Lport self)
                  :Llegato (Llegato self)
-                 :Lonset Lonset
+                 :Lonset (list! Lonset)
                  ))
 
-(defmethod (setf Lchan) ((Lchan list) (self chord-seq))
+(defmethod (setf Lchan) ((Lchan t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
                  :Ldur (Ldur self)
                  :Loffset (Loffset self)
-                 :Lchan Lchan
+                 :Lchan (list! Lchan)
                  :Lport (Lport self)
                  :Llegato (Llegato self)
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf Llegato) ((Llegato list) (self chord-seq))
+(defmethod (setf Llegato) ((Llegato t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
@@ -309,18 +310,18 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Loffset (Loffset self)
                  :Lchan (Lchan self)
                  :Lport (Lport self)
-                 :Llegato Llegato
+                 :Llegato (list! Llegato)
                  :Lonset (Lonset self)
                  ))
 
-(defmethod (setf LPort) ((LPort list) (self chord-seq))
+(defmethod (setf LPort) ((LPort t) (self chord-seq))
   (do-initialize self
                  :Lmidic (Lmidic self)
                  :Lvel (Lvel self)
                  :Ldur (Ldur self)
                  :Loffset (Loffset self)
                  :Lchan (Lchan self)
-                 :Lport Lport
+                 :Lport (list! Lport)
                  :Llegato (Llegato self)
                  :Lonset (Lonset self)
                  ))
