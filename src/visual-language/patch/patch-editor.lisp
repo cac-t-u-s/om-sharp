@@ -410,9 +410,9 @@
   (list
    (om-make-menu-item "Input" #'(lambda () (new-box-from-menu "in" view position )))
    (om-make-menu-item "Output" #'(lambda () (new-box-from-menu "out" view position)))
-   (om-make-menu-item "Internal patch" #'(lambda () (new-box-from-menu "patch" view position)))
-   (om-make-menu-item "Internal Lisp function" #'(lambda () (new-box-from-menu "lisp" view position)))
-   (om-make-menu-item "External abstraction (p)" #'(lambda () (new-box-from-menu "import" view position)))
+   (om-make-menu-item "Internal Patch" #'(lambda () (new-box-from-menu "patch" view position)))
+   (om-make-menu-item "Internal Lisp Function" #'(lambda () (new-box-from-menu "lisp" view position)))
+   (om-make-menu-item "External Abstraction (p)" #'(lambda () (new-box-from-menu "import" view position)))
    (om-make-menu-item "Comment (c)" #'(lambda () (new-box-from-menu "comment" view position)))
    (om-make-menu-comp
     (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack view position)))
