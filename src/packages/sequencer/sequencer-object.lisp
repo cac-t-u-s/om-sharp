@@ -406,7 +406,8 @@
         append (get-time-markers box)))
 
 (defmethod get-time-markers ((self OMBox))
-  (when (and (get-box-value self) (show-markers self))
+  (when (and (subtypep (type-of (get-box-value self)) 'time-sequence)
+             (show-markers self))
     (get-time-markers (get-box-value self))))
 
 (defmethod get-elements-for-marker ((self OMSequencer) marker)
