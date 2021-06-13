@@ -89,6 +89,14 @@
       (get-g-component self :maq-view)
     (get-g-component self :track-views)))
 
+
+(defmethod get-visible-selected-boxes ((self sequencer-editor))
+  (let ((selected-boxes (get-selected-boxes self)))
+    (if (equal (view-mode self) :maquette)
+        selected-boxes
+      (remove-if-not #'group-id selected-boxes))))
+
+
 (defmethod n-tracks ((self sequencer-editor))
   (max 4
        (or (and (boxes (object self))
@@ -109,7 +117,7 @@
                   (get-g-component self :track-views))))
 
 (defmethod move-editor-selection ((self sequencer-editor) &key (dx 0) (dy 0))
-  (loop for tb in (get-selected-boxes self) do
+  (loop for tb in (get-visible-selected-boxes self) do
         (move-box-in-sequencer (object self) tb :dx dx :dy dy)))
 
 (defmethod box-at-pos ((editor sequencer-editor) time &optional track)
@@ -409,8 +417,9 @@
               )
 
           ;;; move the selection
-          (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
-                (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
+          (let* ((visible-selected-boxes (get-visible-selected-boxes editor))
+                 (copy? (when (om-option-key-p) (mapcar 'om-copy visible-selected-boxes)))
+                 (init-tracks (mapcar 'group-id visible-selected-boxes)))
 
             (when copy?
               (store-current-state-for-undo editor)
@@ -418,7 +427,8 @@
               (mapcar #'(lambda (b)
                           (setf (group-id b) NIL)
                           (select-box b t))
-                      copy?))
+                      copy?)
+              (setf visible-selected-boxes copy?))
 
             (store-current-state-for-undo editor :action :move :item selected-box)
 
@@ -437,7 +447,7 @@
                                      copy?))
 
                            (let ((diff-track-id (floor py (h self))))
-                             (loop for tb in (get-selected-boxes editor)
+                             (loop for tb in visible-selected-boxes
                                    for init-track in init-tracks do
                                    (let ((new-box-id (+ init-track diff-track-id)))
                                      (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
@@ -486,8 +496,7 @@
         ))
 
      (t (call-next-method))
-     )
-    ))
+     )))
 
 
 (defmethod om-view-mouse-motion-handler :around ((self sequencer-track-view) position)
@@ -700,7 +709,7 @@
     (case key
       (:om-key-left
        (unless (edit-lock editor)
-         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
+         (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
           (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))))
@@ -708,7 +717,7 @@
          (report-modifications editor)))
       (:om-key-right
        (unless (edit-lock editor)
-         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
+         (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
           (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
@@ -716,7 +725,7 @@
          (report-modifications editor)))
       (:om-key-up
        (unless (edit-lock editor)
-         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
+         (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
           (move-editor-selection editor :dy (if (om-shift-key-p) 10 1)))
@@ -724,7 +733,7 @@
          (report-modifications editor)))
       (:om-key-down
        (unless (edit-lock editor)
-         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
+         (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
           (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1)))
@@ -735,7 +744,7 @@
        (select-unselect-all editor nil))
 
       (#\v (with-schedulable-object seq
-                                    (loop for tb in (get-selected-boxes editor) do
+                                    (loop for tb in (get-visible-selected-boxes editor) do
                                           (eval-box tb)
                                           (reset-cache-display tb)
                                           (contextual-update tb seq)))
@@ -755,7 +764,7 @@
          (call-next-method)))
 
       (#\r (unless (edit-lock editor)
-             (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
+             (loop for tb in (get-visible-selected-boxes editor) do (set-reactive-mode tb))
              (om-invalidate-view (window editor))))
       (otherwise
        (call-next-method)
