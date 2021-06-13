@@ -257,21 +257,25 @@
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position)
 
-  (let ((time-seq (get-voice-at-pos self position))
-        (time-pos (pixel-to-time (get-g-component self :main-panel) (om-point-x position))))
+  (let* ((panel (get-g-component self :main-panel))
+         (x-pos (max (time-to-pixel panel 0) (om-point-x position))))
 
     (or
      ;;; there's a selected chord near the click
      (find-if #'(lambda (element)
                   (and (typep element '(or chord r-rest))
                        (b-box element)
-                       (>= (om-point-x position) (b-box-x1 (b-box element)))
-                       (<= (om-point-x position) (b-box-x2 (b-box element)))))
+                       (>= x-pos (b-box-x1 (b-box element)))
+                       (<= x-pos (b-box-x2 (b-box element)))))
               (selection self))
 
      ;;; else, make a new chord
      (when (add-chords-allowed self)
-       (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
+
+       (let* ((time-seq (get-voice-at-pos self position))
+              (time-pos (pixel-to-time panel x-pos))
+              (new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
+
          (setf (notes new-chord) nil)
          ;;; notes = NIL here so the duration will be 0 at updating the time-sequence
          (time-sequence-insert-timed-item-and-update time-seq new-chord)
