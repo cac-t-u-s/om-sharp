@@ -22,25 +22,24 @@
 ;;; TIME-SEQUENCE handles this using hidden, interpolated 'internal-time'
 ;;;========================================
 
-;;; objects in a time-sequence should be subclasses of timed-item
+;;; Objects in a time-sequence should be subclasses of timed-item
 ;;; OR provide the same accessors
 (defclass timed-item ()
-  ((item-time :initform nil :accessor item-time :initarg :item-time)
-   (item-internal-time :initform nil :accessor item-internal-time :initarg :item-internal-time)
+  ((item-internal-time :initform nil :accessor item-internal-time :initarg :item-internal-time)
    (item-type :initform nil :accessor item-type :initarg :item-type)
    ))
 
 
-(defmethod item-get-time ((self timed-item)) (item-time self))
-(defmethod item-set-time ((self timed-item) time) (setf (item-time self) time))
+(defmethod item-get-time ((self timed-item)) (error "timed-item subclass should provide an item-get-time accessor"))
+(defmethod item-set-time ((self timed-item) time) (error "timed-item subclass should provide an item-set-time accessor"))
 (defmethod item-get-internal-time ((self timed-item)) (item-internal-time self))
 (defmethod item-set-internal-time ((self timed-item) time) (setf (item-internal-time self) time))
 (defmethod item-get-type ((self timed-item)) (item-type self))
 (defmethod item-set-type ((self timed-item) type) (setf (item-type self) type))
 (defmethod items-merged-p ((i1 timed-item) (i2 timed-item)) (equal i1 i2))
 (defmethod items-distance ((i1 timed-item) (i2 timed-item))
-  (if (and (item-time i2) (item-time i1))
-      (abs (- (item-time i2) (item-time i1)))
+  (if (and (item-get-time i2) (item-get-time i1))
+      (abs (- (item-get-time i2) (item-get-time i1)))
     1))
 
 ;;; time-sequence does not deal with durations but this can be useful, e.g to determine the end
@@ -110,7 +109,10 @@
 
 
 (defmethod time-sequence-make-timed-item-at ((self time-sequence) at)
-  (make-instance 'timed-item :item-time at))
+  (let ((ti (make-instance 'timed-item)))
+    (item-set-time ti at)
+    ti))
+
 
 ;;; REDEFINE THIS METHOD IF NEEDED
 ; but should not called directly
@@ -165,7 +167,7 @@
 
 
 (defmethod remove-nth-timed-point-from-time-sequence ((self time-sequence) pos)
-  (time-sequence-set-timed-item-list self (remove-nth pos (time-sequence-get-timed-item-list self)))
+  (time-sequence-remove-nth-timed-item self pos)
   (time-sequence-update-internal-times self))
 
 

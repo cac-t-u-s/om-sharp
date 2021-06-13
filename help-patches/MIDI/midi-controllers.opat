@@ -4,9 +4,9 @@
  (:doc "")
  (:info
   (:created "2019/09/30 10:18:03")
-  (:modified "2020/09/24 21:09:13")
+  (:modified "2021/06/13 23:37:56")
   (:by "om-sharp")
-  (:version 1.0))
+  (:version 1.0301))
  (:window (:size (941 633)) (:position (347 186)))
  (:grid nil)
  (:lock nil)
@@ -326,7 +326,6 @@
          (:class midi-mix-console)
          (:slots
           ((:onset 0)
-           (:item-time nil)
            (:item-internal-time nil)
            (:item-type nil)
            (:attributes nil)))
@@ -336,7 +335,6 @@
          (:class midi-mix-console)
          (:slots
           ((:onset 0)
-           (:item-time nil)
            (:item-internal-time nil)
            (:item-type nil)
            (:attributes nil)))
@@ -407,6 +405,7 @@
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
            (:extras nil)
+           (:group-ids nil)
            (:lmidic (:list 6000))
            (:lonset (:list 0 1000))
            (:ldur (:list 1000))
@@ -427,6 +426,7 @@
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
            (:extras nil)
+           (:group-ids nil)
            (:lmidic (:list 6000))
            (:lonset (:list 0 1000))
            (:ldur (:list 1000))
@@ -518,7 +518,6 @@ Additional inputs/outputs are accesses on the sequencer box.
 ")
          (:id 2)))
        (:connections
-        (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0)))
         (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0))))))
      (:loop-interval nil)
      (:loop-on nil)))
@@ -615,7 +614,6 @@ Additional inputs/outputs are accesses on the sequencer box.
      (:class midi-mix-console)
      (:slots
       ((:onset 0)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)))
@@ -623,9 +621,9 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:id 2))
   (:comment
    (:x 368)
-   (:y 253)
+   (:y 258)
    (:w 219)
-   (:h 43)
+   (:h 38)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -782,6 +780,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
        (:extras nil)
+       (:group-ids nil)
        (:lmidic (:list 6000))
        (:lonset (:list 0 1000))
        (:ldur (:list 1000))
@@ -893,7 +892,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "In OM7 MIDI continuous controllers can be manipulated as simple BPFs, setting the adequate :action to send MIDI messages.")
+    "MIDI continuous controllers can be manipulated as simple BPFs, setting the adequate :action to send MIDI messages.")
    (:id 11))
   (:box
    (:type :abstraction)

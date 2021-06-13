@@ -4,9 +4,9 @@
  (:doc "")
  (:info
   (:created "2017/02/05 14:08:32")
-  (:modified "2020/01/02 8:45:59")
+  (:modified "2021/06/13 23:35:15")
   (:by "om-sharp")
-  (:version 1.0))
+  (:version 1.0301))
  (:window (:size (500 644)) (:position (729 201)))
  (:grid nil)
  (:lock nil)
@@ -66,7 +66,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 116)
-            (:item-time nil)
             (:item-internal-time 116)
             (:item-type :master)
             (:attributes nil)
@@ -80,7 +79,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 295)
-            (:item-time nil)
             (:item-internal-time 295)
             (:item-type 295)
             (:attributes nil)
@@ -94,7 +92,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 333)
-            (:item-time nil)
             (:item-internal-time 333)
             (:item-type 333)
             (:attributes nil)
@@ -108,7 +105,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 852)
-            (:item-time nil)
             (:item-internal-time 852)
             (:item-type 852)
             (:attributes nil)
@@ -122,7 +118,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 953)
-            (:item-time nil)
             (:item-internal-time 953)
             (:item-type 953)
             (:attributes nil)
@@ -136,7 +131,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 1051)
-            (:item-time nil)
             (:item-internal-time 1051)
             (:item-type 1051)
             (:attributes nil)
@@ -150,7 +144,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 1254)
-            (:item-time nil)
             (:item-internal-time 1254)
             (:item-type 1254)
             (:attributes nil)
@@ -164,7 +157,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 1750)
-            (:item-time nil)
             (:item-internal-time 1750)
             (:item-type 1750)
             (:attributes nil)
@@ -178,7 +170,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 1840)
-            (:item-time nil)
             (:item-internal-time 1840)
             (:item-type 1840)
             (:attributes nil)
@@ -192,7 +183,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2006)
-            (:item-time nil)
             (:item-internal-time 2006)
             (:item-type 2006)
             (:attributes nil)
@@ -206,7 +196,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2389)
-            (:item-time nil)
             (:item-internal-time 2389)
             (:item-type 2389)
             (:attributes nil)
@@ -220,7 +209,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2417)
-            (:item-time nil)
             (:item-internal-time 2417)
             (:item-type 2417)
             (:attributes nil)
@@ -234,7 +222,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2460)
-            (:item-time nil)
             (:item-internal-time 2460)
             (:item-type 2460)
             (:attributes nil)
@@ -248,7 +235,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2491)
-            (:item-time nil)
             (:item-internal-time 2491)
             (:item-type 2491)
             (:attributes nil)
@@ -262,7 +248,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2513)
-            (:item-time nil)
             (:item-internal-time 2513)
             (:item-type 2513)
             (:attributes nil)
@@ -276,7 +261,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2544)
-            (:item-time nil)
             (:item-internal-time 2544)
             (:item-type 2544)
             (:attributes nil)
@@ -290,7 +274,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2739)
-            (:item-time nil)
             (:item-internal-time 2739)
             (:item-type 2739)
             (:attributes nil)
@@ -304,7 +287,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2907)
-            (:item-time nil)
             (:item-internal-time 2907)
             (:item-type 2907)
             (:attributes nil)
@@ -318,7 +300,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 2988)
-            (:item-time nil)
             (:item-internal-time 2988)
             (:item-type 2988)
             (:attributes nil)
@@ -332,7 +313,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3175)
-            (:item-time nil)
             (:item-internal-time 3175)
             (:item-type 3175)
             (:attributes nil)
@@ -346,7 +326,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3260)
-            (:item-time nil)
             (:item-internal-time 3260)
             (:item-type 3260)
             (:attributes nil)
@@ -360,7 +339,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3331)
-            (:item-time nil)
             (:item-internal-time 3331)
             (:item-type 3331)
             (:attributes nil)
@@ -374,7 +352,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3434)
-            (:item-time nil)
             (:item-internal-time 3434)
             (:item-type 3434)
             (:attributes nil)
@@ -388,7 +365,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3549)
-            (:item-time nil)
             (:item-internal-time 3549)
             (:item-type 3549)
             (:attributes nil)
@@ -402,7 +378,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3647)
-            (:item-time nil)
             (:item-internal-time 3647)
             (:item-type 3647)
             (:attributes nil)
@@ -416,7 +391,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3668)
-            (:item-time nil)
             (:item-internal-time 3668)
             (:item-type 3668)
             (:attributes nil)
@@ -430,7 +404,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3724)
-            (:item-time nil)
             (:item-internal-time 3724)
             (:item-type 3724)
             (:attributes nil)
@@ -444,7 +417,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3874)
-            (:item-time nil)
             (:item-internal-time 3874)
             (:item-type 3874)
             (:attributes nil)
@@ -458,7 +430,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3927)
-            (:item-time nil)
             (:item-internal-time 3927)
             (:item-type 3927)
             (:attributes nil)
@@ -472,7 +443,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 3975)
-            (:item-time nil)
             (:item-internal-time 3975)
             (:item-type 3975)
             (:attributes nil)
@@ -486,7 +456,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4000)
-            (:item-time nil)
             (:item-internal-time 4000)
             (:item-type 4000)
             (:attributes nil)
@@ -500,7 +469,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4015)
-            (:item-time nil)
             (:item-internal-time 4015)
             (:item-type 4015)
             (:attributes nil)
@@ -514,7 +482,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4141)
-            (:item-time nil)
             (:item-internal-time 4141)
             (:item-type 4141)
             (:attributes nil)
@@ -528,7 +495,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4271)
-            (:item-time nil)
             (:item-internal-time 4271)
             (:item-type 4271)
             (:attributes nil)
@@ -542,7 +508,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4279)
-            (:item-time nil)
             (:item-internal-time 4279)
             (:item-type 4279)
             (:attributes nil)
@@ -556,7 +521,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4368)
-            (:item-time nil)
             (:item-internal-time 4368)
             (:item-type 4368)
             (:attributes nil)
@@ -570,7 +534,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4582)
-            (:item-time nil)
             (:item-internal-time 4582)
             (:item-type 4582)
             (:attributes nil)
@@ -584,7 +547,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4634)
-            (:item-time nil)
             (:item-internal-time 4634)
             (:item-type 4634)
             (:attributes nil)
@@ -598,7 +560,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4676)
-            (:item-time nil)
             (:item-internal-time 4676)
             (:item-type 4676)
             (:attributes nil)
@@ -612,7 +573,6 @@
           (:class osc-bundle)
           (:slots
            ((:onset 4990)
-            (:item-time nil)
             (:item-internal-time 4990)
             (:item-type :master)
             (:attributes nil)
@@ -629,7 +589,7 @@
    (:group-id nil)
    (:name "OSC-BUNDLE")
    (:x 76)
-   (:y 77)
+   (:y 70)
    (:w 110)
    (:h 87)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -668,7 +628,6 @@
      (:class osc-bundle)
      (:slots
       ((:onset 490)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
@@ -684,7 +643,7 @@
    (:group-id nil)
    (:name "vb")
    (:x 289)
-   (:y 383)
+   (:y 378)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -702,10 +661,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 82)
+   (:x 163/2)
    (:y 283)
    (:w 78)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -734,11 +693,11 @@
    (:id 3))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 203/2)
-   (:y 247)
+   (:x 102)
+   (:y 246)
    (:w 38)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -756,10 +715,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 151)
+   (:x 147)
    (:y 246)
    (:w 103)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -786,10 +745,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 180)
+   (:x 186)
    (:y 378)
    (:w 78)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -818,11 +777,11 @@
    (:id 6))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
    (:x 199)
-   (:y 343)
+   (:y 342)
    (:w 51)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -843,7 +802,7 @@
    (:x 252)
    (:y 342)
    (:w 103)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -866,9 +825,9 @@
    (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
-   (:x 210)
+   (:x 202)
    (:y 420)
-   (:w 90)
+   (:w 91)
    (:h 28)
    (:color
     (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
@@ -913,10 +872,10 @@
    (:reference osc-timetag)
    (:group-id nil)
    (:name "osc-timetag")
-   (:x 183)
+   (:x 200)
    (:y 170)
-   (:w 96)
-   (:h 30)
+   (:w 103)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -945,8 +904,8 @@
    (:name "om-random")
    (:x 223)
    (:y 128)
-   (:w 96)
-   (:h 30)
+   (:w 103)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
