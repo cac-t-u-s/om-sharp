@@ -724,7 +724,8 @@
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-up
-       (unless (edit-lock editor)
+       (unless (or (edit-lock editor)
+                   (equal (view-mode editor) :tracks))
          (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
@@ -732,7 +733,8 @@
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-down
-       (unless (edit-lock editor)
+       (unless (or (edit-lock editor)
+                   (equal (view-mode editor) :tracks))
          (store-current-state-for-undo editor :action :move :item (get-visible-selected-boxes editor))
          (with-schedulable-object
           seq
