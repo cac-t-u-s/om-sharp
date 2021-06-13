@@ -1171,7 +1171,8 @@
 
 (defun box-name-completion (string)
   (if (and *om-box-name-completion* (>= (length string) 1))
-      (let ((all-str (or *all-om-pack-symbols* (set-om-pack-symbols))))
+      (let ((all-str (append (or *all-om-pack-symbols* (set-om-pack-symbols))
+                             '("in" "out" "patch" "sequencer" "lisp" "comment"))))
         (remove-if #'(lambda (str) (not (equal 0 (search string str :test 'string-equal)))) all-str))
     ;:destroy
     ))
