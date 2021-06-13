@@ -563,6 +563,8 @@
   (let* ((editor (editor self))
          (object (object-value editor)))
 
+    (set-paste-position position self)
+
     (unless (handle-selection-extent self position) ;; => play-editor-mixin handles cursor etc.
 
       (when object
@@ -742,6 +744,74 @@
       (update-timeline-editor self)
       (editor-invalidate-views self)
       ))
+
+
+(defmethod copy-command ((self data-stream-editor))
+  (when (selection self)
+    #'(lambda ()
+        (set-om-clipboard
+         (mapcar #'om-copy
+                 (posn-match (data-stream-get-frames (object-value self)) (selection self)))))))
+
+
+(defmethod cut-command ((self data-stream-editor))
+  (when (and (selection self) (not (locked (object-value self))))
+    #'(lambda ()
+        (set-om-clipboard
+         (mapcar #'om-copy
+                 (posn-match (data-stream-get-frames (object-value self)) (selection self))))
+
+        (store-current-state-for-undo self)
+        (with-schedulable-object (object-value self)
+                                 (delete-editor-selection self))
+        (setf (selection self) nil)
+        (om-invalidate-view (active-panel self))
+        (update-timeline-editor self)
+        (report-modifications self))
+    ))
+
+
+(defmethod paste-command ((self data-stream-editor))
+
+  (when (get-om-clipboard)
+
+    #'(lambda ()
+
+        (let ((data-stream (object-value self))
+              (frames (mapcar
+                       #'om-copy
+                       (sort
+                        (remove-if-not #'(lambda (element) (subtypep (type-of element) 'data-frame)) (get-om-clipboard))
+                        #'< :key #'item-get-time)))
+
+              (view (active-panel self)))
+
+          (if frames
+
+              (let* ((t0 (item-get-time (car frames)))
+                     (paste-pos (get-paste-position view))
+                     (p0 (if paste-pos
+                             (pixel-to-time view (om-point-x paste-pos))
+                           (+ t0 200))))
+
+                (loop for f in frames do
+                      (item-set-time f (+ p0 (- (item-get-time f) t0))))
+
+                (set-paste-position (omp (time-to-pixel view (+ p0 200))
+                                         (if paste-pos (om-point-y paste-pos) 0))
+                                    view)
+
+                (store-current-state-for-undo self)
+
+                (with-schedulable-object
+                 data-stream
+                 (loop for f in frames do
+                       (time-sequence-insert-timed-item-and-update data-stream f)))
+
+                (report-modifications self)
+                (editor-invalidate-views self)
+                t)
+            )))))
 
 
 ;;;==================================
