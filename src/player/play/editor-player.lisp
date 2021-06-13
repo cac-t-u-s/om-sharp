@@ -435,6 +435,7 @@
             )
           )))))
 
+
 ;;; return T if detected/did something
 (defmethod handle-selection-extent ((self x-cursor-graduated-view) position)
   (when (cursor-interval self)
@@ -452,6 +453,7 @@
              ;(start-interval-selection tpl-editor self position)
              nil
              )))))
+
 
 (defmethod om-view-click-handler ((self x-cursor-graduated-view) position)
   (handle-selection-extent self position))
@@ -471,13 +473,17 @@
     (call-next-method)))
 
 
+(defmethod override-interval-interaction ((self x-cursor-graduated-view) position) nil)
+
+
 (defmethod om-view-mouse-motion-handler :around ((self x-cursor-graduated-view) position)
 
   (if (and (cursor-interval self)
            (let ((bx (time-to-pixel self (car (cursor-interval self))))
                  (ex (time-to-pixel self (cadr (cursor-interval self)))))
              (or (om-point-in-line-p position (omp bx 0) (omp bx (h self)) 4)
-                 (om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4))))
+                 (om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4)))
+           (not (override-interval-interaction self position)))
 
       (om-set-view-cursor self (om-get-cursor :h-size))
 

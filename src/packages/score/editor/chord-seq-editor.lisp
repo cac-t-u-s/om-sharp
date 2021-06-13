@@ -177,8 +177,13 @@
 (defmethod add-chords-allowed ((self chord-seq-editor)) t)
 
 
+(defmethod override-interval-interaction ((self chord-seq-panel) position)
+  (find-score-element-at-pos (object-value (editor self)) position))
+
+
 (defmethod om-view-click-handler ((self chord-seq-panel) position)
-  (or (handle-selection-extent self position)
+  (or (and (not (override-interval-interaction self position))
+           (handle-selection-extent self position))
       (call-next-method))) ;;; => score-view
 
 
