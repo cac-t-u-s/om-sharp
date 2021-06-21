@@ -66,7 +66,9 @@
                              (setf (gen-lock ,box) t)
                              (OMR-Notify ,box)
                              (setf (gen-lock ,box) nil))
-                           (if ,panel (clear-ev-once ,panel))
+                           (when ,panel
+                             (clear-ev-once ,panel)
+                             (setf *current-eval-panel* nil))
                            )))
 
         (if separate-thread

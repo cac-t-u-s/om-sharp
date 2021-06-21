@@ -165,6 +165,10 @@
 
   (clear-ev-once seq)
   (clear-ev-once (ctrlpatch seq))
+
+  (when from-editor
+    (setf *current-eval-panel* nil))
+
   ;(compile-patch (ctrlpatch seq))
   ;(apply (intern (string (compiled-fun-name (ctrlpatch seq))) :om) `(,seq))
   )

@@ -783,7 +783,8 @@
                                    (reset-cache-display tb)
                                    (contextual-update tb seq)))
     (om-invalidate-view (window editor))
-    (clear-ev-once seq)))
+    (clear-ev-once seq)
+    (setf *current-eval-panel* nil)))
 
 
 ;;; not supported for now...

@@ -36,9 +36,8 @@
 (defmethod clear-ev-once ((self patch-editor-view))
   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
   (mapc
-    #'(lambda (boxframe) (clear-ev-once (object boxframe)))
-    (get-boxframes self))
-  (setf *current-eval-panel* nil)
+   #'(lambda (boxframe) (clear-ev-once (object boxframe)))
+   (get-boxframes self))
   (setf *ev-once-context* t))
 
 
@@ -46,7 +45,6 @@
   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
   (mapc #'(lambda (box)
             (clear-ev-once box)) (boxes self))
-  (setf *current-eval-panel* nil)
   (setf *ev-once-context* t))
 
 
@@ -62,7 +60,8 @@
 
 (defmethod clear-after-error ((self OMBoxCall))
   (when (and (container self) (editor-view (container self)))
-    (clear-ev-once (editor-view (container self)))))
+    (clear-ev-once (editor-view (container self))))
+  (setf *current-eval-panel* nil))
 
 
 (defun prompt-on-listeners (message)
@@ -134,7 +133,8 @@
                 (om-add-subviews ,editor-view fv)
                 (eval-box b)
                 (fade-out-flag-view fv)))
-        (clear-ev-once ,editor-view))
+        (clear-ev-once ,editor-view)
+        (setf *current-eval-panel* nil))
      :post-action #'(lambda () (prompt-on-listeners "Ready")))
 
     (om-invalidate-view editor-view)
@@ -158,6 +158,7 @@
 (defun abort-eval ()
   (when *current-eval-panel*
     (clear-ev-once *current-eval-panel*))
+  (setf *current-eval-panel* nil)
   (cleanup-flag-view-list)
   (prompt-on-listeners "Aborted")
   (om-lisp::om-kill-eval-process)
