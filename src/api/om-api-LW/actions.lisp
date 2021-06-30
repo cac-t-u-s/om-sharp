@@ -27,6 +27,7 @@
 
 
 (export '(
+          om-input-model
           om-view-key-handler
           om-view-click-handler
           om-view-right-click-handler
@@ -37,17 +38,13 @@
           om-reset-mouse-motion
           om-view-pan-handler
           om-view-zoom-handler
-
           om-init-motion
           om-click-motion-handler
           om-click-release-handler
-
           om-shift-key-p
           om-command-key-p
           om-option-key-p
-
           om-mouse-position
-
           ) :om-api)
 
 
@@ -60,63 +57,69 @@
 
 (defclass om-interactive-object () ()
   (:default-initargs
-   :input-model  `(
-                   ;;; CALLBACKS ARGUMENTS = (SHIF CMD OPTION)
-                   ((:button-1 :motion :shift ,+control-button+ :meta)  om-clic-motion-callback (t t t))
-                   ((:button-1 :motion :shift ,+control-button+)  om-clic-motion-callback (t t nil))
-                   ((:button-1 :motion :shift :meta)  om-clic-motion-callback (t nil t))
-                   ((:button-1 :motion :meta ,+control-button+)  om-clic-motion-callback (nil t t))
-                   ((:button-1 :motion :shift)  om-clic-motion-callback (t nil nil))
-                   ((:button-1 :motion ,+control-button+)  om-clic-motion-callback (nil t nil))
-                   ((:button-1 :motion :meta)  om-clic-motion-callback (nil nil t))
-                   ((:button-1 :motion)  om-clic-motion-callback (nil nil nil))
+   :input-model (om-input-model :touch-pan nil)))
 
-                   ((:button-1 :press :shift ,+control-button+ :meta) om-clic-callback (t t t))
-                   ((:button-1 :press :shift ,+control-button+) om-clic-callback (t t nil))
-                   ((:button-1 :press :shift :meta) om-clic-callback (t  nil t))
-                   ((:button-1 :press :meta ,+control-button+) om-clic-callback (nil t t))
-                   ((:button-1 :press :shift) om-clic-callback (t nil nil))
-                   ((:button-1 :press ,+control-button+) om-clic-callback (nil t nil))
-                   ((:button-1 :press :meta) om-clic-callback (nil nil t))
-                   ((:button-1 :press) om-clic-callback (nil nil nil))
+;;; view classes who want to ovrride the default scroll to define their own
+;;; pan gesture should override the :input-mode initarg with (om-input-model :touch-pan T)
 
-                   ((:motion :shift ,+control-button+) om-motion-callback (t t nil))
-                   ((:motion :shift) om-motion-callback (t nil nil))
-                   ((:motion ,+control-button+) om-motion-callback (nil t nil))
-                   (:motion om-motion-callback (nil nil nil))
+(defun om-input-model (&key touch-pan)
+  (remove
+   nil
+   `(
+    ;;; CALLBACKS ARGUMENTS = (SHIF CMD OPTION)
+     ((:button-1 :motion :shift ,+control-button+ :meta)  om-clic-motion-callback (t t t))
+     ((:button-1 :motion :shift ,+control-button+)  om-clic-motion-callback (t t nil))
+     ((:button-1 :motion :shift :meta)  om-clic-motion-callback (t nil t))
+     ((:button-1 :motion :meta ,+control-button+)  om-clic-motion-callback (nil t t))
+     ((:button-1 :motion :shift)  om-clic-motion-callback (t nil nil))
+     ((:button-1 :motion ,+control-button+)  om-clic-motion-callback (nil t nil))
+     ((:button-1 :motion :meta)  om-clic-motion-callback (nil nil t))
+     ((:button-1 :motion)  om-clic-motion-callback (nil nil nil))
 
-                   ((:button-1 :release :shift ,+control-button+ :meta)  om-clic-release-callback (t t t))
-                   ((:button-1 :release :shift ,+control-button+)  om-clic-release-callback (t t nil))
-                   ((:button-1 :release :shift :meta)  om-clic-release-callback (t nil t))
-                   ((:button-1 :release :meta ,+control-button+)  om-clic-release-callback (nil t t))
-                   ((:button-1 :release :shift)  om-clic-release-callback (t nil nil))
-                   ((:button-1 :release ,+control-button+)  om-clic-release-callback (nil t nil))
-                   ((:button-1 :release :meta)  om-clic-release-callback (nil nil t))
-                   ((:button-1 :release)  om-clic-release-callback (nil nil nil))
+     ((:button-1 :press :shift ,+control-button+ :meta) om-clic-callback (t t t))
+     ((:button-1 :press :shift ,+control-button+) om-clic-callback (t t nil))
+     ((:button-1 :press :shift :meta) om-clic-callback (t  nil t))
+     ((:button-1 :press :meta ,+control-button+) om-clic-callback (nil t t))
+     ((:button-1 :press :shift) om-clic-callback (t nil nil))
+     ((:button-1 :press ,+control-button+) om-clic-callback (nil t nil))
+     ((:button-1 :press :meta) om-clic-callback (nil nil t))
+     ((:button-1 :press) om-clic-callback (nil nil nil))
 
-                   ((:button-1 ,+2nd-press+ :shift ,+control-button+ :meta) ,+2nd-press-callback+ (t t t))
-                   ((:button-1 ,+2nd-press+ :shift ,+control-button+) ,+2nd-press-callback+ (t t nil))
-                   ((:button-1 ,+2nd-press+ :shift :meta) ,+2nd-press-callback+ (t nil t))
-                   ((:button-1 ,+2nd-press+ :meta ,+control-button+) ,+2nd-press-callback+ (nil t t))
-                   ((:button-1 ,+2nd-press+ :shift ) ,+2nd-press-callback+ (t nil nil))
-                   ((:button-1 ,+2nd-press+ ,+control-button+) ,+2nd-press-callback+ (nil t nil))
-                   ((:button-1 ,+2nd-press+ :meta) ,+2nd-press-callback+ (nil nil t))
-                   ((:button-1 ,+2nd-press+) ,+2nd-press-callback+ (nil nil nil))
+     ((:motion :shift ,+control-button+) om-motion-callback (t t nil))
+     ((:motion :shift) om-motion-callback (t nil nil))
+     ((:motion ,+control-button+) om-motion-callback (nil t nil))
+     (:motion om-motion-callback (nil nil nil))
+
+     ((:button-1 :release :shift ,+control-button+ :meta)  om-clic-release-callback (t t t))
+     ((:button-1 :release :shift ,+control-button+)  om-clic-release-callback (t t nil))
+     ((:button-1 :release :shift :meta)  om-clic-release-callback (t nil t))
+     ((:button-1 :release :meta ,+control-button+)  om-clic-release-callback (nil t t))
+     ((:button-1 :release :shift)  om-clic-release-callback (t nil nil))
+     ((:button-1 :release ,+control-button+)  om-clic-release-callback (nil t nil))
+     ((:button-1 :release :meta)  om-clic-release-callback (nil nil t))
+     ((:button-1 :release)  om-clic-release-callback (nil nil nil))
+
+     ((:button-1 ,+2nd-press+ :shift ,+control-button+ :meta) ,+2nd-press-callback+ (t t t))
+     ((:button-1 ,+2nd-press+ :shift ,+control-button+) ,+2nd-press-callback+ (t t nil))
+     ((:button-1 ,+2nd-press+ :shift :meta) ,+2nd-press-callback+ (t nil t))
+     ((:button-1 ,+2nd-press+ :meta ,+control-button+) ,+2nd-press-callback+ (nil t t))
+     ((:button-1 ,+2nd-press+ :shift ) ,+2nd-press-callback+ (t nil nil))
+     ((:button-1 ,+2nd-press+ ,+control-button+) ,+2nd-press-callback+ (nil t nil))
+     ((:button-1 ,+2nd-press+ :meta) ,+2nd-press-callback+ (nil nil t))
+     ((:button-1 ,+2nd-press+) ,+2nd-press-callback+ (nil nil nil))
 
                   ;(:post-menu om-context-menu-callback)
-                   ((:button-3 :press) om-context-menu-callback)
-                   ((:button-3 :release) om-right-clic-callback (nil nil nil))
-                   ((:button-3 :second-press) om-right-clic-callback (nil nil nil))
+     ((:button-3 :press) om-context-menu-callback)
+     ((:button-3 :release) om-right-clic-callback (nil nil nil))
+     ((:button-3 :second-press) om-right-clic-callback (nil nil nil))
 
-                   #-linux((:touch :pan) om-pan-callback)
-                   #-linux((:touch :zoom) om-zoom-callback)
+     #-linux,(when touch-pan '((:touch :pan) om-pan-callback))
+     #-linux((:touch :zoom) om-zoom-callback)
 
+     (:gesture-spec om-char-spec-callback)
+     ;; (:character om-char-callback (nil nil nil))
+     )))
 
-                   (:gesture-spec om-char-spec-callback)
-                   ;; (:character om-char-callback (nil nil nil))
-                   )
-
-   ))
 
 #|
 (defmethod om-motion-callback ((self om-interactive-object) x y modifiers) t)

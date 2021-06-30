@@ -76,7 +76,10 @@
   ((scale-fact :accessor scale-fact :initarg :scale-fact :initform 1)
    (x-ruler :accessor x-ruler :initform nil)
    (y-ruler :accessor y-ruler :initform nil)
-   ))
+   )
+  (:default-initargs
+   :input-model (om-input-model :touch-pan t)))
+
 
 (defmethod set-x-ruler-range ((self bpf-bpc-panel) x1 x2)
   (when (x-ruler self)

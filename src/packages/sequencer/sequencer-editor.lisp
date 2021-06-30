@@ -172,7 +172,10 @@
 ;;; MAQUETTE-VIEW (OM STYLE)
 ;;;========================
 
-(defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
+(defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view)
+  ()
+  (:default-initargs
+   :input-model (om-input-model :touch-pan t)))
 
 (defmethod omng-x ((container maquette-view) pix-x) (round (pix-to-x container pix-x)))
 (defmethod omng-y ((container maquette-view) pix-y) (pix-to-y container pix-y))
@@ -291,6 +294,7 @@
   (:default-initargs
    ;:cursor-interval-lines-color (om-make-color 0.8 0.7 0.7)
    :cursor-interval-fill-color (om-make-color-alpha (om-def-color :white) 0.2)
+   :input-model (om-input-model :touch-pan t)
    ))
 
 (defclass sequencer-track-control (om-view)

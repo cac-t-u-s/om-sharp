@@ -29,7 +29,9 @@
 
 (defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view)
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)
-   (left-view :accessor left-view :initform nil :initarg :left-view)))
+   (left-view :accessor left-view :initform nil :initarg :left-view))
+  (:default-initargs
+   :input-model (om-input-model :touch-pan t)))
 
 (defmethod editor-view-class ((self data-stream-editor)) 'stream-panel)
 (defmethod object-has-editor ((self internal-data-stream)) t)
