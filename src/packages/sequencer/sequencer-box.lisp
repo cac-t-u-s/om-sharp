@@ -149,7 +149,7 @@
 
     (put-boxes-in-sequencer self)
 
-    ;; eval the boxes in tracks but not the control-patch:
+    ;; eval the boxes in tracks but not the control-patch
     (eval-sequencer (reference self) NIL)
     ))
 

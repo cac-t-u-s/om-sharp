@@ -26,16 +26,21 @@
 ;;; ev-once-context can be a repeat-n or an om-loop box
 ;;; and return specific flags
 (defparameter *ev-once-context* t)
+
 (defmethod get-ev-once-flag ((self t)) t)
+
 
 (defmethod clear-ev-once ((self t)) nil)
 
+
 (defmethod clear-ev-once ((self patch-editor-view))
   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
-  (mapc #'(lambda (boxframe)
-            (clear-ev-once (object boxframe))) (get-boxframes self))
+  (mapc
+    #'(lambda (boxframe) (clear-ev-once (object boxframe)))
+    (get-boxframes self))
   (setf *current-eval-panel* nil)
   (setf *ev-once-context* t))
+
 
 (defmethod clear-ev-once ((self OMPatch))
   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
@@ -47,22 +52,23 @@
 
 (defmethod clear-ev-once ((self OMBox)) nil)
 
+
 (defmethod clear-ev-once ((self OMBoxCall))
   "Reset the ev-once flag after each generation"
   (setf (ev-once-flag self) nil)
   (when (equal (lock-state self) :eval-once)
     (setf (value self) nil)))
 
+
 (defmethod clear-after-error ((self OMBoxCall))
   (when (and (container self) (editor-view (container self)))
-    (clear-ev-once (editor-view (container self))))
-  )
+    (clear-ev-once (editor-view (container self)))))
+
 
 (defun prompt-on-listeners (message)
   (om-lisp::om-listener-echo message)
   (prompt-on-main-window-listener message)
   (prompt-on-all-patch-listeners message))
-
 
 
 ;;;====================================================
@@ -126,10 +132,8 @@
               (om-add-subviews ,editor-view fv)
               (eval-box b)
               (fade-out-flag-view fv)))
-      (clear-ev-once ,editor-view)
-      )
-   :post-action #'(lambda ()
-                    (prompt-on-listeners "Ready")))
+      (clear-ev-once ,editor-view))
+   :post-action #'(lambda () (prompt-on-listeners "Ready")))
 
   (om-invalidate-view editor-view)
   (update-inspector-for-editor (editor editor-view)))
@@ -150,6 +154,7 @@
      :post-action #'(lambda () (prompt-on-listeners "Ready")))
     (om-invalidate-view editor-view)
     ))
+
 
 (defun om-abort ()
   (when *current-eval-panel* (clear-ev-once *current-eval-panel*))
@@ -172,6 +177,7 @@
       (om-print-format "=> [~{~s~^, ~}]" (list val) "OM#"))
     ))
 
+
 (defmethod eval-box ((self omboxeditcall))
   (declare (special *general-player*))
   (let ((val (get-box-value self)))
@@ -181,6 +187,7 @@
       (om-print-format "Stopping playback on: ~A" (list val))
       (om-ignore&print-error (player-stop-object *general-player* val))))
   (call-next-method))
+
 
 (defmethod eval-box-output ((self ombox) n)
   (let ((val (omng-box-value self n)))
