@@ -141,7 +141,11 @@
 ;;;=========================================
 
 ;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES
-(defmethod eval-sequencer ((seq OMSequencer) &optional (with-control-patch t))
+(defmethod eval-sequencer ((seq OMSequencer) &optional (with-control-patch t) (from-editor nil))
+
+  (when from-editor
+    (setf *current-eval-panel* (get-editor-view-for-action (editor seq))))
+
   (loop for box in (get-all-boxes seq)
         when (not (find-if #'connections (outputs box)))
         do
@@ -150,7 +154,12 @@
           (reset-cache-display box)
           (contextual-update box seq)
           ))
+
   ; (set-meta-inputs (ctrlpatch seq) (car (references-to seq)) seq)
+
+  (when (and from-editor (ctrlpatch seq))
+    (setf *current-eval-panel* (editor-view (ctrlpatch seq))))
+
   (when with-control-patch
     (mapcar 'eval-box (get-boxes-of-type (ctrlpatch seq) 'omoutbox)))
 

@@ -776,6 +776,7 @@
 
 (defmethod eval-editor-boxes ((editor sequencer-editor) boxes)
   (let ((seq (object editor)))
+    (setf *current-eval-panel* (get-editor-view-for-action editor))
     (with-schedulable-object seq
                              (loop for tb in boxes do
                                    (eval-box tb)
@@ -944,7 +945,7 @@ CMD-click to add boxes. Play contents, etc.
      :action #'(lambda (b)
                  (declare (ignore b))
                  (let ((seq (get-obj-to-play editor)))
-                   (eval-sequencer seq)
+                   (eval-sequencer seq T T)
                    (om-invalidate-view (get-g-component editor :main-sequencer-view))
                    )))
     )))
