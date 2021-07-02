@@ -835,8 +835,14 @@
 
 (defmethod click-in-area ((self output-area) boxframe)
   (if (om-command-key-p)
-      (progn (output-eval-command self) t)
+      (progn
+        (eval-box-output-in-editor
+         (editor (om-view-container boxframe))
+         (object boxframe)
+         (position (object self) (outputs (object boxframe))))
+        t)
     (start-connection boxframe self)))
+
 
 (defvar *connection-handler* nil)
 

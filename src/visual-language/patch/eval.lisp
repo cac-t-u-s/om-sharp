@@ -126,36 +126,33 @@
 
   (let ((editor-view (get-editor-view-for-action editor)))
 
-  (om-eval-enqueue
-   `(progn
-      (setf *current-eval-panel* ,editor-view)
-      (loop for b in ',boxes do
-            (let ((fv (make-flag-view b)))
-              (om-add-subviews ,editor-view fv)
-              (eval-box b)
-              (fade-out-flag-view fv)))
-      (clear-ev-once ,editor-view))
-   :post-action #'(lambda () (prompt-on-listeners "Ready")))
+    (om-eval-enqueue
+     `(progn
+        (setf *current-eval-panel* ,editor-view)
+        (loop for b in ',boxes do
+              (let ((fv (make-flag-view b)))
+                (om-add-subviews ,editor-view fv)
+                (eval-box b)
+                (fade-out-flag-view fv)))
+        (clear-ev-once ,editor-view))
+     :post-action #'(lambda () (prompt-on-listeners "Ready")))
 
-  (om-invalidate-view editor-view)
+    (om-invalidate-view editor-view)
     (update-inspector-for-editor editor)))
 
 
-(defun output-eval-command (out-area)
-  (let* ((frame (frame out-area))
-         (box (object frame))
-         (n (position (object out-area) (outputs box)))
-         (editor-view (om-view-container frame)))
-    (prompt-on-listeners "Running...")
+(defun eval-box-output-in-editor (editor box n)
+  (prompt-on-listeners "Running...")
+  (let ((editor-view (get-editor-view-for-action editor)))
     (om-eval-enqueue
      `(progn
         (setf *current-eval-panel* ,editor-view)
         (eval-box-output ,box ,n)
         (clear-ev-once ,editor-view)
-        )
+        (setf *current-eval-panel* nil))
      :post-action #'(lambda () (prompt-on-listeners "Ready")))
-    (om-invalidate-view editor-view)
-    ))
+
+    (om-invalidate-view editor-view)))
 
 
 (defun om-abort ()
