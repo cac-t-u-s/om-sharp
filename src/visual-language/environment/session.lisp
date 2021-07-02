@@ -46,6 +46,17 @@
         (pprint `(:info (:saved ,(om-get-date)) (:version ,*version*)) out)
         (pprint `(:previous-ws ,(omng-save *last-open-ws*)) out)
         (pprint `(:recent-files ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
+
+        (pprint `(:session-window
+                  (:position ,(omng-save *main-window-position*))
+                  (:size ,(omng-save *main-window-size*)))
+                out)
+
+        (pprint `(:listener-window
+                  (:position ,(omng-save *listener-window-position*))
+                  (:size ,(omng-save *listener-window-size*)))
+                out)
+
         ;;; if there is a workspace the preferences will be stored in that workspace
         (unless *current-workspace*
           (pprint `(:user-preferences
@@ -56,7 +67,6 @@
 
 
 ;(save-om-preferences)
-;(set-om-pref :prev-ws #P"/Users/bress/")
 ;(list-from-file (om-preference-file))
 ;(cdr (find :user-preferences pr-list :test 'equal :key 'car)
 
@@ -67,13 +77,30 @@
                          (list-from-file path))))
     (find-values-in-prop-list pref-list key)))
 
-;;; read and loads the main prefs for a session
+;;; read and load the main prefs for a session
 (defmethod load-om-preferences ()
   (let* ((path (om-preference-file))
          (pr-list (and (file-exists-p path)
                        (list-from-file path))))
 
     (setq *om-recent-files* (omng-load (find-value-in-kv-list pr-list :recent-files)))
+
+    (let ((session-window-geometry (find-values-in-prop-list pr-list :session-window)))
+      (when session-window-geometry
+        (let ((pos (omng-load (find-value-in-kv-list session-window-geometry :position)))
+              (size (omng-load (find-value-in-kv-list session-window-geometry :size))))
+          (when pos (setq *main-window-position* pos))
+          (when size (setq *main-window-size* size))
+          )))
+
+    (let ((listener-window-geometry (find-values-in-prop-list pr-list :listener-window)))
+      (when listener-window-geometry
+        (let ((pos (omng-load (find-value-in-kv-list listener-window-geometry :position)))
+              (size (omng-load (find-value-in-kv-list listener-window-geometry :size))))
+          (when pos (setq *listener-window-position* pos))
+          (when size (setq *listener-window-size* size))
+          )))
+
     (load-saved-prefs (find-values-in-prop-list pr-list :user-preferences))
     ))
 

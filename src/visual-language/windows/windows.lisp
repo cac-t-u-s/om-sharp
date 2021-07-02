@@ -302,6 +302,11 @@
 
 (defun get-listener () (car (om-get-all-windows 'om-lisp::om-listener)))
 
+
+(defparameter *listener-window-size* (omp nil 200))
+(defparameter *listener-window-position* (omp nil nil))
+
+
 (defun show-listener-win ()
 
   (let ((listenerwin (get-listener)))
@@ -312,12 +317,21 @@
         (om-select-window listenerwin)
       (om-lisp::om-make-listener
        :initial-lambda #'(lambda () (in-package :om))
-       ; :initial-prompt *om-startup-string*
-       :height 200
+       :x (om-point-x *listener-window-position*)
+       :y (om-point-y *listener-window-position*)
+       :width (om-point-x *listener-window-size*)
+       :height (om-point-y *listener-window-size*)
        :font (get-pref-value :general :listener-font)
        :input (get-pref-value :general :listener-input)
        :on-top (get-pref-value :general :listener-on-top)
+       :geometry-change-callback 'listener-geometry-change-callback
        ))))
+
+
+(defun listener-geometry-change-callback (listener-win x y w h)
+  (declare (ignore listener-win))
+  (setf *listener-window-size* (omp w h)
+        *listener-window-position* (omp x y)))
 
 
 (add-preference :general :listener-font "Listener font" :font om-lisp::*default-listener-font* nil 'set-listener-font)

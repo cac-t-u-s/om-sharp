@@ -19,7 +19,10 @@
 ;;; MAIN WINDOW
 ;;;=================
 
-(defparameter *main-window* nil)
+(defvar *main-window* nil)
+
+(defparameter *main-window-size* (om-make-point 800 300))
+(defparameter *main-window-position* nil)
 
 
 (defclass om-main-window (om-window)
@@ -39,7 +42,8 @@
                                               *app-name*
                                               (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
                                                 ""))
-                               :size (om-make-point 800 300)
+                               :size *main-window-size*
+                               :position *main-window-position*
                                :menu-items (om-menu-items nil) ;;; will be updated right after...
                                )))
       (setf (elements-view win) (make-ws-elements-tab)
@@ -72,6 +76,13 @@
 
 (defmethod om-window-close-event ((self om-main-window))
   (setf *main-window* nil))
+
+(defmethod om-window-resized ((self om-main-window) size)
+  (when size (setf *main-window-size* size)))
+
+(defmethod om-window-moved ((self om-main-window) position)
+  (setf *main-window-position* position))
+
 
 ;;; select-all works only in the documents view
 (defmethod select-all-command ((self om-main-window))
