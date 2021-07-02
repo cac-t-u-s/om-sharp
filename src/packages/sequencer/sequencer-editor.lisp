@@ -251,6 +251,8 @@
 
 (defmethod allowed-element ((self OMSequencer) (elem OMInOutBox)) nil)
 
+(defmethod can-popup-new-box-from-val ((view maquette-view)) nil)
+
 
 (defmethod om-view-pan-handler ((self maquette-view) position dx dy)
   (shift-time-ruler (get-g-component (editor self) :abs-ruler) (* dx 10)))

@@ -189,9 +189,20 @@
   (call-next-method))
 
 
+(defmethod can-popup-as-new-box ((val t)) t)
+(defmethod can-popup-as-new-box ((val OMProgrammingObject)) nil)
+
+(defmethod can-popup-new-box-from-val ((view t)) t)
+
 (defmethod eval-box-output ((self ombox) n)
   (let ((val (omng-box-value self n)))
-    (if (om-shift-key-p)
+
+    (if (and (om-shift-key-p)
+             (or (can-popup-as-new-box val)
+                 (om-beep-msg "can't make a new box from ~A" (type-of val)))
+             (or (can-popup-new-box-from-val *current-eval-panel*)
+                 (om-beep-msg "can't make a new box from output evaluation in ~A" (type-of *current-eval-panel*))))
+
         (output-value-as-new-box val *current-eval-panel*
                                  (om-add-points (io-position-in-patch (area (nth n (outputs self)))) (om-make-point 0 20))
                                  (and (om-option-key-p) (nth n (outputs self))))
