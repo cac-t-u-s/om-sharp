@@ -724,13 +724,11 @@
            (not (om-shift-key-p)))
       (edit-text-area self position))
 
-    (or
-     (progn
-       (editor-box-selection (editor (om-view-container self)) (object self))
-       (apply-in-area self 'click-in-area position))
+    (let ((clicked-area (apply-in-area self 'click-in-area position)))
+      (unless (and clicked-area (selected (object self))) ;; do not unselect
+        (editor-box-selection (editor (om-view-container self)) (object self)))
 
-     self)
-    ))
+      (or clicked-area self))))
 
 
 ;;; handle boxframe click in multi-editor-view
