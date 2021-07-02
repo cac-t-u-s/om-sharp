@@ -72,7 +72,7 @@ It was probably defined in some external file or library that is currently not l
   (om-beep-msg "MISSING REFERENCE FOR BOX [~A ~A]"
                (reference-type self)
                (lost-reference self))
-  (om-abort))
+  (abort-eval))
 
 (defmethod gen-code ((self LostReferenceBox) &optional numout)
   (error (format nil "MISSING REFERENCE FOR BOX [~A ~A]"
@@ -279,11 +279,11 @@ It was probably defined in some external file or library that is currently not l
     (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]"
                  (name self)
                  (mypathname (reference self)))
-    (om-abort)))
+    (abort-eval)))
 
 (defmethod gen-code :before ((self OMBoxAbstraction) &optional numout)
   (when (lost-reference? self)
     (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]"
                  (name self)
                  (mypathname (reference self)))
-    (om-abort)))
+    (abort-eval)))

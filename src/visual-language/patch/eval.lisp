@@ -155,8 +155,9 @@
     (om-invalidate-view editor-view)))
 
 
-(defun om-abort ()
-  (when *current-eval-panel* (clear-ev-once *current-eval-panel*))
+(defun abort-eval ()
+  (when *current-eval-panel*
+    (clear-ev-once *current-eval-panel*))
   (cleanup-flag-view-list)
   (prompt-on-listeners "Aborted")
   (om-lisp::om-kill-eval-process)
@@ -164,7 +165,6 @@
                   #'(lambda ()
                       (om-process-wait 1000)
                       (prompt-on-listeners "Ready")))
-  ;; (abort)
   NIL)
 
 
@@ -272,7 +272,7 @@
                                 (clear-after-error self)
                                 (setf (eval-flag self) nil)
                                 (sleep .5)
-                                (om-abort))))))
+                                (abort-eval))))))
 
     ;(print (list self (lock-state self) (lambda-state self) (ev-once-flag self)))
 
@@ -365,7 +365,7 @@
     (if (null themethod)
         (progn (om-message-dialog (format nil "The method '~A' does not apply to arguments of types [~{~s~^ ~}]. "
                                           (name self) (mapcar 'type-of arguments)))
-          (om-abort))
+          (abort-eval))
       (apply (boxcall-function self) arguments))))
 
 ;;;--------------------------
@@ -394,7 +394,7 @@
                                                             (format nil "~A" c)))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)
-                                (om-abort))))))
+                                (abort-eval))))))
     (cond
 
      ((equal (lock-state self) :locked) (car (value self)))

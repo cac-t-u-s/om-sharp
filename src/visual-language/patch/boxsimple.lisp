@@ -93,7 +93,7 @@
 (defmethod allow-text-input ((self OMValueBox))
   (values (format nil "~s" (car (value self)))
           #'(lambda (box text)
-              (handler-bind ((error #'(lambda (error) (declare (ignore error)) (om-beep) (om-abort))))
+              (handler-bind ((error #'(lambda (error) (declare (ignore error)) (om-beep) (abort-eval))))
                 ;;(setf (name box) text)
                 (let ((val (ignore-errors (read-from-string text))))
                   (store-current-state-for-undo (editor (container self)))

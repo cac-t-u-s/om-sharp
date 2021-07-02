@@ -249,7 +249,7 @@
               (om-make-menu-comp
                (list (om-make-menu-item
                       "Abort Evaluation"
-                      #'(lambda () (om-abort))
+                      #'(lambda () (abort-eval))
                       :key "A"
                       :enabled #'(lambda () (not (edit-lock self)))
                       )))

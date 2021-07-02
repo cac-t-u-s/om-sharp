@@ -65,7 +65,7 @@ Lock the box ('b') to keep the current file.
   (let ((file (om-choose-file-dialog :prompt "Choose an SDIF file..."
                                      :types '("SDIF files" "*.sdif"))))
     (if file (objFromObjs file target)
-      (om-abort))))
+      (abort-eval))))
 
 (defmethod objfromobjs ((model pathname) (target SDIFFile))
   (when (and (or (probe-file model)

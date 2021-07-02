@@ -260,7 +260,7 @@ Returns the selected pathname or NIL if cancelled."
           )
     (if rep
         (setf *last-loaded-dir* (om-make-pathname :directory rep))
-      (om-abort))
+      (abort-eval))
     rep))
 
 

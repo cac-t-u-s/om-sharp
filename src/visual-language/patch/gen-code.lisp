@@ -433,7 +433,7 @@
     ;              (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
     ;
     ;              (setf (compiled? self) nil)
-    ;              ; (om-abort)
+    ;              ; (abort-eval)
     ;              (error err)
     ;              )))
 

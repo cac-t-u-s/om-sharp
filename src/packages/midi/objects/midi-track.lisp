@@ -217,7 +217,7 @@
                                      :types '("MIDI files" "*.mid;*.midi"))))
     (if file
         (objFromObjs file target)
-      (om-abort))))
+      (abort-eval))))
 
 
 ;;; DATA-STREAM=>MIDI-TRACK

@@ -395,7 +395,7 @@ Press 'space' to play/stop the sound file.
                                      :types '("Audio files" "*.aiff;*.aif;*.wav"
                                               "AIFF files" "*.aiff;*.aif" "WAV files" "*.wav"))))
     (if file (objFromObjs file target)
-      (om-abort))))
+      (abort-eval))))
 
 ;;;=================================
 ;;; SOUND INIT RULES:

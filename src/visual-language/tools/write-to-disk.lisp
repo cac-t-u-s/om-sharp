@@ -52,7 +52,7 @@
             ;(print self)
             (write-data self out))
           file)
-      (om-abort))))
+      (abort-eval))))
 
 
 
