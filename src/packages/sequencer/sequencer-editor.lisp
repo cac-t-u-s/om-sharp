@@ -749,14 +749,9 @@
       (:om-key-esc
        (select-unselect-all editor nil))
 
-      (#\v (with-schedulable-object seq
-                                    (loop for tb in (get-visible-selected-boxes editor) do
-                                          (eval-box tb)
-                                          (reset-cache-display tb)
-                                          (contextual-update tb seq)))
-           (om-invalidate-view (window editor))
-           (clear-ev-once (object editor))
-           (report-modifications editor))
+      (#\v
+       (eval-editor-boxes editor (get-visible-selected-boxes editor))
+       (report-modifications editor))
 
       (#\c
        ;;; don't allow inserting comments, nor connecting in tracks view
@@ -777,6 +772,17 @@
        (om-invalidate-view (window editor))
        nil)
       )))
+
+
+(defmethod eval-editor-boxes ((editor sequencer-editor) boxes)
+  (let ((seq (object editor)))
+    (with-schedulable-object seq
+                             (loop for tb in boxes do
+                                   (eval-box tb)
+                                   (reset-cache-display tb)
+                                   (contextual-update tb seq)))
+    (om-invalidate-view (window editor))
+    (clear-ev-once seq)))
 
 
 ;;; not supported for now...
