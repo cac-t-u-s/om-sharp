@@ -120,7 +120,7 @@
 ;;;==========================
 ;;;==========================
 
-(defun eval-command (editor-view boxes)
+(defun eval-editor-boxes (editor-view boxes)
 
   (prompt-on-listeners "Running...")
 
