@@ -675,7 +675,7 @@
                (store-current-state-for-undo editor)
                (list-boxes editor panel selected-boxes)))
 
-        (#\v (eval-editor-boxes panel selected-boxes))
+        (#\v (eval-editor-boxes editor selected-boxes))
 
         (#\w (om-debug))
 

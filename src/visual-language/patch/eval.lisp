@@ -120,9 +120,11 @@
 ;;;==========================
 ;;;==========================
 
-(defun eval-editor-boxes (editor-view boxes)
+(defmethod eval-editor-boxes ((editor patch-editor) boxes)
 
   (prompt-on-listeners "Running...")
+
+  (let ((editor-view (get-editor-view-for-action editor)))
 
   (om-eval-enqueue
    `(progn
@@ -136,7 +138,7 @@
    :post-action #'(lambda () (prompt-on-listeners "Ready")))
 
   (om-invalidate-view editor-view)
-  (update-inspector-for-editor (editor editor-view)))
+    (update-inspector-for-editor editor)))
 
 
 (defun output-eval-command (out-area)
