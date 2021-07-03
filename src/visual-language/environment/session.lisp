@@ -254,8 +254,8 @@
 
   ;;;(in-package :om-user)
 
-  (show-main-om-window :front-tab :listener)
-  (capi:execute-with-interface *om-main-window* 'eval '(in-package :om))
+  (show-main-window :front-tab :listener)
+  (capi:execute-with-interface *main-window* 'eval '(in-package :om))
   (om-print-format *om-startup-string*)
 
   (load-user-code)

@@ -204,7 +204,7 @@
       (load-ws-from-file *current-workspace* pathname)
       ))
 
-  (show-main-om-window)
+  (show-main-window)
   (save-workspace-file *current-workspace*)
   )
 

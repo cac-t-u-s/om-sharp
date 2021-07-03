@@ -81,7 +81,7 @@
 
 
 (defun open-help-patch (path)
-  (declare (special *om-main-window*))
+  (declare (special *main-window*))
   (om-print-format "Opening help-patch : ~A" (list (pathname-name path)) "HELP")
 
   (case (extension-to-doctype (pathname-type path))
@@ -94,7 +94,7 @@
                  (setf (saved? doc) t)
                  (update-document-path doc)  ;; for the document manager
                  (update-window-name (editor doc))
-                 (when *om-main-window* (update-elements-tab *om-main-window*))
+                 (when *main-window* (update-elements-tab *main-window*))
                  doc))
     ))
 

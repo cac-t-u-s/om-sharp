@@ -19,7 +19,7 @@
 ;;; MAIN WINDOW
 ;;;=================
 
-(defparameter *om-main-window* nil)
+(defparameter *main-window* nil)
 
 
 (defclass om-main-window (om-window)
@@ -29,11 +29,11 @@
    (listener-view :accessor listener-view :initform nil)
    (main-layout :accessor main-layout :initform nil)))
 
-; (show-main-om-window)
+; (show-main-window)
 
-(defun show-main-om-window (&key front-tab)
-  (if *om-main-window*
-      (om-select-window *om-main-window*)
+(defun show-main-window (&key front-tab)
+  (if *main-window*
+      (om-select-window *main-window*)
     (let ((win (om-make-window 'om-main-window
                                :title (format nil "~A Window~A"
                                               *app-name*
@@ -58,7 +58,7 @@
         (:listener (om-set-current-view (main-layout win) (listener-view win)))
         (:documents (om-set-current-view (main-layout win) (elements-view win))))
 
-      (setf *om-main-window* win)
+      (setf *main-window* win)
       (om-show-window win))))
 
 #+windows
@@ -71,7 +71,7 @@
 
 
 (defmethod om-window-close-event ((self om-main-window))
-  (setf *om-main-window* nil))
+  (setf *main-window* nil))
 
 ;;; select-all works only in the documents view
 (defmethod select-all-command ((self om-main-window))
@@ -368,16 +368,16 @@
     ))
 
 (defmethod register-document :after ((self OMPersistantObject) &optional path)
-  (when *om-main-window* (update-elements-tab *om-main-window*)))
+  (when *main-window* (update-elements-tab *main-window*)))
 
 (defmethod unregister-document :after ((self OMPersistantObject))
-  (when *om-main-window* (update-elements-tab *om-main-window*)))
+  (when *main-window* (update-elements-tab *main-window*)))
 
 (defmethod update-document-path :after ((self OMPersistantObject))
-  (when *om-main-window* (update-elements-tab *om-main-window*)))
+  (when *main-window* (update-elements-tab *main-window*)))
 
 (defmethod update-create-info :after ((self OMPersistantObject))
-  (when *om-main-window* (update-elements-tab *om-main-window*)))
+  (when *main-window* (update-elements-tab *main-window*)))
 
 
 
@@ -540,7 +540,7 @@ The list on the left show all libraries found in the libraries search paths.
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (update-registered-libraries)
-                                                            (update-libraries-tab *om-main-window*)))))
+                                                            (update-libraries-tab *main-window*)))))
                 :divider
                 side-panel))
     ))
@@ -580,13 +580,13 @@ The list on the left show all libraries found in the libraries search paths.
 (defun set-add-item-on-patch (item)
   (setf *add-item-on-patch* item)
   (om-reset-mouse-motion)
-  (om-set-view-cursor *om-main-window* (om-get-cursor :add)))
+  (om-set-view-cursor *main-window* (om-get-cursor :add)))
 
 (defun cancel-add-item-on-patch ()
   (when *add-item-on-patch*
     (setf *add-item-on-patch* nil)
     (om-reset-mouse-motion)
-    (om-set-view-cursor *om-main-window* nil)))
+    (om-set-view-cursor *main-window* nil)))
 
 (defmethod om-view-cursor :around ((self t))
   (if *add-item-on-patch*
@@ -688,9 +688,9 @@ The list on the left show all libraries found in the libraries search paths.
 
 
 (defun prompt-on-main-window-listener (message)
-  (when (and *om-main-window*
-             (equal (om-get-current-view (main-layout *om-main-window*)) (listener-view *om-main-window*)))
-    (let ((listener-pane (car (om-subviews (listener-view *om-main-window*)))))
+  (when (and *main-window*
+             (equal (om-get-current-view (main-layout *main-window*)) (listener-view *main-window*)))
+    (let ((listener-pane (car (om-subviews (listener-view *main-window*)))))
       (when listener-pane
         (om-lisp::om-prompt-on-echo-area listener-pane message)))))
 

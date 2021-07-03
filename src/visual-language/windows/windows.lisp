@@ -89,7 +89,7 @@
    (list
     (om-make-menu-comp
      (list
-      (om-make-menu-item "Session Window" 'show-main-om-window :key "W")
+      (om-make-menu-item "Session Window" 'show-main-window :key "W")
       (om-make-menu-item "Lisp Listener" 'show-listener-win :key "L")
       (om-make-menu-item "Shell" 'show-shell)
       ))
@@ -381,7 +381,7 @@
 ;;; WORKSPACE
 ;;;===============================
 ;;; defined in om-main-window.lisp
-;;; (defun show-main-om-window () nil)
+;;; (defun show-main-window () nil)
 
 ;;;===============================
 ;;; ABOUT

@@ -121,7 +121,7 @@
     "Windows"
     ((:component
       (("Workspace/Library Window"
-        :callback 'om::show-main-om-window
+        :callback 'om::show-main-window
         :accelerator "accelerator-shift-w"
         :callback-type :none)
        ))
@@ -154,7 +154,7 @@
   "Dock Menu"
   ((:component
     (("Workspace/Library Window"
-      :callback 'om::show-main-om-window
+      :callback 'om::show-main-window
       :accelerator "accelerator-shift-w"
       :callback-type :none)
      ))
@@ -182,7 +182,7 @@
                    (loop while (not om::*om-initialized*)) ;; leave time to load libs etc.
                    (om::record-recent-file filename)
                    (capi:execute-with-interface
-                    om::*om-main-window*
+                    om::*main-window*
                     #'om::open-doc-from-file (om::extension-to-doctype type) filename))
                ))
              ((string-equal "lisp" type)

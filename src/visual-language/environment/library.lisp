@@ -137,10 +137,10 @@
 
 ;; called from the preferences
 (defun update-libraries-folder ()
-  (declare (special *om-main-window*))
+  (declare (special *main-window*))
   (update-registered-libraries)
-  (when *om-main-window*
-    (update-libraries-tab *om-main-window*)))
+  (when *main-window*
+    (update-libraries-tab *main-window*)))
 
 ; (register-all-libraries)
 
