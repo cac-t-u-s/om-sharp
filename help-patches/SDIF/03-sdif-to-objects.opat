@@ -4,18 +4,18 @@
  (:doc "")
  (:info
   (:created "2019/09/23 11:39:16")
-  (:modified "2020/01/02 8:48:15")
+  (:modified "2021/07/04 21:47:05")
   (:by "om-sharp")
-  (:version 1.0))
- (:window (:size (1063 837)) (:position (480 30)))
+  (:version 1.03))
+ (:window (:size (787 835)) (:position (480 30)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:comment
-   (:x 2)
-   (:y 698)
-   (:w 223)
-   (:h 62)
+   (:x 6)
+   (:y 701)
+   (:w 238)
+   (:h 59)
    (:fgcolor (:color 61/255 20/51 74/255 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -33,7 +33,7 @@
    (:reference chord-seq)
    (:group-id nil)
    (:name "CHORD-SEQ")
-   (:x 291)
+   (:x 341)
    (:y 668)
    (:w 233)
    (:h 86)
@@ -107,6 +107,7 @@
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
        (:extras nil)
+       (:group-ids nil)
        (:lmidic
         (:list
          (:list 6550 5970 7198)
@@ -531,10 +532,10 @@
        (:llegato nil)))))
    (:id 1))
   (:comment
-   (:x 79)
+   (:x 80)
    (:y 506)
-   (:w 236)
-   (:h 139)
+   (:w 251)
+   (:h 127)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -545,11 +546,11 @@
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "Some SDIF description contain \"chords\" infor;ation, typically the 1MRK or 1TRC streams resulting from partial tracking or chord-sequences analyses.
-The following functiona apprioximate these data to sequences of notes or directly as a chord-seq object.")
+    "Some SDIF data contain \"chords\" information, typically the 1MRK or 1TRC streams resulting from partial tracking or chord-sequences analyses.
+The following functions apprioximate this data to sequences of notes or directly as a chord-seq object.")
    (:id 2))
   (:comment
-   (:x 379)
+   (:x 383)
    (:y 87)
    (:w 108)
    (:h 25)
@@ -1478,8 +1479,8 @@ The following functiona apprioximate these data to sequences of notes or directl
    (:reference sdiffile)
    (:group-id nil)
    (:name "a01-cut.sdif")
-   (:x 436)
-   (:y 246)
+   (:x 442)
+   (:y 250)
    (:w 103)
    (:h 62)
    (:color nil)
@@ -1487,7 +1488,7 @@ The following functiona apprioximate these data to sequences of notes or directl
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:display :hidden)
+   (:display :text)
    (:showname t)
    (:lock :locked)
    (:lambda nil)
@@ -1503,48 +1504,13 @@ The following functiona apprioximate these data to sequences of notes or directl
    (:value
     (:object
      (:class sdiffile)
-     (:add-slots
-      ((:file-map
-        (:list
-         (:fstream-desc
-          (:id 0)
-          (:fsig "1FQ0")
-          (:tmin 0.04642857142857143D0)
-          (:tmax 2.4961337868480724D0)
-          (:nf 423)
-          (:matrices
-           (:list
-            (:mstream-desc
-             (:msig "1FQ0")
-             (:fields ("??????x1"))
-             (:rmax 1)
-             (:tmin 0.04642857142857143D0)
-             (:tmax 2.4961337868480724D0)
-             (:nf 423)))))))
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "WORKSPACES"
-           "my-workspace"
-           "out-files"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "f0")
-         (:type "sdif")))))))
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
    (:id 5))
   (:comment
-   (:x 376)
+   (:x 384)
    (:y 113)
-   (:w 324)
-   (:h 125)
+   (:w 332)
+   (:h 127)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1561,10 +1527,10 @@ Default values are suited to read and convert 1FQ0 frame and matrix types, typic
 Other type of data can be extracted by setting the optional inputs.")
    (:id 6))
   (:comment
-   (:x 78)
-   (:y 480)
+   (:x 195)
+   (:y 479)
    (:w 75)
-   (:h 32)
+   (:h 25)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1581,10 +1547,10 @@ Other type of data can be extracted by setting the optional inputs.")
    (:reference sec->ms)
    (:group-id nil)
    (:name "sec->ms")
-   (:x 53)
+   (:x 55)
    (:y 375.0)
-   (:w 78)
-   (:h 30)
+   (:w 86)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1627,59 +1593,7 @@ Other type of data can be extracted by setting the optional inputs.")
    (:value
     (:object
      (:class sdiffile)
-     (:add-slots
-      ((:file-map
-        (:list
-         (:fstream-desc
-          (:id 0)
-          (:fsig "1MRK")
-          (:tmin 0.024178000167012215D0)
-          (:tmax 4.991918087005615D0)
-          (:nf 60)
-          (:matrices
-           (:list
-            (:mstream-desc
-             (:msig "1BEG")
-             (:fields ("??????x1"))
-             (:rmax 6)
-             (:tmin 0.024178000167012215D0)
-             (:tmax 4.8881731033325195D0)
-             (:nf 58))
-            (:mstream-desc
-             (:msig "1TRC")
-             (:fields ("??????x1" "??????x2" "??????x3" "??????x4"))
-             (:rmax 6)
-             (:tmin 0.024178000167012215D0)
-             (:tmax 4.8881731033325195D0)
-             (:nf 58))
-            (:mstream-desc
-             (:msig "1END")
-             (:fields ("??????x1"))
-             (:rmax 6)
-             (:tmin 0.08387000113725662D0)
-             (:tmax 4.991918087005615D0)
-             (:nf 58)))))))
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "OM"
-           "OM-VERSIONS"
-           "OM-5.2.1-Linux"
-           "workspaces"
-           "OMWorkspace"
-           "in-files"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "africa.cs")
-         (:type "sdif")))))))
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
    (:id 9))
   (:box
    (:type :function)
@@ -1688,8 +1602,8 @@ Other type of data can be extracted by setting the optional inputs.")
    (:name "getsdifchords")
    (:x 0)
    (:y 638)
-   (:w 104)
-   (:h 30)
+   (:w 111)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1713,8 +1627,8 @@ Other type of data can be extracted by setting the optional inputs.")
    (:name "sdif->bpf")
    (:x 448)
    (:y 322)
-   (:w 81)
-   (:h 30)
+   (:w 91)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1738,8 +1652,8 @@ Other type of data can be extracted by setting the optional inputs.")
    (:name "sdif->markers")
    (:x 40)
    (:y 329.0)
-   (:w 105)
-   (:h 30)
+   (:w 116)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1761,10 +1675,10 @@ Other type of data can be extracted by setting the optional inputs.")
    (:reference sdif->chord-seq)
    (:group-id nil)
    (:name "sdif->chord-seq")
-   (:x 320)
+   (:x 370)
    (:y 588)
-   (:w 114)
-   (:h 30)
+   (:w 129)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1782,27 +1696,10 @@ Other type of data can be extracted by setting the optional inputs.")
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 13))
   (:comment
-   (:x 65)
-   (:y 43)
-   (:w 564)
-   (:h 32)
-   (:fgcolor (:color 61/255 20/51 74/255 1.0))
-   (:bgcolor nil)
-   (:border 0)
-   (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :bold)))
-     (:t-or-nil t)))
-   (:align nil)
-   (:text
-    "A number of tools allow to convert SDIF info to relevant objects or formats for OM processing")
-   (:id 14))
-  (:comment
-   (:x 64)
-   (:y 10)
+   (:x 61)
+   (:y 38)
    (:w 404)
-   (:h 42)
+   (:h 30)
    (:fgcolor (:color 0.19215687 0.2627451 0.42352942 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1812,12 +1709,12 @@ Other type of data can be extracted by setting the optional inputs.")
      (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "Make OM objects and data from SDIF files")
-   (:id 15))
+   (:text "Make objects and data from SDIF files")
+   (:id 14))
   (:comment
    (:x 34)
-   (:y 85)
-   (:w 108)
+   (:y 99)
+   (:w 63)
    (:h 25)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
@@ -1829,12 +1726,12 @@ Other type of data can be extracted by setting the optional inputs.")
      (:t-or-nil t)))
    (:align nil)
    (:text "Markers")
-   (:id 16))
+   (:id 15))
   (:comment
    (:x 31)
    (:y 120)
-   (:w 324)
-   (:h 125)
+   (:w 333)
+   (:h 127)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1848,7 +1745,7 @@ Other type of data can be extracted by setting the optional inputs.")
     "Reads SDIF times and formats results as a list of time markers (in s).
 
 Default values read 1MRK frames, typically resulting from markers or transient detection analyses. More specific type of data can be extracted by setting the optional inputs.")
-   (:id 17)))
+   (:id 16)))
  (:connections
   (:connection (:from (:box 5 :out 0)) (:to (:box 11 :in 0)))
   (:connection (:from (:box 9 :out 0)) (:to (:box 10 :in 0)))
