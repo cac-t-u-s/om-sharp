@@ -119,7 +119,8 @@
 (defun om-make-listener (&key title x y width height initial-lambda
                               initial-prompt
                               font
-                              (input nil) (on-top nil))
+                              (input nil) (on-top nil)
+                              geometry-change-callback)
 
   (or (and om-lisp::*om-listener* (capi::find-interface 'om-listener))
 
@@ -166,10 +167,8 @@
                  :destroy-callback (lambda (window)
                                      (declare (ignore window))
                                      (setf om-lisp::*om-listener* nil))
+                 :geometry-change-callback geometry-change-callback
                  :auto-menus nil
-                           ;:activate-callback (lambda (window activatep)
-                           ;                     (when activatep (setf (capi::interface-menu-bar-items window)
-                           ;                                           (internal-window-class-menubar window))))
                  )
                 ))
 
