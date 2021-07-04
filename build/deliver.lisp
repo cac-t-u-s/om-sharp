@@ -120,7 +120,7 @@
    (windows-menu
     "Windows"
     ((:component
-      (("Workspace/Library Window"
+      (("Session Window"
         :callback 'om::show-main-window
         :accelerator "accelerator-shift-w"
         :callback-type :none)
@@ -153,7 +153,7 @@
 (capi:define-menu om-dock-menu (self)
   "Dock Menu"
   ((:component
-    (("Workspace/Library Window"
+    (("Session Window"
       :callback 'om::show-main-window
       :accelerator "accelerator-shift-w"
       :callback-type :none)
