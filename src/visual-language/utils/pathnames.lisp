@@ -45,7 +45,6 @@
   (let ((ref (cond ((pathnamep reference-path) reference-path)
                    ((symbolp reference-path)
                     (case reference-path
-                      (:workspace (if *current-workspace* (mypathname *current-workspace*)))
                       (:om (om-root-folder))
                       (:current *load-pathname*)
                       (otherwise (make-pathname :directory '(:absolute)))))

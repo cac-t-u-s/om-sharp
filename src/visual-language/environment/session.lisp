@@ -27,14 +27,6 @@
 (defun om-preference-file ()
   (merge-pathnames "om#/preferences.om#" (om-user-pref-folder)))
 
-
-(defvar *last-open-ws* nil)
-(defun remember-previous-ws (&optional (path nil path-supplied-p))
-  (when path-supplied-p
-    (setf *last-open-ws* path))
-  *last-open-ws*)
-
-
 (defmethod save-om-preferences ()
 
   (let ((path (om-preference-file)))
@@ -47,7 +39,7 @@
       (let ((*print-pretty* t))
 
         (pprint `(:info (:saved ,(om-get-date)) (:version ,*version*)) out)
-        (pprint `(:previous-ws ,(omng-save *last-open-ws*)) out)
+
         (pprint `(:recent-files ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
 
         (pprint `(:session-window
@@ -60,12 +52,11 @@
                   (:size ,(omng-save *listener-window-size*)))
                 out)
 
-        ;;; if there is a workspace the preferences will be stored in that workspace
-        (unless *current-workspace*
-          (pprint `(:user-preferences
-                    ,.(mapcar #'save-pref-module *user-preferences*))
-                  out))
+        (pprint `(:user-preferences
+                  ,.(mapcar #'save-pref-module *user-preferences*))
+                out)
         ))
+
     path))
 
 
@@ -196,28 +187,6 @@
       ))
     ))
 
-;;;======================================
-;;; USER-RELATED STARTUP FUNCTIONS
-;;;======================================
-
-(defvar *ws-init-funcs* nil "Functions to load after the workspace is loaded")
-
-(defun add-ws-init-func (func-name)
-  (unless (find func-name *ws-init-funcs* :test 'equal)
-    (setf *ws-init-funcs* (list func-name))))
-
-(defun ws-init-funcall ()
-  (mapc #'(lambda (x) (funcall x)) *ws-init-funcs*)
-  t)
-
-
-;;;======================================
-;;; START WITHOUT WORKSPACE
-;;;======================================
-
-(defun start-without-ws-file ()
-  (remember-previous-ws nil)
-  t)
 
 ;;;======================================
 ;;; MAIN START FUNCTION
@@ -271,8 +240,6 @@
 
   (om-init-funcall)
 
-  ;;; start workspace (maybe)
-  ;(start-workspace)
   (register-all-libraries)
 
   (save-om-preferences)
@@ -285,135 +252,6 @@
 
   (setf *om-initialized* t)
   )
-
-
-;;;==============================
-;;; WS STARTUP DIALOG (not used)
-;;;==============================
-
-; (ws-dialog)
-
-(defun ws-dialog (&optional previous-ws)
-  (let* ((font (om-def-font :font2))
-         (smallfont (om-def-font :font1))
-         (win (om-make-window 'om-dialog :size (om-make-point 400 350)
-                              :resizable nil :maximize nil :minimize nil
-                              :border 10 :title "OpenMusic - Starup"
-                              :win-layout (om-make-layout 'om-column-layout :ratios '(1 nil) :delta 20 :align :right)
-                              :owner nil :focus t
-                              ))
-         (view (om-make-view 'om-view :size (om-make-point 350 300)
-                             :bg-color (om-def-color :white)))
-         (y 10) prev exist new no-ws)
-    (om-add-subviews win view)
-
-    (om-add-subviews view
-                     (om-make-di 'om-simple-text
-                                 :position (om-make-point 15 y)
-                                 :size (om-make-point 340 22)
-                                 :text (format nil "Choose or create a workspace:")
-                                 :font (om-def-font :font2))
-                     (om-make-di 'om-multi-text
-                                 :position (om-make-point 25 (+ y 25))
-                                 :size (om-make-point 350 40)
-                                 :text (format nil "The workspace allows to manage your data and preferences and to store/retrieve your sessions.")
-                                 :fg-color (om-def-color :dark-gray)
-                                 :bg-color (om-def-color :white)
-                                 :font smallfont))
-    (incf y 60)
-    (om-add-subviews view
-                     (setf prev (om-make-di 'om-radio-button :position (om-make-point 20 y) :size (om-make-point 200 20)
-                                            :text " Open previous workspace"
-                                            :checked-p (and previous-ws (probe-file (pathname previous-ws)))
-                                            :enabled (and previous-ws (probe-file (pathname previous-ws)))
-                                            :font font
-                                            :bg-color (om-def-color :white)
-                                            :button-group 'proj
-                                            ))
-                     (om-make-di 'om-multi-text :position (om-make-point 40 (+ y 24)) :size (om-make-point 320 32)
-                                 :text (if previous-ws
-                                           (string+ (namestring previous-ws)
-                                                    (if (probe-file (pathname previous-ws)) "" " [not found]"))
-                                         "...")
-                                 :bg-color (om-def-color :white)
-                                 :fg-color (om-def-color (if (and previous-ws (probe-file (pathname previous-ws))) :dark-gray :dark-gray))
-                                 :font smallfont))
-    (incf y 55)
-    (om-add-subviews view
-                     (setf exist (om-make-di 'om-radio-button :position (om-make-point 20 y) :size (om-make-point 200 20)
-                                             :text " Open a workspace"
-                                             :checked-p (and previous-ws (not (probe-file (pathname previous-ws))))
-                                             :font font
-                                             :bg-color (om-def-color :white)
-                                             :button-group 'proj
-                                             ))
-                     (om-make-di 'om-multi-text :position (om-make-point 40 (+ y 24)) :size (om-make-point 290 16)
-                                 :text "[Select the main \".omws\" workspace file]"
-                                 :fg-color (om-def-color :dark-gray)
-                                 :bg-color (om-def-color :white)
-                                 :font smallfont))
-    (incf y 50)
-    (om-add-subviews view
-                     (setf new (om-make-di 'om-radio-button :position (om-make-point 20 y) :size (om-make-point 200 20)
-                                           :text " Create a new workspace"
-                                           :checked-p nil
-                                           :font font
-                                           :bg-color (om-def-color :white)
-                                           :button-group 'proj
-                                           )))
-    (incf y 40)
-    (om-add-subviews view
-                     (om-make-di 'om-simple-text
-                                 :position (om-make-point 15 y)
-                                 :size (om-make-point 340 22)
-                                 :text (format nil "Start without workspace:")
-                                 :font (om-def-font :font2)))
-    (incf y 30)
-    (om-add-subviews view
-                     (setf no-ws (om-make-di 'om-radio-button :position (om-make-point 20 y) :size (om-make-point 300 20)
-                                             :text " I will create a workspace later"
-                                             :font font
-                                             :checked-p (not previous-ws)
-                                             :bg-color (om-def-color :white)
-                                             :enabled t
-                                             :font font
-                                             :button-group 'proj
-                                             ))
-
-                     )
-
-    (om-add-subviews win
-                     (om-make-layout 'om-row-layout
-                                     :subviews (list
-                                                (om-make-di 'om-button :size (om-make-point 80 24)
-                                                            :text "OK"
-                                                            :default t
-                                                            :focus t
-                                                            :di-action #'(lambda (button)
-                                                                           (declare (ignore button))
-                                                                           (om-return-from-modal-dialog
-                                                                            win
-                                                                            (cond
-                                                                             ((and prev (om-checked-p prev)) 'previous)
-                                                                             ((om-checked-p exist) 'existing)
-                                                                             ((om-checked-p new) 'new)
-                                                                             ((om-checked-p no-ws) 'no)
-                                                                             (t nil))))
-                                                            )
-
-                                                (om-make-di 'om-button :size (om-make-point 80 24) :text "Quit"
-                                                            :di-action #'(lambda (button)
-                                                                           (declare (ignore button))
-                                                                           (om-return-from-modal-dialog win 'quit))))
-                                     )
-                     )
-
-    (om-modal-dialog win)
-    ))
-
-; (ws-dialog)
-
-
 
 
 ;;;======================================

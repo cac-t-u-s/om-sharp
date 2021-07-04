@@ -58,7 +58,6 @@
         "environment/preferences"
         "environment/package"
         "environment/library"
-        "environment/workspace"
         "environment/function-reference"
         "environment/swank"
         "environment/tty-listener"

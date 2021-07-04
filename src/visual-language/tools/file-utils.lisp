@@ -21,7 +21,6 @@
 
 (defun default-folder (name &optional reference-path)
   (let ((ref-path (or reference-path
-                      (and *current-workspace* (mypathname *current-workspace*))
                       (om-make-pathname :directory (append (pathname-directory (om-user-home)) '("Documents" "OM#"))
                                         :host (pathname-host (om-user-home)))
                       )))

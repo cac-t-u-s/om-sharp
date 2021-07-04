@@ -39,10 +39,7 @@
   (if *main-window*
       (om-select-window *main-window*)
     (let ((win (om-make-window 'om-main-window
-                               :title (format nil "~A Window~A"
-                                              *app-name*
-                                              (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
-                                                ""))
+                               :title (format nil "~A Window" *app-name*)
                                :size *main-window-size*
                                :position *main-window-position*
                                :menu-items (om-menu-items nil) ;;; will be updated right after...
@@ -169,119 +166,21 @@
 
 
 (defun make-ws-elements-tab ()
-  (if *current-workspace*
-      ;;; WORKSPACE VIEW
-      (let* ((ed (editor *current-workspace*))
-             (ws *current-workspace*)
-             (display (list :name
-                            (and (get-pref-value :workspace :show-types) :type)
-                            (and (get-pref-value :workspace :show-dates) :date)))
-             (font (om-def-font :font1)))
-        (let ((elements-list (om-make-di 'om-multicol-item-list
-                                         :columns (gen-columns-list display)
-                                         :items (filter-ws-elements (elements ws) (elements-view-filter ed))
-                                         :column-function #'(lambda (item) (gen-column-elements item display))
-                                         :fg-color #'(lambda (item)
-                                                       (if (and (mypathname item) (probe-file (mypathname item)))
-                                                           (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
-                                         :font (om-def-font :mono)
-                                         :alternating-background t
-                                         :sort-styles
-                                         (list (list :name
-                                                     (list :sort #'(lambda (x y) (string-greaterp (name x) (name y)))
-                                                           :reverse  #'(lambda (x y)  (string-lessp (name x) (name y)))))
-                                               (list :path
-                                                     (list :sort #'(lambda (x y) (string-greaterp (namestring (mypathname x)) (namestring (mypathname y))))
-                                                           :reverse  #'(lambda (x y) (string-lessp (namestring (mypathname x)) (namestring (mypathname y))))))
-                                               (list :type
-                                                     (list :sort #'(lambda (x y) (string-greaterp (pathname-type (mypathname x)) (pathname-type (mypathname y))))
-                                                           :reverse  #'(lambda (x y) (string-lessp (pathname-type (mypathname x)) (pathname-type (mypathname y))))))
-                                               (list :modif
-                                                     (list :sort #'(lambda (x y) (string-greaterp (cadr (create-info x)) (cadr (create-info y))))
-                                                           :reverse  #'(lambda (x y) (string-lessp (cadr (create-info x)) (cadr (create-info y))))))
-                                               )
-                                         )))
-
-
-          (om-make-layout
-           'om-column-layout :name "Documents"
-           :subviews (list
-                      elements-list
-                      (om-make-layout
-                       'om-row-layout
-                       :subviews (list (om-make-di 'om-simple-text :text "view"
-                                                   :font font
-                                                   :size (om-make-point 30 20))
-                                       (om-make-di 'om-popup-list
-                                                   :items '(:all :patches :sequencers)
-                                                   :font font
-                                                   :value (elements-view-filter ed)
-                                                   :size (om-make-point 100 24)
-                                                   :di-action #'(lambda (item)
-                                                                  (setf (elements-view-filter ed)
-                                                                        (om-get-selected-item item))
-                                                                  (om-set-item-list
-                                                                   elements-list
-                                                                   (filter-ws-elements (elements ws) (elements-view-filter ed)))
-                                                                  ))
-                                       nil
-                                       (om-make-di 'om-simple-text :text "sort"
-                                                   :font font
-                                                   :size (om-make-point 30 20))
-                                       (om-make-di 'om-popup-list
-                                                   :items '(:name :path :type :date-modified)
-                                                   :value (elements-view-sort ed)
-                                                   :font font
-                                                   :size (om-make-point 100 24)
-                                                   :di-action #'(lambda (item)
-                                                                  (setf (elements-view-sort ed)
-                                                                        (om-get-selected-item item))
-                                                                  (om-sort-list-by elements-list (om-get-selected-item item))
-                                                                  ))
-                                       nil
-                                       (om-make-di 'om-simple-text :text "show"
-                                                   :font font
-                                                   :size (om-make-point 40 20)
-                                                   )
-                                       (om-make-di 'om-popup-list
-                                                   :size (om-make-point 100 24)
-                                                   :font font
-                                                   :value (elements-view-mode ed)
-                                                   :items '(:name :abs-path :rel-path)
-                                                   :di-action #'(lambda (item)
-                                                                  (setf (elements-view-mode ed)
-                                                                        (om-get-selected-item item))
-                                                                  (om-invalidate-view elements-list)
-                                                                  )
-                                                   )
-                                       (om-make-di
-                                        'om-button :text ".." :font font
-                                        :size (om-make-point 40 24)
-                                        :di-action #'(lambda (button) (declare (ignore button)) nil)
-                                        ))
-                       :ratios '(nil nil 2 1 1 1 1 1)
-                       )
-
-                      )
-         ;:ratios '(nil nil)
-           )))
-
-    ;;; FILE VIEW
-    (let ((doc-list
-           (om-make-di
-            'om-multicol-item-list
-            :columns (gen-columns-list '(:name :type :date))
-            :items (mapcar 'doc-entry-doc *open-documents*)
-            :column-function #'(lambda (item) (gen-column-elements item '(:name :type :date)))
-            :fg-color #'(lambda (item)
-                          (if (and (mypathname item) (probe-file (mypathname item)))
-                              (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
-            :font (om-def-font :mono)
-            :scrollbars t
-            :alternating-background t
-            :auto-reset-column-widths t
-            :action-callback #'dbclicked-item-in-list
-            :size (omp nil nil)
+  (let ((doc-list
+         (om-make-di
+          'om-multicol-item-list
+          :columns (gen-columns-list '(:name :type :date))
+          :items (mapcar 'doc-entry-doc *open-documents*)
+          :column-function #'(lambda (item) (gen-column-elements item '(:name :type :date)))
+          :fg-color #'(lambda (item)
+                        (if (and (mypathname item) (probe-file (mypathname item)))
+                            (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
+          :font (om-def-font :mono)
+          :scrollbars t
+          :alternating-background t
+          :auto-reset-column-widths t
+          :action-callback #'dbclicked-item-in-list
+          :size (omp nil nil)
                      ;:sort-styles
                      ;(list (list :name
                      ;            (list :sort #'(lambda (x y) (string-greaterp (name x) (name y)))
@@ -296,12 +195,12 @@
                      ;            (list :sort #'(lambda (x y) (string-greaterp (cadr (create-info x)) (cadr (create-info y))))
                      ;                  :reverse  #'(lambda (x y) (string-lessp (cadr (create-info x)) (cadr (create-info y))))))
                      ;      )
-            )))
+          )))
 
-      (om-make-layout
-       'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
-       :subviews (list
-                  doc-list
+    (om-make-layout
+     'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
+     :subviews (list
+                doc-list
 
                     ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20)
                     ;            :font (om-def-font :font2)
@@ -311,25 +210,25 @@
                     ;            :font (om-def-font :font2)
                     ;            :text "Create One?")
 
-                  (om-make-layout 'om-row-layout :subviews
-                                  (list
-                                   nil
-                                   (om-make-di 'om-button :text "Save selection"
-                                               :size (omp 125 32) :font (om-def-font :font1)
-                                               :di-action #'(lambda (b)
-                                                              (declare (ignore b))
-                                                              (save-documents doc-list)
-                                                              ))
-                                   (om-make-di 'om-button :text "Close selection"
-                                               :size (omp 125 32) :font (om-def-font :font1)
-                                               :di-action #'(lambda (b)
-                                                              (declare (ignore b))
-                                                              (close-documents doc-list)
-                                                              ))))
+                (om-make-layout 'om-row-layout :subviews
+                                (list
+                                 nil
+                                 (om-make-di 'om-button :text "Save selection"
+                                             :size (omp 125 32) :font (om-def-font :font1)
+                                             :di-action #'(lambda (b)
+                                                            (declare (ignore b))
+                                                            (save-documents doc-list)
+                                                            ))
+                                 (om-make-di 'om-button :text "Close selection"
+                                             :size (omp 125 32) :font (om-def-font :font1)
+                                             :di-action #'(lambda (b)
+                                                            (declare (ignore b))
+                                                            (close-documents doc-list)
+                                                            ))))
 
-                  ))
-      )
-    ))
+                ))
+    )
+  )
 
 
 (defmethod select-all-documents ((window om-main-window))
