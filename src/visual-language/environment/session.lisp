@@ -100,34 +100,15 @@
 
 
 ;;;======================================
-;;; THE 'PATCHES' FOLDER CONTAIN CHANGES TO LOAD BEFORE STARTUP
+;;; THE 'INIT' FOLDER CONTAINS "PATCHES" TO LOAD BEFORE STARTUP
 ;;;======================================
-
-
-;;; pb: om-directory won't work on containing folder if the app is on quarantine
-#|
-(defun get-app-name ()
-  #+macosx(let ((app-bundle (find ".app" (om-directory (om-root-folder) :files nil)
-                                  :test 'search :key #'(lambda (dir) (car (last (pathname-directory dir)))))))
-            (when app-bundle
-              (car (last (pathname-directory app-bundle)))))
-  #+windows(find "exe" (om-directory (om-root-folder) :files t :directories nil)
-                 :test 'string-equal :key 'pathname-type))
-|#
-
-(defun get-app-name ()
-  (string+ *app-name*
-           #+macosx ".app"
-           #+windows ".exe"
-           ))
-
 (defun get-init-patches-folder ()
   (merge-pathnames (make-pathname
                     :directory
                     (cons :relative
                           #-macosx(list "init")
                           #+macosx(if (member :om-deliver *features*)
-                                      (list (get-app-name) "Contents" "Init")
+                                      (list (string+ *app-name* ".app") "Contents" "Init")
                                     (list "init"))
                           ))
                    (om-root-folder)))
@@ -143,6 +124,10 @@
                       'string< :key 'pathname-name)))
         ))))
 
+
+;;;======================================
+;;; THE 'USER CODE' FOLDER
+;;;======================================
 
 (defun load-code-in-folder (folder &optional (recursive t))
   (let ((*load-verbose* t))
@@ -161,6 +146,7 @@
       (load-code-in-folder user-code-folder))))
 
 ; (load-user-code)
+
 
 ;;;======================================
 ;;; OM-RELATED STARTUP FUNCTIONS
