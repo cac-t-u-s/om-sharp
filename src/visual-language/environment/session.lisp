@@ -24,12 +24,12 @@
 ;;; GENERAL PREFERENCES
 ;;;======================================
 
-(defun om-preference-file ()
+(defun preference-file ()
   (merge-pathnames "om#/preferences.om#" (om-user-pref-folder)))
 
 (defmethod save-preferences ()
 
-  (let ((path (om-preference-file)))
+  (let ((path (preference-file)))
 
     (om-create-directory (make-pathname :directory (pathname-directory path)))
     (with-open-file (out path :direction :output
@@ -61,19 +61,19 @@
 
 
 ;(save-preferences)
-;(list-from-file (om-preference-file))
+;(list-from-file (preference-file))
 ;(cdr (find :user-preferences pr-list :test 'equal :key 'car)
 
 ;;; reads one preference in the preference file
-(defmethod read-om-preference (key)
-  (let* ((path (om-preference-file))
+(defmethod read-preference (key)
+  (let* ((path (preference-file))
          (pref-list (and (file-exists-p path)
                          (list-from-file path))))
     (find-values-in-prop-list pref-list key)))
 
 ;;; read and load the main prefs for a session
-(defmethod load-om-preferences ()
-  (let* ((path (om-preference-file))
+(defmethod load-preferences ()
+  (let* ((path (preference-file))
          (pr-list (and (file-exists-p path)
                        (list-from-file path))))
 
@@ -234,7 +234,7 @@
 
   (om-lisp::om-init-output-stream)
 
-  (load-om-preferences)
+  (load-preferences)
 
   (when (find-om-package :midi) (midi-apply-ports-settings))
 
