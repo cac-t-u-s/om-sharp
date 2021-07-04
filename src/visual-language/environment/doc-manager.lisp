@@ -171,7 +171,7 @@
             (cons file (butlast *om-recent-files* (max 0 (- (length *om-recent-files*) (1- num-recorded-files))))))
       ))
   ;;; to store the list of documents...
-  (save-om-preferences))
+  (save-preferences))
 
 
 ;;; called from the menu ("Open")

@@ -206,9 +206,6 @@
               collect
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
 
-(defun save-preferences ()
-  (save-om-preferences))
-
 (defun load-saved-prefs (saved-prefs)
   (loop for saved-module in saved-prefs do
         ;;; find the corresponding pref module in preferences
@@ -218,8 +215,6 @@
             (loop for pref in (cdr saved-module)
                   do (set-pref module-id (car pref) (omng-load (cadr pref)))))
           )))
-
-(add-om-exit-action 'save-preferences)
 
 
 ;;;====================================

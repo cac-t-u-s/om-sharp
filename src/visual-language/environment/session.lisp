@@ -27,7 +27,7 @@
 (defun om-preference-file ()
   (merge-pathnames "om#/preferences.om#" (om-user-pref-folder)))
 
-(defmethod save-om-preferences ()
+(defmethod save-preferences ()
 
   (let ((path (om-preference-file)))
 
@@ -60,7 +60,7 @@
     path))
 
 
-;(save-om-preferences)
+;(save-preferences)
 ;(list-from-file (om-preference-file))
 ;(cdr (find :user-preferences pr-list :test 'equal :key 'car)
 
@@ -242,7 +242,7 @@
 
   (register-all-libraries)
 
-  (save-om-preferences)
+  (save-preferences)
 
   (show-main-window :front-tab :listener)
   (capi:execute-with-interface *main-window* 'eval '(in-package :om))
@@ -276,3 +276,10 @@
       (perform-om-exit-actions)
       (oa::om-api-exit))
     rep))
+
+
+;;;======================================
+;;; EXIT ACTION: SAVE THE PREFERENCES
+;;;======================================
+
+(add-om-exit-action 'save-preferences)
