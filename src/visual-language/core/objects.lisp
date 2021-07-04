@@ -126,9 +126,9 @@
    (compiled? :initform nil  :accessor compiled?)
    (doc :initform "" :accessor doc :documentation "documentation")
    (create-info :initform '(nil nil *app-name* 0) :accessor create-info :documentation "information about creation and last modification of the document (text)")
-   (loaded? :initform t :accessor loaded? :documentation "is this document loaded?")
-   (dependencies :initform nil :accessor dependencies :documentation "a list of subpatches"))
-  (:documentation "Superclass for programming object and workspace elements"))
+   (loaded? :initform t :accessor loaded? :documentation "is this object loaded?")
+   (dependencies :initform nil :accessor dependencies))
+  (:documentation "Superclass for programming objects"))
 
 (defmethod initialize-instance :after ((self OMProgrammingObject) &rest initargs)
   (setf (compiled-fun-name self) (default-compiled-gensym self)))

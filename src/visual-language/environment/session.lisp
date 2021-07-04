@@ -38,11 +38,14 @@
 (defmethod save-om-preferences ()
 
   (let ((path (om-preference-file)))
+
     (om-create-directory (make-pathname :directory (pathname-directory path)))
     (with-open-file (out path :direction :output
                          :if-does-not-exist :create
                          :if-exists :supersede)
+
       (let ((*print-pretty* t))
+
         (pprint `(:info (:saved ,(om-get-date)) (:version ,*version*)) out)
         (pprint `(:previous-ws ,(omng-save *last-open-ws*)) out)
         (pprint `(:recent-files ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
@@ -221,8 +224,6 @@
 ;;;======================================
 
 ;;; will be printed in the Listener
-
-
 (defparameter *om-startup-string*
   (format nil
           "===========================~%~A v~D~%r. ~A~%==========================="
@@ -256,8 +257,6 @@
 
   (in-package :om)
 
-  ;(show-listener-win)
-
   (set-language *release-language*)
   (register-om-icons)
 
@@ -266,7 +265,6 @@
 
   (om-lisp::om-init-output-stream)
 
-  ;;; read the general prefs
   (load-om-preferences)
 
   (when (find-om-package :midi) (midi-apply-ports-settings))
@@ -278,8 +276,6 @@
   (register-all-libraries)
 
   (save-om-preferences)
-
-  ;;;(in-package :om-user)
 
   (show-main-window :front-tab :listener)
   (capi:execute-with-interface *main-window* 'eval '(in-package :om))

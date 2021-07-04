@@ -32,6 +32,7 @@
    (listener-view :accessor listener-view :initform nil)
    (main-layout :accessor main-layout :initform nil)))
 
+
 ; (show-main-window)
 
 (defun show-main-window (&key front-tab)

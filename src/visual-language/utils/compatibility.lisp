@@ -214,16 +214,16 @@
   (let* ((name (car (last path-list)))
 
          ;;; try to locate the container-patch's OM6 workspace
-         (workspace-root
+         (om-workspace-root
           (when (find "elements" (pathname-directory *current-loading-document*) :test 'string-equal)
             (om-make-pathname :directory
                               (subseq (pathname-directory *current-loading-document*) 0
                                       (position "elements" (pathname-directory *current-loading-document*) :test 'string-equal)))))
 
          ;;; try to determine the original abstraction folder
-         (doc-path-folder (when workspace-root
+         (doc-path-folder (when om-workspace-root
                             (om-make-pathname :directory
-                                              (append (pathname-directory workspace-root) (butlast path-list)))))
+                                              (append (pathname-directory om-workspace-root) (butlast path-list)))))
 
          ;;; determine the actual abstraction file
          (doc-path (or (and doc-path-folder

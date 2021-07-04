@@ -114,13 +114,10 @@
 ;;;=========================
 ;;; RELATIVE PATHNAMES
 ;;;=========================
-;(setf p1 #P"/Users/bresson/WORKSPACES/aaaa/elements/mk-examples.omp")
-;(setf p2 #P"/Users/bresson/WORKSPACES/aaaa/elements/NewFolder/bouches/piece1.omp")
-;(setf p3 #P"/Users/bresson/WORKSPACES/infiles/test.aif")
+;(setf p1 #P"/Users/aaaa/elements/mk-examples.opat")
+;(setf p2 #P"/Users/aaaa/elements/NewFolder/bouches/piece1.opat")
+;(setf p3 #P"/Users/infiles/test.aif")
 ;(relative-pathname p3 p1)
-
-
-
 
 (defvar *relative-path-reference* nil)
 
@@ -131,10 +128,9 @@
        (setq *relative-path-reference* current-relative-path)
        rep)))
 
-#|
- (let ((relative-path-reference "/Users/bresson/WORKSPACES/mk-examples.omp"))
-  (restore-path "../test/ist/ooo.omp" relative-path-reference))
-|#
+
+;(setf relative-path-reference "/Users/aaaa/mk-examples.omp")
+;(restore-path "../test/ist/ooo.omp" relative-path-reference)
 
 (defun relative-pathname (path &optional refpath)
   (let ((dirlist '(:relative))
@@ -181,8 +177,8 @@
                 :device (pathname-device refpath) :host (pathname-host refpath)
                 :directory (pathname-directory refpath)
                 :name (pathname-name self) :type (pathname-type self))))
-      self)
-    ))
+      self)))
+
 
 (defmethod restore-path ((self string) &optional refpath)
   (restore-path (pathname self) refpath))
@@ -190,12 +186,11 @@
 (defmethod restore-path ((self t) &optional refpath) nil)
 
 
-
 ;;;=========================
 ;;; EXTERNAL EXECs
 ;;;=========================
 
-;;; a utility function to get the executable path from a .app on Mac
+;;; utility function to get the executable path from a .app on Mac
 (defun real-exec-pathname (path)
   (let* ((path-path (pathname path))
          (name (car (last (pathname-directory path-path)))))
