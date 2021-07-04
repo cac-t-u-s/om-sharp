@@ -196,10 +196,14 @@
 
 
 ;;; DELIVER
-(defun init-om-standalone ()
+(defun init-omsharp-standalone ()
+
   (push :om-deliver *features*)
+
   #+cocoa(default-interface)
-  (om::om-root-init)
+
+  (om::init-root-folders)
+
   (setf dspec::*active-finders*
         (append dspec::*active-finders*
                 (list (merge-pathnames
@@ -207,10 +211,12 @@
                        #-macosx (concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
                        om-api::*om-root*
                        ))))
+
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
+
   (setq om::*om-debug* nil) ;; will disable debug print messages
-  (om::start-omsharp)
-  )
+
+  (om::start-omsharp))
 
 
 ;;;==========================
@@ -239,8 +245,6 @@
 ;;; BUILD IMAGE
 ;;;==========================
 
-
-
 ;(setf *debugger-hook* 'oa::om-debugger-hook)
 
 (defun version-to-hex (n)
@@ -250,11 +254,6 @@
           (round (* (cadr (multiple-value-list (round (* 100 n)))) 100))
           (round (* (cadr (multiple-value-list (round (* 10000 n)))) 100))
           ))
-
-
-
-
-
 
 
 (defun move-mac-resources ()
@@ -344,7 +343,7 @@
 
   #+macosx(move-mac-resources)
 
-  (deliver 'init-om-standalone
+  (deliver 'init-omsharp-standalone
            application-pathname
            0
            #+macosx :split  #+macosx :resources

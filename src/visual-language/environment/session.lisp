@@ -149,11 +149,11 @@
 
 
 ;;;======================================
-;;; OM-RELATED STARTUP FUNCTIONS
+;;; ROOT FOLDER (CALLED IN DELIVER)
 ;;;======================================
 
 ;;; called in delivered app init
-(defun om-root-init ()
+(defun init-root-folders ()
   (when (om-standalone-p)
     (om-set-root-folder
      (make-pathname
