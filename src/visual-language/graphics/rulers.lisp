@@ -31,6 +31,10 @@
    (y-factor :accessor y-factor :initform 1)
    (y-shift :accessor y-shift :initform 0)))
 
+
+(defvar *min-ruler-extent* 10)
+
+
 (defmethod set-shift-and-factor ((self t)) nil)
 
 ;(defmethod x1 ((self x-graduated-view))
@@ -137,7 +141,17 @@
   (when (vmax ruler) (setf (vmax ruler) (round (* (vmax ruler) val))))
   (setf (v1 ruler) (round (* (v1 ruler) val))
         (v2 ruler) (round (* (v2 ruler) val)))
-  (if (= (v1 ruler) (v2 ruler)) (setf (v2 ruler) (1+ (v1 ruler))))
+
+  (when (< (abs (- (v1 ruler) (v2 ruler))) *min-ruler-extent*)
+    (let ((half-diff (ceiling (- *min-ruler-extent* (abs (- (v1 ruler) (v2 ruler)))) 2))
+          (reversed (> (v1 ruler) (v2 ruler))))
+      (if reversed
+          (setf (v1 ruler) (+ (v1 ruler) half-diff)
+                (v2 ruler) (- (v2 ruler) half-diff))
+        (setf (v1 ruler) (- (v1 ruler) half-diff)
+              (v2 ruler) (+ (v2 ruler) half-diff))
+        )))
+
   (set-shift-and-factor ruler)
   (om-with-delayed-redraw
       (om-invalidate-view ruler)
@@ -152,7 +166,7 @@
 (defmethod set-ruler-range ((self ruler-view) v1 v2)
   (let* ((v11 (min v1 v2))
          (v22 (max v1 v2)))
-    (when (>= (- v22 v11) 10)
+    (when (>= (- v22 v11) *min-ruler-extent*)
       (setf (v1 self) (max? (vmin self) v11))
       (setf (v2 self) (min? (vmax self) v22))))
   (set-shift-and-factor self)
