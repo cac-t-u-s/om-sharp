@@ -65,8 +65,6 @@
 
 (defmethod handle-multi-display ((self bpf-editor)) t)
 
-;;; UNDO SYSTEM
-;; (defmethod undoable-object ((self bpf-editor)) (object-value self))
 (defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
 
 
@@ -75,8 +73,7 @@
 (defclass bpf-bpc-panel (OMEditorView multi-view-editor-view)
   ((scale-fact :accessor scale-fact :initarg :scale-fact :initform 1)
    (x-ruler :accessor x-ruler :initform nil)
-   (y-ruler :accessor y-ruler :initform nil)
-   )
+   (y-ruler :accessor y-ruler :initform nil))
   (:default-initargs
    :input-model (om-input-model :touch-pan t)))
 
@@ -186,8 +183,8 @@
                                                                          (make-pause-button editor :enable t)
                                                                          (make-stop-button editor :enable t))))
                                                    )))
-         (bottom-area nil)
-         )
+         (bottom-area nil))
+
     ;create the bottom area (needed to add remove the timeline-time-monitor
     (setf bottom-area (om-make-layout 'om-row-layout
                                       :align :bottom
@@ -278,6 +275,8 @@
                                                       )
                                       (when timeline timeline)
                                       bottom-area))
+
+                     ;;; default "property" editor:
                      (call-next-method)))
     ))
 
@@ -302,11 +301,11 @@
     (apply 'om-add-subviews (cons self mode-buttons))
     ))
 
+
 ;;; happens when the window is already built
 (defmethod init-editor-window ((editor bpf-editor))
   (call-next-method)
-  (reinit-ranges editor)
-  )
+  (reinit-ranges editor))
 
 
 (defmethod om-view-cursor ((self bpf-bpc-panel))
@@ -328,7 +327,7 @@
     (setf (scale-fact (get-g-component self :main-panel)) (expt 10 val)))
   (setf (decimals self) val))
 
-;;; called at at eval
+;;; called at eval
 (defmethod update-to-editor ((editor bpf-editor) (from t))
   (call-next-method)
   (let ((object (object-value editor)))
@@ -337,8 +336,7 @@
       (when object
         (set-decimals-in-editor editor (decimals object))
         (enable-play-controls editor (action object)))
-      (om-invalidate-view (get-g-component editor :main-panel))
-      )
+      (om-invalidate-view (get-g-component editor :main-panel)))
 
     (when (timeline-editor editor)
       (update-to-editor (timeline-editor editor) editor))))
@@ -347,8 +345,7 @@
   (call-next-method)
   (om-invalidate-view (get-g-component editor :main-panel))
   (update-timeline-editor editor)
-  (report-modifications editor)
-  )
+  (report-modifications editor))
 
 (defmethod update-to-editor ((self bpc-editor) (from t))
   (call-next-method)
@@ -404,13 +401,13 @@
     (om-draw-circle (car p) (cadr p) 3 :fill t))
    (t nil))
 
-
   (when index
     (om-draw-string (car p) (+ (cadr p) 15) (number-to-string index)))
   (when (and time (editor-get-edit-param editor :show-times))
     (om-with-fg-color (if (minusp time) (om-def-color :gray) (om-def-color :dark-blue) )
       (om-draw-string (car p) (- (cadr p) 15) (number-to-string (abs time) 0))))
   )
+
 
 (defun draw-interpol-point (p editor &key time)
   (if (and time (equal (player-get-object-state (player editor) (object-value editor)) :play)
