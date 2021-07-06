@@ -432,6 +432,8 @@
   (setf (selection self) nil)
   (when (window self)
     (set-3d-objects self)
+    (set-decimals-in-editor (top-bpc-editor self) (decimals (object-value self)))
+    (set-decimals-in-editor (front-bpc-editor self) (decimals (object-value self)))
     (time-sequence-update-internal-times (object-value self))
     ; (enable-play-controls self (action (object-value self))) ;;; leave T
     (update-sub-editors self)
