@@ -65,7 +65,7 @@
 
 (defmethod handle-multi-display ((self bpf-editor)) t)
 
-(defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
+(defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list name)))
 
 (defmethod update-after-state-change ((self bpf-editor))
   (update-view-contents (get-g-component self :default-view))
@@ -249,8 +249,6 @@
                                        nil
                                        )))
 
-    (set-g-component editor :x-ruler rx)
-    (set-g-component editor :y-ruler ry)
     (set-g-component editor :mousepos-txt mousepos-txt)
     (set-g-component editor :main-panel panel)
 
@@ -320,16 +318,19 @@
       ;(:zoomin (om-get-cursor :loupe))
       (otherwise (if (om-add-key-down) (om-get-cursor :add) nil)))))
 
+
 (defmethod set-decimals-in-editor ((self bpf-editor) val)
-  (when (get-g-component self :x-ruler)
-    (setf (decimals (get-g-component self :x-ruler)) val)
-    (scale-ruler (get-g-component self :y-ruler) (expt 10 (- val (decimals self)))))
-  (when (get-g-component self :y-ruler)
-    (setf (decimals (get-g-component self :y-ruler)) val)
-    (scale-ruler (get-g-component self :x-ruler) (expt 10 (- val (decimals self)))))
-  (when (get-g-component self :main-panel)
-    (setf (scale-fact (get-g-component self :main-panel)) (expt 10 val)))
-  (setf (decimals self) val))
+  (let ((panel (get-g-component self :main-panel)))
+    (when (x-ruler panel)
+      (setf (decimals (x-ruler panel)) val)
+      (scale-ruler (x-ruler panel) (expt 10 (- val (decimals self)))))
+    (when (y-ruler panel)
+      (setf (decimals (y-ruler panel)) val)
+      (scale-ruler (y-ruler panel) (expt 10 (- val (decimals self)))))
+    (when panel
+      (setf (scale-fact panel) (expt 10 val)))
+    (setf (decimals self) val)))
+
 
 ;;; called at eval
 (defmethod update-to-editor ((editor bpf-editor) (from t))
