@@ -155,24 +155,16 @@
     (let ((factor (expt 10 decimals)))
       #'(lambda (n) (/ (round (* n factor)) (float factor))))))
 
-(defmethod x-values-from-points ((self bpf)) (mapcar #'om-point-x (point-list self)))
-;   (let ((fun (if (zerop (decimals self)) #'om-point-x #'(lambda (p) (/ (om-point-x p) (expt 10.0 (decimals self)))))))
-;     (mapcar fun (point-list self))))
+(defmethod x-values-from-points ((self bpf))
+  (mapcar #'om-point-x (point-list self)))
 
-(defmethod y-values-from-points ((self bpf)) (mapcar #'om-point-y (point-list self)))
-;   (let ((fun (if (zerop (decimals self)) #'om-point-y #'(lambda (p) (/ (om-point-y p) (expt 10.0 (decimals self)))))))
-;     (mapcar fun (point-list self))))
+(defmethod y-values-from-points ((self bpf))
+  (mapcar #'om-point-y (point-list self)))
 
 (defmethod xy-values-from-points ((self bpf) &optional from to)
   (mapcar #'(lambda (p) (list (om-point-x p) (om-point-y p)))
           (filter-list (point-list self) from to :key 'om-point-x)))
 
-
-;(if (zerop (decimals self))
-;    (mapcar #'(lambda (p) (list (om-point-x p) (om-point-y p))) (point-list self))
-;  (let ((fact (expt 10.0 (decimals self))))
-;    (mapcar #'(lambda (p) (list (/ (om-point-x p) fact) (/ (om-point-y p) fact))) (point-list self)))
-;  ))
 
 (defmethod set-bpf-points ((self bpf) &key x y z time time-types)
   (declare (ignore time z))
