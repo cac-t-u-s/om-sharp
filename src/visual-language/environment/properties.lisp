@@ -134,6 +134,9 @@
 ;;; called after a property is changed
 (defmethod update-after-prop-edit ((self t) (object t)) nil)
 
+(defmethod maybe-store-undo-state ((self t) prop-id object)
+  (declare (ignore prop-id object)))
+
 ;;;====================================
 ;;; DEFAULT (UNSPECIFIED)
 ;;;====================================
@@ -155,6 +158,7 @@
                                        20)
                   :font font
                   :after-fun #'(lambda (item)
+                                 (maybe-store-undo-state update nil nil)
                                  (set-property object prop-id
                                                (if (string-equal (text item) "") nil
                                                  (read-from-string (text item))))
@@ -178,6 +182,7 @@
                 :size (om-make-point 80 20)
                 :font (om-def-font :font1)
                 :after-fun #'(lambda (item)
+                               (maybe-store-undo-state update nil nil)
                                (set-property object prop-id
                                              (if (string-equal (text item) "") nil
                                                (text item)))
@@ -206,6 +211,7 @@
                             :font (om-def-font :font1)
                             :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
                             :after-fun #'(lambda (item)
+                                           (maybe-store-undo-state update nil nil)
                                            (set-property object prop-id (get-value item))
                                            (when update (update-after-prop-edit update object))
                                            ))))
@@ -248,6 +254,7 @@
                                   :min-val (or (number-or-nil-min type) 0)
                                   :max-val (or (number-or-nil-max type) 10000)
                                   :after-fun #'(lambda (item)
+                                                 (maybe-store-undo-state update nil nil)
                                                  (set-property
                                                   object prop-id
                                                   (make-number-or-nil :number (get-value item)
@@ -264,6 +271,7 @@
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
+                                     (maybe-store-undo-state update nil nil)
                                      (enable-numbox numbox (om-checked-p item))
                                      ;;; when there is a default, it gets set when unckecked
                                      (when (and default (null (om-checked-p item)))
@@ -296,6 +304,7 @@
               :size (om-make-point nil 20)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
+                             (maybe-store-undo-state update nil nil)
                              (set-property object prop-id (om-checked-p item))
                              (when update (update-after-prop-edit update object))
                              )))
@@ -319,6 +328,7 @@
                                    22)
                             :font font
                             :di-action #'(lambda (item)
+                                           (maybe-store-undo-state update nil nil)
                                            (set-property object prop-id (om-get-selected-item item))
                                            (when update (update-after-prop-edit update object))
                                            ))))
@@ -334,6 +344,7 @@
                          :size (om-make-point 20 14)
                          :font (om-def-font :font1)
                          :di-action #'(lambda (item)
+                                        (maybe-store-undo-state update nil nil)
                                         (om-enable-dialog-item popup (om-checked-p item))
                                         (when (null (om-checked-p item))
                                           (om-set-selected-item popup (get-default-value default)))
@@ -378,6 +389,7 @@
                            default
                            (om-def-color :gray))
                 :after-fun #'(lambda (item)
+                               (maybe-store-undo-state update nil nil)
                                (set-property object prop-id (color item))
                                (when update (update-after-prop-edit update object))
                                )))
@@ -400,6 +412,7 @@
                                         (color-color (get-property object prop-id))
                                       (get-default-value def)))
                         :after-fun #'(lambda (item)
+                                       (maybe-store-undo-state update nil nil)
                                        (set-property
                                         object prop-id
                                         (make-color-or-nil :color (color item)
@@ -417,6 +430,7 @@
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
+                                     (maybe-store-undo-state update nil nil)
                                      (setf (enabled colorview) (om-checked-p item))
                                      (unless (om-checked-p item)
                                        (setf (color colorview) (get-default-value default)))
@@ -470,6 +484,7 @@
                                  (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                                 (and update (om-get-font update))))))
                                    (when choice
+                                     (maybe-store-undo-state update nil nil)
                                      (om-set-dialog-item-text item (font-to-str choice))
                                      (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
                                      (set-property object prop-id choice)
@@ -489,6 +504,7 @@
                                       (get-property object prop-id)
                                       (font-? (get-property object prop-id)))
                         :after-fun #'(lambda (font)
+                                       (maybe-store-undo-state update nil nil)
                                        (set-property object prop-id
                                                      (make-font-or-nil :font font
                                                                        :t-or-nil t))
@@ -504,6 +520,7 @@
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
+                                     (maybe-store-undo-state update nil nil)
                                      (set-enabled font-chooser (om-checked-p item))
                                      (unless (om-checked-p item)
                                        (set-font font-chooser (get-default-value def)))
@@ -556,6 +573,7 @@
                                                    ))
                                          (omp 120 20))
                                  :after-fun #'(lambda (item)
+                                                (maybe-store-undo-state update nil nil)
                                                 (set-property object prop-id (text item))
                                                 (when update (update-after-prop-edit update object))
                                                 (om-set-fg-color
@@ -571,6 +589,7 @@
                                                                                         :types (doctype-info :om)
                                                                                         :directory *last-open-dir*)))
                                                        (when file
+                                                         (maybe-store-undo-state update nil nil)
                                                          (set-property object prop-id file)
                                                          (when update (update-after-prop-edit update object))
                                                          (setf (text textview) (namestring (get-property object prop-id)))
@@ -667,7 +686,9 @@
                     (curr-fun-args (if (consp curr-fun) (cdr curr-fun) nil))
                     (args (if curr-fun-args (get-arguments-dialog (arguments-for-action curr-fun-name) curr-fun-args)
                             (get-arguments-dialog (arguments-for-action curr-fun-name)))))
-               (when args (set-property object prop-id (cons curr-fun-name args)))))
+               (when args
+                 (maybe-store-undo-state update nil nil)
+                 (set-property object prop-id (cons curr-fun-name args)))))
            )
 
     (let* ((curr-fun (get-property object prop-id))
@@ -712,6 +733,7 @@
                                                  (when (arguments-for-action fun)
                                                    (om-add-subviews layout b))
 
+                                                 (maybe-store-undo-state update nil nil)
                                                  (set-property object prop-id fun))
 
                                                (when update (update-after-prop-edit update object))
