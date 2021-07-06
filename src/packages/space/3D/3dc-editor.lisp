@@ -529,6 +529,9 @@
 
 ;;; called after undo/redo
 (defmethod update-after-state-change ((self 3DC-editor))
+  (update-view-contents (get-g-component self :default-view))
+  (set-decimals-in-editor (top-bpc-editor self) (decimals (object-value self)))
+  (set-decimals-in-editor (front-bpc-editor self) (decimals (object-value self)))
   (editor-invalidate-views self)
   (call-next-method))
 

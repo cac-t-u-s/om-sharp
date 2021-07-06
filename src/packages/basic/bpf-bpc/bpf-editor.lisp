@@ -67,6 +67,10 @@
 
 (defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
 
+(defmethod update-after-state-change ((self bpf-editor))
+  (update-view-contents (get-g-component self :default-view))
+  (set-decimals-in-editor self (decimals (object-value self)))
+  (call-next-method))
 
 (defparameter +bpf-editor-modes+ '(:mouse :pen :hand)) ; :zoomin :zoomout))
 
