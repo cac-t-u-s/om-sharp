@@ -100,7 +100,7 @@
 
 (defmethod get-properties-list ((self bpf))
   `((""
-     (:decimals "Precision (decimals)" :number decimals (0 10))
+     (:decimals "Precision (decimals)" :number precision-accessor (0 10))
      (:color "Color" :color color)
      (:name "Name" :string name)
      (:action "Action" :action action-accessor)
@@ -126,6 +126,13 @@
 
 ;;;===============================
 
+
+(defmethod precision-accessor ((self bpf) &optional (value nil value-supplied-p))
+  (if value-supplied-p
+      (change-precision self value)
+    (decimals self)))
+
+
 (defmethod check-decimals ((self bpf))
   (unless (and (integerp (decimals self))
                (> (decimals self) 0)
@@ -141,6 +148,7 @@
            (setf (slot-value self 'decimals) 10))
           )))
 
+;; called in make-value-from-model/set-value-slots
 (defmethod (setf decimals) ((decimals t) (self bpf))
   (let ((x (x-values-from-points self))
         (y (y-values-from-points self)))
