@@ -199,6 +199,19 @@
     (setf (slot-value self 'y-points) NIL)))
 
 
+(defmethod duplicate-coordinates ((p1 ompoint) (p2 ompoint))
+  (= (om-point-x p1) (om-point-x p2)))
+
+
+(defmethod set-bpf-points :after ((self bpf) &key x y z time time-types)
+  (declare (ignore x y z time time-types))
+  (when (loop for p in (point-list self)
+              for next in (cdr (point-list self))
+              do (when (duplicate-coordinates p next)
+                   (return t)))
+    (om-beep-msg "Warning: Duplicate point coordinates in ~A!" self)))
+
+
 (defmethod (setf x-points) ((x-points t) (self bpf))
   (set-bpf-points self :x x-points)
   x-points)

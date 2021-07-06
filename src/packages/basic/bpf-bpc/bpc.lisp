@@ -190,6 +190,13 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     (setf (slot-value self 'time-types) NIL)))
 
 
+(defmethod duplicate-coordinates ((p1 tpoint) (p2 tpoint))
+  (and
+   (= (tpoint-x p1) (tpoint-x p2))
+   (= (tpoint-y p1) (tpoint-y p2))
+   (equal (tpoint-time p1) (tpoint-time p2))))
+
+
 ;;; In BPC all moves are possible
 (defmethod possible-move ((self bpc) points xkey deltax ykey deltay) t)
 (defmethod possible-set ((self bpc) point x y) t)

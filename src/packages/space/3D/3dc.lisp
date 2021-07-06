@@ -192,6 +192,13 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
     (setf (slot-value self 'time-types) NIL)))
 
 
+(defmethod duplicate-coordinates ((p1 3dpoint) (p2 3dpoint))
+  (and (= (3dpoint-x p1) (3dpoint-x p2))
+       (= (3dpoint-y p1) (3dpoint-y p2))
+       (= (3dpoint-z p1) (3dpoint-z p2))
+       (equal (3dpoint-time p1) (3dpoint-time p2))))
+
+
 (defmethod make-3D-points-from-lists ((listx list) (listy list) (listz list) &optional (decimals 0) (mkpoint 'om-make-3dpoint))
   (when (or listx listy listz)
     (if (and (list-subtypep listx 'number) (list-subtypep listy 'number) (list-subtypep listz 'number))
