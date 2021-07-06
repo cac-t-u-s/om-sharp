@@ -149,18 +149,22 @@
 
 (defmethod set-bpf-points ((self automation) &key x y z time time-types)
   (declare (ignore z time time-types))
-  (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
-                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
-                                                   (decimals self)
-                                                   'om-make-automationpoint))
 
-  ;;; verify this c-cpoints slot management...
-  (loop for coeff in (slot-value self 'c-points)
-        for pt in (point-list self)
-        do (setf (ap-coeff pt) coeff))
+  (let ((point-list (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
+                                            (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
+                                            (decimals self)
+                                            'om-make-automationpoint)))
 
-  (setf (slot-value self 'x-points) NIL)
-  (setf (slot-value self 'y-points) NIL))
+    ;;; verify this c-cpoints slot management...
+    (loop for coeff in (slot-value self 'c-points)
+          for pt in point-list
+          do (setf (ap-coeff pt) coeff))
+
+    (setf (point-list self) point-list)
+
+    (setf (slot-value self 'x-points) NIL)
+    (setf (slot-value self 'y-points) NIL)))
+
 
 (defmethod om-point-mv ((point automation-point) &key x y)
   (if (and x (not (ap-lock point)))

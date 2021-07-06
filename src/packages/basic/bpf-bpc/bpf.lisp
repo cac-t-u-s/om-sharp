@@ -181,20 +181,22 @@
 
 (defmethod set-bpf-points ((self bpf) &key x y z time time-types)
   (declare (ignore time z))
-  (setf (point-list self) (sort
-                           (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
-                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
-                                                   (decimals self)
-                                                   'om-make-bpfpoint)
-                           '< :key 'om-point-x))
-  ;;; todo?: check here if there is not duplicate X points and send a warning...
 
-  (when time-types
-    (loop for p in (point-list self)
-          for type in time-types do (om-point-set p :type type)))
+  (let ((point-list (sort
+                     (make-points-from-lists (or x (x-values-from-points self))
+                                             (or y (y-values-from-points self))
+                                             (decimals self)
+                                             'om-make-bpfpoint)
+                     '< :key 'om-point-x)))
 
-  (setf (slot-value self 'x-points) NIL)
-  (setf (slot-value self 'y-points) NIL))
+    (when time-types
+      (loop for p in point-list
+            for type in time-types do (om-point-set p :type type)))
+
+    (setf (point-list self) point-list)
+
+    (setf (slot-value self 'x-points) NIL)
+    (setf (slot-value self 'y-points) NIL)))
 
 
 (defmethod (setf x-points) ((x-points t) (self bpf))
