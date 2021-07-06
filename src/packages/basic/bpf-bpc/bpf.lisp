@@ -102,7 +102,7 @@
   `((""
      (:decimals "Precision (decimals)" :number decimals (0 10))
      (:color "Color" :color color)
-     (:name "Name" :text name)
+     (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
      )))
