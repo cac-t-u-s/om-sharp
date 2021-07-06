@@ -149,6 +149,11 @@
     (set-bpf-points self :x x :y y)
     (decimals self)))
 
+(defmethod change-precision ((self bpf) decimals)
+  (setf (decimals self) decimals)
+  (decimals self))
+
+
 ;;; depending on decimals, the BPF will truncate float numbers
 (defun truncate-function (decimals)
   (if (zerop decimals) #'round
@@ -199,12 +204,8 @@
   (set-bpf-points self
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
-                  :time-types (slot-value self 'time-types))
-  )
+                  :time-types (slot-value self 'time-types)))
 
-(defmethod change-precision ((self bpf) decimals)
-  (setf (decimals self) decimals)
-  (decimals self))
 
 (defmethod make-points-from-lists ((listx list) (listy list) &optional (decimals 0) (mkpoint 'om-make-point))
   (when (or listx listy)
