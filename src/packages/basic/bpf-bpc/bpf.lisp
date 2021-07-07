@@ -100,9 +100,9 @@
 
 (defmethod get-properties-list ((self bpf))
   `((""
-     (:decimals "Precision (decimals)" :number decimals (0 10))
+     (:decimals "Precision (decimals)" :number precision-accessor (0 10))
      (:color "Color" :color color)
-     (:name "Name" :text name)
+     (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
      )))
@@ -126,6 +126,13 @@
 
 ;;;===============================
 
+
+(defmethod precision-accessor ((self bpf) &optional (value nil value-supplied-p))
+  (if value-supplied-p
+      (change-precision self value)
+    (decimals self)))
+
+
 (defmethod check-decimals ((self bpf))
   (unless (and (integerp (decimals self))
                (> (decimals self) 0)
@@ -141,6 +148,7 @@
            (setf (slot-value self 'decimals) 10))
           )))
 
+;; called in make-value-from-model/set-value-slots
 (defmethod (setf decimals) ((decimals t) (self bpf))
   (let ((x (x-values-from-points self))
         (y (y-values-from-points self)))
@@ -149,47 +157,80 @@
     (set-bpf-points self :x x :y y)
     (decimals self)))
 
+(defmethod change-precision ((self bpf) decimals)
+  (setf (decimals self) decimals)
+  (decimals self))
+
+
 ;;; depending on decimals, the BPF will truncate float numbers
 (defun truncate-function (decimals)
   (if (zerop decimals) #'round
     (let ((factor (expt 10 decimals)))
       #'(lambda (n) (/ (round (* n factor)) (float factor))))))
 
-(defmethod x-values-from-points ((self bpf)) (mapcar #'om-point-x (point-list self)))
-;   (let ((fun (if (zerop (decimals self)) #'om-point-x #'(lambda (p) (/ (om-point-x p) (expt 10.0 (decimals self)))))))
-;     (mapcar fun (point-list self))))
+(defmethod x-values-from-points ((self bpf))
+  (mapcar #'om-point-x (point-list self)))
 
-(defmethod y-values-from-points ((self bpf)) (mapcar #'om-point-y (point-list self)))
-;   (let ((fun (if (zerop (decimals self)) #'om-point-y #'(lambda (p) (/ (om-point-y p) (expt 10.0 (decimals self)))))))
-;     (mapcar fun (point-list self))))
+(defmethod y-values-from-points ((self bpf))
+  (mapcar #'om-point-y (point-list self)))
 
 (defmethod xy-values-from-points ((self bpf) &optional from to)
   (mapcar #'(lambda (p) (list (om-point-x p) (om-point-y p)))
           (filter-list (point-list self) from to :key 'om-point-x)))
 
 
-;(if (zerop (decimals self))
-;    (mapcar #'(lambda (p) (list (om-point-x p) (om-point-y p))) (point-list self))
-;  (let ((fact (expt 10.0 (decimals self))))
-;    (mapcar #'(lambda (p) (list (/ (om-point-x p) fact) (/ (om-point-y p) fact))) (point-list self)))
-;  ))
-
 (defmethod set-bpf-points ((self bpf) &key x y z time time-types)
   (declare (ignore time z))
-  (setf (point-list self) (sort
-                           (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
-                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
-                                                   (decimals self)
-                                                   'om-make-bpfpoint)
-                           '< :key 'om-point-x))
-  ;;; todo?: check here if there is not duplicate X points and send a warning...
 
-  (when time-types
+  (let ((point-list (sort
+                     (make-points-from-lists (or x (x-values-from-points self))
+                                             (or y (y-values-from-points self))
+                                             (decimals self)
+                                             'om-make-bpfpoint)
+                     '< :key 'om-point-x)))
+
+    (when time-types
+      (loop for p in point-list
+            for type in time-types do (om-point-set p :type type)))
+
+    (setf (point-list self) point-list)
+
+    (setf (slot-value self 'x-points) NIL)
+    (setf (slot-value self 'y-points) NIL)))
+
+
+(defmethod duplicate-coordinates ((p1 ompoint) (p2 ompoint))
+  (= (om-point-x p1) (om-point-x p2)))
+
+
+(defmethod set-bpf-points :after ((self bpf) &key x y z time time-types)
+  (declare (ignore x y z time time-types))
+  (when (loop for p in (point-list self)
+              for next in (cdr (point-list self))
+              do (when (duplicate-coordinates p next)
+                   (return t)))
+    (om-beep-msg "Warning: Duplicate point coordinates in ~A!" self)))
+
+
+(defmethod replace-current ((new ompoint) (current ompoint))
+  (> (om-point-y new) (om-point-y current)))
+
+(defmethod replace-current ((new bpfpoint) (current bpfpoint))
+  (if (equal (bpfpoint-type new) (bpfpoint-type current))
+      (> (om-point-y new) (om-point-y current))
+    (equal (bpfpoint-type new) :master)))
+
+
+(defmethod cleanup-points ((self bpf))
+  (let ((newlist ()))
+
     (loop for p in (point-list self)
-          for type in time-types do (om-point-set p :type type)))
+          do (if (and newlist (duplicate-coordinates p (car newlist)))
+                 (when (replace-current p (car newlist))
+                   (setf (car newlist) p)) ;; otherwise just drop p from the list
+               (push p newlist)))
 
-  (setf (slot-value self 'x-points) NIL)
-  (setf (slot-value self 'y-points) NIL))
+    (setf (point-list self) (reverse newlist))))
 
 
 (defmethod (setf x-points) ((x-points t) (self bpf))
@@ -207,12 +248,8 @@
   (set-bpf-points self
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
-                  :time-types (slot-value self 'time-types))
-  )
+                  :time-types (slot-value self 'time-types)))
 
-(defmethod change-precision ((self bpf) decimals)
-  (setf (decimals self) decimals)
-  (decimals self))
 
 (defmethod make-points-from-lists ((listx list) (listy list) &optional (decimals 0) (mkpoint 'om-make-point))
   (when (or listx listy)

@@ -143,7 +143,8 @@ If <color> is :random, will choose a random color. It can also be a color symbol
                       (arithm-ser x0 x1 nbs-sr)))
              (rep (om-copy self)))
 
-        (when dec (setf (decimals rep) dec))
+        (when dec (change-precision rep dec))
+
         (when (and xlist ylist)
           (set-bpf-points rep :x xlist :y ylist))
 
@@ -204,7 +205,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
       )
 
     (let ((rep (om-copy self)))
-      (when dec (setf (decimals rep) dec))
+      (when dec (change-precision rep dec))
       (setq xylist (mat-trans samples))
       (set-bpf-points rep :x (car xylist) :y (cadr xylist))
 

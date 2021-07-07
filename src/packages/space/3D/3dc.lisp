@@ -164,27 +164,39 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 
 (defmethod set-bpf-points ((self 3DC) &key x y z time time-types)
 
-  (setf (point-list self)  (make-3D-points-from-lists (or x (x-values-from-points self))
-                                                      (or y (y-values-from-points self))
-                                                      (or z (z-values-from-points self))
-                                                      (decimals self)
-                                                      'om-make-3dpoint))
-  (let ((times (or time (time-values-from-points self))))
+  (let ((point-list (make-3D-points-from-lists (or x (x-values-from-points self))
+                                               (or y (y-values-from-points self))
+                                               (or z (z-values-from-points self))
+                                               (decimals self)
+                                               'om-make-3dpoint))
+
+        (times (or time (time-values-from-points self))))
+
     (when times
       (if (listp times)
-          (loop for p in (point-list self)
-                for time in times do (setf (tpoint-time p) time))
-        (loop for p in (point-list self)
-              do (setf (tpoint-time p) times))))
+          (loop for p in point-list
+                for time in times do (setf (3dpoint-time p) time))
+        (loop for p in point-list
+              do (setf (3dpoint-time p) times))))
+
     (when time-types
-      (loop for p in (point-list self)
+      (loop for p in point-list
             for type in time-types do (om-point-set p :type type)))
+
+    (setf (point-list self) point-list)
 
     (setf (slot-value self 'x-points) NIL)
     (setf (slot-value self 'y-points) NIL)
     (setf (slot-value self 'z-points) NIL)
     (setf (slot-value self 'times) NIL)
     (setf (slot-value self 'time-types) NIL)))
+
+
+(defmethod duplicate-coordinates ((p1 3dpoint) (p2 3dpoint))
+  (and (= (3dpoint-x p1) (3dpoint-x p2))
+       (= (3dpoint-y p1) (3dpoint-y p2))
+       (= (3dpoint-z p1) (3dpoint-z p2))
+       (equal (3dpoint-time p1) (3dpoint-time p2))))
 
 
 (defmethod make-3D-points-from-lists ((listx list) (listy list) (listz list) &optional (decimals 0) (mkpoint 'om-make-3dpoint))

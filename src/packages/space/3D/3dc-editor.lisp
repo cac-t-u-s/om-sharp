@@ -432,6 +432,8 @@
   (setf (selection self) nil)
   (when (window self)
     (set-3d-objects self)
+    (set-decimals-in-editor (top-bpc-editor self) (decimals (object-value self)))
+    (set-decimals-in-editor (front-bpc-editor self) (decimals (object-value self)))
     (time-sequence-update-internal-times (object-value self))
     ; (enable-play-controls self (action (object-value self))) ;;; leave T
     (update-sub-editors self)
@@ -527,6 +529,9 @@
 
 ;;; called after undo/redo
 (defmethod update-after-state-change ((self 3DC-editor))
+  (update-view-contents (get-g-component self :default-view))
+  (set-decimals-in-editor (top-bpc-editor self) (decimals (object-value self)))
+  (set-decimals-in-editor (front-bpc-editor self) (decimals (object-value self)))
   (editor-invalidate-views self)
   (call-next-method))
 
@@ -552,6 +557,15 @@
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
   (report-modifications self))
+
+(defmethod cleanup-bpf-points ((self 3dc-editor))
+  (store-current-state-for-undo self)
+  (with-schedulable-object (object-value self)
+                           (cleanup-points (object-value self)))
+  (editor-invalidate-views self)
+  (update-to-editor (timeline-editor self) self)
+  (report-modifications self))
+
 
 (defmethod select-all-command ((self 3dc-editor))
   #'(lambda ()

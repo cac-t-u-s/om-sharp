@@ -122,6 +122,13 @@
           (last-item editor) item)))
 
 
+(defmethod store-current-state-for-undo ((self t) &key action item) nil)
+
+;;; called from properties editor
+(defmethod maybe-store-undo-state ((self OMEditorView) prop-id object)
+  (store-current-state-for-undo (editor self) :action prop-id :item object))
+
+
 ;;; => call this to undo
 (defmethod do-undo ((self undoable-editor-mixin))
   (setf (last-action self) nil
