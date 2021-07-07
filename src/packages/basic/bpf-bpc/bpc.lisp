@@ -197,6 +197,11 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
    (equal (tpoint-time p1) (tpoint-time p2))))
 
 
+(defmethod replace-current ((new tpoint) (current tpoint))
+  (and (equal (bpfpoint-type new) :master)
+       (not (equal (bpfpoint-type current) :master))))
+
+
 ;;; In BPC all moves are possible
 (defmethod possible-move ((self bpc) points xkey deltax ykey deltay) t)
 (defmethod possible-set ((self bpc) point x y) t)

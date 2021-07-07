@@ -212,6 +212,27 @@
     (om-beep-msg "Warning: Duplicate point coordinates in ~A!" self)))
 
 
+(defmethod replace-current ((new ompoint) (current ompoint))
+  (> (om-point-y new) (om-point-y current)))
+
+(defmethod replace-current ((new bpfpoint) (current bpfpoint))
+  (if (equal (bpfpoint-type new) (bpfpoint-type current))
+      (> (om-point-y new) (om-point-y current))
+    (equal (bpfpoint-type new) :master)))
+
+
+(defmethod cleanup-points ((self bpf))
+  (let ((newlist ()))
+
+    (loop for p in (point-list self)
+          do (if (and newlist (duplicate-coordinates p (car newlist)))
+                 (when (replace-current p (car newlist))
+                   (setf (car newlist) p)) ;; otherwise just drop p from the list
+               (push p newlist)))
+
+    (setf (point-list self) (reverse newlist))))
+
+
 (defmethod (setf x-points) ((x-points t) (self bpf))
   (set-bpf-points self :x x-points)
   x-points)

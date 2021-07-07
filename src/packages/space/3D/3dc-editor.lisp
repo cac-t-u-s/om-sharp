@@ -558,6 +558,15 @@
   (update-to-editor (timeline-editor self) self)
   (report-modifications self))
 
+(defmethod cleanup-bpf-points ((self 3dc-editor))
+  (store-current-state-for-undo self)
+  (with-schedulable-object (object-value self)
+                           (cleanup-points (object-value self)))
+  (editor-invalidate-views self)
+  (update-to-editor (timeline-editor self) self)
+  (report-modifications self))
+
+
 (defmethod select-all-command ((self 3dc-editor))
   #'(lambda ()
       (setf (selection self) (list T))

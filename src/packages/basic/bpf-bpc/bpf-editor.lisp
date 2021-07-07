@@ -613,7 +613,10 @@
          (list
           (om-make-menu-item "Delete selection"
                              #'(lambda () (funcall (clear-command self)))
-                             :enabled (and (clear-command self) (selection self) t))))
+                             :enabled (and (clear-command self) (selection self) t))
+          (om-make-menu-item "Cleanup duplicate-coordinate points"
+                             #'(lambda () (cleanup-bpf-points self)))
+          ))
 
         (om-make-menu-comp
          (list (om-make-menu-item "Select All"
@@ -1020,6 +1023,16 @@
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
   (report-modifications self))
+
+
+(defmethod cleanup-bpf-points ((self bpf-editor))
+  (store-current-state-for-undo self)
+  (with-schedulable-object (object-value self)
+                           (cleanup-points (object-value self)))
+  (editor-invalidate-views self)
+  (update-to-editor (timeline-editor self) self)
+  (report-modifications self))
+
 
 ;;;==========================
 ;;; USER
