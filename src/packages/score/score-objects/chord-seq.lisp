@@ -195,6 +195,13 @@ Internally most of these values are just used to build a list of CHORD objects, 
   self)
 
 
+;;; connect a list of chords to 'self'
+(defmethod objfromobjs ((model list) (target chord-seq))
+  (if (list-subtypep model 'chord)
+      (make-instance (type-of target) :lmidic model)
+    nil))
+
+
 ;========================
 ; GET/SET ACCESSORS
 ;========================
