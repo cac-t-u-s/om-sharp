@@ -422,38 +422,37 @@
       'om-column-layout
       :subviews
       (list
+
        (om-make-di 'om-simple-text
-                   :size (om-make-point 330 y-grid)
+                   :size (om-make-point 350 y-grid)
                    :text (format nil (om-str :save-changes-in) name))
 
        (om-make-layout
         'om-row-layout
         :subviews
-        (list NIL
-              (om-make-di 'om-button
-                          :size (om-make-point 80 y-grid)
-                          :text (om-str :no)
-                          :di-action #'(lambda (item) (declare (ignore item))
-                                         (om-return-from-modal-dialog win (list nil (om-checked-p box)))))
-              (om-make-di 'om-button
-                          :size (om-make-point 80 y-grid)
-                          :text (om-str :yes)
-                          :default t
-                          :di-action #'(lambda (item) (declare (ignore item))
-                                         (om-return-from-modal-dialog win (list t (om-checked-p box)))))))
-
-       (om-make-layout
-        'om-row-layout
-        :subviews
         (list
-         NIL
-         box
+
          (om-make-di 'om-button
-                     :size (om-make-point 80 y-grid)
+                     :size (om-make-point 110 y-grid)
+                     :text (om-str :yes)
+                     :default t
+                     :di-action #'(lambda (item) (declare (ignore item))
+                                    (om-return-from-modal-dialog win (list t (om-checked-p box)))))
+
+         (om-make-di 'om-button
+                     :size (om-make-point 110 y-grid)
+                     :text (om-str :no)
+                     :di-action #'(lambda (item) (declare (ignore item))
+                                    (om-return-from-modal-dialog win (list nil (om-checked-p box)))))
+
+         (om-make-di 'om-button
+                     :size (om-make-point 110 y-grid)
                      :text (om-str :cancel)
                      :di-action #'(lambda (item) (declare (ignore item))
                                     (om-return-from-modal-dialog win nil)))
-         )))
+         ))
+
+       box)
       ))
 
     (om-modal-dialog win)
