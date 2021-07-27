@@ -160,6 +160,7 @@
                        (make-instance 'box-output :reference out
                                       :name (name out)
                                       :box self
+                                      :reactive (reactive self)
                                       :doc-string (doc out)))
                    (sort (get-outputs (reference self)) '< :key 'index)
                    )))
