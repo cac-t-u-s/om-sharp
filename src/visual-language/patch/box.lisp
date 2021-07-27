@@ -53,7 +53,8 @@
    (gen-lock :accessor gen-lock :initform nil) ;; this box is the event source and his evaluation is locked
    (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation
    (push-tag :accessor push-tag :initform nil) ;; this box is tagged as being is in the notification path for the current event
-   )
+
+   (reactive :accessor reactive :initform nil :initarg :reactive))
   (:documentation "OMBox is is the more general class for connectable objects (boxes).")
   (:metaclass omstandardclass))
 

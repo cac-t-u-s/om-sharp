@@ -1297,6 +1297,7 @@
            (om-make-menu-item (if (reactive (object self)) "set not reactive" "set reactive")
                               #'(lambda ()
                                   (setf (reactive io) (not (reactive io)))
+                                  (update-reactive-state (box (object self)))
                                   (mapc #'(lambda (c) (apply 'om-invalidate-area (cons editorview (graphic-area c)))) (connections io))
                                   ))
            ))

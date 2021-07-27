@@ -107,31 +107,29 @@
     (update-after-change-mode box)
     ))
 
-;;; reactive is not a "real" property
-(defmethod valid-property-p ((object OMBox) (prop-id (eql :reactive))) nil)
 
 (defmethod set-property ((object OMBox) (prop-id (eql :reactive)) val)
   (set-reactive object val))
-
-(defmethod get-property ((object OMBox) (prop-id (eql :reactive)) &key (warn t))
-  (declare (ignore warn))
-  (all-reactive-p object))
 
 (defmethod all-reactive-p ((self OMBox))
   (and (or (inputs self) (outputs self))
        (not (find-if-not 'reactive (append (inputs self) (outputs self))))))
 
 (defmethod set-reactive ((self OMBox) val)
+  (setf (reactive self) val)
   (mapc #'(lambda (io)
             (setf (reactive io) val))
         (append (inputs self) (outputs self))))
 
 (defmethod set-reactive-mode ((box OMBox))
-  (when (or (inputs box) (outputs box))
-    (set-reactive box (not (all-reactive-p box)))
-    (update-after-change-mode box)
-    (update-frame-connections-display (frame box)))
-  )
+  (set-reactive box (not (reactive box)))
+  (update-after-change-mode box)
+  (update-frame-connections-display (frame box)))
+
+(defmethod update-reactive-state ((box OMBox))
+  (setf (reactive box) (all-reactive-p box))
+  (update-after-change-mode box))
+
 
 ;--------------------------------------
 ; DEFAULT OUTPUTS
