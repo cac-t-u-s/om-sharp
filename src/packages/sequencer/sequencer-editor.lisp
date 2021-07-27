@@ -649,7 +649,7 @@
   (draw-eval-buttons view self x y x 12)
   (draw-temporal-box-name self view x y w h)
 
-  (when (find-if 'reactive (outputs self))
+  (when (or (reactive self) (find-if 'reactive (outputs self)))
     (om-draw-rect x y w h :line 2 :color (om-def-color :dark-red)))
 
   (if (plusp (pre-delay self))
