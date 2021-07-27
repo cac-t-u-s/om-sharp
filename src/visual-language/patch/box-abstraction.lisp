@@ -16,7 +16,7 @@
 (in-package :om)
 
 (defclass OMBoxAbstraction (OMBoxCall)
-  ((pre-delay :initform 0 :accessor pre-delay)
+  ((pre-delay :initarg :pre-delay :initform 0 :accessor pre-delay)
    (ready :initform t :accessor ready))
   (:default-initargs :text-align :center :icon-pos :left)
   (:metaclass omstandardclass))
