@@ -1152,7 +1152,7 @@ CMD-click to add boxes. Play contents, etc.
            :subviews (list
                       (om-make-di 'om-multi-text
                                   :size (omp 200 nil)
-                                  :text "select a box to display contents..."
+                                  :text "select a box to display its value..."
                                   :fg-color (om-def-color :gray)
                                   )
                       )))
