@@ -1125,7 +1125,7 @@ CMD-click to add boxes. Play contents, etc.
                            'om-icon-button
                            :position (omp 0 2)
                            :size (omp 16 16)
-                           :icon :maqview-on :icon-disabled :maqview-off
+                           :icon :maqview-off :icon-disabled :maqview-on
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :maquette)
@@ -1136,7 +1136,7 @@ CMD-click to add boxes. Play contents, etc.
                            'om-icon-button
                            :position (omp 20 2)
                            :size (omp 16 16)
-                           :icon :trackview-on :icon-disabled :trackview-off
+                           :icon :trackview-off :icon-disabled :trackview-on
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :tracks)
