@@ -943,7 +943,7 @@ CMD-click to add boxes. Play contents, etc.
      'om-icon-button
      :position (omp 20 0)
      :size (omp 16 16)
-     :icon :eval-black :icon-pushed :eval-gray
+     :icon :eval-sequence :icon-pushed :eval-sequence-pushed
      :lock-push nil :enabled t
      :action #'(lambda (b)
                  (declare (ignore b))
@@ -1050,7 +1050,7 @@ CMD-click to add boxes. Play contents, etc.
              :subviews (list
                         (om-make-graphic-object
                          'lock-view-area
-                         :locked-icon :lock-dark :unlocked-icon :unlock-dark
+                         :locked-icon :lock-sequence-closed :unlocked-icon :lock-sequence-open
                          :position (omp 0 4)
                          :size (omp 16 14)
                          :editor editor)
@@ -1125,7 +1125,7 @@ CMD-click to add boxes. Play contents, etc.
                            'om-icon-button
                            :position (omp 0 2)
                            :size (omp 16 16)
-                           :icon :maqview-black :icon-disabled :maqview-gray
+                           :icon :maqview-on :icon-disabled :maqview-off
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :maquette)
@@ -1136,7 +1136,7 @@ CMD-click to add boxes. Play contents, etc.
                            'om-icon-button
                            :position (omp 20 2)
                            :size (omp 16 16)
-                           :icon :trackview-black :icon-disabled :trackview-gray
+                           :icon :trackview-on :icon-disabled :trackview-off
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b)
                                        (unless (equal (view-mode editor) :tracks)
