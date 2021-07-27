@@ -125,8 +125,6 @@
     (if successp answer :cancel)))
 
 
-
-
 ;;; USED IN THE MAC
 (defclass om-pick-color-view (om-view)
   ((color :accessor color :initarg :color :initform (om-make-color 0 0 0))
