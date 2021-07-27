@@ -21,9 +21,7 @@
 
 (defclass OMSequencer (OMPatch schedulable-object timed-object)
   ((ctrlpatch :accessor ctrlpatch :initform nil :initarg :ctrlpatch)
-   (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range)
-   ;;;Scheduler slot (t to only compute)
-   (no-exec :accessor no-exec :initform nil :initarg :no-exec))
+   (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range))
   (:metaclass omstandardclass))
 
 (defclass OMSequencerFile (OMPersistantObject OMSequencer) ()
@@ -226,21 +224,20 @@
 
 (defmethod get-action-list-for-play ((self OMSequencer) time-interval &optional parent)
   (sort
-   (if (not (no-exec self))
-       (loop for box in (get-all-boxes self :sorted t)
-             when (box-cross-interval box time-interval)
-             ;; it it's a reactive box it must be "ready" (= computed)
-             ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box))))
-             when (group-id box) ;;; only boxes in tracks are played
-             append
-             (let ((interval-in-object (list
-                                        (max (- (car time-interval) (get-box-onset box)) 0)
-                                        (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
-               (mapcar
-                #'(lambda (b) (incf (car b) (get-box-onset box)) b)
-                (get-action-list-for-play
-                 (play-obj-from-value (get-box-value box) box)
-                 interval-in-object self)))))
+   (loop for box in (get-all-boxes self :sorted t)
+         when (box-cross-interval box time-interval)
+         ;; it it's a reactive box it must be "ready" (= computed)
+         ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box))))
+         when (group-id box) ;;; only boxes in tracks are played
+         append
+         (let ((interval-in-object (list
+                                    (max (- (car time-interval) (get-box-onset box)) 0)
+                                    (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
+           (mapcar
+            #'(lambda (b) (incf (car b) (get-box-onset box)) b)
+            (get-action-list-for-play
+             (play-obj-from-value (get-box-value box) box)
+             interval-in-object self))))
    '< :key 'car))
 
 (defmethod set-object-current-time ((self OMSequencer) time)

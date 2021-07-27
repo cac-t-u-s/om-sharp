@@ -1058,7 +1058,7 @@ CMD-click to add boxes. Play contents, etc.
 
             (om-make-layout
              'om-row-layout
-             :delta 30
+             :delta 10
              :align :center
              :ratios '(1 100 1 100 1)
              :subviews
@@ -1070,7 +1070,7 @@ CMD-click to add boxes. Play contents, etc.
                (list
                 (om-make-layout
                  'om-row-layout
-                 :delta 5
+                 :delta 2
                  :position (omp 30 3)
                  :subviews (list (make-play-button editor :enable t :size (omp 14 14))
                                  (make-pause-button editor :enable t :size (omp 14 14))
@@ -1088,31 +1088,15 @@ CMD-click to add boxes. Play contents, etc.
                                  :color (om-def-color :white)
                                  :time 0)
 
-              nil
-
               (om-make-view
                'om-view
-               :size (omp 80 nil)
+               :size (omp 60 nil)
                :subviews (list
-                          (om-make-graphic-object
-                           'om-icon-button
-                           :size (omp 14 14)
-                           :position (omp 0 3)
-                           :icon :mute-off :icon-pushed :mute-on
-                           :lock-push t :enabled t
-                           :action #'(lambda (b)
-                                       (declare (ignore b))
-                                       (let ((seq (get-obj-to-play editor)))
-                                         (with-schedulable-object
-                                          seq
-                                          (setf (no-exec seq)
-                                                (not (no-exec seq)))))))
-
                           (om-make-graphic-object
                            'metro-view
                            :metronome (metronome editor)
                            :size (omp 60 16)
-                           :position (omp 24 2))
+                           :position (omp 0 2))
                           ))
 
               nil

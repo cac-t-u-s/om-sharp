@@ -63,22 +63,6 @@
   (if (integerp time)
       (set-object-current-time self (max 0 (round time)))))
 
-(defmethod* m-without-exec ((self OMSequencer) &optional trigger)
-  :initvals '(nil nil)
-  :indoc '("sequencer" "anything")
-  :doc "Mute sequencer actions (computations only)"
-  :icon 'm-without-exec
-  (declare (ignore trigger))
-  (with-schedulable-object self (setf (no-exec self) t)))
-
-(defmethod* m-with-exec ((self OMSequencer) &optional trigger)
-  :initvals '(nil nil)
-  :indoc '("sequencer" "anything")
-  :doc "Mute sequencer actions (computations only)"
-  :icon 'm-with-exec
-  (declare (ignore trigger))
-  (with-schedulable-object self (setf (no-exec self) nil)))
-
 ;;;=========================================
 
 (defmethod m-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
