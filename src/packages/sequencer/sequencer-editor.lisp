@@ -862,9 +862,9 @@
 ;;; INSPECTOR IN SEQUENCER...
 ;;;========================
 
-(defmethod update-inspector-for-editor ((self sequencer-editor) &optional obj)
+(defmethod update-inspector-for-editor ((self sequencer-editor) &optional obj (force-update nil))
   (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
-      (update-inspector-for-editor (editor (selected-view self)) obj)
+      (update-inspector-for-editor (editor (selected-view self)) obj force-update)
     (call-next-method)))
 
 (defmethod default-editor-help-text ((self sequencer-editor))

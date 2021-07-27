@@ -73,7 +73,7 @@
 (defmethod update-after-change-mode ((box OMBox))
   (let ((ed (and (container box) (editor (container box)))))
     (if ed
-        (update-inspector-for-editor ed box) ;;; will take into account possible multiple selection etc.
+        (update-inspector-for-editor ed nil t) ;;; will take into account possible multiple selection etc.
       (update-inspector-for-object box)) ;;; does this (no editor) really happens ?
     (om-invalidate-view (frame box))
     (when ed

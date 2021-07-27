@@ -277,7 +277,7 @@
     ;;; (release-inspector self) ;; can remove this
     ))
 
-(defmethod update-inspector-for-editor ((self OMEditor) &optional obj)
+(defmethod update-inspector-for-editor ((self OMEditor) &optional obj (force-update nil))
   (update-inspector-for-object (or obj (object self))))
 
 ;;; called by the window/view to notify a change in the model
