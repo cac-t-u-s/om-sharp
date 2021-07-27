@@ -1780,7 +1780,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
 
 ;;; updates the inspector or the lisp code panel depending on the current selection
-(defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
+(defmethod update-inspector-for-editor ((self patch-editor) &optional obj (force-update nil))
   (let ((obj-to-inspect
          (or obj
              (let ((selection (append (get-selected-boxes self)
@@ -1791,6 +1791,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (cond
      ((get-g-component self :inspector)
       (when (or obj ;;; explicit request for this object
+                force-update
                 (not (equal (object (get-g-component self :inspector)) obj-to-inspect)))
         (set-inspector-contents (get-g-component self :inspector) obj-to-inspect)
         t)
