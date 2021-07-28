@@ -285,9 +285,7 @@
                 #'(lambda () (store-current-state-for-undo self)
                     (let ((selection (append (get-selected-boxes self) (get-selected-connections self))))
                       (mapc 'consolidate-appearance selection)
-                      (update-inspector-for-editor
-                       self
-                       (if (= 1 (length selection)) (car selection) selection))))
+                      (update-inspector-for-editor self nil t)))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
                                            (or (get-selected-boxes self)
@@ -631,9 +629,7 @@
                (store-current-state-for-undo editor)
                (let ((selection (append selected-boxes selected-connections)))
                  (mapc 'consolidate-appearance selection)
-                 (update-inspector-for-editor
-                  editor
-                  (if (= 1 (length selection)) (car selection) selection)))))
+                 (update-inspector-for-editor editor nil t))))
 
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
