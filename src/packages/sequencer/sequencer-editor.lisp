@@ -128,6 +128,10 @@
                          (< tt (get-box-end-date tb)))))))
 
 
+;;; used for auto-connecting boxes
+(defmethod is-lower (y1 y2 (editor sequencer-editor)) (< y1 y2))
+
+
 ;;; called from the tracks
 (defmethod new-box-in-track-view ((self sequencer-editor) at &optional (track 0))
   (store-current-state-for-undo self)
@@ -275,16 +279,6 @@
     ))
 
 
-;;; SNAP INTERVAL IF ALT/OPTION KEY IS DOWN
-(defmethod editor-set-interval ((self sequencer-editor) interval)
-  (when (om-option-key-p)
-    (setf interval (list (snap-time-to-grid (get-g-component self :metric-ruler) (car interval))
-                         (snap-time-to-grid (get-g-component self :metric-ruler) (cadr interval)))))
-  (call-next-method self interval))
-
-
-;;; used for auto-connecting boxes
-(defmethod is-lower (y1 y2 (editor sequencer-editor)) (< y1 y2))
 
 
 ;;;========================
@@ -841,6 +835,14 @@
          (box (box-at-pos editor marker-time (num self))))
     (when box (select-box box t))
     (update-to-editor editor self)))
+
+
+;;; SNAP INTERVAL IF ALT/OPTION KEY IS DOWN
+(defmethod editor-set-interval ((self sequencer-editor) interval)
+  (when (om-option-key-p)
+    (setf interval (list (snap-time-to-grid (get-g-component self :metric-ruler) (car interval))
+                         (snap-time-to-grid (get-g-component self :metric-ruler) (cadr interval)))))
+  (call-next-method self interval))
 
 
 ;;==============================
