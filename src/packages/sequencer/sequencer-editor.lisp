@@ -192,6 +192,12 @@
 ;;; the ruler of the maquette-view is oriented bottom-up:
 (defmethod omg-h ((container maquette-view) s-h) (- (dy-to-dpix container s-h)))
 
+
+;; not inherited from x-cursor-graduated-view due to multiple-inheritance
+(defmethod pixel-to-time ((self maquette-view) x)
+  (round (pix-to-x self x)))
+
+
 (defmethod resize-handle ((self resize-area) (container maquette-view) frame pos)
   (let ((pp (om-add-points (p0 self) pos)))
     (om-set-view-size frame
@@ -279,6 +285,9 @@
     ))
 
 
+(defmethod om-view-click-handler ((self maquette-view) position)
+  (or (handle-selection-extent self position)
+      (call-next-method)))
 
 
 ;;;========================
