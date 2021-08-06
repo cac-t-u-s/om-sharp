@@ -1176,12 +1176,13 @@ CMD-click to add boxes. Play contents, etc.
                         :divider))
                 ;;; MAIN
                 (list (om-make-layout
-                       'om-column-layout :delta 2 :ratios '(nil 100 nil 1)
+                       'om-column-layout :delta 2 :ratios '(nil 100) ; nil 1
                        :subviews (list
                                   (get-g-component editor :ctrl-view)
                                   (get-g-component editor :main-sequencer-view)
-                                  :divider
-                                  (get-g-component editor :bottom-view))))
+                                  ;:divider
+                                  ;(get-g-component editor :bottom-view)
+                                  )))
                 ;;; RIGHT (INSPECTOR)
                 (when  (equal (editor-window-config editor) :inspector)
                   (list :divider
