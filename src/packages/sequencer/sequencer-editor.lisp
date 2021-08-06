@@ -277,7 +277,7 @@
       (call-next-method)
     ;;; set play cursor pos
     (let* ((editor (editor self))
-           (time (pix-to-x self (om-point-x position))))
+           (time (round (pix-to-x self (om-point-x position)))))
 
       (when (om-get-clipboard) (set-paste-position position self))
       (editor-set-interval editor (list time time))
@@ -547,7 +547,7 @@
 
 (defmethod om-view-doubleclick-handler ((self sequencer-track-view) position)
   (let* ((editor (editor (om-view-window self)))
-         (time (pix-to-x self (om-point-x position)))
+         (time (round (pix-to-x self (om-point-x position))))
          (selected-box (box-at-pos editor time (num self))))
     (if selected-box
         (open-editor selected-box)
