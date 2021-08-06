@@ -327,7 +327,9 @@
 (defclass om-simple-text (om-standard-dialog-item capi::title-pane) ())
 
 (defmethod om-set-dialog-item-text ((self om-simple-text) text)
-  (setf (capi::title-pane-text self) text))
+  (capi:apply-in-pane-process
+   self
+   #'(lambda () (setf (capi::title-pane-text self) text))))
 
 (defmethod om-dialog-item-text ((self om-simple-text))
   (capi::title-pane-text self))
