@@ -329,7 +329,7 @@
                                           :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "opat.icns"))
                                                                 `("Sequencer" ("oseq") ,(om::om-relative-path '("mac") "oseq.icns"))
                                                                ;`("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
-                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
+                                                                `("Library" ("olib" "omlib") ,(om::om-relative-path '("mac") "olib.icns")))
                                           :application-icns (om::om-relative-path '("mac") "om-sharp.icns")
                                           :identifier "fr.cactus.om-sharp"
                                           :version *version-string*

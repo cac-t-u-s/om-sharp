@@ -81,7 +81,10 @@
   (setq *default-libs-folder* (merge-pathnames "libraries/" (om-root-folder))))
 
 (defmethod lib-loader-file ((self OMLib))
-  (om-make-pathname :directory (mypathname self) :name (name self) :type "omlib"))
+  (or
+   (probe-file (om-make-pathname :directory (mypathname self) :name (name self) :type "olib"))
+   (probe-file (om-make-pathname :directory (mypathname self) :name (name self) :type "omlib"))))
+
 
 
 ;;; adds the library to the main package tree
@@ -116,13 +119,16 @@
 
   (loop for path in (om-directory folder :directories t :files nil)
         do (let ((lib-name? (string-until-space (car (last (pathname-directory path))))))
-             (if (probe-file (om-make-pathname :directory path :name lib-name? :type "omlib"))
+             (if (or
+                  (probe-file (om-make-pathname :directory path :name lib-name? :type "olib"))
+                  (probe-file (om-make-pathname :directory path :name lib-name? :type "omlib")))
                  ;;; this is a library!
                  (register-new-library lib-name? path warn-if-exists)
 
                (if recursive
                    (register-folder-library path t warn-if-exists)
-                 (om-beep-msg "Library doesn't have a loader file: ~A.omlib not found.." lib-name?))))
+
+                 (om-beep-msg "Library doesn't have a loader file: ~A.olib not found.." lib-name?))))
         ))
 
 
@@ -153,8 +159,8 @@
 (defvar *current-lib* nil "containts the library that is being loaded")
 
 (defmethod load-library-metadata ((lib OMLib))
-  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))
-    (when (probe-file lib-file)
+  (let ((lib-file (lib-loader-file lib)))
+    (when lib-file
 
       (let ((lib-data (find-values-in-prop-list (list-from-file lib-file) :om-lib)))
 
@@ -171,8 +177,8 @@
 
 
 (defmethod load-om-library ((lib OMLib))
-  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))
-    (if (probe-file lib-file)
+  (let ((lib-file (lib-loader-file lib)))
+    (if lib-file
         (handler-bind ((error #'(lambda (c)
                                   (progn
                                     (om-message-dialog (format nil "Error while loading the library ~A:~%~s"
@@ -244,7 +250,9 @@
             (om-print-format "==============================================")
 
             lib-file))
-      (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." lib-file))
+
+      (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.."
+                   (om-make-pathname :directory (mypathname lib) :name (name lib) :type "olib")))
     ))
 
 ;;; can be called from another library, etc.
