@@ -830,6 +830,8 @@
       (paste-command-for-view (editor (selected-view editor)) view)
     (call-next-method)))
 
+(defmethod update-frame-size-for-view ((frame omboxframe) (view maquette-view))
+  (update-temporalbox view frame))
 
 ;;;========================
 ;;; TIME MARKERS API

@@ -968,6 +968,16 @@
   (om-set-view-size frame (omp (box-w (object frame)) (box-h (object frame)))))
 
 
+(defmethod update-frame-size-for-view ((frame omboxframe) (view t))
+  (let ((b (object frame)))
+    (om-set-view-size frame
+                      (om-borne-point
+                       (omp (box-w b) (box-h b))
+                       (minimum-size b)
+                       (maximum-size b)
+                       ))))
+
+
 ;;;=============================
 ;;; SPECIAL MOVE
 ;;;=============================

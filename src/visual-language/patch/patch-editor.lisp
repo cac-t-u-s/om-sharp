@@ -905,10 +905,12 @@
                                  (om-add-points (omg-position view (omp (box-x b) (box-y b)))
                                                 (om-make-point 40 10)))))
               (omng-move b (omng-position view graphic-pos))
+
               (when (omNG-add-element editor b)
                 (let ((frame (make-frame-from-callobj b)))
                   (om-set-view-position frame graphic-pos)
                   (om-add-subviews view frame)
+                  (update-frame-size-for-view frame view)
                   (select-box b t)
                   ))))
 
