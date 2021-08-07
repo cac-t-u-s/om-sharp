@@ -285,7 +285,7 @@
 
 
 ;;; e.g. in sequencer-track-view
-(defmethod reset-frame-size ((frameig t)) nil)
+(defmethod reset-frame-size ((frame t)) nil)
 (defmethod redraw-connections ((self t)) nil)
 
 (defmethod initialize-size ((self OMBox))
