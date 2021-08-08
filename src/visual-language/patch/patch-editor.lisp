@@ -888,6 +888,7 @@
            (connections (cadr (get-om-clipboard)))
            (paste-pos (get-paste-position view))
            (ref-pos))
+
       (select-unselect-all editor nil)
       (when paste-pos
         (setq ref-pos (loop for bb in boxes
@@ -899,12 +900,23 @@
       (store-current-state-for-undo editor)
 
       (loop for b in boxes do
-            (let ((graphic-pos (if ref-pos
-                                   (om-add-points paste-pos
-                                                  (om-subtract-points (omg-position view (omp (box-x b) (box-y b)))
-                                                                      ref-pos))
-                                 (om-add-points (omg-position view (omp (box-x b) (box-y b)))
-                                                (om-make-point 40 10)))))
+            (let* ((box-pos (omg-position view (omp (box-x b) (box-y b))))
+                   (box-size (omg-size view
+                                       (om-borne-point
+                                        (omp (box-w b) (box-h b))
+                                        (minimum-size b)
+                                        (maximum-size b)
+                                        )))
+                   (graphic-pos (if ref-pos
+                                    (om-add-points paste-pos
+                                                   (om-subtract-points box-pos ref-pos))
+
+                                  (om-borne-point
+                                   (om-add-points box-pos (om-make-point 40 10))
+                                   (omp 0 0)
+                                   (om-subtract-points (om-view-size view) box-size))
+                                  )))
+
               (omng-move b (omng-position view graphic-pos))
 
               (when (omNG-add-element editor b)
