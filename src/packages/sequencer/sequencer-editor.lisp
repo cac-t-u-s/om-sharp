@@ -775,6 +775,16 @@
        (when (equal :maquette (view-mode editor))
          (call-next-method)))
 
+      (#\e
+       ;;; don't allow encapsulating in tracks view
+       (when (equal :maquette (view-mode editor))
+         (call-next-method)))
+
+      (#\u
+       ;;; don't allow unencapsulating in tracks view
+       (when (equal :maquette (view-mode editor))
+         (call-next-method)))
+
       (#\r (unless (edit-lock editor)
              (loop for tb in (get-visible-selected-boxes editor) do (set-reactive-mode tb))
              (om-invalidate-view (window editor))))
