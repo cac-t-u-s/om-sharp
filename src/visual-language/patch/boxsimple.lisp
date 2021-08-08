@@ -96,7 +96,6 @@
               (handler-bind ((error #'(lambda (error) (declare (ignore error)) (om-beep) (abort-eval))))
                 ;;(setf (name box) text)
                 (let ((val (ignore-errors (read-from-string text))))
-                  (store-current-state-for-undo (editor (container self)))
                   (set-value box (list (if (quoted-form-p val) (eval val) val)))
                   )))
           ))

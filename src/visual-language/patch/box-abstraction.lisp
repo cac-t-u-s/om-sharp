@@ -270,7 +270,6 @@
             #'(lambda (box text)
                 (declare (ignore box))
                 ;;; the box name shall be updated as well
-                (store-current-state-for-undo (editor (container self)))
                 (set-name (reference self) text)
                 (update-inspector-for-object self)
                 ))))

@@ -103,9 +103,7 @@
 (defmethod allow-text-input ((self OMInOutBox))
   (values
    (name self)
-   #'(lambda (box text)
-       (store-current-state-for-undo (editor (container self)))
-       (set-name box text))))
+   #'(lambda (box text) (set-name box text))))
 
 (defmethod box-draw ((self OMInOutBox) frame)
   (let* ((size (om-make-point 20 16))
