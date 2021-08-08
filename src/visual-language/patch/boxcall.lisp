@@ -175,6 +175,7 @@
   (let ((new-inputs (append (loop for i in (create-box-inputs self)
                                   for n from 0
                                   collect (copy-if-exists i n (inputs self)))
+                            (get-optional-inputs self)
                             (get-keyword-inputs self)))
 
         (new-outputs (append (loop for o in (create-box-outputs self)
