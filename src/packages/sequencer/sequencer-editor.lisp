@@ -290,6 +290,12 @@
       (call-next-method)))
 
 
+(defmethod encapsulate-patchboxes ((editor patch-editor) (view maquette-view) boxes)
+  (loop for b in boxes do
+        (omng-resize b (default-size b)))
+  (call-next-method))
+
+
 ;;;========================
 ;;; TRACK-VIEW
 ;;;========================
