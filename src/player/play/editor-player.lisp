@@ -158,6 +158,8 @@
                 (declare (ignore view pos))
                 (editor-set-interval self (list (apply 'min (play-interval self))
                                                 (apply 'max (play-interval self))))
+                (when (is-looping (get-obj-to-play self))
+                  (notify-scheduler (get-obj-to-play self)))
                 (om-invalidate-view (window self)))
    :min-move 4))
 
@@ -181,8 +183,6 @@
   (let ((inter (editor-fix-interval self interval)))
     (setf (play-interval self) inter)
     (set-object-interval (get-obj-to-play self) inter)
-    (when (is-looping (get-obj-to-play self))
-      (notify-scheduler (get-obj-to-play self)))
     (update-cursor-pane-intervals self)
     ))
 
