@@ -768,7 +768,8 @@
                                                  (om-remove-subviews container-view item)
 
                                                  (when (and action (> (length newtext) 0))
-                                                   (store-current-state-for-undo (editor container-view))
+                                                   (when (not (string-equal newtext edittext))
+                                                     (store-current-state-for-undo (editor container-view)))
                                                    (funcall action box newtext))
 
                                                  (om-set-focus container-view)
