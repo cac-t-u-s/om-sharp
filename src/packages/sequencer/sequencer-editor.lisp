@@ -35,7 +35,6 @@
 (defclass sequencer-editor (multi-view-editor patch-editor play-editor-mixin)
   ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)     ;;; :tracks or :maquette
    (show-control-patch :accessor show-control-patch :initarg :show-control-patch :initform nil)
-   (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
 
 
@@ -397,8 +396,6 @@
     (editor-box-selection editor selected-box)
 
     (om-invalidate-view (om-view-window self))
-    ;; (when selected-box (move-selection-in-track-action self editor selected-box position)) ;; ???
-
 
     (cond
      ((and selected-box (not (edit-lock editor)))
@@ -526,29 +523,6 @@
       (progn (om-set-view-cursor self (om-view-cursor self))
         (call-next-method)
         ))))
-
-
-;; not used at the moment...
-(defmethod move-selection-in-track-action ((self sequencer-track-view) editor orig-box position)
-  (om-init-temp-graphics-motion
-   self position nil :min-move 4
-   :motion #'(lambda (view pos)
-               (declare (ignore view))
-               (let* ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x position)))))
-                      (selected-box-onset (get-box-onset orig-box))
-                      (snap-delta 200)
-                      (new-dx (if (snap-to-grid editor)
-                                  (adapt-dt-for-grid-and-markers (get-g-component editor :metric-ruler) selected-box-onset dx snap-delta)
-                                dx)))
-                 (when (not (equal new-dx 0))
-                   (setf position pos)
-                   (move-editor-selection editor :dx new-dx)
-                   (update-to-editor editor self)
-                   )))
-   :release #'(lambda (view pos)
-                (declare (ignore view pos))
-                (report-modifications editor)
-                (update-to-editor editor self))))
 
 
 (defmethod om-view-doubleclick-handler ((self sequencer-track-view) position)
