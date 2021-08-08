@@ -189,8 +189,9 @@
     (loop for chord in chords do
           (let ((onset (onset chord)))
             (loop for note in (notes chord) do
-                  (when (and (<= (+ onset (offset note)) time)
-                             (>= (+ onset (offset note) (dur note)) time))
+                  (when (or (zerop time)
+                            (and (<= (+ onset (offset note)) time)
+                                 (>= (+ onset (offset note) (dur note)) time)))
                     (let ((channel (+ (or (chan note) 1)
                                       (if chan-shift (micro-channel (midic note) approx) 0))))
                       (om-midi:midi-send-evt

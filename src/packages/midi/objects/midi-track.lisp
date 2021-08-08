@@ -537,8 +537,9 @@
 (defun close-open-midinotes-at-time (notes time)
   (loop for note in notes
         do
-        (when (and (<= (midinote-onset note) time)
-                   (>= (midinote-end note) time))
+        (when (or (zerop time)
+                  (and (<= (midinote-onset note) time)
+                       (>= (midinote-end note) time)))
           (om-midi::midi-send-evt
            (om-midi:make-midi-evt
             :type :keyOff
