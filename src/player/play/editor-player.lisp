@@ -402,7 +402,14 @@
 (defmethod update-cursor ((self x-cursor-graduated-view) time &optional y1 y2)
   (unless (= (cursor-pos self) time)
     (setf (cursor-pos self) time))
-  (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self))))
+
+  (unless ;; return nil if there was nothing to draw!
+      (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self)))
+
+    ;;; restart and try again
+    (start-cursor self)
+    (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self)))
+    ))
 
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-cursor-graduated-view))
