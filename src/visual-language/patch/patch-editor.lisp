@@ -879,7 +879,8 @@
   (store-current-state-for-undo editor)
   (remove-selection editor))
 
-(defmethod paste-command-for-view ((editor patch-editor) (view t)) nil)
+(defmethod paste-command-for-view ((editor patch-editor) (view t))
+  (om-beep-msg "Can't paste on ~A" view))
 
 (defmethod paste-command-for-view ((editor patch-editor) (view patch-editor-view))
   (unless (edit-lock editor)
