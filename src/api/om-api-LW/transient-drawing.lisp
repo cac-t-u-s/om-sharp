@@ -198,10 +198,11 @@
   ;;; => drawing process not used
   (om-update-transient-drawing-process self :x x :y y :w w :h h)
 
-  (capi::apply-in-pane-process
-   self
-   #'(lambda ()
-       (when (drawn-item self)
+  (when (drawn-item self)
+
+    (capi::apply-in-pane-process
+     self
+     #'(lambda ()
          (capi:with-geometry (drawn-item self)
            (when (or x y)
              (setf (capi:pinboard-pane-position (drawn-item self))
@@ -212,7 +213,9 @@
            )
          ;; (capi::redraw-pinboard-object (drawn-item self))
          ))
-   ))
+
+    ;; return something if drawn-item was not null
+    (drawn-item self)))
 
 
 ;;;=====================
