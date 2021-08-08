@@ -146,7 +146,7 @@ Ex. (create-list 4 'a)  =>  (a a a a)"
 The matrix is represented by a list of rows. Each row is a list of items.
 Rows and columns are interchanged.
 
-Ex. (mat-tran '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
+Ex. (mat-trans '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
   :icon 'mat-trans
   (let ((maxl (1- (loop for elt in matrix maximize (length elt))))
         result)
