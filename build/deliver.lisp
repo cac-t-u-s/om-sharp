@@ -181,9 +181,12 @@
                #'(lambda ()
                    (loop while (not om::*om-initialized*)) ;; leave time to load libs etc.
                    (om::record-recent-file filename)
-                   (capi:execute-with-interface
-                    om::*main-window*
-                    #'om::open-doc-from-file (om::extension-to-doctype type) filename))
+                   (if om::*main-window*
+                       (capi:execute-with-interface
+                        om::*main-window*
+                        #'om::open-doc-from-file (om::extension-to-doctype type) filename)
+                     (om::open-doc-from-file (om::extension-to-doctype type) filename))
+                   )
                ))
              ((string-equal "lisp" type)
               (om::om-open-new-text-editor filename))
