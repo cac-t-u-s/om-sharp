@@ -82,9 +82,12 @@
             '(:filename "File name" :path box-patch-name-access)
           '(:name "Name" :string box-patch-name-access))
        ))
-     ("Scheduling"
-      ((:pre-delay "Pre-delay (ms)" :number pre-delay))))
-   ))
+     ("Sequencer"
+      ,(append
+        '((:pre-delay "Pre-delay (ms)" :number pre-delay))
+        (if (play-obj? (get-box-value self))
+            '((:show-markers "Show markers" :bool show-markers))))
+      ))))
 
 
 ;;; filename is redudant with the filename of the box reference
