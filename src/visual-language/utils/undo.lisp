@@ -96,30 +96,33 @@
   )
 
 
-(defmethod undoable-container-editor ((self undoable-editor-mixin))
-  (or (and (not (equal self (container-editor self))) ;;; the sequencer-editor is its own container... :(
+(defmethod undoable-container-editor ((self undoable-editor-mixin)) self)
+
+(defmethod undoable-container-editor ((self OMEditor))
+  (or (and (container-editor self)
+           (not (equal self (container-editor self))) ;; sequencer-editor can be its own container-editor :(
            (undoable-container-editor (container-editor self)))
-      self))
+      (call-next-method) ;; multiple inheritance with undoable-editor-mixin ?
+      ))
 
 (defmethod undoable-container-editor ((self t)) nil)
 
 
 ;;; => call this before any action which might require undo
 ;;; => action and item allow to prevent multiple-undo storage for sequences of similar actions (to do: add also a timer?)
-(defmethod store-current-state-for-undo ((self undoable-editor-mixin) &key action item)
-  (let ((editor (or (undoable-container-editor self) self)))
-    (unless (and action
-                 (equal action (last-action editor))
-                 (equal item (last-item editor)))
-      ;;; this is a new 'key state' we want to store
-      (push-undo-state editor)
-      ;;; when we push a new undo state, the redo is reinitialized
-      (let ((deleted-states (copy-list (redo-stack editor))))
-        (setf (redo-stack editor) nil)
-        (cleanup-undoable-editor-stack-elements editor deleted-states)
-        ))
-    (setf (last-action editor) action
-          (last-item editor) item)))
+(defmethod store-current-state-for-undo ((editor undoable-editor-mixin) &key action item)
+  (unless (and action
+               (equal action (last-action editor))
+               (equal item (last-item editor)))
+    ;;; this is a new 'key state' we want to store
+    (push-undo-state editor)
+    ;;; when we push a new undo state, the redo is reinitialized
+    (let ((deleted-states (copy-list (redo-stack editor))))
+      (setf (redo-stack editor) nil)
+      (cleanup-undoable-editor-stack-elements editor deleted-states)
+      ))
+  (setf (last-action editor) action
+        (last-item editor) item))
 
 
 (defmethod store-current-state-for-undo ((self t) &key action item) nil)
