@@ -1546,19 +1546,11 @@ CMD-click to add boxes. Play contents, etc.
 ;;; forward to control-patch editor if active/selected
 
 (defmethod undo-command ((self sequencer-editor))
-  (let ((ed (editor (selected-view self))))
-    (if (or (null ed) (equal ed self))
-        (call-next-method)
-      (when (undo-stack ed)
-        #'(lambda () (do-undo ed))))))
+  (call-next-method (editor (selected-view self))))
 
 
 (defmethod redo-command ((self sequencer-editor))
-  (let ((ed (editor (selected-view self))))
-    (if (or (null ed) (equal ed self))
-        (call-next-method)
-      (when (redo-stack ed)
-        #'(lambda () (do-redo ed))))))
+  (call-next-method (editor (selected-view self))))
 
 
 #|
