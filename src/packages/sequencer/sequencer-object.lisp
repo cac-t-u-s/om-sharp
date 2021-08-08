@@ -21,7 +21,9 @@
 
 (defclass OMSequencer (OMPatch schedulable-object timed-object)
   ((ctrlpatch :accessor ctrlpatch :initform nil :initarg :ctrlpatch)
-   (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range))
+   (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range)
+   (view-mode :accessor view-mode :initarg :view-mode :initform :tracks)     ;;; :tracks or :maquette
+   (control-patch-visible-p :accessor control-patch-visible-p :initarg :control-patch-visible-p :initform nil))
   (:metaclass omstandardclass))
 
 (defclass OMSequencerFile (OMPersistantObject OMSequencer) ()
@@ -452,7 +454,10 @@
    `((:range ,(range self))
      (:control-patch ,(omng-save (ctrlpatch self)))
      (:loop-interval ,(interval self))
-     (:loop-on ,(looper self)))))
+     (:loop-on ,(looper self))
+     (:view-mode ,(view-mode self))
+     (:control-patch-visible-p ,(control-patch-visible-p self))
+     )))
 
 
 (defmethod load-patch-contents ((patch OMSequencer) data)
@@ -460,11 +465,15 @@
         (patch (find-value-in-kv-list data :control-patch))
         (range (find-value-in-kv-list data :range))
         (interval (find-value-in-kv-list data :loop-interval))
-        (loop-on (find-value-in-kv-list data :loop-on)))
+        (loop-on (find-value-in-kv-list data :loop-on))
+        (view-mode (find-value-in-kv-list data :view-mode))
+        (control-patch-visible-p (find-value-in-kv-list data :control-patch-visible-p)))
     (when patch (set-control-patch seq (omng-load patch)))
     (when range (setf (range seq) range))
     (when interval (setf (interval seq) interval))
     (setf (looper seq) loop-on)
+    (when view-mode (setf (view-mode seq) view-mode))
+    (setf (control-patch-visible-p seq) control-patch-visible-p)
     seq))
 
 (defmethod om-load-from-id ((id (eql :sequencer)) data)

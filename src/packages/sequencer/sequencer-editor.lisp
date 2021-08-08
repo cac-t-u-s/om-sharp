@@ -33,9 +33,14 @@
 
 
 (defclass sequencer-editor (multi-view-editor patch-editor play-editor-mixin)
-  ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)     ;;; :tracks or :maquette
-   (show-control-patch :accessor show-control-patch :initarg :show-control-patch :initform nil)
-   (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
+  ((beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
+
+
+(defmethod view-mode ((self sequencer-editor))
+  (view-mode (object self)))
+
+(defmethod control-patch-visible-p ((self sequencer-editor))
+  (control-patch-visible-p (object self)))
 
 
 (defmethod om-menu-items ((self sequencer-editor))
@@ -918,8 +923,8 @@ CMD-click to add boxes. Play contents, etc.
 
 (defun show-hide-control-patch-editor (sequencer-editor show)
 
-  (unless (equal (show-control-patch sequencer-editor) show)
-    (setf (show-control-patch sequencer-editor) show)
+  (unless (equal (control-patch-visible-p sequencer-editor) show)
+    (setf (control-patch-visible-p (object sequencer-editor)) show)
     (build-editor-window sequencer-editor)
     (init-editor-window sequencer-editor)
     ))
@@ -937,7 +942,7 @@ CMD-click to add boxes. Play contents, etc.
      :size (omp 16 16)
      :icon :ctrlpatch-open :icon-pushed :ctrlpatch-close
      :lock-push t :enabled t
-     :pushed (show-control-patch editor)
+     :pushed (control-patch-visible-p editor)
      :action #'(lambda (b)
                  (show-hide-control-patch-editor editor (pushed b))
                  ))
@@ -1156,7 +1161,7 @@ CMD-click to add boxes. Play contents, etc.
     (when (equal (editor-window-config editor) :inspector)
       (setf inspector-pane (make-inspector-pane editor)))
 
-    (when (show-control-patch editor)
+    (when (control-patch-visible-p editor)
       (set-g-component editor :left-view (make-control-patch-view editor)))
 
     (om-add-subviews (get-g-component editor :main-sequencer-view) tracks-or-maq-view)
@@ -1167,12 +1172,12 @@ CMD-click to add boxes. Play contents, etc.
 
     (om-make-layout
      'om-row-layout :delta 2 :ratios (append
-                                      (when (show-control-patch editor) '(40 nil))
+                                      (when (control-patch-visible-p editor) '(40 nil))
                                       '(100)
                                       (when (equal (editor-window-config editor) :inspector) '(nil 1)))
      :subviews (append
                 ;;; LEFT (PATCH)
-                (when (show-control-patch editor)
+                (when (control-patch-visible-p editor)
                   (list (get-g-component editor :left-view)
                         :divider))
                 ;;; MAIN
@@ -1216,7 +1221,7 @@ CMD-click to add boxes. Play contents, etc.
 
 
 (defun set-main-view (editor mode)
-  (setf (view-mode editor) mode)
+  (setf (view-mode (object editor)) mode)
   (om-remove-all-subviews (get-g-component editor :main-sequencer-view))
   (mapcar #'stop-cursor (cursor-panes editor))
   (om-add-subviews
