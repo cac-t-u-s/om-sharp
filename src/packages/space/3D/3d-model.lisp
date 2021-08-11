@@ -522,7 +522,7 @@
                 :subviews
                 (list
                  (om-make-di 'om-simple-text :text "" :size (omp 40 20))
-                 (om-make-di 'om-button :text "reinit rotations" :size (omp 120 nil) :font (om-def-font :font1)
+                 (om-make-di 'om-button :text "reinit rotations" :size (omp 120 24) :font (om-def-font :font1)
                              :di-action #'(lambda (item)
                                             (declare (ignore item))
                                             (init-state obj)
@@ -610,7 +610,7 @@
                                             (editor-set-edit-param editor :show-grid (print (om-checked-p item)))
                                             (om-invalidate-view (get-g-component editor :3d-view))))
 
-                 (om-make-di 'om-button :text "fit" :size (omp 60 nil) :font (om-def-font :font1)
+                 (om-make-di 'om-button :text "fit" :size (omp 60 24) :font (om-def-font :font1)
                              :di-action #'(lambda (item)
                                             (declare (ignore item))
                                             (editor-set-edit-param editor :x-grid :auto)
