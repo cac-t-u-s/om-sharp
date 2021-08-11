@@ -24,9 +24,9 @@
    (scaler-z :accessor scaler-z :initform 1 :documentation "a scaler for the viewer's 'z' axis")
    (center :accessor center :initform (list 0.0 0.0 0.0)
            :documentation "a 3D point used as reference for data transformation and output")
-   (rotation-x :accessor rotation-x :initform 0.0 :documentation "rotation angles on x axis")
-   (rotation-y :accessor rotation-y :initform 0.0 :documentation "rotation angles on y axis")
-   (rotation-z :accessor rotation-z :initform 0.0 :documentation "rotation angles on z axis")
+   (rotation-x :accessor rotation-x :initform 0 :documentation "rotation angles on x axis")
+   (rotation-y :accessor rotation-y :initform 0 :documentation "rotation angles on y axis")
+   (rotation-z :accessor rotation-z :initform 0 :documentation "rotation angles on z axis")
    ))
 
 #|
