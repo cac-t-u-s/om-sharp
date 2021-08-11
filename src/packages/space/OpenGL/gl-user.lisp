@@ -674,6 +674,8 @@
   (opengl-viewer-click canvas x y))
 
 (defmethod opengl-viewer-motion-click (canvas x y)
+  (unless (icotransform canvas)
+    (initialize-viewer canvas))
   (let ((last (lastxy canvas)))
     (when last
       (opengl:rendering-on (canvas)
@@ -682,6 +684,8 @@
     (setf (lastxy canvas) (cons x y))))
 
 (defmethod opengl-viewer-motion-shift-click (canvas x y)
+  (unless (icotransform canvas)
+    (initialize-viewer canvas))
   (let ((last (lastxy canvas)))
     (when last
       (let ((eye (eye (camera canvas))))
@@ -692,6 +696,8 @@
     (setf (lastxy canvas) (cons x y))))
 
 (defmethod opengl-viewer-motion-alt-click (canvas x y)
+  (unless (icotransform canvas)
+    (initialize-viewer canvas))
   (let ((last (lastxy canvas)))
     (when last
       (opengl:rendering-on (canvas)
