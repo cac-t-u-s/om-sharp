@@ -214,13 +214,13 @@
                                 (list
                                  nil
                                  (om-make-di 'om-button :text "Save selection"
-                                             :size (omp 125 32) :font (om-def-font :font1)
+                                             :size (omp 125 24) :font (om-def-font :font1)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (save-documents doc-list)
                                                             ))
                                  (om-make-di 'om-button :text "Close selection"
-                                             :size (omp 125 32) :font (om-def-font :font1)
+                                             :size (omp 125 24) :font (om-def-font :font1)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (close-documents doc-list)
@@ -562,14 +562,14 @@ The list on the left show all libraries found in the libraries search paths.
                 (om-make-layout 'om-row-layout :subviews
                                 (list
                                  (om-make-di 'om-button :text "Open as separate window"
-                                             :size (omp 180 32) :font (om-def-font :font1)
+                                             :size (omp 180 24) :font (om-def-font :font1)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (show-listener-win)
                                                             ))
                                  nil
                                  (om-make-di 'om-button :text "x"
-                                             :size (omp 40 32) :font (om-def-font :font1)
+                                             :size (omp 40 24) :font (om-def-font :font1)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
