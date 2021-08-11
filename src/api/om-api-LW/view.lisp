@@ -40,7 +40,9 @@
           om-find-view-containing-point
           om-convert-coordinates
           om-view-origin
-          om-get-subview-with-focus)
+          om-get-subview-with-focus
+          om-set-view-enabled
+          om-view-enabled)
         :om-api)
 
 (in-package :oa)
@@ -130,7 +132,7 @@
                            owner subviews name
                            bg-color fg-color font
                            scrollbars
-                           (enable t)
+                           (enabled t)
                            (direct-draw t)  ;;; DIRECT-DRAW NIL ALLOWS TO DRAW PINBOARDS
                            &allow-other-keys)
   (let  ((x (and position (om-point-x position)))
@@ -140,7 +142,7 @@
          (initargs-list (list :name name :font (or font (om-def-font :font1))
                               :vcontainer owner
                               ;:automatic-resize '(:width-ratio 0.5 :aspect-ratio 0.6)
-                              :accepts-focus-p enable
+                              :accepts-focus-p enabled
                               :pane-can-scroll nil
                               :horizontal-scroll (when (or (equal scrollbars t) (equal scrollbars :h)) scrollbars)
                               :vertical-scroll (when (or (equal scrollbars t) (equal scrollbars :v)) scrollbars)
@@ -217,4 +219,10 @@
 
 (defmethod om-view-scrolled ((self om-view) xy) (declare (ignore self xy)) nil)
 
+
+(defmethod om-set-view-enabled ((self om-view) enabled)
+  (setf (capi::simple-pane-enabled self) enabled))
+
+(defmethod om-view-enabled ((self om-view))
+  (capi::simple-pane-enabled self))
 

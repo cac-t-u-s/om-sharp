@@ -165,7 +165,6 @@
 (defclass color-view (om-view)
   ((color :accessor color :initarg :color :initform (om-make-color 0 0 0))
    (after-fun :accessor after-fun :initform nil :initarg :after-fun)
-   (enabled :accessor enabled :initform t :initarg :enabled)
    (with-alpha :accessor with-alpha :initform t :initarg :with-alpha)
    (border :accessor border :initform t :initarg :border)))
 
@@ -177,7 +176,7 @@
     (om-draw-rect 0 0 (om-width self) (om-height self) :color (or (color self) (om-def-color :gray))
                   :fill (color self))
 
-    (when (not (enabled self))
+    (when (not (om-view-enabled self))
       (om-draw-rect 0 0 (om-width self) (om-height self)
                     :color (om-make-color-alpha (om-def-color :white) 0.5)
                     :fill t))
@@ -194,7 +193,7 @@
 
 (defmethod om-view-click-handler ((self color-view) pos)
   (declare (ignore pos))
-  (when (enabled self)
+  (when (om-view-enabled self)
     (let ((color (om-choose-color-dialog :color (color self) :alpha (with-alpha self) :owner self)))
       (when color (setf (color self) color)
         (om-invalidate-view self)
@@ -209,7 +208,6 @@
 (defclass font-chooser-view (om-view)
   ((font :accessor font :initarg :font :initform nil)
    (after-fun :accessor after-fun :initarg :after-fun :initform nil)
-   (enabled :accessor enabled :initarg :enabled :initform t)
    (face-chooser :accessor face-chooser)
    (size-chooser :accessor size-chooser)
    (style-chooser :accessor style-chooser)))
@@ -225,7 +223,7 @@
     (list
      (setf (face-chooser self)
            (om-make-di 'om-popup-list
-                       :enabled (enabled self)
+                       :enabled (om-view-enabled self)
                        :size (omp 116 22)
                        :font (om-def-font :font1)
                        :items (om-list-all-fonts)
@@ -248,7 +246,7 @@
       (list
        (setf (size-chooser self)
              (om-make-di 'om-popup-list
-                         :enabled (enabled self)
+                         :enabled (om-view-enabled self)
                          :size (omp 50 22)
                          :font (om-def-font :font1)
                          :items '(8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 28 32 36 40 52 64)
@@ -265,7 +263,7 @@
                          ))
        (setf (style-chooser self)
              (om-make-di 'om-popup-list
-                         :enabled (enabled self)
+                         :enabled (om-view-enabled self)
                          :size (omp 64 22)
                          :font (om-def-font :font1)
                          :items '("plain" "bold" "italic" "bold-italic")
@@ -299,6 +297,7 @@
 
 
 (defmethod set-enabled ((self font-chooser-view) enabled)
+  (om-set-view-enabled self enabled)
   (om-enable-dialog-item (face-chooser self) enabled)
   (om-enable-dialog-item (size-chooser self) enabled)
   (om-enable-dialog-item (style-chooser self) enabled))
@@ -327,7 +326,6 @@
 (defclass click-and-edit-text (om-view)
   ((text :accessor text :initform "" :initarg :text)
    (after-fun :accessor after-fun :initform nil :initarg :after-fun)
-   (enabled :accessor enabled :initform t :initarg :enabled)
    (border :accessor border :initform t :initarg :border)
    (wrap-lines :accessor wrap-lines :initform nil :initarg :wrap-lines))
   (:default-initargs :resize-callback nil))
@@ -337,14 +335,14 @@
     (om-with-fg-color (border self)
       (om-draw-rect 0 0 (om-width self) (om-height self))))
   (om-with-fg-color
-      (if (enabled self) (om-get-fg-color self) (om-def-color :gray))
+      (if (om-view-enabled self) (om-get-fg-color self) (om-def-color :gray))
     (om-draw-string 0 (cadr (multiple-value-list (om-string-size (text self) (om-get-font self))))
                     (text self)
                     :wrap (if (wrap-lines self) (om-width self) nil))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
   (declare (ignore pos))
-  (when (enabled self)
+  (when (om-view-enabled self)
     (let ((txt (om-get-user-string "" :initial-string (text self))))
       (when txt (setf (text self) txt)
         (om-invalidate-view self)

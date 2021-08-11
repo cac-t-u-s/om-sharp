@@ -431,7 +431,7 @@
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
                                      (maybe-store-undo-state update nil nil)
-                                     (setf (enabled colorview) (om-checked-p item))
+                                     (om-set-view-enabled colorview (om-checked-p item))
                                      (unless (om-checked-p item)
                                        (setf (color colorview) (get-default-value default)))
                                      (om-invalidate-view colorview)
