@@ -4,9 +4,9 @@
  (:doc "")
  (:info
   (:created "2020/10/16 22:56:54")
-  (:modified "2020/10/16 23:38:49")
+  (:modified "2021/08/12 19:56:28")
   (:by "om-sharp")
-  (:version 1.01))
+  (:version 1.0301))
  (:window (:size (1101 509)) (:position (100 108)))
  (:grid nil)
  (:lock nil)
@@ -29,6 +29,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -104,6 +105,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -124,6 +126,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 0 1))
@@ -146,6 +149,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -234,9 +238,9 @@
        (:scaler-y 1)
        (:scaler-z 1)
        (:center (:list 0.0 0.0 0.0))
-       (:rotation-x 18.900038)
-       (:rotation-y 356.10016)
-       (:rotation-z 334.7998)))))
+       (:rotation-x 0)
+       (:rotation-y 0)
+       (:rotation-z 0)))))
    (:id 3))
   (:box
    (:type :function)
@@ -255,6 +259,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
     (:input
@@ -282,6 +287,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -357,6 +363,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.5)
@@ -377,6 +384,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 2 2 1))
@@ -398,6 +406,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
     (:input (:type :standard) (:name "G") (:value nil) (:reactive nil))
@@ -424,6 +433,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.5)
@@ -444,6 +454,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.7)
@@ -464,6 +475,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.7)
@@ -484,6 +496,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -504,6 +517,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -524,6 +538,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -546,6 +561,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -589,95 +605,95 @@
             (:color nil)
             (:points
              (:list
-              (:list 0.07 0.37 0.0 0)
-              (:list 0.03 0.41 0.0 73)
-              (:list -0.06 0.47 0.0 89)
-              (:list -0.11 0.51 0.0 97)
-              (:list -0.19 0.55 0.0 114)
-              (:list -0.26 0.59 0.0 122)
-              (:list -0.32 0.61 0.0 131)
-              (:list -0.41 0.65 0.0 139)
-              (:list -0.55 0.67 0.0 155)
-              (:list -0.64 0.67 0.0 163)
-              (:list -0.79 0.67 0.0 180)
-              (:list -0.92 0.59 0.0 197)
-              (:list -1.0 0.52 0.0 214)
-              (:list -1.04 0.43 0.0 222)
-              (:list -1.08 0.39 0.0 232)
-              (:list -1.1 0.29 0.0 237)
-              (:list -1.14 0.2 0.0 247)
-              (:list -1.16 0.12 0.0 254)
-              (:list -1.16 0.02 0.0 264)
-              (:list -1.17 -0.05 0.0 270)
-              (:list -1.17 -0.12 0.0 281)
-              (:list -1.17 -0.2 0.0 286)
-              (:list -1.17 -0.28 0.0 297)
-              (:list -1.17 -0.36 0.0 304)
-              (:list -1.16 -0.45 0.0 314)
-              (:list -1.11 -0.55 0.0 320)
-              (:list -1.07 -0.63 0.0 330)
-              (:list -1.03 -0.7 0.0 339)
-              (:list -0.96 -0.77 0.0 346)
-              (:list -0.89 -0.84 0.0 352)
-              (:list -0.8 -0.9 0.0 363)
-              (:list -0.7 -0.96 0.0 369)
-              (:list -0.59 -1.0 0.0 382)
-              (:list -0.48 -1.04 0.0 385)
-              (:list -0.38 -1.06 0.0 397)
-              (:list -0.26 -1.06 0.0 402)
-              (:list -0.14 -1.07 0.0 415)
-              (:list -0.03 -1.07 0.0 418)
-              (:list 0.06 -1.06 0.0 430)
-              (:list 0.16 -1.01 0.0 435)
-              (:list 0.25 -0.94 0.0 447)
-              (:list 0.34 -0.83 0.0 465)
-              (:list 0.4 -0.73 0.0 468)
-              (:list 0.44 -0.65 0.0 481)
-              (:list 0.48 -0.55 0.0 484)
-              (:list 0.51 -0.47 0.0 498)
-              (:list 0.52 -0.37 0.0 501)
-              (:list 0.53 -0.3 0.0 514)
-              (:list 0.54 -0.2 0.0 517)
-              (:list 0.54 -0.12 0.0 531)
-              (:list 0.54 0.01 0.0 547)
-              (:list 0.52 0.07 0.0 552)
-              (:list 0.48 0.17 0.0 566)
-              (:list 0.43 0.24 0.0 585)
-              (:list 0.37 0.29 0.0 599)
-              (:list 0.31 0.31 0.0 615)
-              (:list 0.24 0.34 0.0 631)
-              (:list 0.17 0.34 0.0 651)
-              (:list 0.12 0.34 0.0 663)
-              (:list 0.06 0.34 0.0 665)
-              (:list 0.01 0.31 0.0 680)
-              (:list -0.03 0.29 0.0 681)
-              (:list -0.13 0.22 0.0 697)
-              (:list -0.19 0.14 0.0 714)
-              (:list -0.26 0.06 0.0 731)
-              (:list -0.3 -0.01 0.0 748)
-              (:list -0.32 -0.07 0.0 766)
-              (:list -0.32 -0.13 0.0 772)
-              (:list -0.33 -0.2 0.0 792)
-              (:list -0.33 -0.29 0.0 805)
-              (:list -0.27 -0.39 0.0 822)
-              (:list -0.23 -0.43 0.0 830)
-              (:list -0.18 -0.47 0.0 838)
-              (:list -0.11 -0.51 0.0 846)
-              (:list -0.02 -0.53 0.0 864)
-              (:list 0.03 -0.54 0.0 871)
-              (:list 0.13 -0.54 0.0 887)
-              (:list 0.19 -0.53 0.0 912)
-              (:list 0.23 -0.47 0.0 937)
-              (:list 0.25 -0.41 0.0 954)
-              (:list 0.25 -0.34 0.0 970)
-              (:list 0.24 -0.28 0.0 987)
-              (:list 0.21 -0.22 0.0 1002)
-              (:list 0.15 -0.16 0.0 1019)
-              (:list 0.09 -0.11 0.0 1035)
-              (:list 0.02 -0.08 0.0 1056)
-              (:list -0.06 -0.08 0.0 1069)
-              (:list -0.14 -0.08 0.0 1086)
-              (:list -0.21 -0.17 0.0 1105)))
+              (:list 0.07 0.37 0.0 0.0)
+              (:list 0.03 0.41 0.0 72)
+              (:list -0.06 0.47 0.0 210)
+              (:list -0.11 0.51 0.0 291)
+              (:list -0.19 0.55 0.0 405)
+              (:list -0.26 0.59 0.0 507)
+              (:list -0.32 0.61 0.0 588)
+              (:list -0.41 0.65 0.0 713)
+              (:list -0.55 0.67 0.0 893)
+              (:list -0.64 0.67 0.0 1008)
+              (:list -0.79 0.67 0.0 1199)
+              (:list -0.92 0.59 0.0 1393)
+              (:list -1.0 0.52 0.0 1528)
+              (:list -1.04 0.43 0.0 1653)
+              (:list -1.08 0.39 0.0 1725)
+              (:list -1.1 0.29 0.0 1855)
+              (:list -1.14 0.2 0.0 1980)
+              (:list -1.16 0.12 0.0 2085)
+              (:list -1.16 0.02 0.0 2213)
+              (:list -1.17 -0.05 0.0 2302)
+              (:list -1.17 -0.12 0.0 2392)
+              (:list -1.17 -0.2 0.0 2493)
+              (:list -1.17 -0.28 0.0 2595)
+              (:list -1.17 -0.36 0.0 2697)
+              (:list -1.16 -0.45 0.0 2812)
+              (:list -1.11 -0.55 0.0 2954)
+              (:list -1.07 -0.63 0.0 3068)
+              (:list -1.03 -0.7 0.0 3171)
+              (:list -0.96 -0.77 0.0 3297)
+              (:list -0.89 -0.84 0.0 3423)
+              (:list -0.8 -0.9 0.0 3560)
+              (:list -0.7 -0.96 0.0 3709)
+              (:list -0.59 -1.0 0.0 3858)
+              (:list -0.48 -1.04 0.0 4007)
+              (:list -0.38 -1.06 0.0 4136)
+              (:list -0.26 -1.06 0.0 4289)
+              (:list -0.14 -1.07 0.0 4442)
+              (:list -0.03 -1.07 0.0 4582)
+              (:list 0.06 -1.06 0.0 4697)
+              (:list 0.16 -1.01 0.0 4840)
+              (:list 0.25 -0.94 0.0 4985)
+              (:list 0.34 -0.83 0.0 5166)
+              (:list 0.4 -0.73 0.0 5314)
+              (:list 0.44 -0.65 0.0 5428)
+              (:list 0.48 -0.55 0.0 5565)
+              (:list 0.51 -0.47 0.0 5673)
+              (:list 0.52 -0.37 0.0 5801)
+              (:list 0.53 -0.3 0.0 5891)
+              (:list 0.54 -0.2 0.0 6019)
+              (:list 0.54 -0.12 0.0 6121)
+              (:list 0.54 0.01 0.0 6286)
+              (:list 0.52 0.07 0.0 6367)
+              (:list 0.48 0.17 0.0 6504)
+              (:list 0.43 0.24 0.0 6613)
+              (:list 0.37 0.29 0.0 6713)
+              (:list 0.31 0.31 0.0 6793)
+              (:list 0.24 0.34 0.0 6890)
+              (:list 0.17 0.34 0.0 6979)
+              (:list 0.12 0.34 0.0 7043)
+              (:list 0.06 0.34 0.0 7119)
+              (:list 0.01 0.31 0.0 7193)
+              (:list -0.03 0.29 0.0 7250)
+              (:list -0.13 0.22 0.0 7406)
+              (:list -0.19 0.14 0.0 7533)
+              (:list -0.26 0.06 0.0 7668)
+              (:list -0.3 -0.01 0.0 7771)
+              (:list -0.32 -0.07 0.0 7851)
+              (:list -0.32 -0.13 0.0 7927)
+              (:list -0.33 -0.2 0.0 8017)
+              (:list -0.33 -0.29 0.0 8132)
+              (:list -0.27 -0.39 0.0 8280)
+              (:list -0.23 -0.43 0.0 8352)
+              (:list -0.18 -0.47 0.0 8434)
+              (:list -0.11 -0.51 0.0 8536)
+              (:list -0.02 -0.53 0.0 8654)
+              (:list 0.03 -0.54 0.0 8718)
+              (:list 0.13 -0.54 0.0 8846)
+              (:list 0.19 -0.53 0.0 8923)
+              (:list 0.23 -0.47 0.0 9015)
+              (:list 0.25 -0.41 0.0 9095)
+              (:list 0.25 -0.34 0.0 9184)
+              (:list 0.24 -0.28 0.0 9262)
+              (:list 0.21 -0.22 0.0 9347)
+              (:list 0.15 -0.16 0.0 9455)
+              (:list 0.09 -0.11 0.0 9554)
+              (:list 0.02 -0.08 0.0 9651)
+              (:list -0.06 -0.08 0.0 9753)
+              (:list -0.14 -0.08 0.0 9855)
+              (:list -0.21 -0.17 0.0 10000)))
             (:glvertexes
              (:array
               (:dimensions (:list 89))
@@ -779,7 +795,7 @@
           (:slots
            ((:name nil)
             (:use-display-list t)
-            (:color (:color 0.3843907 0.35284388 0.23686517 1.0))
+            (:color (:color 0.326895 0.17384196 0.66149545 1.0))
             (:points
              (:list
               (:list -1.75 -0.02 0.0)
@@ -892,9 +908,9 @@
        (:scaler-y 1)
        (:scaler-z 1)
        (:center (:list 0.0 0.0 0.0))
-       (:rotation-x 5.100183)
-       (:rotation-y 357.60004)
-       (:rotation-z 0.0)))))
+       (:rotation-x 0)
+       (:rotation-y 0)
+       (:rotation-z 0)))))
    (:id 15))
   (:box
    (:type :function)
@@ -913,6 +929,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
@@ -941,6 +958,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1016,6 +1034,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.5)
@@ -1036,6 +1055,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 1 0))
@@ -1057,6 +1077,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
     (:input (:type :standard) (:name "G") (:value nil) (:reactive nil))
@@ -1083,6 +1104,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.5)
@@ -1103,6 +1125,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.7)
@@ -1123,6 +1146,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.7)
@@ -1143,6 +1167,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -1163,6 +1188,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -1183,6 +1209,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -1206,6 +1233,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1240,97 +1268,97 @@
      (:slots
       ((:times
         (:list
-         0
-         73
-         89
-         97
-         114
-         122
-         131
-         139
-         155
-         163
-         180
-         197
-         214
-         222
-         232
-         237
-         247
-         254
-         264
-         270
-         281
-         286
-         297
-         304
-         314
-         320
-         330
-         339
-         346
-         352
-         363
-         369
-         382
-         385
-         397
-         402
-         415
-         418
-         430
-         435
-         447
-         465
-         468
-         481
-         484
-         498
-         501
-         514
-         517
-         531
-         547
-         552
-         566
-         585
-         599
-         615
-         631
-         651
-         663
-         665
-         680
-         681
-         697
-         714
-         731
-         748
-         766
-         772
-         792
-         805
-         822
-         830
-         838
-         846
-         864
-         871
-         887
-         912
-         937
-         954
-         970
-         987
-         1002
-         1019
-         1035
-         1056
-         1069
-         1086
-         1105))
+         0.0
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         10000.0))
        (:onset 0)
-       (:duration 0)
+       (:duration 10000.0)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:action nil)
        (:color (:color 0.0 0.0 0.0 1.0))
@@ -1627,6 +1655,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1654,6 +1683,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1688,45 +1718,45 @@
      (:slots
       ((:times
         (:list
-         0
-         121
-         138
-         154
-         170
-         187
-         203
-         228
-         243
-         261
-         277
-         294
-         300
-         318
-         327
-         334
-         344
-         361
-         367
-         384
-         400
-         417
-         433
-         450
-         466
-         482
-         494
-         511
-         528
-         544
-         562
-         582
-         607
-         623
-         640
-         659
-         666))
+         0.0
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         10000.0))
        (:onset 0)
-       (:duration 1105)
+       (:duration 10000.0)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:action nil)
        (:color (:color 0.0 0.0 0.0 1.0))
@@ -1848,7 +1878,7 @@
          0.0
          0.0
          0.0))))
-     (:add-slots ((:name nil)))))
+     (:add-slots ((:name "3DC")))))
    (:id 29))
   (:box
    (:type :function)
@@ -1867,6 +1897,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1886,8 +1917,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font
-      (:font (:face "Lucida Grande") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Lucida Grande") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "3D-MODEL")
@@ -1910,6 +1940,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1953,95 +1984,95 @@
        (:color nil)
        (:points
         (:list
-         (:list 0.07 0.37 0.0 0)
-         (:list 0.03 0.41 0.0 73)
-         (:list -0.06 0.47 0.0 89)
-         (:list -0.11 0.51 0.0 97)
-         (:list -0.19 0.55 0.0 114)
-         (:list -0.26 0.59 0.0 122)
-         (:list -0.32 0.61 0.0 131)
-         (:list -0.41 0.65 0.0 139)
-         (:list -0.55 0.67 0.0 155)
-         (:list -0.64 0.67 0.0 163)
-         (:list -0.79 0.67 0.0 180)
-         (:list -0.92 0.59 0.0 197)
-         (:list -1.0 0.52 0.0 214)
-         (:list -1.04 0.43 0.0 222)
-         (:list -1.08 0.39 0.0 232)
-         (:list -1.1 0.29 0.0 237)
-         (:list -1.14 0.2 0.0 247)
-         (:list -1.16 0.12 0.0 254)
-         (:list -1.16 0.02 0.0 264)
-         (:list -1.17 -0.05 0.0 270)
-         (:list -1.17 -0.12 0.0 281)
-         (:list -1.17 -0.2 0.0 286)
-         (:list -1.17 -0.28 0.0 297)
-         (:list -1.17 -0.36 0.0 304)
-         (:list -1.16 -0.45 0.0 314)
-         (:list -1.11 -0.55 0.0 320)
-         (:list -1.07 -0.63 0.0 330)
-         (:list -1.03 -0.7 0.0 339)
-         (:list -0.96 -0.77 0.0 346)
-         (:list -0.89 -0.84 0.0 352)
-         (:list -0.8 -0.9 0.0 363)
-         (:list -0.7 -0.96 0.0 369)
-         (:list -0.59 -1.0 0.0 382)
-         (:list -0.48 -1.04 0.0 385)
-         (:list -0.38 -1.06 0.0 397)
-         (:list -0.26 -1.06 0.0 402)
-         (:list -0.14 -1.07 0.0 415)
-         (:list -0.03 -1.07 0.0 418)
-         (:list 0.06 -1.06 0.0 430)
-         (:list 0.16 -1.01 0.0 435)
-         (:list 0.25 -0.94 0.0 447)
-         (:list 0.34 -0.83 0.0 465)
-         (:list 0.4 -0.73 0.0 468)
-         (:list 0.44 -0.65 0.0 481)
-         (:list 0.48 -0.55 0.0 484)
-         (:list 0.51 -0.47 0.0 498)
-         (:list 0.52 -0.37 0.0 501)
-         (:list 0.53 -0.3 0.0 514)
-         (:list 0.54 -0.2 0.0 517)
-         (:list 0.54 -0.12 0.0 531)
-         (:list 0.54 0.01 0.0 547)
-         (:list 0.52 0.07 0.0 552)
-         (:list 0.48 0.17 0.0 566)
-         (:list 0.43 0.24 0.0 585)
-         (:list 0.37 0.29 0.0 599)
-         (:list 0.31 0.31 0.0 615)
-         (:list 0.24 0.34 0.0 631)
-         (:list 0.17 0.34 0.0 651)
-         (:list 0.12 0.34 0.0 663)
-         (:list 0.06 0.34 0.0 665)
-         (:list 0.01 0.31 0.0 680)
-         (:list -0.03 0.29 0.0 681)
-         (:list -0.13 0.22 0.0 697)
-         (:list -0.19 0.14 0.0 714)
-         (:list -0.26 0.06 0.0 731)
-         (:list -0.3 -0.01 0.0 748)
-         (:list -0.32 -0.07 0.0 766)
-         (:list -0.32 -0.13 0.0 772)
-         (:list -0.33 -0.2 0.0 792)
-         (:list -0.33 -0.29 0.0 805)
-         (:list -0.27 -0.39 0.0 822)
-         (:list -0.23 -0.43 0.0 830)
-         (:list -0.18 -0.47 0.0 838)
-         (:list -0.11 -0.51 0.0 846)
-         (:list -0.02 -0.53 0.0 864)
-         (:list 0.03 -0.54 0.0 871)
-         (:list 0.13 -0.54 0.0 887)
-         (:list 0.19 -0.53 0.0 912)
-         (:list 0.23 -0.47 0.0 937)
-         (:list 0.25 -0.41 0.0 954)
-         (:list 0.25 -0.34 0.0 970)
-         (:list 0.24 -0.28 0.0 987)
-         (:list 0.21 -0.22 0.0 1002)
-         (:list 0.15 -0.16 0.0 1019)
-         (:list 0.09 -0.11 0.0 1035)
-         (:list 0.02 -0.08 0.0 1056)
-         (:list -0.06 -0.08 0.0 1069)
-         (:list -0.14 -0.08 0.0 1086)
-         (:list -0.21 -0.17 0.0 1105)))
+         (:list 0.07 0.37 0.0 0.0)
+         (:list 0.03 0.41 0.0 72)
+         (:list -0.06 0.47 0.0 210)
+         (:list -0.11 0.51 0.0 291)
+         (:list -0.19 0.55 0.0 405)
+         (:list -0.26 0.59 0.0 507)
+         (:list -0.32 0.61 0.0 588)
+         (:list -0.41 0.65 0.0 713)
+         (:list -0.55 0.67 0.0 893)
+         (:list -0.64 0.67 0.0 1008)
+         (:list -0.79 0.67 0.0 1199)
+         (:list -0.92 0.59 0.0 1393)
+         (:list -1.0 0.52 0.0 1528)
+         (:list -1.04 0.43 0.0 1653)
+         (:list -1.08 0.39 0.0 1725)
+         (:list -1.1 0.29 0.0 1855)
+         (:list -1.14 0.2 0.0 1980)
+         (:list -1.16 0.12 0.0 2085)
+         (:list -1.16 0.02 0.0 2213)
+         (:list -1.17 -0.05 0.0 2302)
+         (:list -1.17 -0.12 0.0 2392)
+         (:list -1.17 -0.2 0.0 2493)
+         (:list -1.17 -0.28 0.0 2595)
+         (:list -1.17 -0.36 0.0 2697)
+         (:list -1.16 -0.45 0.0 2812)
+         (:list -1.11 -0.55 0.0 2954)
+         (:list -1.07 -0.63 0.0 3068)
+         (:list -1.03 -0.7 0.0 3171)
+         (:list -0.96 -0.77 0.0 3297)
+         (:list -0.89 -0.84 0.0 3423)
+         (:list -0.8 -0.9 0.0 3560)
+         (:list -0.7 -0.96 0.0 3709)
+         (:list -0.59 -1.0 0.0 3858)
+         (:list -0.48 -1.04 0.0 4007)
+         (:list -0.38 -1.06 0.0 4136)
+         (:list -0.26 -1.06 0.0 4289)
+         (:list -0.14 -1.07 0.0 4442)
+         (:list -0.03 -1.07 0.0 4582)
+         (:list 0.06 -1.06 0.0 4697)
+         (:list 0.16 -1.01 0.0 4840)
+         (:list 0.25 -0.94 0.0 4985)
+         (:list 0.34 -0.83 0.0 5166)
+         (:list 0.4 -0.73 0.0 5314)
+         (:list 0.44 -0.65 0.0 5428)
+         (:list 0.48 -0.55 0.0 5565)
+         (:list 0.51 -0.47 0.0 5673)
+         (:list 0.52 -0.37 0.0 5801)
+         (:list 0.53 -0.3 0.0 5891)
+         (:list 0.54 -0.2 0.0 6019)
+         (:list 0.54 -0.12 0.0 6121)
+         (:list 0.54 0.01 0.0 6286)
+         (:list 0.52 0.07 0.0 6367)
+         (:list 0.48 0.17 0.0 6504)
+         (:list 0.43 0.24 0.0 6613)
+         (:list 0.37 0.29 0.0 6713)
+         (:list 0.31 0.31 0.0 6793)
+         (:list 0.24 0.34 0.0 6890)
+         (:list 0.17 0.34 0.0 6979)
+         (:list 0.12 0.34 0.0 7043)
+         (:list 0.06 0.34 0.0 7119)
+         (:list 0.01 0.31 0.0 7193)
+         (:list -0.03 0.29 0.0 7250)
+         (:list -0.13 0.22 0.0 7406)
+         (:list -0.19 0.14 0.0 7533)
+         (:list -0.26 0.06 0.0 7668)
+         (:list -0.3 -0.01 0.0 7771)
+         (:list -0.32 -0.07 0.0 7851)
+         (:list -0.32 -0.13 0.0 7927)
+         (:list -0.33 -0.2 0.0 8017)
+         (:list -0.33 -0.29 0.0 8132)
+         (:list -0.27 -0.39 0.0 8280)
+         (:list -0.23 -0.43 0.0 8352)
+         (:list -0.18 -0.47 0.0 8434)
+         (:list -0.11 -0.51 0.0 8536)
+         (:list -0.02 -0.53 0.0 8654)
+         (:list 0.03 -0.54 0.0 8718)
+         (:list 0.13 -0.54 0.0 8846)
+         (:list 0.19 -0.53 0.0 8923)
+         (:list 0.23 -0.47 0.0 9015)
+         (:list 0.25 -0.41 0.0 9095)
+         (:list 0.25 -0.34 0.0 9184)
+         (:list 0.24 -0.28 0.0 9262)
+         (:list 0.21 -0.22 0.0 9347)
+         (:list 0.15 -0.16 0.0 9455)
+         (:list 0.09 -0.11 0.0 9554)
+         (:list 0.02 -0.08 0.0 9651)
+         (:list -0.06 -0.08 0.0 9753)
+         (:list -0.14 -0.08 0.0 9855)
+         (:list -0.21 -0.17 0.0 10000)))
        (:glvertexes
         (:array
          (:dimensions (:list 89))
@@ -2155,6 +2186,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 2)
