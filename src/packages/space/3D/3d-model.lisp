@@ -309,11 +309,11 @@
     (set-value (get-g-component ed :center-x-numbox) (car (center 3DV)))
     (set-value (get-g-component ed :center-y-numbox) (cadr (center 3DV)))
     (set-value (get-g-component ed :rotation-x-numbox) (rotation-x 3DV))
-    (set-value (get-g-component ed :rotation-y-numbox)  (rotation-y 3DV))
-    (set-value (get-g-component ed :rotation-z-numbox)  (rotation-z 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-x-slider)  (rotation-x 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-y-slider)  (rotation-y 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-z-slider)  (rotation-z 3DV))
+    (set-value (get-g-component ed :rotation-y-numbox) (rotation-y 3DV))
+    (set-value (get-g-component ed :rotation-z-numbox) (rotation-z 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-x-slider) (rotation-x 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-y-slider) (rotation-y 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-z-slider) (rotation-z 3DV))
     ))
 
 
