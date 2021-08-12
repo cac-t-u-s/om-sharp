@@ -229,9 +229,6 @@
 (defun set-value-slots (value args)
   (mapcar #'(lambda (item) (set-slot-val value (car item) (cadr item))) args))
 
-;;; This is redefined by the graphical initialization
-;;; method of visual classes
-(defmethod v-oop-init ((self t) &rest args) args)
 
 ;;; called after slots are set (including in OM)
 ;;; or when a new slot is set (e.g. slot box, property, etc.)
