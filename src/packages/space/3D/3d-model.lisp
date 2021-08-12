@@ -52,13 +52,17 @@
   '(scaler-x scaler-y scaler-z center rotation-x rotation-y rotation-z))
 
 (defmethod om-init-instance ((self 3d-model) &optional initargs)
+
   (let ((c (find-value-in-kv-list initargs :center)))
+
     (when c (setf (center self) (copy-list c)))
+
     (when (data self)
 
       (setf (data self) (format-3D-objects (data self)))
 
       (multiple-value-bind (xmi xma ymi yma zmi zma)
+
           (get-extents (data self))
         (let ((scaled-ref 100))
           (unless (find-value-in-kv-list initargs :scaler-x)
@@ -67,9 +71,6 @@
             (setf (scaler-y self) (float (/ scaled-ref (- yma ymi)))))
           (unless (find-value-in-kv-list initargs :scaler-z)
             (setf (scaler-z self) (float (/ scaled-ref (- zma zmi)))))
-
-         ;(unless (find-value-in-kv-list args :center)
-         ;  (setf (center self) (list (- xma xmi) (- yma ymi) 0)))
           )))
     self))
 
@@ -336,7 +337,6 @@
     (om-set-slider-value (get-g-component editor :rotation-x-slider) (rotation-x obj))
     (om-set-slider-value (get-g-component editor :rotation-y-slider) (rotation-y obj))
     (om-set-slider-value (get-g-component editor :rotation-z-slider) (rotation-z obj))
-
     ))
 
 (defmethod set-bg-color ((editor 3d-model-editor))

@@ -234,7 +234,6 @@
 ;;; or when a new slot is set (e.g. slot box, property, etc.)
 ;;; <initargs> = NIL for save/load/copy OR in the init value of a box
 ;;; <initargs> = all initargs in MAKE-VALUE / list incl. connected initargs MAKE-VALUE-FROM-MODEL
-;;; ////// <initargs> = only the specific initarg e.g. in set-property ///// NOT ANYMORE !!
 (defmethod om-init-instance ((self t) &optional initargs) self)
 
 

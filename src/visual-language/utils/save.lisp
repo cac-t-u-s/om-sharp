@@ -160,7 +160,8 @@
     (if class
         (let ((slots (remove nil
                              (mapcar #'(lambda (slot)
-                                         (if (find (car slot) (class-slots class) :key #'(lambda (slotdef) (car (slot-definition-initargs slotdef))))
+                                         (if (find (car slot) (class-slots class)
+                                                   :key #'(lambda (slotdef) (car (slot-definition-initargs slotdef))))
                                              (list (car slot) (omng-load (cadr slot)))
                                            (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase class-name))))
                                      (find-value-in-kv-list data :slots))))
