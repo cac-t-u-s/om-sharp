@@ -282,8 +282,6 @@
             (car (notes chord)))))))
 
 
-
-
 ;;; REMOVE METHODS
 (defmethod remove-from-obj ((self multi-seq) (item t)) nil)
 
@@ -359,8 +357,6 @@
     ))
 
 
-
-
 (defmethod score-editor-update-params-before-remove ((self poly-editor-mixin) removed)
   (let ((pos (position removed (obj-list (object-value self)))))
     (when pos
@@ -369,6 +365,7 @@
       )
     (set-interior-size-from-contents self)
     ))
+
 
 ;;; add chord/notes
 (defmethod poly-editor-get-voice-at-pos ((self poly-editor-mixin) position)
@@ -400,6 +397,7 @@
   (editor-invalidate-views self)
   (report-modifications self)
   (set-interior-size-from-contents self))
+
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
