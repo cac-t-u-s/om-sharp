@@ -64,16 +64,19 @@
          (ed-staff (editor-get-edit-param editor :staff))
          (accum-y-list ()))
 
-    (loop with tmp-y = 0
+    (push (or (car y-shift-list) *default-inter-staff*) accum-y-list)
+
+    (loop with tmp-y = (car accum-y-list)
           for i from 0 to (1- (length (obj-list (object-value editor))))
           do
           (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
-            (setf tmp-y (+ tmp-y (or (nth i y-shift-list) *default-inter-staff*)))
-            (push tmp-y accum-y-list)
-            (setf tmp-y (+ tmp-y (- (staff-higher-line staff) (staff-lower-line staff))))
-            ))
-    (reverse accum-y-list)
-    ))
+            (setf tmp-y (+ tmp-y
+                           (- (staff-higher-line staff) (staff-lower-line staff))
+                           (or (nth i y-shift-list) *default-inter-staff*)))
+            (push tmp-y accum-y-list)))
+
+    (reverse accum-y-list)))
+
 
 ;; returns the y1-y2 pairs for all staffs
 (defun make-staff-y-map (editor)
@@ -81,7 +84,7 @@
   (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
          (ed-staff (editor-get-edit-param editor :staff)))
 
-    (loop for ys in (accum-y-shift-list editor)
+    (loop for ys in (butlast (accum-y-shift-list editor))
           for i from 0
           collect (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
                     (staff-y-range staff ys unit)))
@@ -208,7 +211,7 @@
   (let* ((fontsize (editor-get-edit-param editor :font-size))
          (ed-staff (editor-get-edit-param editor :staff)))
 
-    (loop for shift in (accum-y-shift-list editor)
+    (loop for shift in (butlast (accum-y-shift-list editor))
           for i from 0
           do
           (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
