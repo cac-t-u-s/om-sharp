@@ -61,18 +61,19 @@
 
       (setf (data self) (format-3D-objects (data self)))
 
-      (multiple-value-bind (xmi xma ymi yma zmi zma)
+      (when initargs ;;; we're not copying/reloading the object
 
-          (get-extents (data self))
-        (let ((scaled-ref 100))
-          (unless (find-value-in-kv-list initargs :scaler-x)
-            (setf (scaler-x self) (float (/ scaled-ref (- xma xmi)))))
-          (unless (find-value-in-kv-list initargs :scaler-y)
-            (setf (scaler-y self) (float (/ scaled-ref (- yma ymi)))))
-          (unless (find-value-in-kv-list initargs :scaler-z)
-            (setf (scaler-z self) (float (/ scaled-ref (- zma zmi)))))
-          )))
-    self))
+        (multiple-value-bind (xmi xma ymi yma zmi zma)
+            (get-extents (data self))
+          (let ((scaled-ref 100))
+            (unless (find-value-in-kv-list initargs :scaler-x)
+              (setf (scaler-x self) (float (/ scaled-ref (- xma xmi)))))
+            (unless (find-value-in-kv-list initargs :scaler-y)
+              (setf (scaler-y self) (float (/ scaled-ref (- yma ymi)))))
+            (unless (find-value-in-kv-list initargs :scaler-z)
+              (setf (scaler-z self) (float (/ scaled-ref (- zma zmi)))))
+            )))
+      self)))
 
 
 (defun format-3D-objects (list)
