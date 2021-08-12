@@ -706,7 +706,7 @@
 (defmethod om-slider-increment ((self om-slider))
   (increment self))
 
-(defmethod om-set-slider-value ((self om-slider) value)
+(defmethod om-set-slider-value ((self om-slider) (value integer))
   (setf (capi::range-slug-start self) value))
 
 (defmethod om-slider-item-action ((self om-standard-dialog-item) value type)

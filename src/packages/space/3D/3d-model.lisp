@@ -311,9 +311,9 @@
     (set-value (get-g-component ed :rotation-x-numbox) (rotation-x 3DV))
     (set-value (get-g-component ed :rotation-y-numbox) (rotation-y 3DV))
     (set-value (get-g-component ed :rotation-z-numbox) (rotation-z 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-x-slider) (rotation-x 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-y-slider) (rotation-y 3DV))
-    (om-set-slider-value (get-g-component ed :rotation-z-slider) (rotation-z 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-x-slider) (round (rotation-x 3DV)))
+    (om-set-slider-value (get-g-component ed :rotation-y-slider) (round (rotation-y 3DV)))
+    (om-set-slider-value (get-g-component ed :rotation-z-slider) (round (rotation-z 3DV)))
     ))
 
 
@@ -334,9 +334,9 @@
     (set-value (get-g-component editor :rotation-y-numbox) (rotation-y obj))
     (set-value (get-g-component editor :rotation-z-numbox) (rotation-z obj))
 
-    (om-set-slider-value (get-g-component editor :rotation-x-slider) (rotation-x obj))
-    (om-set-slider-value (get-g-component editor :rotation-y-slider) (rotation-y obj))
-    (om-set-slider-value (get-g-component editor :rotation-z-slider) (rotation-z obj))
+    (om-set-slider-value (get-g-component editor :rotation-x-slider) (round (rotation-x obj)))
+    (om-set-slider-value (get-g-component editor :rotation-y-slider) (round (rotation-y obj)))
+    (om-set-slider-value (get-g-component editor :rotation-z-slider) (round (rotation-z obj)))
     ))
 
 (defmethod set-bg-color ((editor 3d-model-editor))
