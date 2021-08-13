@@ -93,12 +93,6 @@
         (omng-delete box) ;;; deals with contents/references
         ))
 
-(defmethod set-patch-inputs ((self OMPatchInternal) (defvals list))
-  (loop for inp in (get-inputs self)
-        for val in defvals
-        do (setf (defval inp) val))
-  (compile-patch self)
-  self)
 
 ;;;=========================================
 ;;; HIDDEN API
@@ -149,20 +143,3 @@
       (setf (box-y box) (+ (box-y box) delta-y))
       (if track
           (setf (group-id box) track)))))
-
-
-;;;=================ALEX
-
-(defun freq-cycle (freqlist address port counter)
-  (osc-send (list address (print (nth (mod counter (length freqlist)) freqlist))) "127.0.0.1" port))
-
-(defmethod flush-sequencer-track ((self OMSequencer) tracknum)
-  (loop for box in (get-track-boxes self tracknum)
-        do
-        (omng-remove-element self box))
-  (build-editor-window (editor self)))
-
-(defmethod flush-sequencer ((self OMSequencer))
-  (loop for box in (get-all-boxes self)
-        do
-        (omng-remove-element self box)))
