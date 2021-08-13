@@ -164,7 +164,9 @@
 ;;;==========================================
 
 (defmethod* get-boxes ((self OMPatch))
-  (boxes self))
+  :indoc '("a patch or sequencer")
+  :doc "Returns the list of boxes in <self>."
+  (copy-list (boxes self)))
 
 (defmethod* get-box-by-name ((self OMPatch) (name string))
   (find name (boxes self) :key 'name :test 'string-equal))
