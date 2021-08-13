@@ -23,7 +23,7 @@
 
 (defvar *current-eval-panel* nil)
 
-;;; ev-once-context can be a repeat-n or an om-loop box
+;;; ev-once-context can be a repeat-n or a loop
 ;;; and return specific flags
 (defparameter *ev-once-context* t)
 

@@ -157,7 +157,7 @@
  (defun test-http ()
    (with-open-stream (http (comm:open-tcp-stream
                             "www.lispworks.com"
-                         ;""https://github.com/openmusic-project/OM6/blob/master/README.md""
+                            ;""https://github.com/cac-t-u-s/om-sharp/blob/master/README.md""
                             80
                             :errorp t))
 

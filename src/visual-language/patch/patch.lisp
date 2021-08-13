@@ -81,7 +81,7 @@
 
 ;;; ompatchio has an index accessor
 ;;; otherwise, special types of boxes can organize themselves by redefining the method
-;;; (eg. to set priority between loop iterator boxes, see om-loop.lisp)
+;;; (eg. to set priority between loop iterator boxes, see loop.lisp)
 (defun sort-boxes (boxes)
   (sort boxes '< :key #'(lambda (b) (index (reference b)))))
 
