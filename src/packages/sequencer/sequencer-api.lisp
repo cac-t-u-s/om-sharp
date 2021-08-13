@@ -21,7 +21,7 @@
 ;;; PLAYER
 ;;;=========================================
 
-(defmethod* m-play ((self OMSequencer) &optional trigger)
+(defmethod* s-play ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
   :doc "Play <self> (a sequencer).
@@ -35,7 +35,7 @@
       (player-play-object (player (editor self)) self (editor self)))
     t))
 
-(defmethod* m-pause ((self OMSequencer) &optional trigger)
+(defmethod* s-pause ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
   :doc "Pause  <self> (a sequencer).
@@ -47,7 +47,7 @@
     (player-pause-object (player (editor self)) self)
     t))
 
-(defmethod* m-stop ((self OMSequencer) &optional trigger)
+(defmethod* s-stop ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
   :doc "Stop  <self> (a sequencer).
@@ -59,7 +59,7 @@
     (player-stop-object (player (editor self)) self)
     t))
 
-(defmethod* m-loop ((self OMSequencer) t1 t2 &optional trigger)
+(defmethod* s-loop ((self OMSequencer) t1 t2 &optional trigger)
   :initvals '(nil nil nil nil)
   :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
   :doc "Set the sequencer (<self>) loop interval from <t1> to <t2>. Set the loop on if either <t1> or <t2> is not null.
@@ -76,7 +76,7 @@
       (editor-set-loop (editor self) loop-on)
       t)))
 
-(defmethod* m-set-time ((self OMSequencer) time &optional trigger)
+(defmethod* s-set-time ((self OMSequencer) time &optional trigger)
   :initvals '(nil nil nil)
   :indoc '("sequencer" "time (ms)" "anything")
   :doc "Set current play-time of <self> (a sequencer) to <time>.
@@ -87,7 +87,7 @@
   (if (integerp time)
       (set-object-current-time self (max 0 (round time)))))
 
-(defmethod* m-get-time ((self OMSequencer))
+(defmethod* s-get-time ((self OMSequencer))
   :indoc '("sequencer")
   :doc "Get current play-time of <self> (a sequencer)."
   :icon 's-time
