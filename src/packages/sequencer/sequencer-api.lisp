@@ -18,8 +18,9 @@
 (in-package :om)
 
 ;;;=========================================
-;;; VISIBLE API
+;;; PLAYER
 ;;;=========================================
+
 (defmethod* m-play ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
@@ -63,34 +64,12 @@
   (if (integerp time)
       (set-object-current-time self (max 0 (round time)))))
 
-;;;=========================================
-
-(defmethod m-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
-  (declare (ignore trigger))
-  (insert-object self object :time time :track track :pre-delay pre-delay))
-
-(defmethod m-remove ((self OMSequencer) object &key multiple-instances trigger)
-  (declare (ignore trigger))
-  (remove-object self object :multiple-instances multiple-instances))
-
-(defmethod m-move ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
-  (declare (ignore trigger))
-  (move-object self object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
-
 (defmethod m-get-time ((self OMSequencer))
   (get-obj-time self))
 
-(defmethod m-flush ((self OMSequencer) &key (track nil))
-  (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
-        do
-        (omng-remove-element self box)
-        (delete-box-frame (frame box)) ;;; removes the view
-        (omng-delete box) ;;; deals with contents/references
-        ))
-
 
 ;;;=========================================
-;;; HIDDEN API
+;;; OBJECTS
 ;;;=========================================
 
 (defmethod insert-object ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
@@ -138,3 +117,24 @@
       (setf (box-y box) (+ (box-y box) delta-y))
       (if track
           (setf (group-id box) track)))))
+
+
+(defmethod m-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
+  (declare (ignore trigger))
+  (insert-object self object :time time :track track :pre-delay pre-delay))
+
+(defmethod m-remove ((self OMSequencer) object &key multiple-instances trigger)
+  (declare (ignore trigger))
+  (remove-object self object :multiple-instances multiple-instances))
+
+(defmethod m-move ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
+  (declare (ignore trigger))
+  (move-object self object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
+
+(defmethod m-flush ((self OMSequencer) &key (track nil))
+  (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
+        do
+        (omng-remove-element self box)
+        (delete-box-frame (frame box)) ;;; removes the view
+        (omng-delete box) ;;; deals with contents/references
+        ))
