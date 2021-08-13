@@ -390,22 +390,6 @@
     (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
 
 
-(defmethod set-track-gain ((self OMSequencer) tracknum gain)
-  (loop for obj in (get-track-objects self tracknum)
-        do (set-object-gain obj gain)))
-
-(defmethod set-object-gain ((self t) gain)
-  (format nil "No redefinition of set-object-gain found for ~A" (type-of self)))
-
-(defmethod set-track-pan ((self OMSequencer) tracknum pan)
-  (loop for obj in (get-track-objects self tracknum)
-        do (set-object-pan obj pan)))
-
-(defmethod set-object-pan ((self t) gain)
-  (print (format nil "No redefinition of set-object-pan found for ~A" (type-of self))))
-
-
-
 ;;;=========================================
 ;;; TIME MARKERS METHODS
 ;;;=========================================

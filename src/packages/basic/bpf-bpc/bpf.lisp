@@ -767,13 +767,6 @@
        (xy-values-from-points object (car time-interval) (cadr time-interval))))))
 
 
-(defmethod set-object-gain ((self bpf) gain)
-  (setf (gain self) gain))
-
-(defmethod set-object-pan ((self bpf) pan)
-  nil)
-
-
 ;;; DB:
 ;;; in order to limit replanning operations, it is preferrable to
 ;;; call (setf point-list) only once all modifications are performed
