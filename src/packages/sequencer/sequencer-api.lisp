@@ -29,9 +29,11 @@
 <trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-play
   (declare (ignore trigger))
-  (if (eq (state self) :pause)
-      (player-continue-object (player (editor self)) self)
-    (player-play-object (player (editor self)) self (editor self))))
+  (when (editor self)
+    (if (eq (state self) :pause)
+        (player-continue-object (player (editor self)) self)
+      (player-play-object (player (editor self)) self (editor self)))
+    t))
 
 (defmethod* m-pause ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
@@ -41,7 +43,9 @@
 <trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-pause
   (declare (ignore trigger))
-  (player-pause-object (player (editor self)) self))
+  (when (editor self)
+    (player-pause-object (player (editor self)) self)
+    t))
 
 (defmethod* m-stop ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
@@ -51,7 +55,9 @@
 <trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-stop
   (declare (ignore trigger))
-  (player-stop-object (player (editor self)) self))
+  (when (editor self)
+    (player-stop-object (player (editor self)) self)
+    t))
 
 (defmethod* m-loop ((self OMSequencer) t1 t2 &optional trigger)
   :initvals '(nil nil nil nil)
