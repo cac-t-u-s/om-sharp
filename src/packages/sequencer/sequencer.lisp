@@ -34,6 +34,7 @@
 (omNG-make-package "Sequencer/Meta"
                    :container-pack *om-package-tree*
                    :doc "Visual program / sequencer manipulation"
-                   :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
+                   :functions '(get-boxes get-box-by-name 
+                                          m-add m-remove m-move m-objects m-flush)
                    :special-symbols '(mybox mysequence)
                    )
