@@ -50,10 +50,17 @@
 (defmethod* m-loop ((self OMSequencer) t1 t2 &optional trigger)
   :initvals '(nil nil nil nil)
   :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
-  :doc "Loop sequencer"
+  :doc "Set the sequencer loop interval from <t1> to <t2>. Set the loop on if either <t1> or <t2> is not null."
   :icon 'm-loop
   (declare (ignore trigger))
-  (editor-set-interval (editor self) `(,t1 ,t2)) )
+  (let* ((editor (editor self))
+         (begin (or t1 0))
+         (end (or t2 begin))
+         (loop-on (and (or t1 t2) t)))
+    (when editor
+      (editor-set-interval (editor self) (list begin end))
+      (editor-set-loop (editor self) loop-on)
+      t)))
 
 (defmethod* m-set-time ((self OMSequencer) time &optional trigger)
   :initvals '(nil nil nil)
