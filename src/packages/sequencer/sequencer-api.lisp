@@ -27,7 +27,7 @@
   :doc "Play <self> (a sequencer).
 
 <trigger> allows connecting anything else to be evaluated at the same time."
-  :icon 'm-play
+  :icon 's-play
   (declare (ignore trigger))
   (when (editor self)
     (if (eq (state self) :pause)
@@ -41,7 +41,7 @@
   :doc "Pause  <self> (a sequencer).
 
 <trigger> allows connecting anything else to be evaluated at the same time."
-  :icon 'm-pause
+  :icon 's-pause
   (declare (ignore trigger))
   (when (editor self)
     (player-pause-object (player (editor self)) self)
@@ -53,7 +53,7 @@
   :doc "Stop  <self> (a sequencer).
 
 <trigger> allows connecting anything else to be evaluated at the same time."
-  :icon 'm-stop
+  :icon 's-stop
   (declare (ignore trigger))
   (when (editor self)
     (player-stop-object (player (editor self)) self)
@@ -65,7 +65,7 @@
   :doc "Set the sequencer (<self>) loop interval from <t1> to <t2>. Set the loop on if either <t1> or <t2> is not null.
 
 <trigger> allows connecting anything else to be evaluated at the same time."
-  :icon 'm-loop
+  :icon 's-loop
   (declare (ignore trigger))
   (let* ((editor (editor self))
          (begin (or t1 0))
@@ -82,7 +82,7 @@
   :doc "Set current play-time of <self> (a sequencer) to <time>.
 
 <trigger> allows connecting anything else to be evaluated at the same time."
-  :icon 'm-set-time
+  :icon 's-time
   (declare (ignore trigger))
   (if (integerp time)
       (set-object-current-time self (max 0 (round time)))))
@@ -90,7 +90,7 @@
 (defmethod* m-get-time ((self OMSequencer))
   :indoc '("sequencer")
   :doc "Get current play-time of <self> (a sequencer)."
-  :icon 'm-set-time
+  :icon 's-time
   (get-obj-time self))
 
 

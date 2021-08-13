@@ -261,7 +261,7 @@ Can be connected to other boxes (including iterator boxes: LOOP-LIST, LOOP-FOR, 
 
 (defmethod get-ev-once-flag ((self OMPatchIteratorBox)) (list self (n-iter (reference self))))
 
-(defmethod get-icon-id ((self OMPatchIteratorBox)) :m-loop)
+(defmethod get-icon-id ((self OMPatchIteratorBox)) :s-loop)
 
 (defmethod object-name-in-inspector ((self OMPatchIteratorBox)) "ITERATOR box")
 
