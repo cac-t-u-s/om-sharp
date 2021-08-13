@@ -100,7 +100,7 @@
              (deftime (default-delta timelist))
              (facty (round 100 (length objlist))))
 
-        (m-flush seq)
+        (s-clear seq)
         (close-editor seq)
 
         (loop with old-time = 0

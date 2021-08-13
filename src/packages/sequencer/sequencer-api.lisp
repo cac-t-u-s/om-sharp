@@ -119,19 +119,19 @@
           (setf (group-id box) track)))))
 
 
-(defmethod m-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
+(defmethod s-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
   (insert-object self object :time time :track track :pre-delay pre-delay))
 
-(defmethod m-remove ((self OMSequencer) object &key multiple-instances trigger)
+(defmethod s-remove ((self OMSequencer) object &key multiple-instances trigger)
   (declare (ignore trigger))
   (remove-object self object :multiple-instances multiple-instances))
 
-(defmethod m-move ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
+(defmethod s-move ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
   (declare (ignore trigger))
   (move-object self object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
 
-(defmethod m-flush ((self OMSequencer) &key (track nil))
+(defmethod s-clear ((self OMSequencer) &key (track nil))
   (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
         do
         (omng-remove-element self box)

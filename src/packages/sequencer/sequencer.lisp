@@ -35,6 +35,6 @@
                    :container-pack *om-package-tree*
                    :doc "Visual program / sequencer manipulation"
                    :functions '(get-boxes get-box-by-name get-objects
-                                          m-add m-remove m-move m-flush)
+                                          s-add s-remove s-move s-clear)
                    :special-symbols '(mybox mysequence)
                    )
