@@ -24,7 +24,7 @@
 (defmethod* m-play ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Play sequencer"
+  :doc "Play sequencer."
   :icon 'm-play
   (declare (ignore trigger))
   (if (eq (state self) :pause)
@@ -34,7 +34,7 @@
 (defmethod* m-pause ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Pause sequencer"
+  :doc "Pause sequencer."
   :icon 'm-pause
   (declare (ignore trigger))
   (player-pause-object (player (editor self)) self))
@@ -42,7 +42,7 @@
 (defmethod* m-stop ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Stop sequencer"
+  :doc "Stop sequencer."
   :icon 'm-stop
   (declare (ignore trigger))
   (player-stop-object (player (editor self)) self))
@@ -65,7 +65,7 @@
 (defmethod* m-set-time ((self OMSequencer) time &optional trigger)
   :initvals '(nil nil nil)
   :indoc '("sequencer" "time (ms)" "anything")
-  :doc "Set sequencer time"
+  :doc "Set sequencer time."
   :icon 'm-set-time
   (declare (ignore trigger))
   (if (integerp time)
