@@ -123,17 +123,45 @@
         ))
 
 
-(defmethod s-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
-  (declare (ignore trigger))
-  (insert-object self object :time time :track track :pre-delay pre-delay))
+(defmethod* s-add ((seq OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
+  :initvals '(nil nil 0 1 0 nil)
+  :indoc '("sequencer" "a playable object" "onset (ms)" "track number" "pre-delay for reactive eval" "anything")
+  :doc "Adds a box in the sequencer <seq>, track <track>, at time <time> containing <object> (a playable musical object).
 
-(defmethod s-remove ((self OMSequencer) object &key multiple-instances trigger)
-  (declare (ignore trigger))
-  (remove-object self object :multiple-instances multiple-instances))
+<pre-delay> sets this property for advanced computation when the box is reactive.
 
-(defmethod s-move ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
+<trigger> allows connecting anything else to be evaluated at the same time."
   (declare (ignore trigger))
-  (move-object self object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
+  (insert-object seq object :time time :track track :pre-delay pre-delay))
 
-(defmethod s-clear ((self OMSequencer) &key (track nil))
+(defmethod* s-remove ((seq OMSequencer) object &key multiple-instances trigger)
+  :initvals '(nil nil nil nil)
+  :indoc '("sequencer" "a playable object from the sequencer" "remove all instances" "anything")
+  :doc "Removes <object> from the sequencer <seq>, track <track>, at time <time> containing <object> (a playable musical object).
+
+If <multiple-instances> is not NIL, will try to eliminate all possible instances of <object> found in <seq>.
+
+<trigger> allows connecting anything else to be evaluated at the same time."
+  (declare (ignore trigger))
+  (remove-object seq object :multiple-instances multiple-instances))
+
+(defmethod* s-move ((seq OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
+  :initvals '(nil nil)
+  :indoc '("sequencer" "a playable object from the sequencer" "move all instances" "time shift (ms)" "verticql shift" "track number" "anything")
+  :doc "Moves <object> (an object from the sequencer <seq>):
+- in time (with a shift of <delta-t>
+- vertically (maquette view only) with a shift of <delta-y>
+- to another track <track>
+
+If <multiple-instances> is not NIL, will try to eliminate all possible instances of <object> found in <seq>.
+
+<trigger> allows connecting anything else to be evaluated at the same time."
+  (declare (ignore trigger))
+  (move-object seq object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
+
+(defmethod* s-clear ((seq OMSequencer) &key (track nil) trigger)
+  :initvals '(nil nil)
+  :indoc '("sequencer" "track number")
+  :doc "Removes all boxes in <seq>, or in <track> if a track number is given."
+  (declare (ignore trigger))
   (clear seq track))
