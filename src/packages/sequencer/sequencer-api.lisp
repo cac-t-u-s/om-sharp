@@ -114,6 +114,14 @@
       (if track
           (setf (group-id box) track)))))
 
+(defmethod clear ((self OMSequencer) &optional track)
+  (loop for box in (get-all-boxes self :track track)
+        do
+        (omng-remove-element self box)
+        (delete-box-frame (frame box)) ;;; removes the view
+        (omng-delete box) ;;; deals with contents/references
+        ))
+
 
 (defmethod s-add ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
@@ -128,9 +136,4 @@
   (move-object self object :multiple-instances multiple-instances :delta-t delta-t :delta-y delta-y :track track))
 
 (defmethod s-clear ((self OMSequencer) &key (track nil))
-  (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
-        do
-        (omng-remove-element self box)
-        (delete-box-frame (frame box)) ;;; removes the view
-        (omng-delete box) ;;; deals with contents/references
-        ))
+  (clear seq track))
