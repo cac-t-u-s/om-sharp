@@ -74,7 +74,7 @@
   (close-inspector-for-box elem))
 
 ;;;========================================
-;;; LOADING...
+;;; LOADING
 ;;;========================================
 
 (defmethod index ((self t)) -1)
@@ -131,17 +131,6 @@
       (om-print (format nil "~%The following elements were not closed:~{~%~A~}~%------" not-closed-elements) "ERROR"))
     t))
 
-
-
-
-;;;========================================
-;;; CAN BE CALLED FROM OMPATCHES / SEQUENCER
-;;;========================================
-
-(defmethod* get-box-by-name ((self OMPatch) (name string))
-  (find name (boxes self) :key 'name :test 'string-equal))
-
-
 ;;;=============================
 ;;; CONNECTIONS
 ;;;=============================
@@ -160,7 +149,6 @@
 ;;; PATCH DOCUMENT (ATTACHED TO A FILE)
 ;;;==========================================
 
-
 (defmethod make-new-om-doc ((type (eql :patch)) name)
   (make-instance 'OMPatchFile :name name))
 
@@ -170,16 +158,6 @@
 (defmethod externalized-type ((self OMPatch)) 'OMPatchFile)
 (defmethod externalized-icon ((self OMPatch)) :patch-file)
 
-;;;==========================================
-;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :
-;;;==========================================
-
-;(defmethod update-from-editor ((self OMPatchInternal))
-;  (mapcar 'update-from-editor (references-to self)))
-
-;(defmethod update-from-editor ((self OMPatchFile))
-;  (mapcar 'update-from-editor (references-to self))
-;  (touch self))
 
 ;;;==========================================
 ;;; META: TOOLS FOR SEQUENCER ETC.
@@ -188,10 +166,8 @@
 (defmethod* get-boxes ((self OMPatch))
   (boxes self))
 
+(defmethod* get-box-by-name ((self OMPatch) (name string))
+  (find name (boxes self) :key 'name :test 'string-equal))
+
 (defmethod* get-box-values ((self OMPatch))
   (loop for b in (boxes self) collect (get-box-value b)))
-
-
-
-
-
