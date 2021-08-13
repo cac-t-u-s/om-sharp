@@ -103,10 +103,6 @@
     boxes))
 
 
-(defmethod get-all-objects ((self OMSequencer) &key (sorted nil))
-  (mapcar 'get-box-value (remove-if #'(lambda (obj) (eq (type-of obj) 'omlispfboxcall))
-                                    (get-all-boxes self :sorted sorted))))
-
 (defmethod get-box-onset ((self OMBox)) (box-x self))
 (defmethod set-box-onset ((self OMBox) o)
   (setf (box-x self) o)
@@ -382,9 +378,6 @@
 ;;;SIMULATE TRACKS USING BOXES' GROUP-ID
 ;;;======================================
 
-(defmethod get-track-objects ((self OMSequencer) tracknum  &key (sorted nil))
-  (mapcar 'get-box-value (get-track-boxes self tracknum :sorted sorted)))
-
 (defmethod add-box-in-track ((seq OMSequencer) (tb OMBox) tracknum)
   (setf (group-id tb) tracknum)
   (let* ((yrange (- (getf (range seq) :y2) (getf (range seq) :y1)))
@@ -395,6 +388,15 @@
           (box-h tb) (round yrange 10))
     (omNG-add-element seq tb)
     (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
+
+
+(defmethod* get-objects ((self OMSequencer) &key (sorted nil) (track nil))
+  :initvals '(nil nil nil)
+  :indoc '("a sequencer" "sort the boxes by onset?" "select a specific track (number)")
+  :doc "Returns the objects/values of the boxes of <self>, or from the track <track> if specified, sorted by onset if <sorted>."
+  (mapcar
+   #'get-box-value
+   (remove-if-not #'group-id (get-all-boxes self :sorted sorted :track track))))
 
 
 ;;;=========================================

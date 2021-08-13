@@ -80,11 +80,6 @@
 (defmethod m-get-time ((self OMSequencer))
   (get-obj-time self))
 
-(defmethod m-objects ((self OMSequencer) &key (sorted t) (track nil))
-  (if track
-      (get-track-objects self track :sorted sorted)
-    (get-all-objects self :sorted sorted)))
-
 (defmethod m-flush ((self OMSequencer) &key (track nil))
   (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
         do
