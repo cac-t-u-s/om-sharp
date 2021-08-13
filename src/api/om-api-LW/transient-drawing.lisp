@@ -203,16 +203,17 @@
     (capi::apply-in-pane-process
      self
      #'(lambda ()
-         (capi:with-geometry (drawn-item self)
-           (when (or x y)
-             (setf (capi:pinboard-pane-position (drawn-item self))
-                   (values (or x capi:%x% 0) (or y capi:%y% 0))))
-           (when (or w h)
-             (setf (capi:pinboard-pane-size (drawn-item self))
-                   (values (or w capi:%width% 0) (or h capi:%height% 0))))
-           )
-         ;; (capi::redraw-pinboard-object (drawn-item self))
-         ))
+         (when (drawn-item self)
+           (capi:with-geometry (drawn-item self)
+             (when (or x y)
+               (setf (capi:pinboard-pane-position (drawn-item self))
+                     (values (or x capi:%x% 0) (or y capi:%y% 0))))
+             (when (or w h)
+               (setf (capi:pinboard-pane-size (drawn-item self))
+                     (values (or w capi:%width% 0) (or h capi:%height% 0))))
+             )
+           ;; (capi::redraw-pinboard-object (drawn-item self))
+           )))
 
     ;; return something if drawn-item was not null
     (drawn-item self)))
