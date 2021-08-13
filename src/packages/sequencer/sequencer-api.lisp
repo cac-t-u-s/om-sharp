@@ -24,7 +24,9 @@
 (defmethod* m-play ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Play sequencer."
+  :doc "Play <self> (a sequencer).
+
+<trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-play
   (declare (ignore trigger))
   (if (eq (state self) :pause)
@@ -34,7 +36,9 @@
 (defmethod* m-pause ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Pause sequencer."
+  :doc "Pause  <self> (a sequencer).
+
+<trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-pause
   (declare (ignore trigger))
   (player-pause-object (player (editor self)) self))
@@ -42,7 +46,9 @@
 (defmethod* m-stop ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)
   :indoc '("sequencer" "anything")
-  :doc "Stop sequencer."
+  :doc "Stop  <self> (a sequencer).
+
+<trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-stop
   (declare (ignore trigger))
   (player-stop-object (player (editor self)) self))
@@ -50,7 +56,9 @@
 (defmethod* m-loop ((self OMSequencer) t1 t2 &optional trigger)
   :initvals '(nil nil nil nil)
   :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
-  :doc "Set the sequencer loop interval from <t1> to <t2>. Set the loop on if either <t1> or <t2> is not null."
+  :doc "Set the sequencer (<self>) loop interval from <t1> to <t2>. Set the loop on if either <t1> or <t2> is not null.
+
+<trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-loop
   (declare (ignore trigger))
   (let* ((editor (editor self))
@@ -65,7 +73,9 @@
 (defmethod* m-set-time ((self OMSequencer) time &optional trigger)
   :initvals '(nil nil nil)
   :indoc '("sequencer" "time (ms)" "anything")
-  :doc "Set sequencer time."
+  :doc "Set current play-time of <self> (a sequencer) to <time>.
+
+<trigger> allows connecting anything else to be evaluated at the same time."
   :icon 'm-set-time
   (declare (ignore trigger))
   (if (integerp time)
