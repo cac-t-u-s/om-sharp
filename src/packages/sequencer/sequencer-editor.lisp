@@ -126,7 +126,7 @@
 
 (defmethod box-at-pos ((editor sequencer-editor) time &optional track)
   (let* ((seq (object editor)))
-    (find time (if track (get-track-boxes seq track) (get-all-boxes seq))
+    (find time (if track (get-all-boxes seq :track track) (get-all-boxes seq))
           :test #'(lambda (tt tb)
                     (and (> tt (get-box-onset tb))
                          (< tt (get-box-end-date tb)))))))
@@ -357,7 +357,7 @@
     (call-next-method)
 
     ;;;CONTENT
-    (loop for tb in (get-track-boxes seq (num self))
+    (loop for tb in (get-all-boxes seq :track (num self))
           do
           (let ((x1 (x-to-pix self (get-box-onset tb)))
                 (x2 (if (scale-in-x-? tb)
@@ -521,7 +521,7 @@
          (mouse-x (om-point-x position))
          (end-times-x (mapcar
                        #'(lambda (box) (time-to-pixel self (get-box-end-date box)))
-                       (remove-if-not #'resizable-box? (get-track-boxes (object ed) (num self))))))
+                       (remove-if-not #'resizable-box? (get-all-boxes (object ed) :track (num self))))))
     (if (and (find mouse-x end-times-x :test #'(lambda (a b) (and (<= a b) (>= a (- b 5)))))
              (not (edit-lock ed)))
         (om-set-view-cursor self (om-get-cursor :h-size))
@@ -834,7 +834,7 @@
 
 (defmethod get-timed-objects-with-markers ((self sequencer-track-view))
   (remove-if-not #'show-markers
-                 (get-track-boxes (get-obj-to-play (editor self)) (num self))))
+                 (get-all-boxes (get-obj-to-play (editor self)) :track (num self))))
 
 (defmethod select-elements-at-time ((self sequencer-track-view) marker-time)
   (let* ((editor (editor (om-view-window self)))
@@ -1358,7 +1358,7 @@ CMD-click to add boxes. Play contents, etc.
 
     ;;; set the track view as 'frame' for each box
     (loop for track-view in track-views do
-          (loop for box in (get-track-boxes (object sequencer-editor) (num track-view)) do
+          (loop for box in (get-all-boxes (object sequencer-editor) :track (num track-view)) do
                 (setf (frame box) track-view)))
 
     (om-make-layout

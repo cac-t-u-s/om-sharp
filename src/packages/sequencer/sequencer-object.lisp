@@ -80,7 +80,6 @@
     rep))
 
 
-
 ;;;===============================
 ;;; SEQUENCER CONTENTS (BOXES)
 ;;;===============================
@@ -88,8 +87,21 @@
 (defmethod get-obj-dur ((self OMSequencer))
   (loop for tb in (get-all-boxes self) maximize (get-box-end-date tb)))
 
-(defmethod get-all-boxes ((self OMSequencer) &key (sorted nil))
-  (if sorted (sort (copy-list (boxes self)) '< :key 'get-box-onset) (copy-list (boxes self))))
+
+(defmethod get-all-boxes ((self OMSequencer) &key (sorted nil) (track nil))
+  (let* ((boxes (get-boxes self)))
+
+    (when track
+      (setf boxes
+            (remove-if-not #'(lambda (id) (and (numberp id) (= id track)))
+                           boxes
+                           :key 'group-id)))
+
+    (when sorted
+      (setf boxes (sort boxes '< :key 'get-box-onset)))
+
+    boxes))
+
 
 (defmethod get-all-objects ((self OMSequencer) &key (sorted nil))
   (mapcar 'get-box-value (remove-if #'(lambda (obj) (eq (type-of obj) 'omlispfboxcall))
@@ -369,11 +381,6 @@
 ;;;======================================
 ;;;SIMULATE TRACKS USING BOXES' GROUP-ID
 ;;;======================================
-
-(defmethod get-track-boxes ((self OMSequencer) tracknum &key (sorted nil))
-  (remove-if-not #'(lambda (id) (and (numberp id) (= id tracknum)))
-                 (get-all-boxes self :sorted sorted)
-                 :key 'group-id))
 
 (defmethod get-track-objects ((self OMSequencer) tracknum  &key (sorted nil))
   (mapcar 'get-box-value (get-track-boxes self tracknum :sorted sorted)))

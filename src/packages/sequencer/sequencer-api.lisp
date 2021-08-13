@@ -86,7 +86,7 @@
     (get-all-objects self :sorted sorted)))
 
 (defmethod m-flush ((self OMSequencer) &key (track nil))
-  (loop for box in (if track (get-track-boxes self track) (get-all-boxes self))
+  (loop for box in (if track (get-all-boxes self :track track) (get-all-boxes self))
         do
         (omng-remove-element self box)
         (delete-box-frame (frame box)) ;;; removes the view
