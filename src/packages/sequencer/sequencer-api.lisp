@@ -72,24 +72,21 @@
 ;;; OBJECTS
 ;;;=========================================
 
-(defmethod insert-object ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
-  (declare (ignore trigger))
+(defmethod insert-object ((self OMSequencer) (object t) &key (time 0) (track 1) (pre-delay 0))
   (declare (ignore pre-delay))
   (let ((b (omng-make-new-boxcall (class-of object) (omp (or time 0) 0))))
     (setf (value b) `(,object))
     (set-display b :mini-view)
     (if (add-box-in-track self b track) t)))
 
-(defmethod insert-object ((self OMSequencer) (object ompatchinternal) &key (time 0) (track 1) (pre-delay 0) trigger)
-  (declare (ignore trigger))
+(defmethod insert-object ((self OMSequencer) (object ompatchinternal) &key (time 0) (track 1) (pre-delay 0))
   (let ((b (omng-make-new-boxcall object (omp (or time 0) 0))))
     (set-reactive b t)
     (setf (pre-delay b) pre-delay)
     (set-display b :mini-view)
     (if (add-box-in-track self b track) t)))
 
-(defmethod remove-object ((self OMSequencer) object &key multiple-instances trigger)
-  (declare (ignore trigger))
+(defmethod remove-object ((self OMSequencer) object &key multiple-instances)
   (let ((box (find object (boxes self) :key 'get-box-value)))
     (if box (omng-remove-element self box))
     (if multiple-instances
@@ -97,8 +94,7 @@
               do
               (omng-remove-element self box)))))
 
-(defmethod move-object ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track trigger)
-  (declare (ignore trigger))
+(defmethod move-object ((self OMSequencer) object &key multiple-instances (delta-t 0) (delta-y 0) track)
   (if (and multiple-instances (listp delta-t) (listp track))
       (let ((boxes (loop for box in (sort (copy-list (boxes self)) '< :key 'get-box-onset)
                          when (and (get-box-value box) (eq (get-box-value box) object))
