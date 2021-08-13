@@ -71,7 +71,10 @@
   (if (integerp time)
       (set-object-current-time self (max 0 (round time)))))
 
-(defmethod m-get-time ((self OMSequencer))
+(defmethod* m-get-time ((self OMSequencer))
+  :indoc '("sequencer")
+  :doc "Get current play-time of <self> (a sequencer)."
+  :icon 'm-set-time
   (get-obj-time self))
 
 
