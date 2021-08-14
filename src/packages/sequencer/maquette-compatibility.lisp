@@ -159,7 +159,7 @@
 
 (defun om-load-boxmaqselfin (name position  &optional fsize)
   (declare (ignore name fsize))
-  (om-print "Warning: 'self-maquette' input box converted to 'mysequence': consider reconect outputs using GET-OBJ-DUR / GET-ALL-BOXES / M-OBJECTS."
+  (om-print "Warning: 'self-maquette' input box converted to 'mysequence': consider reconnecting outputs using GET-OBJ-DUR / GET-BOXES / GET-OBJECTS."
             "Import/Compatibility")
   `(:box
     (:type :io)

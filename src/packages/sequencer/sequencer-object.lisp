@@ -80,7 +80,6 @@
     rep))
 
 
-
 ;;;===============================
 ;;; SEQUENCER CONTENTS (BOXES)
 ;;;===============================
@@ -88,12 +87,21 @@
 (defmethod get-obj-dur ((self OMSequencer))
   (loop for tb in (get-all-boxes self) maximize (get-box-end-date tb)))
 
-(defmethod get-all-boxes ((self OMSequencer) &key (sorted nil))
-  (if sorted (sort (copy-list (boxes self)) '< :key 'get-box-onset) (copy-list (boxes self))))
 
-(defmethod get-all-objects ((self OMSequencer) &key (sorted nil))
-  (mapcar 'get-box-value (remove-if #'(lambda (obj) (eq (type-of obj) 'omlispfboxcall))
-                                    (get-all-boxes self :sorted sorted))))
+(defmethod get-all-boxes ((self OMSequencer) &key (sorted nil) (track nil))
+  (let* ((boxes (get-boxes self)))
+
+    (when track
+      (setf boxes
+            (remove-if-not #'(lambda (id) (and (numberp id) (= id track)))
+                           boxes
+                           :key 'group-id)))
+
+    (when sorted
+      (setf boxes (sort boxes '< :key 'get-box-onset)))
+
+    boxes))
+
 
 (defmethod get-box-onset ((self OMBox)) (box-x self))
 (defmethod set-box-onset ((self OMBox) o)
@@ -370,14 +378,6 @@
 ;;;SIMULATE TRACKS USING BOXES' GROUP-ID
 ;;;======================================
 
-(defmethod get-track-boxes ((self OMSequencer) tracknum &key (sorted nil))
-  (remove-if-not #'(lambda (id) (and (numberp id) (= id tracknum)))
-                 (get-all-boxes self :sorted sorted)
-                 :key 'group-id))
-
-(defmethod get-track-objects ((self OMSequencer) tracknum  &key (sorted nil))
-  (mapcar 'get-box-value (get-track-boxes self tracknum :sorted sorted)))
-
 (defmethod add-box-in-track ((seq OMSequencer) (tb OMBox) tracknum)
   (setf (group-id tb) tracknum)
   (let* ((yrange (- (getf (range seq) :y2) (getf (range seq) :y1)))
@@ -390,20 +390,13 @@
     (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
 
 
-(defmethod set-track-gain ((self OMSequencer) tracknum gain)
-  (loop for obj in (get-track-objects self tracknum)
-        do (set-object-gain obj gain)))
-
-(defmethod set-object-gain ((self t) gain)
-  (format nil "No redefinition of set-object-gain found for ~A" (type-of self)))
-
-(defmethod set-track-pan ((self OMSequencer) tracknum pan)
-  (loop for obj in (get-track-objects self tracknum)
-        do (set-object-pan obj pan)))
-
-(defmethod set-object-pan ((self t) gain)
-  (print (format nil "No redefinition of set-object-pan found for ~A" (type-of self))))
-
+(defmethod* get-objects ((self OMSequencer) &key (sorted nil) (track nil))
+  :initvals '(nil nil nil)
+  :indoc '("a sequencer" "sort the boxes by onset?" "select a specific track (number)")
+  :doc "Returns the objects/values of the boxes of <self>, or from the track <track> if specified, sorted by onset if <sorted>."
+  (mapcar
+   #'get-box-value
+   (remove-if-not #'group-id (get-all-boxes self :sorted sorted :track track))))
 
 
 ;;;=========================================

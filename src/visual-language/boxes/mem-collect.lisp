@@ -55,7 +55,7 @@
 (defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
 (defmethod box-symbol ((self OMMemory)) 'mem)
 
-(defmethod get-icon-id ((self OMMemoryBox)) :m-mem)
+(defmethod get-icon-id ((self OMMemoryBox)) :mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "MEMORY/DELAY box")
 
 (defmethod box-draw ((self OMMemoryBox) frame)
@@ -247,7 +247,7 @@ Outputs:
 (defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
 (defmethod box-symbol ((self OMCollect)) 'collect)
 
-(defmethod get-icon-id ((self OMCollectBox)) :m-mem)
+(defmethod get-icon-id ((self OMCollectBox)) :mem)
 (defmethod object-name-in-inspector ((self OMCollectBox)) "COLLECTOR box")
 
 (defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
@@ -409,7 +409,7 @@ Outputs:
 (defmethod get-box-class ((self OMTimedCollect)) 'OMTimedCollectBox)
 (defmethod box-symbol ((self OMTimedCollect)) 'tcollect)
 
-(defmethod get-icon-id ((self OMTimedCollectBox)) :m-mem)
+(defmethod get-icon-id ((self OMTimedCollectBox)) :mem)
 (defmethod object-name-in-inspector ((self OMTimedCollectBox)) "TIMED COLLECTOR box")
 
 

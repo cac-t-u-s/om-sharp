@@ -34,6 +34,16 @@
 (omNG-make-package "Sequencer/Meta"
                    :container-pack *om-package-tree*
                    :doc "Visual program / sequencer manipulation"
-                   :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
+                   :functions '(get-boxes get-box-by-name get-objects)
                    :special-symbols '(mybox mysequence)
-                   )
+                   :subpackages
+                   (list (omNG-make-package
+                          "Sequencer (contents)"
+                          :doc ""
+                          :functions '(s-add s-remove s-move s-clear))
+                         (omNG-make-package
+                          "Sequencer (player)"
+                          :doc ""
+                          :functions '(s-play s-pause s-stop s-loop s-set-time s-get-time))
+                         ))
+

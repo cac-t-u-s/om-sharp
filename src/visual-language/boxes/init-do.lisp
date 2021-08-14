@@ -32,7 +32,7 @@
 (defmethod box-symbol ((self OMPatchInit)) 'init-do)
 
 
-(defmethod get-icon-id ((self OMPatchInitBox)) :m-play)
+(defmethod get-icon-id ((self OMPatchInitBox)) :s-play)
 
 (defmethod object-name-in-inspector ((self OMPatchInitBox)) "INIT CALL box")
 
