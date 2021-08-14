@@ -33,6 +33,8 @@
     (if (eq (state self) :pause)
         (player-continue-object (player (editor self)) self)
       (player-play-object (player (editor self)) self (editor self)))
+    (button-select (play-button (editor self)))
+    (button-unselect (pause-button (editor self)))
     t))
 
 (defmethod* s-pause ((self OMSequencer) &optional trigger)
@@ -45,6 +47,8 @@
   (declare (ignore trigger))
   (when (editor self)
     (player-pause-object (player (editor self)) self)
+    (button-select (pause-button (editor self)))
+    (button-unselect (play-button (editor self)))
     t))
 
 (defmethod* s-stop ((self OMSequencer) &optional trigger)
@@ -57,6 +61,8 @@
   (declare (ignore trigger))
   (when (editor self)
     (player-stop-object (player (editor self)) self)
+    (button-unselect (play-button (editor self)))
+    (button-unselect (pause-button (editor self)))
     t))
 
 (defmethod* s-loop ((self OMSequencer) t1 t2 &optional trigger)
@@ -74,6 +80,9 @@
     (when editor
       (editor-set-interval (editor self) (list begin end))
       (editor-set-loop (editor self) loop-on)
+      (if loop-on
+          (button-select (repeat-button (editor self)))
+        (button-unselect (repeat-button (editor self))))
       t)))
 
 (defmethod* s-set-time ((self OMSequencer) time &optional trigger)
