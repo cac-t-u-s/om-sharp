@@ -698,6 +698,14 @@
 ;;; KEYBOARD ACTIONS
 ;;;========================
 
+;;; for the general windows menu
+(defmethod get-selection-for-menu ((self sequencer-editor))
+  (if (and (selected-view self)
+           (not (equal self (editor (selected-view self)))))
+      (get-selection-for-menu (editor (selected-view self)))
+    (call-next-method)))
+
+
 (defmethod editor-key-action ((editor sequencer-editor) key)
   (let ((seq (object editor)))
     (case key
