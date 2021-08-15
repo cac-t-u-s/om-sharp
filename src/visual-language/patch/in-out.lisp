@@ -294,7 +294,5 @@
   (set-value self (list (box-container self)))
   (nth numout (value self)))
 
-(defmethod current-box-value ((self OMSelfInBox) &optional (numout nil))
-  (if numout (return-value self numout) (value self)))
 
 

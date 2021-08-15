@@ -151,10 +151,6 @@ Additional inputs/outputs will appear on the sequencer box.
   (set-value self (list (sequencer-container self)))
   (nth numout (value self)))
 
-(defmethod current-box-value ((self OMSequencerInBox) &optional (numout nil))
-  (if numout (return-value self numout) (value self)))
-
-
 
 #|
 ;;; note : maybe this is all not useful and I should set the meta just at eval
