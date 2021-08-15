@@ -77,6 +77,7 @@
         "patch/patch"
         "patch/patch-component-boxes"
         "patch/in-out"
+        "patch/meta-inputs"
         "patch/patch-editor"
         "patch/boxframe"
         "patch/box-abstraction"
