@@ -774,17 +774,19 @@
 
                                                  (om-set-focus container-view)
 
-                                                 (let ((newsize (if auto-resize
-                                                                    (om-min-point (om-max-point (om-view-size frame)
-                                                                                                (default-size box))
-                                                                                  (maximum-size box))
-                                                                  (om-max-point (om-view-size frame)
-                                                                                (minimum-size box))
-                                                                  )))
+                                                 (unless (subtypep (type-of container-view) 'maquette-view)
+                                                   (let ((newsize (if auto-resize
+                                                                      (om-min-point (om-max-point (om-view-size frame)
+                                                                                                  (default-size box))
+                                                                                    (maximum-size box))
+                                                                    (om-max-point (om-view-size frame)
+                                                                                  (minimum-size box))
+                                                                    )))
 
-                                                   (om-set-view-size frame newsize)
-                                                   (setf (box-w box) (om-point-x newsize)
-                                                         (box-h box) (om-point-y newsize)))
+                                                     (om-set-view-size frame newsize)
+                                                     (setf (box-w box) (om-point-x newsize)
+                                                           (box-h box) (om-point-y newsize))
+                                                     ))
 
                                                  (mapcar 'update-points (get-box-connections box))
                                                  (redraw-connections frame)
