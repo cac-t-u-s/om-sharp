@@ -37,7 +37,7 @@
   :menuins '((1 (("read" :input) ("write" :output) ("read/write" :io)))
              (2 (("rename" :rename) ("supersede" :supersede) ("overwrite" :overwrite) ("append" :append))))
   :icon :file
-  :doc "Opens a file stream where other functions can read and write"
+  :doc "Opens a file stream where other functions can read and write."
   (make-instance 'fstream
                  :fs (open path :direction direction :if-exists if-exists)
                  :fpath path
