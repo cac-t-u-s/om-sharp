@@ -63,7 +63,7 @@ Additional inputs/outputs will appear on the sequencer box.
 
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMControlPatch :name "Control Patch"))
-           (inbox (omng-make-special-box 'mysequence (omp 30 12)))
+           (inbox (omng-make-special-box 'thissequencer (omp 30 12)))
            (outbox (omng-make-special-box 'out (omp 52 140)))
            (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
            ;(comment (omng-make-new-comment *control-patch-help-comment* (omp 60 40)))
@@ -104,17 +104,16 @@ Additional inputs/outputs will appear on the sequencer box.
 
 (defmethod next-optional-input ((self OMSequenceInBox)) nil)
 
-(defmethod special-box-p ((name (eql 'mysequence))) t)
+(defmethod special-box-p ((name (eql 'thissequencer))) t)
 (defmethod get-box-class ((self OMSequenceIn)) 'OMSequenceInBox)
-(defmethod box-symbol ((self OMSequenceIn)) 'mysequence)
-
+(defmethod box-symbol ((self OMSequenceIn)) 'thissequencer)
 
 (defmethod related-patchbox-slot ((self OMSequenceInBox)) nil)
 (defmethod allow-text-input ((self OMSequenceInBox)) nil)
 
-(defmethod omNG-make-special-box ((reference (eql 'mysequence)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'thissequencer)) pos &optional init-args)
   (omNG-make-new-boxcall
-   (make-instance 'OMSequenceIn :name "SEQUENCER")
+   (make-instance 'OMSequenceIn :name "THIS SEQUENCER")
    pos init-args))
 
 (defmethod register-patch-io ((self OMPatch) (elem OMSequenceIn))

@@ -145,12 +145,12 @@
 ;;; META IN/OUTS: need some conversion
 (defun om-load-boxselfin (name position  &optional fsize)
   (declare (ignore fsize name))
-  (om-print "Warning: 'self' input box converted to 'MYBOX': consider reconnecting the output using an 'OMBOX' SLOTS box."
+  (om-print "Warning: 'self' input box converted to 'THISBOX': consider reconnecting the output using an 'OMBOX' SLOTS box."
             "Import/Compatibility")
   `(:box
     (:type :io)
-    (:reference (:in (:type omselfin) (:index 0) (:name "BOX")))
-    (:name "BOX")
+    (:reference (:in (:type omselfin) (:index 0) (:name "THIS BOX")))
+    (:name "THIS BOX")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:outputs (:output (:name "out")))
@@ -159,12 +159,12 @@
 
 (defun om-load-boxmaqselfin (name position  &optional fsize)
   (declare (ignore name fsize))
-  (om-print "Warning: 'self-maquette' input box converted to 'mysequence': consider reconnecting outputs using GET-OBJ-DUR / GET-BOXES / GET-OBJECTS."
+  (om-print "Warning: 'self-maquette' input box converted to 'thissequencer': consider reconnecting outputs using GET-OBJ-DUR / GET-BOXES / GET-OBJECTS."
             "Import/Compatibility")
   `(:box
     (:type :io)
-    (:reference (:in (:type omsequencein) (:index 0) (:name "CONTAINER-SEQUENCE")))
-    (:name "CONTAINER-SEQUENCE")
+    (:reference (:in (:type omsequencein) (:index 0) (:name "THIS SEQUENCER")))
+    (:name "THIS SEQUENCER")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:outputs (:output (:name "out")))

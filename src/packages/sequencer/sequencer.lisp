@@ -35,7 +35,7 @@
                    :container-pack *om-package-tree*
                    :doc "Visual program / sequencer manipulation"
                    :functions '(get-boxes get-box-by-name get-objects)
-                   :special-symbols '(mybox mysequence)
+                   :special-symbols '(thisbox thissequencer)
                    :subpackages
                    (list (omNG-make-package
                           "Sequencer (contents)"

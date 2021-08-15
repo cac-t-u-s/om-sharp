@@ -39,7 +39,7 @@
          nil
          (loop for box in (boxes self)
                when (equal (type-of (reference box)) 'OMIn)
-               ;; here we do not include the special inputs (mybox, mysequence etc.)
+               ;; here we do not include the special inputs (thisbox, thissequencer etc.)
                collect (reference box)))
         '< :key #'(lambda (i) (or (index i) 0))))
 
@@ -252,9 +252,9 @@
 (defclass OMSelfInBox (OMInBox) ())
 (defmethod io-box-icon-color ((self OMSelfInBox)) (om-make-color 0.6 0.2 0.2))
 
-(defmethod special-box-p ((name (eql 'mybox))) t)
+(defmethod special-box-p ((name (eql 'thisbox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
-(defmethod box-symbol ((self OMSelfIn)) 'mybox)
+(defmethod box-symbol ((self OMSelfIn)) 'thisbox)
 
 (defmethod related-patchbox-slot ((self OMSelfInBox)) nil)
 (defmethod allow-text-input ((self OMSelfInBox)) nil)
@@ -262,9 +262,9 @@
 
 (defmethod next-optional-input ((self OMSelfInBox)) nil)
 
-(defmethod omNG-make-special-box ((reference (eql 'mybox)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'thisbox)) pos &optional init-args)
   (omNG-make-new-boxcall
-   (make-instance 'OMSelfIn :name "BOX")
+   (make-instance 'OMSelfIn :name "THIS BOX")
    pos init-args))
 
 (defmethod register-patch-io ((self OMPatch) (elem OMSelfIn))
