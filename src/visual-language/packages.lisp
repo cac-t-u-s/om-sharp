@@ -61,6 +61,12 @@
         :doc "Interface boxes and widgets (sliders, buttons, etc.)"
         :special-symbols '(button slider check-box switch list-selection list-menu)
         )
+       (omNG-make-package
+        "Meta"
+        :doc "Visual program manipulation"
+        :functions '(get-boxes get-box-by-name file-path)
+        :special-symbols '(thisbox thispatch)
+        )
        ))
 
 

@@ -31,18 +31,17 @@
         ))
 
 
-(omNG-make-package "Sequencer/Meta"
+(omNG-make-package "Sequencer"
                    :container-pack *om-package-tree*
-                   :doc "Visual program / sequencer manipulation"
-                   :functions '(get-boxes get-box-by-name get-objects file-path)
-                   :special-symbols '(thisbox thispatch thissequencer)
+                   :doc "Sequencer manipulation and control"
+                   :special-symbols '(thissequencer)
                    :subpackages
                    (list (omNG-make-package
-                          "Sequencer (contents)"
+                          "Contents"
                           :doc ""
-                          :functions '(s-add s-remove s-move s-clear))
+                          :functions '(get-objects s-add s-remove s-move s-clear))
                          (omNG-make-package
-                          "Sequencer (player)"
+                          "Player"
                           :doc ""
                           :functions '(s-play s-pause s-stop s-loop s-set-time s-get-time))
                          ))
