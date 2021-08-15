@@ -197,6 +197,7 @@
 ;;; DOES NOT COPY !! (e.G. if I copy a box refereing to a persistant object, the copy will refer to the same object)
 (defmethod om-copy ((self OMPersistantObject)) self)
 
+
 ;;;=======================================
 ;;; FOLDERS (not used for the moment...)
 ;;;=======================================

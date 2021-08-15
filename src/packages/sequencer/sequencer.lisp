@@ -34,7 +34,7 @@
 (omNG-make-package "Sequencer/Meta"
                    :container-pack *om-package-tree*
                    :doc "Visual program / sequencer manipulation"
-                   :functions '(get-boxes get-box-by-name get-objects)
+                   :functions '(get-boxes get-box-by-name get-objects file-path)
                    :special-symbols '(thisbox thispatch thissequencer)
                    :subpackages
                    (list (omNG-make-package

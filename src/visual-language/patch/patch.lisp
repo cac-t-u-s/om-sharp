@@ -176,3 +176,14 @@
 
 (defmethod* get-box-values ((self OMPatch))
   (loop for b in (boxes self) collect (get-box-value b)))
+
+
+;;; Valid for all persistant objects
+(defmethod* file-path ((self OMPersistantObject))
+  :initvals '(nil)
+  :indoc '("a patch or persistant document")
+  :doc "Returns the pathname of the file where <self> is stored."
+  (mypathname self))
+
+(defmethod* file-path ((self t)) nil)
+
