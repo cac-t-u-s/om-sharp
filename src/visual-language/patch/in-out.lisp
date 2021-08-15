@@ -243,9 +243,13 @@
 
 
 ;;;====================================
-;;; META
-;;; ATTENTION THESE BOXES MUST BE UPDATED BEFORE EVALUATION DEPENDING ON CONTEXT
-;;; THE META INPUTS DO NOT APPEAR OUSIDE THE PATCH
+;;; META:
+;;; THESE BOXES MUST BE UPDATED BEFORE EVALUATION DEPENDING ON CONTEXT
+;;; THE META INPUTS DO NOT APPEAR OUTSIDE THE PATCH
+;;;====================================
+
+;;;====================================
+;;; THIS BOX
 ;;;====================================
 
 (defclass OMSelfIn (OMIn) ()
@@ -295,4 +299,43 @@
   (nth numout (value self)))
 
 
+;;;====================================
+;;; THIS PATCH
+;;;====================================
+
+(defclass OMPatchIn (OMIn) ()
+  (:documentation "Returns the Patch containing this patch/subpatch."))
+
+(defclass OMPatchInBox (OMInBox) ())
+(defmethod io-box-icon-color ((self OMPatchInBox)) (om-make-color 0.6 0.2 0.2))
+
+(defmethod next-optional-input ((self OMPatchInBox)) nil)
+
+(defmethod special-box-p ((name (eql 'thispatch))) t)
+(defmethod get-box-class ((self OMPatchIn)) 'OMPatchInBox)
+(defmethod box-symbol ((self OMPatchIn)) 'thispatch)
+(defmethod special-item-reference-class ((item (eql 'thispatch))) 'OMPatchIn)
+
+(defmethod related-patchbox-slot ((self OMPatchInBox)) nil)
+(defmethod allow-text-input ((self OMPatchInBox)) nil)
+
+(defmethod omNG-make-special-box ((reference (eql 'thispatch)) pos &optional init-args)
+  (omNG-make-new-boxcall
+   (make-instance 'OMPatchIn :name "THIS PATCH")
+   pos init-args))
+
+(defmethod register-patch-io ((self OMPatch) (elem OMPatchIn))
+  (setf (index elem) 0)
+  (setf (defval elem) nil))
+
+(defmethod unregister-patch-io ((self OMPatch) (elem OMPatchIn)) nil)
+
+
+(defmethod omNG-box-value ((self OMPatchInBox) &optional (numout 0))
+  (set-value self (list (container self)))
+  (return-value self numout))
+
+(defmethod gen-code ((self OMPatchInBox) &optional (numout 0))
+  (set-value self (list (container self)))
+  (nth numout (value self)))
 
