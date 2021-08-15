@@ -73,7 +73,6 @@
 ;;;======================================
 
 ; (gen-package-entries *om-package-tree*)
-; (gen-om-reference)
 
 ;;; the toplevel package
 (defmethod gen-package-entries ((pack OMAbstractPackage) &key exclude-packages)
@@ -173,8 +172,6 @@
                             (slot-doc slot))))
               (class-documentation class))))))
 
-; (gen-om-reference)
-
 ;;;======================================
 ;;; REFERENCE-PAGES GENERATION AND ACCESS
 ;;;======================================
@@ -202,6 +199,7 @@
 
 
 ;(show-reference-page 'om+)
+
 (defmethod show-reference-page ((symbol symbol))
 
   (let* ((lib (get-object-library symbol))
@@ -222,8 +220,6 @@
         (om-beep-msg "No reference page found for '~A'" symbol))
       )))
 
-
-; (gen-om-reference)
 
 ;;;======================================
 ;;; HTML LAYOUT, CONTENTS AND STYLE
@@ -283,7 +279,6 @@ table, td {
                (om-get-date nil)
                "</font></center>"))
 
-; (gen-om-reference)
 
 (defun gen-reference (package-entries dir &key title maintext logofile)
 
@@ -438,9 +433,6 @@ table, td {
     (mapcar #'(lambda (symb) (make-ref-page symb dir title)) allsymbols)
 
     indexpath))
-
-
-; (gen-om-reference)
 
 
 (defun make-ref-page (symbol dir &optional title)
@@ -605,8 +597,3 @@ table, td {
       (write-line "</body></html>" index))
 
     pagepath))
-
-
-; (gen-om-reference)
-
-
