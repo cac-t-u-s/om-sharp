@@ -98,9 +98,11 @@ Additional inputs/outputs will appear on the sequencer box.
 ;;; Sequencer accessor for control patch or temporal boxes
 ;;;====================================
 
-(defclass OMSequenceIn (OMIn) ()
+(defclass OMSequencerIn (OMIn) ()
   (:documentation "Returns the Sequencer containing this patch/subpatch."))
 
+;; for compatibility / remove me in a little while:)
+(defclass OMSequenceIn (OMSequencerIn) ())
 
 (defclass OMSequencerInBox (OMInBox) ())
 (defmethod io-box-icon-color ((self OMSequencerInBox)) (om-make-color 0.6 0.2 0.2))
@@ -108,23 +110,23 @@ Additional inputs/outputs will appear on the sequencer box.
 (defmethod next-optional-input ((self OMSequencerInBox)) nil)
 
 (defmethod special-box-p ((name (eql 'thissequencer))) t)
-(defmethod get-box-class ((self OMSequenceIn)) 'OMSequencerInBox)
-(defmethod box-symbol ((self OMSequenceIn)) 'thissequencer)
-(defmethod special-item-reference-class ((item (eql 'thissequencer))) 'OMSequenceIn)
+(defmethod get-box-class ((self OMSequencerIn)) 'OMSequencerInBox)
+(defmethod box-symbol ((self OMSequencerIn)) 'thissequencer)
+(defmethod special-item-reference-class ((item (eql 'thissequencer))) 'OMSequencerIn)
 
 (defmethod related-patchbox-slot ((self OMSequencerInBox)) nil)
 (defmethod allow-text-input ((self OMSequencerInBox)) nil)
 
 (defmethod omNG-make-special-box ((reference (eql 'thissequencer)) pos &optional init-args)
   (omNG-make-new-boxcall
-   (make-instance 'OMSequenceIn :name "THIS SEQUENCER")
+   (make-instance 'OMSequencerIn :name "THIS SEQUENCER")
    pos init-args))
 
-(defmethod register-patch-io ((self OMPatch) (elem OMSequenceIn))
+(defmethod register-patch-io ((self OMPatch) (elem OMSequencerIn))
   (setf (index elem) 0)
   (setf (defval elem) nil))
 
-(defmethod unregister-patch-io ((self OMPatch) (elem OMSequenceIn)) nil)
+(defmethod unregister-patch-io ((self OMPatch) (elem OMSequencerIn)) nil)
 
 
 ;;; FOR THE META INPUTS
@@ -153,7 +155,7 @@ Additional inputs/outputs will appear on the sequencer box.
   (if numout (return-value self numout) (value self)))
 
 
-(defmethod omng-save ((self OMSequenceIn))
+(defmethod omng-save ((self OMSequencerIn))
   `(:in
     (:type ,(type-of self))
     (:index ,(index self))
@@ -166,19 +168,19 @@ Additional inputs/outputs will appear on the sequencer box.
 ;;; note : maybe this is all not useful and I should set the meta just at eval
 
 ;;; TRY TO SET THE DEFVAL AS THE CONTAINER SEQUENCER
-(defmethod register-patch-io ((self OMControlPatch) (elem OMSequenceIn))
+(defmethod register-patch-io ((self OMControlPatch) (elem OMSequencerIn))
   (call-next-method)
   ;;; For OMControlPatch the only references-to is the sequencer
   (setf (defval elem) (car (references-to self))))
 
-(defmethod register-patch-io ((self OMPatchInternal) (elem OMSequenceIn))
+(defmethod register-patch-io ((self OMPatchInternal) (elem OMSequencerIn))
   (call-next-method)
   ;;; For OMPatchInternal the only references-to is the box
   ;;; => just check if it is in a sequencer...
   (when (subtypep (type-of (container (car (references-to self)))) 'OMSequencer)
     (setf (defval elem) (container (car (references-to self))))))
 
-(defmethod register-patch-io ((self OMPatchFile) (elem OMSequenceIn))
+(defmethod register-patch-io ((self OMPatchFile) (elem OMSequencerIn))
   (call-next-method)
   ;;; For OMPatchFile the only references-to can be multiples !
   ;;; In this case, it will be set only before eval

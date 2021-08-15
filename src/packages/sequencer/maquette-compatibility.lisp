@@ -163,7 +163,7 @@
             "Import/Compatibility")
   `(:box
     (:type :io)
-    (:reference (:in (:type omsequencein) (:index 0) (:name "THIS SEQUENCER")))
+    (:reference (:in (:type omsequencerin) (:index 0) (:name "THIS SEQUENCER")))
     (:name "THIS SEQUENCER")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
