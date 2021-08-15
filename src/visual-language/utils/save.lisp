@@ -514,8 +514,6 @@
     fun))
 
 
-
-
 ;;;=================================
 ;;; INs and OUTs ...
 ;;;=================================
@@ -526,14 +524,6 @@
     (:index ,(index self))
     (:name ,(name self))
     (:doc ,(doc self))))
-
-(defmethod omng-save ((self OMSelfIn))
-  `(:in
-    (:type ,(type-of self))
-    (:index ,(index self))
-    (:name ,(name self))
-    (:doc ,(doc self))))
-
 
 (defmethod omng-save ((self OMOut))
   `(:out

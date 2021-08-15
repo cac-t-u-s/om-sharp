@@ -155,14 +155,6 @@ Additional inputs/outputs will appear on the sequencer box.
   (if numout (return-value self numout) (value self)))
 
 
-(defmethod omng-save ((self OMSequencerIn))
-  `(:in
-    (:type ,(type-of self))
-    (:index ,(index self))
-    (:name ,(name self))
-    (:doc ,(doc self))))
-
-
 
 #|
 ;;; note : maybe this is all not useful and I should set the meta just at eval
