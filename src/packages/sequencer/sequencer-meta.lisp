@@ -93,40 +93,27 @@ Additional inputs/outputs will appear on the sequencer box.
 
 
 
-
 ;;;====================================
 ;;; Sequencer accessor for control patch or temporal boxes
 ;;;====================================
 
-(defclass OMSequencerIn (OMIn) ()
+(defclass OMSequencerIn (OMMetaIn) ()
   (:documentation "Returns the Sequencer containing this patch/subpatch."))
 
 ;; for compatibility / remove me in a little while:)
 (defclass OMSequenceIn (OMSequencerIn) ())
 
-(defclass OMSequencerInBox (OMInBox) ())
-(defmethod io-box-icon-color ((self OMSequencerInBox)) (om-make-color 0.6 0.2 0.2))
-
-(defmethod next-optional-input ((self OMSequencerInBox)) nil)
+(defclass OMSequencerInBox (OMMetaInBox) ())
 
 (defmethod special-box-p ((name (eql 'thissequencer))) t)
 (defmethod get-box-class ((self OMSequencerIn)) 'OMSequencerInBox)
 (defmethod box-symbol ((self OMSequencerIn)) 'thissequencer)
 (defmethod special-item-reference-class ((item (eql 'thissequencer))) 'OMSequencerIn)
 
-(defmethod related-patchbox-slot ((self OMSequencerInBox)) nil)
-(defmethod allow-text-input ((self OMSequencerInBox)) nil)
-
 (defmethod omNG-make-special-box ((reference (eql 'thissequencer)) pos &optional init-args)
   (omNG-make-new-boxcall
    (make-instance 'OMSequencerIn :name "THIS SEQUENCER")
    pos init-args))
-
-(defmethod register-patch-io ((self OMPatch) (elem OMSequencerIn))
-  (setf (index elem) 0)
-  (setf (defval elem) nil))
-
-(defmethod unregister-patch-io ((self OMPatch) (elem OMSequencerIn)) nil)
 
 
 ;;; FOR THE META INPUTS
