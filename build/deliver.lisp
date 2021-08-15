@@ -242,7 +242,7 @@
 ;;; FUNCTION REFERENCE
 ;;;==========================
 
-(om::gen-om-reference)
+(om::gen-reference-doc)
 
 ;;;==========================
 ;;; BUILD IMAGE

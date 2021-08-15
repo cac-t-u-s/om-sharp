@@ -23,15 +23,15 @@
 ;;; FILE MANAGEMENT / UTILS
 ;;;======================================
 
-(defun get-om-reference-pages-folder ()
+(defun get-reference-pages-folder ()
   (merge-pathnames
    (make-pathname :directory '(:relative "reference-pages"))
    (om-resources-folder)))
 
-(defun get-om-reference-pages-index (&optional folder)
+(defun get-reference-pages-index (&optional folder)
   (merge-pathnames
    (make-pathname :name "index" :type "html")
-   (or folder (get-om-reference-pages-folder))))
+   (or folder (get-reference-pages-folder))))
 
 ;;; characters to avoid in file names
 (defun special-path-check (name)
@@ -190,15 +190,16 @@
 (defparameter *om-ref-text*
   "Reference documentation for the main OM# functions and classes.")
 
-(defun gen-om-reference ()
+(defun gen-reference-doc ()
   (gen-reference (gen-package-entries *om-package-tree*)
-                 (get-om-reference-pages-folder)
+                 (get-reference-pages-folder)
                  :maintext *om-ref-text*))
 
 
-(defun ensure-om-reference-pages ()
-  (unless (probe-file (get-om-reference-pages-index))
-    (gen-om-reference)))
+(defun ensure-reference-pages ()
+  (unless (probe-file (get-reference-pages-index))
+    (gen-reference-doc)))
+
 
 ;(show-reference-page 'om+)
 (defmethod show-reference-page ((symbol symbol))
@@ -206,12 +207,12 @@
   (let* ((lib (get-object-library symbol))
          (reference-folder
           (if lib (let ((folder (get-lib-reference-pages-folder lib)))
-                    (unless (probe-file (get-om-reference-pages-index folder))
+                    (unless (probe-file (get-reference-pages-index folder))
                       (gen-lib-reference lib))
                     folder)
             (progn
-              (ensure-om-reference-pages)
-              (get-om-reference-pages-folder)))))
+              (ensure-reference-pages)
+              (get-reference-pages-folder)))))
 
     (let ((file (om-make-pathname :directory reference-folder
                                   :name (special-path-check (string-downcase (string symbol)))

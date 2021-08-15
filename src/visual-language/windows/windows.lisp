@@ -134,7 +134,7 @@
         (let ((symbols (get-selection-for-menu self)))
           (if symbols
               (loop for ref in symbols do (show-reference-page ref))
-            (om-open-in-browser (namestring (get-om-reference-pages-index))))))
+            (om-open-in-browser (namestring (get-reference-pages-index))))))
     :key "d")
 
    (om-make-menu-item
