@@ -145,7 +145,7 @@
 ;;; META IN/OUTS: need some conversion
 (defun om-load-boxselfin (name position  &optional fsize)
   (declare (ignore fsize name))
-  (om-print "Warning: 'self' input box converted to 'MYBOX': consider reconnect output using an 'OMBOX' SLOTS box."
+  (om-print "Warning: 'self' input box converted to 'MYBOX': consider reconnecting the output using an 'OMBOX' SLOTS box."
             "Import/Compatibility")
   `(:box
     (:type :io)
@@ -175,7 +175,7 @@
 ;;; IN/OUT in the maquette: no more supported
 (defun om-load-maq-boxin (name indice position docu &optional fname val fsize)
   (declare (ignore name indice position docu fname val fsize))
-  (om-print "Warning: Maquette inputs no more supported in the sequencer. Use the control-patch." "Import/Compatibility")
+  (om-print "Warning: Maquette inputs are no more supported in the sequencer. Use the control-patch." "Import/Compatibility")
   NIL)
 
 (defun om-load-maq-boxout (name indice position inputs &optional fname fsize)
