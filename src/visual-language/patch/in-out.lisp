@@ -248,13 +248,16 @@
 ;;; THE META INPUTS DO NOT APPEAR OUSIDE THE PATCH
 ;;;====================================
 
-(defclass OMSelfIn (OMIn) ())
+(defclass OMSelfIn (OMIn) ()
+  (:documentation "Returns the box containing this patch."))
+
 (defclass OMSelfInBox (OMInBox) ())
 (defmethod io-box-icon-color ((self OMSelfInBox)) (om-make-color 0.6 0.2 0.2))
 
 (defmethod special-box-p ((name (eql 'thisbox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
 (defmethod box-symbol ((self OMSelfIn)) 'thisbox)
+(defmethod special-item-reference-class ((item (eql 'thisbox))) 'OMSelfIn)
 
 (defmethod related-patchbox-slot ((self OMSelfInBox)) nil)
 (defmethod allow-text-input ((self OMSelfInBox)) nil)

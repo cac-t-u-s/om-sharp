@@ -98,7 +98,10 @@ Additional inputs/outputs will appear on the sequencer box.
 ;;; Sequencer accessor for control patch or temporal boxes
 ;;;====================================
 
-(defclass OMSequenceIn (OMIn) ())
+(defclass OMSequenceIn (OMIn) ()
+  (:documentation "Returns the Sequencer containing this patch/subpatch."))
+
+
 (defclass OMSequenceInBox (OMInBox) ())
 (defmethod io-box-icon-color ((self OMSequenceInBox)) (om-make-color 0.6 0.2 0.2))
 
@@ -107,6 +110,7 @@ Additional inputs/outputs will appear on the sequencer box.
 (defmethod special-box-p ((name (eql 'thissequencer))) t)
 (defmethod get-box-class ((self OMSequenceIn)) 'OMSequenceInBox)
 (defmethod box-symbol ((self OMSequenceIn)) 'thissequencer)
+(defmethod special-item-reference-class ((item (eql 'thissequencer))) 'OMSequenceIn)
 
 (defmethod related-patchbox-slot ((self OMSequenceInBox)) nil)
 (defmethod allow-text-input ((self OMSequenceInBox)) nil)
