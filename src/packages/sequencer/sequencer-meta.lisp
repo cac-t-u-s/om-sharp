@@ -102,18 +102,18 @@ Additional inputs/outputs will appear on the sequencer box.
   (:documentation "Returns the Sequencer containing this patch/subpatch."))
 
 
-(defclass OMSequenceInBox (OMInBox) ())
-(defmethod io-box-icon-color ((self OMSequenceInBox)) (om-make-color 0.6 0.2 0.2))
+(defclass OMSequencerInBox (OMInBox) ())
+(defmethod io-box-icon-color ((self OMSequencerInBox)) (om-make-color 0.6 0.2 0.2))
 
-(defmethod next-optional-input ((self OMSequenceInBox)) nil)
+(defmethod next-optional-input ((self OMSequencerInBox)) nil)
 
 (defmethod special-box-p ((name (eql 'thissequencer))) t)
-(defmethod get-box-class ((self OMSequenceIn)) 'OMSequenceInBox)
+(defmethod get-box-class ((self OMSequenceIn)) 'OMSequencerInBox)
 (defmethod box-symbol ((self OMSequenceIn)) 'thissequencer)
 (defmethod special-item-reference-class ((item (eql 'thissequencer))) 'OMSequenceIn)
 
-(defmethod related-patchbox-slot ((self OMSequenceInBox)) nil)
-(defmethod allow-text-input ((self OMSequenceInBox)) nil)
+(defmethod related-patchbox-slot ((self OMSequencerInBox)) nil)
+(defmethod allow-text-input ((self OMSequencerInBox)) nil)
 
 (defmethod omNG-make-special-box ((reference (eql 'thissequencer)) pos &optional init-args)
   (omNG-make-new-boxcall
@@ -141,15 +141,15 @@ Additional inputs/outputs will appear on the sequencer box.
 
 
 ;;; BOX VALUE
-(defmethod omNG-box-value ((self OMSequenceInBox) &optional (numout 0))
+(defmethod omNG-box-value ((self OMSequencerInBox) &optional (numout 0))
   (set-value self (list (sequencer-container self)))
   (return-value self numout))
 
-(defmethod gen-code ((self OMSequenceInBox) &optional (numout 0))
+(defmethod gen-code ((self OMSequencerInBox) &optional (numout 0))
   (set-value self (list (sequencer-container self)))
   (nth numout (value self)))
 
-(defmethod current-box-value ((self OMSequenceInBox) &optional (numout nil))
+(defmethod current-box-value ((self OMSequencerInBox) &optional (numout nil))
   (if numout (return-value self numout) (value self)))
 
 
