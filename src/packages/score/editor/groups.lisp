@@ -62,6 +62,24 @@
     (update-group-controls self)))
 
 
+;;; delete the group(s) of selected items if :all-groups
+;;; or remove the selected item from a specific group
+(defmethod delete-selection-group ((self score-editor))
+
+  (let* ((group (editor-get-edit-param self :selected-group))
+         (remove-all (equal group :all)))
+
+    (loop for item in (selection self)
+          do (setf (group-ids item)
+                   (if remove-all
+                       nil
+                     (remove group (group-ids item) :test 'string-equal))))
+
+    (editor-update-analysis self)
+
+    (update-group-controls self)))
+
+
 ;;; deleted the group if a specific group is selected
 ;;; or all groups (with warning)
 (defmethod delete-current-group ((self score-editor))
@@ -98,23 +116,6 @@
           (update-group-controls self)))
       )))
 
-
-;;; delete the group(s) of selected items if :all-groups
-;;; or remove the selected item from a specific group
-(defmethod delete-selection-group ((self score-editor))
-
-  (let* ((group (editor-get-edit-param self :selected-group))
-         (remove-all (equal group :all)))
-
-    (loop for item in (selection self)
-          do (setf (group-ids item)
-                   (if remove-all
-                       nil
-                     (remove group (group-ids item) :test 'string-equal))))
-
-    (editor-update-analysis self)
-
-    (update-group-controls self)))
 
 
 (defmethod draw-groups-on-score-editor (editor)
