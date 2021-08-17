@@ -93,7 +93,9 @@
 <trigger> allows connecting anything else to be evaluated at the same time."
   :icon 's-time
   (declare (ignore trigger))
-  (set-object-current-time self (max 0 (round time))))
+  (set-object-current-time self (max 0 (round time)))
+  (reset-boxes self)
+  time)
 
 (defmethod* s-get-time ((self OMSequencer))
   :indoc '("sequencer")
