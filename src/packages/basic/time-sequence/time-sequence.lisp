@@ -143,31 +143,17 @@
     pos))
 
 
-;;; REDEFINE THESE METHODS IF NEEDED
-; but should not called directly
-; => USE remove-timed-point-from-time-sequence and remove-nth-timed-point-from-time-sequence
-(defmethod time-sequence-remove-timed-item ((self time-sequence) item)
-  "Remove a timed point at pos from the list"
-  (time-sequence-set-timed-item-list
-   self
-   (remove item (time-sequence-get-timed-item-list self))))
-
-
-(defmethod time-sequence-remove-nth-timed-item ((self time-sequence) pos)
-  "Remove NTH timed point at pos from the list"
-  (time-sequence-set-timed-item-list
-   self
-   (remove-nth pos (time-sequence-get-timed-item-list self))))
-
-
-; USE THESE METHODS TO UPDATE THE TIME PROPERTIES WHEN REMOVING A POINT
 (defmethod remove-timed-point-from-time-sequence ((self time-sequence) item)
-  (time-sequence-remove-timed-item self item)
+  (time-sequence-set-timed-item-list
+   self
+   (remove item (time-sequence-get-timed-item-list self)))
   (time-sequence-update-internal-times self))
 
 
 (defmethod remove-nth-timed-point-from-time-sequence ((self time-sequence) pos)
-  (time-sequence-remove-nth-timed-item self pos)
+  (time-sequence-set-timed-item-list
+   self
+   (remove-nth pos (time-sequence-get-timed-item-list self)))
   (time-sequence-update-internal-times self))
 
 
