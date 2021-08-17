@@ -69,7 +69,6 @@
                                              (number-number (interpol self)))
                                         50)
                             :t-or-nil (number-? (interpol self))))
-
   self)
 
 
@@ -163,7 +162,6 @@
     (time-sequence-update-internal-times self)))
 
 
-; REVERSE THE TIME SEQUENCE
 (defmethod time-sequence-reverse ((self time-sequence))
   (let* ((t0 (get-first-time self))
          (times (time-sequence-get-times self))
