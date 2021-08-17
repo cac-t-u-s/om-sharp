@@ -227,6 +227,7 @@
   (when (selected-chords self)
     (let ((first-chord (car (sort (selected-chords self) '< :key #'date))))
       (when first-chord
+        (store-current-state-for-undo self)
         (add-extras first-chord (make-instance 'score-marker) nil nil)
         (om-invalidate-view (main-view self)))
       )))
@@ -235,6 +236,7 @@
 (defmethod remove-score-marker ((self chord-seq-editor))
   (let ((selected-chords (selected-chords self)))
     (when (find-if #'(lambda (c) (get-extras c 'score-marker)) selected-chords)
+      (store-current-state-for-undo self)
       (loop for item in selected-chords
             do (remove-extras item 'score-marker nil))
       (om-invalidate-view (main-view self)))))
