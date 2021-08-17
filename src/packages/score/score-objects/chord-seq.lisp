@@ -346,7 +346,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
 (defmethod remove-from-obj ((self chord-seq) (item t)) nil)
 
 (defmethod remove-from-obj ((self chord-seq) (item chord))
-  (remove-timed-point-from-time-sequence self item))
+  (time-sequence-remove-timed-item self item))
 
 (defmethod remove-from-obj ((self chord-seq) (item note))
   (loop for c in (chords self)

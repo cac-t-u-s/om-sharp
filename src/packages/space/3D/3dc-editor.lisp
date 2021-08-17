@@ -673,7 +673,7 @@
       (if (find T (selection self))
           (setf (point-list (object-value self)) nil)
         (mapcar
-         #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
+         #'(lambda (i) (time-sequence-remove-nth-timed-item (object-value self) i))
          (sort (selection self) '>)
          ))
       (setf (selection self) nil)

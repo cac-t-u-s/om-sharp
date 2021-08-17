@@ -332,7 +332,7 @@
 ;;; todo : factorize this in different editors..
 (defmethod editor-delete-contents-from-timeline ((self data-stream-editor) timeline-id sel)
   (let ((data-stream (object-value self)))
-    (mapcar #'(lambda (point) (remove-timed-point-from-time-sequence data-stream point)) sel)
+    (mapcar #'(lambda (point) (time-sequence-remove-timed-item data-stream point)) sel)
     (time-sequence-update-internal-times data-stream))
   (editor-invalidate-views self)
   (report-modifications self))
@@ -501,7 +501,7 @@
 
 (defmethod delete-editor-selection ((self data-stream-editor))
   (loop for pos in (sort (selection self) '>) do
-        (remove-nth-timed-point-from-time-sequence (object-value self) pos)))
+        (time-sequence-remove-nth-timed-item (object-value self) pos)))
 
 
 ;;; sort the frames and reset the selection indices correctly

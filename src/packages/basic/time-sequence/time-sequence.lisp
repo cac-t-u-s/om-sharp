@@ -143,14 +143,14 @@
     pos))
 
 
-(defmethod remove-timed-point-from-time-sequence ((self time-sequence) item)
+(defmethod time-sequence-remove-timed-item ((self time-sequence) item)
   (time-sequence-set-timed-item-list
    self
    (remove item (time-sequence-get-timed-item-list self)))
   (time-sequence-update-internal-times self))
 
 
-(defmethod remove-nth-timed-point-from-time-sequence ((self time-sequence) pos)
+(defmethod time-sequence-remove-nth-timed-item ((self time-sequence) pos)
   (time-sequence-set-timed-item-list
    self
    (remove-nth pos (time-sequence-get-timed-item-list self)))

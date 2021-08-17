@@ -599,7 +599,7 @@
   ;;; compute new tree
   (let ((new-tree (build-tree self nil)))
     ;;; remove the chord
-    (remove-timed-point-from-time-sequence self item)
+    (time-sequence-remove-timed-item self item)
     ;;; rebuild the structure
     (set-tree self new-tree)
     ))
@@ -617,7 +617,7 @@
           do ;;; untied continuation chords and remove the chord
           (let ((cont-c (find c (get-tpl-elements-of-type self 'continuation-chord) :key #'previous-chord)))
             (when cont-c (untie-chord self cont-c))
-            (remove-timed-point-from-time-sequence self c)
+            (time-sequence-remove-timed-item self c)
             ))
 
     (replace-in-obj self item subst-rest)
@@ -631,7 +631,7 @@
         do ;;; untied continuation chords and remove the chord
         (let ((cont-c (find c (get-tpl-elements-of-type self 'continuation-chord) :key #'previous-chord)))
           (when cont-c (untie-chord self cont-c))
-          (remove-timed-point-from-time-sequence self c)
+          (time-sequence-remove-timed-item self c)
           ))
 
   (setf (inside self) (remove item (inside self)))
@@ -727,7 +727,7 @@
         (replace-in-obj self c new-c)
 
         ; remove the chord (it's not a "real" chord anymore)
-        (remove-timed-point-from-time-sequence self c)
+        (time-sequence-remove-timed-item self c)
 
         ; rebuild the structure
         (when rebuild
@@ -794,7 +794,7 @@
     (when chords
       (setf (notes new-obj) (remove-duplicates (get-notes chords) :key #'midic))
       (loop for c in chords do
-            (remove-timed-point-from-time-sequence in-voice c)))
+            (time-sequence-remove-timed-item in-voice c)))
 
     (setf (symbolic-date new-obj) (symbolic-date self)
           (symbolic-dur new-obj) (symbolic-dur self))
@@ -817,7 +817,7 @@
     (when chords
       (setf (notes new-obj) (remove-duplicates (get-notes chords) :key #'midic))
       (loop for c in chords do
-            (remove-timed-point-from-time-sequence in-voice c)))
+            (time-sequence-remove-timed-item in-voice c)))
 
     (setf (symbolic-date new-obj) (list-min (mapcar #'symbolic-date self))
           (symbolic-dur new-obj) (apply #'+ (mapcar #'symbolic-dur self)))
@@ -892,7 +892,7 @@
 
     (replace-in-obj in-voice self new-group)
 
-    (remove-timed-point-from-time-sequence in-voice self)
+    (time-sequence-remove-timed-item in-voice self)
 
     (loop for c in new-chords do
           (time-sequence-insert-timed-item-and-update
