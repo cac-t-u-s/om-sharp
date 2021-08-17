@@ -236,7 +236,7 @@
   (sort
    (loop for box in (get-all-boxes self :sorted t)
          when (box-cross-interval box time-interval)
-         ;; it it's a reactive box it must be "ready" (= computed)
+         ;; if it's a reactive box it must be "ready" (= computed)
          ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box))))
          when (group-id box) ;;; only boxes in tracks are played
          append
