@@ -254,6 +254,9 @@
   (set-time-callback self time)
   (call-next-method))
 
+
+(defmethod set-time-callback ((self t) time) nil)
+
 (defmethod set-time-callback ((self OMSequencer) time)
   (let ((interval (or (interval self) (list time *positive-infinity*))))
     (loop for box in (get-all-boxes self :sorted t)
