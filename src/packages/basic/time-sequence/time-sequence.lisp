@@ -143,18 +143,24 @@
     pos))
 
 
-(defmethod time-sequence-remove-timed-item ((self time-sequence) item)
+(defmethod time-sequence-remove-timed-item ((self time-sequence)
+                                            item
+                                            &optional (update-internal-times t))
   (time-sequence-set-timed-item-list
    self
    (remove item (time-sequence-get-timed-item-list self)))
-  (time-sequence-update-internal-times self))
+  (when update-internal-times
+    (time-sequence-update-internal-times self)))
 
 
-(defmethod time-sequence-remove-nth-timed-item ((self time-sequence) pos)
+(defmethod time-sequence-remove-nth-timed-item ((self time-sequence)
+                                                pos &optional
+                                                (update-internal-times t))
   (time-sequence-set-timed-item-list
    self
    (remove-nth pos (time-sequence-get-timed-item-list self)))
-  (time-sequence-update-internal-times self))
+  (when update-internal-times
+    (time-sequence-update-internal-times self)))
 
 
 ; REVERSE THE TIME SEQUENCE
