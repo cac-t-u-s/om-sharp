@@ -85,7 +85,7 @@
         (button-unselect (repeat-button (editor self))))
       t)))
 
-(defmethod* s-set-time ((self OMSequencer) time &optional trigger)
+(defmethod* s-set-time ((self OMSequencer) (time integer) &optional trigger)
   :initvals '(nil nil nil)
   :indoc '("sequencer" "time (ms)" "anything")
   :doc "Set current play-time of <self> (a sequencer) to <time>.
@@ -93,8 +93,7 @@
 <trigger> allows connecting anything else to be evaluated at the same time."
   :icon 's-time
   (declare (ignore trigger))
-  (if (integerp time)
-      (set-object-current-time self (max 0 (round time)))))
+  (set-object-current-time self (max 0 (round time))))
 
 (defmethod* s-get-time ((self OMSequencer))
   :indoc '("sequencer")
