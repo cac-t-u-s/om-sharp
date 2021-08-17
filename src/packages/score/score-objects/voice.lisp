@@ -102,6 +102,8 @@
 
 (defclass r-rest (score-element) ())
 
+(defmethod get-real-chord ((self r-rest)) nil)
+
 (defclass grace-note (score-element) ())
 
 
@@ -111,6 +113,9 @@
   (loop for obj in (inside self) append
         (get-all-chords obj)))
 
+(defmethod get-all-chords ((self voice))
+  (loop for obj in (inside self) append
+        (get-all-chords obj)))
 
 (defmethod get-all-chords ((self chord)) (list self))
 (defmethod get-all-chords ((self continuation-chord)) (list self))

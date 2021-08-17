@@ -74,6 +74,10 @@
   (loop for v in (get-voices self)
         append (chords v)))
 
+(defmethod get-all-chords ((self multi-seq))
+  (loop for v in (get-voices self)
+        append (get-all-chords v)))
+
 ;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
 ;;;===================================================

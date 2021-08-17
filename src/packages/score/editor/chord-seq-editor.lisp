@@ -216,22 +216,30 @@
   (editor-invalidate-views self))
 
 
+
+(defmethod selected-chords ((self chord-seq-editor))
+  (remove-if
+   #'(lambda (item) (not (subtypep (type-of item) 'chord)))
+   (selection self)))
+
+
 (defmethod add-score-marker ((self chord-seq-editor))
-  (when (selection self)
-    (let ((first-chord (car (sort (remove-if
-                                   #'(lambda (item) (not (subtypep (type-of item) 'chord)))
-                                   (selection self))
-                                  '< :key #'date))))
+  (when (selected-chords self)
+    (let ((first-chord (car (sort (selected-chords self) '< :key #'date))))
       (when first-chord
+        (store-current-state-for-undo self)
         (add-extras first-chord (make-instance 'score-marker) nil nil)
         (om-invalidate-view (main-view self)))
       )))
 
 
 (defmethod remove-score-marker ((self chord-seq-editor))
-  (loop for item in (selection self)
-        do (remove-extras item 'score-marker nil))
-  (om-invalidate-view (main-view self)))
+  (let ((selected-chords (selected-chords self)))
+    (when (find-if #'(lambda (c) (get-extras c 'score-marker)) selected-chords)
+      (store-current-state-for-undo self)
+      (loop for item in selected-chords
+            do (remove-extras item 'score-marker nil))
+      (om-invalidate-view (main-view self)))))
 
 
 (defmethod editor-key-action ((editor chord-seq-editor) key)
