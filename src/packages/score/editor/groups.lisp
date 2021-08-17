@@ -52,6 +52,8 @@
   (when (and (editor-get-edit-param self :groups)
              (selection self))
 
+    (store-current-state-for-undo self)
+
     (let ((group (if (equal (editor-get-edit-param self :selected-group) :all)
                      (generate-group-id self)
                    (editor-get-edit-param self :selected-group))))
@@ -71,6 +73,8 @@
 
   (when (and (editor-get-edit-param self :groups)
              (selection self))
+
+    (store-current-state-for-undo self)
 
     (let* ((group (editor-get-edit-param self :selected-group))
            (remove-all (equal group :all)))
@@ -96,6 +100,8 @@
     (unless (and remove-all
                  (not (om-y-or-n-dialog "This will delete all groups in the score. Do it ?")))
 
+      (store-current-state-for-undo self)
+
       (loop for c in (chords (object-value self))
             do (setf (group-ids c)
                      (if remove-all
@@ -113,6 +119,8 @@
 
       (let ((new-id (om-get-user-string "Enter a new name for the group" :initial-string (string group-id))))
         (when new-id
+
+          (store-current-state-for-undo self)
 
           (loop for c in (chords (object-value self))
                 do (setf (group-ids c)
