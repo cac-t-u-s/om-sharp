@@ -49,35 +49,41 @@
 ;;; create a new group if :all-groups
 (defmethod add-selection-to-group ((self score-editor))
 
-  (let ((group (if (equal (editor-get-edit-param self :selected-group) :all)
-                   (generate-group-id self)
-                 (editor-get-edit-param self :selected-group))))
+  (when (and (editor-get-edit-param self :groups)
+             (selection self))
 
-    (loop for item in (selection self)
-          do (setf (group-ids item)
-                   (append (group-ids item) (list group))))
+    (let ((group (if (equal (editor-get-edit-param self :selected-group) :all)
+                     (generate-group-id self)
+                   (editor-get-edit-param self :selected-group))))
 
-    (editor-update-analysis self)
+      (loop for item in (selection self)
+            do (setf (group-ids item)
+                     (append (group-ids item) (list group))))
 
-    (update-group-controls self)))
+      (editor-update-analysis self)
+
+      (update-group-controls self))))
 
 
 ;;; delete the group(s) of selected items if :all-groups
 ;;; or remove the selected item from a specific group
 (defmethod delete-selection-group ((self score-editor))
 
-  (let* ((group (editor-get-edit-param self :selected-group))
-         (remove-all (equal group :all)))
+  (when (and (editor-get-edit-param self :groups)
+             (selection self))
 
-    (loop for item in (selection self)
-          do (setf (group-ids item)
-                   (if remove-all
-                       nil
-                     (remove group (group-ids item) :test 'string-equal))))
+    (let* ((group (editor-get-edit-param self :selected-group))
+           (remove-all (equal group :all)))
 
-    (editor-update-analysis self)
+      (loop for item in (selection self)
+            do (setf (group-ids item)
+                     (if remove-all
+                         nil
+                       (remove group (group-ids item) :test 'string-equal))))
 
-    (update-group-controls self)))
+      (editor-update-analysis self)
+
+      (update-group-controls self))))
 
 
 ;;; deleted the group if a specific group is selected
