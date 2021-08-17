@@ -257,17 +257,16 @@
 (defmethod set-time-callback ((self OMSequencer) time)
   (let ((interval (or (interval self) (list time *positive-infinity*))))
     (loop for box in (get-all-boxes self :sorted t)
-          when (get-box-value box)
-          do
-          (if (box-cross-interval box interval)
-              (progn
-                (set-object-interval (get-box-value box) (list (- time (get-box-onset box)) (cadr interval)))
-                (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
-                    (progn
-                      (set-object-current-time (get-box-value box) (- (car interval) (get-box-onset box)))
-                      (set-time-callback (get-box-value box) (- time (get-box-onset box))))
-                  (player-stop-object *general-player* (get-box-value box))))
-            (player-stop-object *general-player* (get-box-value box))))))
+          do (let ((object (get-box-value box)))
+               (if (box-cross-interval box interval)
+                   (progn
+                     (set-object-interval object (list (- time (get-box-onset box)) (cadr interval)))
+                     (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
+                         (progn
+                           (set-object-current-time object (- (car interval) (get-box-onset box)))
+                           (set-time-callback object (- time (get-box-onset box))))
+                       (player-stop-object *general-player* object)))
+                 (player-stop-object *general-player* object))))))
 
 #|
 (with-schedulable-object
