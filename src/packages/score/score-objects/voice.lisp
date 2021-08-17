@@ -102,6 +102,8 @@
 
 (defclass r-rest (score-element) ())
 
+(defmethod get-real-chord ((self r-rest)) nil)
+
 (defclass grace-note (score-element) ())
 
 

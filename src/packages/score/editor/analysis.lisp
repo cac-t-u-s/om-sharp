@@ -111,13 +111,19 @@
 (defmethod update-analysis ((self pcset-analysis) (editor score-editor))
   (setf (pcsets self)
         (loop for group-id in (collect-group-ids editor)
-              collect (let ((chords (get-group-elements editor group-id)))
-                        (list
-                         group-id
-                         (chord2c
-                          (make-instance 'chord :lmidic (apply 'append (mapcar 'lmidic chords)))
-                          2))
-                        ))
+              collect (let ((chords (remove nil
+                                            (mapcar
+                                             #'get-real-chord
+                                             (get-group-elements editor group-id)))))
+                        (when chords
+                          (list
+                           group-id
+                           (chord2c
+                            (make-instance 'chord
+                                           :lmidic (remove-duplicates
+                                                    (apply #'append (mapcar #'lmidic chords))))
+                            2))
+                          )))
         ))
 
 

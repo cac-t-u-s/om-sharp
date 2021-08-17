@@ -21,7 +21,7 @@
 
 (defmethod collect-group-ids ((self score-editor))
   (let ((groups ()))
-    (loop for c in (chords (object-value self))
+    (loop for c in (get-all-chords (object-value self))
           do (loop for id in (group-ids c)
                    unless (find id groups :test 'string-equal)
                    do (pushr id groups)))
@@ -29,7 +29,7 @@
 
 
 (defmethod get-group-elements ((self score-editor) group-id)
-  (loop for c in (chords (object-value self))
+  (loop for c in (get-all-chords (object-value self))
         when (find group-id (group-ids c) :test 'string-equal)
         collect c))
 
@@ -128,7 +128,7 @@
 
       (store-current-state-for-undo self)
 
-      (loop for c in (chords (object-value self))
+      (loop for c in (get-all-chords (object-value self))
             do (remove-group-id c group-id))
 
       (update-group-controls self))))
@@ -145,7 +145,7 @@
 
           (store-current-state-for-undo self)
 
-          (loop for c in (chords (object-value self))
+          (loop for c in (get-all-chords (object-value self))
                 do (rename-group-id c group-id new-id))
 
           (editor-set-edit-param self :selected-group new-id)
@@ -165,7 +165,7 @@
     (loop for group-id in (if (equal (editor-get-edit-param editor :selected-group) :all)
                               (collect-group-ids editor)
                             (list (editor-get-edit-param editor :selected-group)))
-          do (loop for c in (chords (object-value editor))
+          do (loop for c in (get-all-chords (object-value editor))
                    when (and (b-box c) (find group-id (group-ids c) :test 'string-equal))
                    minimize (b-box-x1 (b-box c)) into x1
                    and minimize (b-box-y1 (b-box c)) into y1
