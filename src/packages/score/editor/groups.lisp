@@ -45,6 +45,37 @@
     group-id))
 
 
+(defmethod add-group-id ((self score-element) id)
+  (setf (group-ids self)
+        (append (group-ids self) (list id))))
+
+(defmethod add-group-id ((self rhythmic-object) id)
+  (call-next-method)
+  (loop for sub in (inside self)
+        do (add-group-id sub id)))
+
+
+(defmethod remove-group-id ((self score-element) id)
+  (setf (group-ids self)
+        (if (equal id :all) nil
+          (remove id (group-ids self) :test 'string-equal))))
+
+(defmethod remove-group-id ((self rhythmic-object) id)
+  (call-next-method)
+  (loop for sub in (inside self)
+        do (remove-group-id sub id)))
+
+
+(defmethod rename-group-id ((self score-element) old-name new-name)
+  (setf (group-ids self)
+        (substitute new-name old-name (group-ids self) :test 'string-equal)))
+
+(defmethod rename-group-id ((self rhythmic-object) old-name new-name)
+  (call-next-method)
+  (loop for sub in (inside self)
+        do (rename-group-id sub old-name new-name)))
+
+
 ;;; add to the current group if a group is selected
 ;;; create a new group if :all-groups
 (defmethod add-selection-to-group ((self score-editor))
@@ -59,8 +90,7 @@
                    (editor-get-edit-param self :selected-group))))
 
       (loop for item in (selection self)
-            do (setf (group-ids item)
-                     (append (group-ids item) (list group))))
+            do (add-group-id item group))
 
       (editor-update-analysis self)
 
@@ -76,14 +106,10 @@
 
     (store-current-state-for-undo self)
 
-    (let* ((group (editor-get-edit-param self :selected-group))
-           (remove-all (equal group :all)))
+    (let* ((group (editor-get-edit-param self :selected-group)))
 
       (loop for item in (selection self)
-            do (setf (group-ids item)
-                     (if remove-all
-                         nil
-                       (remove group (group-ids item) :test 'string-equal))))
+            do (remove-group-id item group))
 
       (editor-update-analysis self)
 
@@ -103,10 +129,7 @@
       (store-current-state-for-undo self)
 
       (loop for c in (chords (object-value self))
-            do (setf (group-ids c)
-                     (if remove-all
-                         nil
-                       (remove group-id (group-ids c) :test 'string-equal))))
+            do (remove-group-id c group-id))
 
       (update-group-controls self))))
 
@@ -123,8 +146,7 @@
           (store-current-state-for-undo self)
 
           (loop for c in (chords (object-value self))
-                do (setf (group-ids c)
-                         (substitute new-id group-id (group-ids c) :test 'string-equal)))
+                do (rename-group-id c group-id new-id))
 
           (editor-set-edit-param self :selected-group new-id)
           (update-group-controls self)))
