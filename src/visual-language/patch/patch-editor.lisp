@@ -1738,12 +1738,10 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                   (when (get-documentation object)
                     (list
                      :separator
-                     (let* ((doc (get-documentation object))
-                            (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
-                            (n-lines (length (om-string-wrap doc def-w text-font))))
+                     (let* ((doc (get-documentation object)))
                        (om-make-di 'om-multi-text
-                                   :size (om-make-point nil (min 100 (* line-h (+ 2 n-lines))))
-                                   :text (format nil "~%~A" doc)
+                                   :size (om-make-point nil nil)
+                                   :text (format nil "~%~A~%~%" doc)
                                    :fg-color (om-def-color :dark-gray)
                                    :font text-font)
                        )))
