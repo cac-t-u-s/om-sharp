@@ -22,7 +22,13 @@
 
 (defclass* collection (named-object)
   ((obj-type :accessor obj-type :initform nil)
-   (obj-list :initarg :obj-list :accessor obj-list :initform nil)))
+   (obj-list :initarg :obj-list :accessor obj-list :initform nil))
+  (:documentation "Container holding a set of several objects of the same type.
+Displays/enable editing the list of objects in a single 'collection editor'.
+
+The desired type can be specified as the first input (e.g. typing 'collection BPF').
+If this is done, this type is used to initialize or convert the input list of objects (if possible)."
+   ))
 
 (defmethod get-properties-list ((self collection))
   '(("COLLECTION attibutes"
