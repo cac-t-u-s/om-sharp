@@ -43,7 +43,8 @@
 (defclass OMMemory (OMPatchComponentWithMemory)
   ((size :initform 1 :accessor size)
    (timer-var :initform  nil :accessor timer-var)
-   (timetag :initform nil :accessor timetag)))
+   (timetag :initform nil :accessor timetag))
+  (:documentation "Memory: Return the input on first output, and the result of N previous evaluations on a second output."))
 
 (defclass OMMemoryBox (OMPatchComponentBox) ())
 
@@ -57,6 +58,7 @@
 
 (defmethod get-icon-id ((self OMMemoryBox)) :mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "MEMORY/DELAY box")
+(defmethod special-item-reference-class ((item (eql 'mem))) 'OMMemory)
 
 (defmethod box-draw ((self OMMemoryBox) frame)
   (when (integerp (size (reference self)))
