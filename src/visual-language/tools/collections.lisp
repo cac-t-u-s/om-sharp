@@ -37,7 +37,15 @@
 (defmethod om-init-instance ((self collection) &optional initargs)
 
   (setf (obj-list self)
-        (om-copy (list! (obj-list self))))
+        (if (obj-type self)
+
+            ;;; coerce all object to the specified type
+            (remove nil
+                    (mapcar
+                     #'(lambda  (obj) (objfromobjs obj (make-instance (obj-type self))))
+                     (list! (obj-list self))))
+
+          (om-copy (list! (obj-list self)))))
 
   (when (obj-list self)
     ;;; check if all items are of the same type
