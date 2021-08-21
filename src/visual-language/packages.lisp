@@ -32,7 +32,7 @@
        (omNG-make-package
         "Control"
         :doc "Special boxes implementing control operators, argument passing and memory"
-        :functions '(seq hub split)
+        :functions '(seq hub split default)
         :special-symbols '(in out if and or repeat-n mem global)
         )
        (omNG-make-package

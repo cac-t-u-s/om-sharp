@@ -179,26 +179,23 @@ Use > and < to add/remove outputs.
 ;;; DEFAULT VALUE UTIL
 ;;;------------------------
 
-(defmethod* default (value in)
-  :indoc '("a default value" "input data")
-  :outdoc '("the input data or the default value")
+(defmethod* default (in default-value)
   :icon nil
-  (or in value))
+  :doc
+  "Returns the value <in> or <default-value> if <in> is NIL.
 
-(defclass OMDefBoxCall (OMGFBoxcall)
-  ((def-value :initform nil :accessor def-value)))
+Note: This is equivalent to the Lisp OR logical operator.
+"
+  (or in default-value))
+
+(defclass OMDefBoxCall (OMGFBoxcall) ())
 
 (defmethod boxclass-from-function-name ((self (eql 'default))) 'OMDefBoxCall)
 
 (defmethod boxcall-value ((self OMDefBoxCall))
-  (setf (def-value self) (omNG-box-value (first (inputs self))))
-  (call-next-method))
+  (let* ((input (omNG-box-value (car (inputs self))))
+         (def-value (omNG-box-value (cadr (inputs self)))))
 
-(defmethod box-draw ((self OMDefBoxCall) (frame OMBoxFrame))
-  (om-with-font
-   (om-def-font :font1b)
-   (om-draw-string 65 18 (format nil "~A" (or (def-value self) "?")))))
+    (set-name self (format nil "default: ~A" def-value))
 
-
-
-
+    (or input def-value)))
