@@ -1662,8 +1662,7 @@
 
 
 (defmethod default-editor-help-text ((self patch-editor))
-  "
-This is a patch editor window.
+  "This is a patch editor window.
 
 Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
 
