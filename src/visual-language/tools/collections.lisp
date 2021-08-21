@@ -35,10 +35,10 @@
 (defmethod homogenize-collection (model list) nil)
 
 (defmethod om-init-instance ((self collection) &optional initargs)
+
   (setf (obj-list self)
-        (if (listp (obj-list self))
-            (om-copy (obj-list self))
-          (list (om-copy (obj-list self)))))
+        (om-copy (list! (obj-list self))))
+
   (when (obj-list self)
     ;;; check if all items are of the same type
     (if (list-typep (obj-list self) (type-of (car (obj-list self))))
