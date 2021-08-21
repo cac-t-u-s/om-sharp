@@ -42,7 +42,7 @@
     (:display-min nil)
     (:display-max nil)))
 
-(defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'tpoint-time)))
+(defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'om-point-time)))
 (defun y-axis-accessor (editor) (case (y-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z)))
 (defun editor-make-point (editor x y) (funcall (make-point-function editor) x y))
 (defun editor-point-x (editor point) (funcall (x-axis-accessor editor) point))
@@ -382,7 +382,7 @@
 
 ;times are negatives values if they are not user defined (for display differenciation)
 (defmethod time-to-draw ((self bpc) editor pt i)
-  (or (tpoint-time pt)
+  (or (om-point-time pt)
       (let ((ti (nth i (time-sequence-get-internal-times self))))
         (and ti (- ti)))))
 

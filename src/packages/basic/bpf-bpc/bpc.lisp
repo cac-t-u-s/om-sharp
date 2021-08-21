@@ -30,6 +30,9 @@
 (defun om-make-tpoint (x y &optional time type)
   (make-tpoint :x x :y y :time time :internal-time time :type type))
 
+(defmethod om-point-time ((self tpoint)) (tpoint-time self))
+(defmethod om-point-time ((self t)) nil)
+
 (defmethod om-copy ((self tpoint))
   (make-tpoint :x (tpoint-x self) :y (tpoint-y self)
                :time (tpoint-time self)
@@ -140,7 +143,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod bpc-p ((self t)) nil)
 
 
-(defmethod time-values-from-points ((self BPC)) (mapcar #'tpoint-time (point-list self)))
+(defmethod time-values-from-points ((self BPC)) (mapcar #'om-point-time (point-list self)))
 
 
 (defmethod (setf decimals) ((decimals t) (self BPC))
