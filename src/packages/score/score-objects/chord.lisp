@@ -13,7 +13,6 @@
 ; File author: J. Bresson
 ;============================================================================
 
-
 (in-package :om)
 
 ;;;=============
@@ -57,7 +56,6 @@ A simple NOTE defined with :
             (consp (getf args :port)))
     (error "NOTE attributes can not be lists!"))
   (call-next-method))
-
 
 
 ;;; allow as additional slot
@@ -247,6 +245,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                                        )))
     self))
 
+
 (defmethod objfromobjs ((model note) (target Chord))
   (objfromobjs (list model) target))
 
@@ -254,7 +253,6 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 (defmethod objfromobjs ((model list) (target Chord))
 
   (cond
-
    ;;; a list of chords (=> merge)
    ((list-subtypep model 'chord)
     (let ((notes (flat (mapcar 'notes model))))
@@ -287,5 +285,3 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (if (notes self)
       (apply 'max (mapcar 'dur (notes self)))
     0))
-
-

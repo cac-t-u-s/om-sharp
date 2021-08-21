@@ -84,7 +84,8 @@
     (let ((lambda-exp-name (nth 2 (multiple-value-list (FUNCTION-LAMBDA-EXPRESSION fun)))))
       (cond ((equal lambda-exp-name 'system::fast-list) 'list)
             ((symbolp lambda-exp-name) lambda-exp-name)  ;; does not work, e.g. for CONS...
-            ;; ((consp lambda-exp-name) nil) ;; the function is (?) a subfunction named by the compiler // removed because struct-accessors fall here...
+            ;; removed because struct-accessors fail here:
+            ;; ((consp lambda-exp-name) nil) ;; the function is (?) a subfunction named by the compiler
             (t (system::function-name fun))   ;;; does not work with non-inbuilt functions...
             ))))
 

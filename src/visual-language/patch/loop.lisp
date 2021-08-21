@@ -73,9 +73,7 @@
   (unwind-protect
       (gen-iteration-code (reference self) (loop for inp in (inputs self) collect (gen-code inp)))
       ;(push-let-context curr-loop-context)
-    )
-  ; )
-  )
+    ))
 
 
 (defmethod gen-loop-iterator-update-code ((self OMPatchLoop))

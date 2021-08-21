@@ -52,14 +52,13 @@
        ,(gen-code (third (inputs self))))))
 
 
-;;; compatibility...
+;;; compatibility
 (defmethod function-changed-name ((reference (eql 'omif))) 'if)
 
 
 ;;;------------------------
 ;;; LOGICAL CONTROLS (AND/OR)
 ;;;------------------------
-
 
 (defclass OMAndBoxCall (OMFunBoxcall) ())
 (defmethod get-box-class ((self (eql 'and))) 'OMAndBoxCall)
@@ -105,7 +104,7 @@
     `(or ,.arguments)))
 
 
-;;; compatibility...
+;;; compatibility
 (defmethod function-changed-name ((reference (eql 'omand))) 'and)
 (defmethod function-changed-name ((reference (eql 'omor))) 'or)
 (defmethod function-changed-name ((reference (eql 'conditional))) 'or)

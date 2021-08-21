@@ -1617,7 +1617,6 @@
   (om-lisp::om-select-all-command view))
 
 
-
 ;;;======================================
 ;;; INSPECTOR
 ;;;======================================
@@ -1727,8 +1726,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
                                   (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
                                         (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                                  )
-                                 )
+                                  ))
 
                          ;;; object has no properties (unlikely)
                          (list
@@ -1736,15 +1734,11 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                       :text "[no properties]"
                                       :font text-font)
                           nil))
-
-
                        ))))
 
                   (when (get-documentation object)
                     (list
-
                      :separator
-
                      (let* ((doc (get-documentation object))
                             (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
                             (n-lines (length (om-string-wrap doc def-w text-font))))
@@ -1753,11 +1747,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                    :text (format nil "~%~A" doc)
                                    :fg-color (om-def-color :dark-gray)
                                    :font text-font)
-                       )
-
-                     ))
-                  )
-                 )
+                       )))
+                  ))
 
               ;;; else: no object
               (om-make-layout
@@ -1773,8 +1764,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                               :fg-color (om-def-color :dark-gray)
                               :font text-font)
                   )))
-              )
-            ))
+              )))
 
       (om-add-subviews self inspector-layout))
 
@@ -1962,9 +1952,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
                                  (t nil))
                            ))
-
-
-
                ))
 
           (values
@@ -1976,8 +1963,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
              (otherwise (om-make-layout 'om-row-layout
                                         :delta 2 :ratios '(10 nil 1 nil)
-                                        :subviews (list patch-view :divider side-pane layout-items)))
-             )
+                                        :subviews (list patch-view :divider side-pane layout-items))))
 
            patch-view))
 
@@ -1988,7 +1974,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
               patch-view)
       )
     ))
-
 
 
 ;;;======================================
@@ -2028,7 +2013,3 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
       (when text-win
         (om-lisp::revert-text-file text-win))
       )))
-
-
-
-

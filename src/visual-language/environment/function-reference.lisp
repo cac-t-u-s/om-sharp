@@ -130,7 +130,8 @@
     (list symbol
           (if (typep fun 'generic-function) "GENERIC-FUNCTION" "FUNCTION")
           (function-arglist symbol)
-          (function-documentation  symbol))))
+          (function-documentation symbol))))
+
 
 (defun class-to-doclist (symbol)
   (let ((class (find-class symbol nil))
@@ -154,7 +155,6 @@
            )
           (class-documentation class))))
 
-;(special-item-reference-class 'collect)
 
 (defun box-to-doclist (symbol)
   (let ((class (find-class (special-item-reference-class symbol) nil)))
@@ -171,6 +171,7 @@
                             (eval (slot-initform slot))
                             (slot-doc slot))))
               (class-documentation class))))))
+
 
 ;;;======================================
 ;;; REFERENCE-PAGES GENERATION AND ACCESS
