@@ -30,9 +30,11 @@
 
 (defclass OMIn (OMPatchIO)
   ((defval :initform nil :accessor defval :initarg :defval)
-   (in-symbol :initform nil :accessor in-symbol)))
+   (in-symbol :initform nil :accessor in-symbol))
+  (:documentation "An input of the current patch."))
 
-(defclass OMOut (OMPatchIO) ())
+(defclass OMOut (OMPatchIO) ()
+  (:documentation "An output of the current patch."))
 
 (defmethod get-inputs ((self OMPatch))
   (sort (remove
@@ -145,6 +147,7 @@
 (defmethod get-box-class ((self OMIn)) 'OMInBox)
 (defmethod related-patchbox-slot ((self OMInBox)) 'inputs)
 (defmethod box-symbol ((self OMIn)) 'in)
+(defmethod special-item-reference-class ((item (eql 'in))) 'OMIn)
 
 
 (defmethod next-optional-input ((self OMInBox))
@@ -192,6 +195,7 @@
 (defmethod get-box-class ((self OMOut)) 'OMOutBox)
 (defmethod related-patchbox-slot ((self OMOutBox)) 'outputs)
 (defmethod box-symbol ((self OMOut)) 'out)
+(defmethod special-item-reference-class ((item (eql 'out))) 'OMOut)
 
 
 (defmethod omNG-make-special-box ((reference (eql 'out)) pos &optional init-args)
