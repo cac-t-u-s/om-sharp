@@ -1696,45 +1696,44 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                :focus t  ;; prevents focus on other items :)
                                :font title-font)
 
-                   (when t ;object
-                     (list
-                      (om-make-layout
-                       'om-grid-layout
-                       :delta '(10 2) :align '(:left :center)
-                       :subviews
+                   (list
+                    (om-make-layout
+                     'om-grid-layout
+                     :delta '(10 2) :align '(:left :center)
+                     :subviews
 
-                       (if (get-properties-list object)
+                     (if (get-properties-list object)
 
-                           ;;; ok
-                           (loop for category in (get-properties-list object)
-                                 when (cdr category)
-                                 append
-                                 (append
-                                  (list
-                                   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                                   (om-make-di 'om-simple-text :text (car category) :font title-font
-                                               :fg-color (om-def-color :dark-gray)
-                                               :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
-                                               )
-                                   )
-                                  (loop for prop in (cdr category) append
-                                        (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (omp 80 16))
-                                              (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
-                                                              :update (get-update-frame object))
-                                              ))
+                         ;;; ok
+                         (loop for category in (get-properties-list object)
+                               when (cdr category)
+                               append
+                               (append
+                                (list
+                                 (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                                 (om-make-di 'om-simple-text :text (car category) :font title-font
+                                             :fg-color (om-def-color :dark-gray)
+                                             :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
+                                             ))
 
-                                  (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
-                                        (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                                  ))
+                                (loop for prop in (cdr category) append
+                                      (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
+                                                        :size (omp 80 16))
+                                            (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
+                                                            :update (get-update-frame object))
+                                            ))
 
-                         ;;; object has no properties (unlikely)
-                         (list
-                          (om-make-di 'om-simple-text :size (om-make-point 100 20)
-                                      :text "[no properties]"
-                                      :font text-font)
-                          nil))
-                       ))))
+                                (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
+                                      (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                                ))
+
+                       ;;; object has no properties (unlikely)
+                       (list
+                        (om-make-di 'om-simple-text :size (om-make-point 100 20)
+                                    :text "[no properties]"
+                                    :font text-font)
+                        nil))
+                     )))
 
                   (when (get-documentation object)
                     (list
