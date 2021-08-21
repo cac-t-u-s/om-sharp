@@ -170,8 +170,22 @@
 
 
 (defmethod eval-box ((self ombox))
+
   (omng-box-value self)
+
   (let ((val (current-box-value self nil)))
+    (if (<= (length val) 1)
+        (om-print-format "=> ~s" (list (car val)) "OM#")
+      (om-print-format "=> [~{~s~^, ~}]" (list val) "OM#"))))
+
+
+(defmethod eval-box ((self omboxcall))
+
+  (let* ((rep (omng-box-value self))
+         (val (if (member (lambda-state self) '(:box :reference))
+                  (list rep)
+                (current-box-value self nil))))
+
     (if (<= (length val) 1)
         (om-print-format "=> ~s" (list (car val)) "OM#")
       (om-print-format "=> [~{~s~^, ~}]" (list val) "OM#"))
