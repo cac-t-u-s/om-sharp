@@ -37,15 +37,12 @@
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
    )
 
-  (:documentation "
-A simple NOTE defined with :
+  (:documentation "A simple NOTE defined with :
 
 - pitch (midicents: 100 = 1 half-tone - 6000 = C3)
 - velocity (MIDI velocity from 0 to 127)
 - duration in milliseconds
-- MIDI channel
-")
-  )
+- MIDI channel"))
 
 
 (defmethod initialize-instance ((self note) &rest args)
@@ -88,8 +85,7 @@ A simple NOTE defined with :
    (Ldur :initform '(1000) :initarg :Ldur :type list :documentation "durations (list of values in ms)")
    )
 
-  (:documentation "
-A CHORD object (set of simultaneous notes) defined with
+  (:documentation "A CHORD object (set of simultaneous notes) defined with
 
 - <lmidic>: list of pitches (midicents: 100 = 1 half-tone - 6000 = C3)
 - <lvel>: velocities (MIDI velocity from 0 to 127)
@@ -97,8 +93,7 @@ A CHORD object (set of simultaneous notes) defined with
 - <ldur> durations in milliseconds
 - <lchan> MIDI channels for each note
 - <lport> (additional/optional) MIDI port for each note (defaults to the value defined in MIDI preferences)
-These slots are simpel accessor for initialization. In reality the CHORD contains a list of NOTE instance.
-"))
+These slots are simpel accessor for initialization. In reality the CHORD contains a list of NOTE instance."))
 
 ;;; allow as additional slots
 (defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport extras))
