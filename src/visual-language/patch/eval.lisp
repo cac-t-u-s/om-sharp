@@ -250,7 +250,6 @@
     (value self)))
 
 
-
 (defmethod get-args-eval-curry ((self OMBoxCall) &optional (input-eval-fun 'value))
   (let* ((new-symbs nil)
          (args (loop for input in (inputs self) collect
@@ -308,11 +307,11 @@
 
      ((equal (lambda-state self) :box)
 
-      ;;; evaluate normal then return the box
-      ;;; ... (why?)
+      ;;; evaluate like normal mode, then return the box
       (setf (lambda-state self) nil)
       (omng-box-value self numout)
       (setf (lambda-state self) :box)
+
       self)
 
      ((and (equal (lock-state self) :locked) (value self))
@@ -518,6 +517,7 @@
 (defmethod box-reference-value ((self OMBoxRelatedWClass))
   (find-class (reference self) nil))
 
+
 ;;; we just don't do that for the moment
 ;;; no very useful anyway..
 (defmethod box-lambda-value ((self OMBoxEditCall))
@@ -538,6 +538,7 @@
                    (make-value ',(reference self) (list ,.arglist))))
         )
       )))
+
 
 (defmethod box-lambda-value ((self OMSlotsBox))
   (multiple-value-bind (lambda-list args)
