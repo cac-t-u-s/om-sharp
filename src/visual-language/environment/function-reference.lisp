@@ -156,10 +156,11 @@
           (class-documentation class))))
 
 
-(defun box-to-doclist (symbol)
-  (let ((class (find-class (special-item-reference-class symbol) nil)))
+(defun special-box-to-doclist (symbol)
+  (let* ((ref-class (special-item-reference-class symbol))
+         (class (find-class ref-class nil)))
     (when class
-      (let ((instance (make-instance (special-item-reference-class symbol))))
+      (let ((instance (make-instance ref-class)))
         (list symbol "SPECIAL BOX"
               ;;; slots desc
               (loop for k in (flat (get-all-keywords instance))
@@ -182,7 +183,7 @@
     (cond
      ((fboundp symbol) (fun-to-doclist symbol))
      ((find-class symbol nil) (class-to-doclist symbol))
-     ((special-box-p symbol) (box-to-doclist symbol)))
+     ((special-box-p symbol) (special-box-to-doclist symbol)))
     ))
 
 (defparameter *om-ref-text*
