@@ -95,9 +95,20 @@
 (defun method-name (method)
   (clos::generic-function-name (clos::method-generic-function method)))
 
+
+#|
+; OMMethod defined in OM#
+(function-documentation 'om::om+)
+; Lisp fun defined in OM#
+(function-documentation 'first)
+; known special cases:
+(function-documentation 'if)
+(function-documentation 'om::repeat-n)
+|#
+
 (defun function-documentation (function)
-  (or (system::function-documentation function)
-      (documentation function 'function)))
+  (or (common-lisp::documentation function 'function)
+      (system::function-documentation function)))
 
 ;=================
 ; CLOS/MOP
