@@ -17,18 +17,28 @@
 ;;; REPEAT-N: A COMPACT LOOP UTILITY
 ;;; SIMULATES N EVALUATIONS OF ITS INPUT
 ;;;----------------------------------
-;;; NOTE: REINITIALIZES THE "EVAL-ONCE" BETWEEN EACH EVALUATION
 
 (in-package :om)
 
-;;; THE EQUIVALENT FUNCTION IN TEXT CODE WOULD BE:
+;;; EQUIVALENT FUNCTION IN LISP CODE:
 (defmacro repeat-n (body count)
   `(loop for ,(gensym) from 1 to ,count
          collect ,body))
 
 (defclass Repeater (OMPatchComponent)
   ((n-iter :accessor n-iter :initform 0 :initarg :n-iter)
-   (scope :accessor scope :initform :local :initarg :scope)))
+   (scope :accessor scope :initform :local :initarg :scope))
+  (:documentation "Evaluate its main input <N> times. Retrun a list with all results.
+
+The <scope> input (optional) determines the behaviour of the 'EVAL-ONCE' mechanism during the iteration:
+- :local reset the eval-once context at each iteration (each iteration is considered as a separate 'eval')
+- :global set a single global context for the <N> iterations."))
+
+
+;;; since we defined the repeat-n the package browser will look for it
+;;; as reference for documentation.
+(setf (documentation 'repeat-n 'function) (class-documentation 'Repeater))
+
 
 (defclass OMRepeatNBoxCall (OMPatchComponentBox) ())
 
@@ -95,8 +105,6 @@
 
 (defmethod get-ev-once-flag ((self OMRepeatNBoxCall)) (list self (n-iter (reference self))))
 
-;;; issue : should we set the ev-once context of a REPEAT-N or not ?
-;;; there's two possibilities
 
 (defmethod boxcall-value ((self OMRepeatNBoxCall))
   (let ((n (omNG-box-value (cadr (inputs self))))
