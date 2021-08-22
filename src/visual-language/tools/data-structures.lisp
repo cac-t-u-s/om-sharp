@@ -49,6 +49,7 @@ It can be accessed (get/set) using the methods get-slot / set-slot or using the 
 (defmethod* clone ((self t))
   :indoc '("object")
   :outdoc '("copy")
+  :icon :clone
   :doc "Makes and returns a copy of an object."
   (om-copy self))
 
