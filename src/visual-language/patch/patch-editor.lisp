@@ -1677,7 +1677,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (setf (object self) object)
     (om-remove-all-subviews self)
 
-    (let* ((def-w 200)
+    (let* ((def-w 260)
            (text-font (om-def-font :font1))
            (title-font (om-def-font :font2b))
            (inspector-layout
@@ -1689,7 +1689,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                  :subviews
                  (append
                   (cons
-                   (om-make-di 'om-simple-text :size (om-make-point nil 20)
+                   (om-make-di 'om-simple-text :size (om-make-point def-w 20)
                                :fg-color (om-def-color :dark-gray)
                                :text (object-name-in-inspector object)
                                :focus t  ;; prevents focus on other items :)
@@ -1737,10 +1737,17 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                   (when (get-documentation object)
                     (list
                      :separator
-                     (let* ((doc (get-documentation object)))
+                     (let* ((doc (get-documentation object))
+                            (line-h (cadr (multiple-value-list (om-string-size "ABC" text-font))))
+                            (wrap-text (om-string-wrap doc (- def-w 10) text-font))
+                            (cut-text (if (> (length wrap-text) 10)
+                                          (append (first-n wrap-text 9) '("..."))
+                                        wrap-text))
+                            (n-lines (length cut-text)))
                        (om-make-di 'om-multi-text
-                                   :size (om-make-point nil nil)
-                                   :text (format nil "~%~A~%~%" doc)
+                                   :size #+windows (omp nil (* line-h (1+ n-lines))) #-windows (omp nil nil)
+                                   :text #+windows cut-text #-windows (format nil "~%~A~%~%" doc)
+                                   ;:text (format nil "~%~A~%~%" doc)
                                    :fg-color (om-def-color :dark-gray)
                                    :font text-font)
                        )))
@@ -1752,7 +1759,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                :subviews
                (list
                 (let* ((doc (default-editor-help-text (editor self)))
-                       (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
+                       (line-h (cadr (multiple-value-list (om-string-size "ABC" text-font))))
                        (n-lines (length (om-string-wrap doc def-w text-font))))
                   (om-make-di 'om-multi-text
                               :size (om-make-point def-w (* line-h (+ 2 n-lines)))
