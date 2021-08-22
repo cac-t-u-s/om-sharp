@@ -73,9 +73,7 @@
   (unwind-protect
       (gen-iteration-code (reference self) (loop for inp in (inputs self) collect (gen-code inp)))
       ;(push-let-context curr-loop-context)
-    )
-  ; )
-  )
+    ))
 
 
 (defmethod gen-loop-iterator-update-code ((self OMPatchLoop))
@@ -102,13 +100,15 @@
 ;;;------------------------------------
 
 (defclass OMLoopFor (OMPatchLoop) ()
-  (:documentation "FOR ITERATOR FOR LOOPS.
+  (:documentation "Loop iterator: 'LIST'
 
-Can be connected to an ITERATE box to control the steps of the iteration (FOR I FROM <a> TO <b> BY <step>).")
-  )
+Can be connected to an ITERATE box to control the steps of the iteration (FOR I FROM <a> TO <b> BY <step>)."))
+
 
 (defmethod special-box-p ((name (eql 'loop-for))) t)
 (defmethod box-symbol ((self OMLoopFor)) 'loop-for)
+(defmethod special-item-reference-class ((item (eql 'loop-for))) 'OMLoopFor)
+
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-for)) pos &optional init-args)
   (omNG-make-new-boxcall
@@ -140,12 +140,16 @@ Can be connected to an ITERATE box to control the steps of the iteration (FOR I 
 
 (defclass OMLoopList (OMPatchLoop)
   ((looped-list :initform nil :accessor looped-list :initarg :looped-list))
-  (:documentation "LIST ITERATOR FOR LOOPS.
+  (:documentation "Loop iterator: 'LIST'
 
-Can be connected to an ITERATE box to control the iteration (FOR ITEM IN <list> ...)."))
+Can be connected to an ITERATE box to control the iteration via successive elements of a list (FOR ITEM IN <list> ...).
+
+The sound (optional) input is a function determining how to jump from one state to the next iteration (default = 'CDR)."))
 
 (defmethod special-box-p ((name (eql 'loop-list))) t)
 (defmethod box-symbol ((self OMLoopList)) 'loop-list)
+(defmethod special-item-reference-class ((item (eql 'loop-list))) 'OMLoopList)
+
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-list)) pos &optional init-args)
   (omNG-make-new-boxcall
@@ -173,12 +177,16 @@ Can be connected to an ITERATE box to control the iteration (FOR ITEM IN <list> 
 
 (defclass OMLoopTail (OMPatchLoop)
   ((looped-list :initform nil :accessor looped-list :initarg :looped-list))
-  (:documentation "LIST TAIL ITERATOR FOR LOOPS.
+  (:documentation "Loop iterator: 'LIST TAIL'
 
-Can be connected to an ITERATE box to control the iteration (FOR ITEM ON <list> ...)."))
+Can be connected to an ITERATE box to control the iteration via successive tails/CDR of a list (FOR ITEM ON <list> ...).
+
+The sound (optional) input is a function determining how to jump from one state to the next iteration (default = 'CDR)."))
 
 (defmethod special-box-p ((name (eql 'loop-tail))) t)
 (defmethod box-symbol ((self OMLoopTail)) 'loop-tail)
+(defmethod special-item-reference-class ((item (eql 'loop-tail))) 'OMLoopTail)
+
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-tail)) pos &optional init-args)
   (omNG-make-new-boxcall
@@ -208,12 +216,14 @@ Can be connected to an ITERATE box to control the iteration (FOR ITEM ON <list> 
 
 (defclass OMLoopWhile (OMPatchLoop)
   ((loop-cond :initform nil :accessor loop-cond :initarg :loop-cond))
-  (:documentation "WHILE ITERATOR FOR LOOPS.
+  (:documentation "Loop iterator: 'WHILE'
 
 Can be connected to an ITERATE box to control when the iteration should stop (WHILE <condition> DO ...)."))
 
 (defmethod special-box-p ((name (eql 'loop-while))) t)
 (defmethod box-symbol ((self OMLoopWhile)) 'loop-while)
+(defmethod special-item-reference-class ((item (eql 'loop-while))) 'OMLoopWhile)
+
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-while)) pos &optional init-args)
   (omNG-make-new-boxcall
@@ -248,15 +258,16 @@ Can be connected to an ITERATE box to control when the iteration should stop (WH
 
 (defclass OMPatchIterator (OMPatchComponent)
   ((n-iter :accessor n-iter :initform 0 :initarg :n-iter))
-  (:documentation "ITERATOR FOR LOOPS.
+  (:documentation "Evaluation sink for Loops, used to program an iterative process.
 
-Can be connected to other boxes (including iterator boxes: LOOP-LIST, LOOP-FOR, LOOP-WHILE...) to program an iterative process."))
+Add as many optional inputs as needed, and connect (directly or indirectly) to one or more including 'iterator' boxes: LOOP-LIST, LOOP-FOR, LOOP-WHILE...) Will be evaluate input(s) as many times as defined by the iterators."))
 
 (defclass OMPatchIteratorBox (OMPatchComponentBox) ())
 
 (defmethod special-box-p ((name (eql 'iterate))) t)
 (defmethod get-box-class ((self OMPatchIterator)) 'OMPatchIteratorBox)
 (defmethod box-symbol ((self OMPatchIterator)) 'iterate)
+(defmethod special-item-reference-class ((item (eql 'iterate))) 'OMPatchIterator)
 
 
 (defmethod get-ev-once-flag ((self OMPatchIteratorBox)) (list self (n-iter (reference self))))

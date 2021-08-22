@@ -105,7 +105,7 @@
                                                         (om-make-graphic-object
                                                          'om-icon-button :size (omp 20 18)
                                                          :position (omp 0 0)
-                                                         :icon :folder :icon-pushed :folder-pushed
+                                                         :icon :folder-button :icon-pushed :folder-button-pushed
                                                          :action #'(lambda (button) (declare (ignore button))
                                                                      (let ((dir (om-choose-directory-dialog :directory *last-open-dir*)))
                                                                        (when dir
@@ -147,7 +147,7 @@
                                              :subviews (list
                                                         (om-make-graphic-object 'om-icon-button :size (omp 20 18)
                                                                                 :position (omp 0 0)
-                                                                                :icon :folder :icon-pushed :folder-pushed
+                                                                                :icon :folder-button :icon-pushed :folder-button-pushed
                                                                                 :action #'(lambda (button) (declare (ignore button))
                                                                                             (let ((file (om-choose-file-dialog
                                                                                                          :directory (om-make-pathname :directory (pref-item-value pref-item)))))

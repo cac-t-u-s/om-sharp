@@ -472,14 +472,15 @@
                            (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
 
-    (let ((font (om-def-font :font1 :style (and (get-property object prop-id)
-                                                (om-font-style (get-property object prop-id))))))
+    (let* ((button-font (om-def-font :font1 :style (and (get-property object prop-id)
+                                                        (om-font-style (get-property object prop-id)))))
+           (font-str (font-to-str button-font)))
       (om-make-di 'om-button
                   :resizable nil
                   :focus nil :default nil
-                  :text (font-to-str (get-property object prop-id))
-                  :size (om-make-point 80 26)
-                  :font font
+                  :text font-str
+                  :size (om-make-point (+ (om-string-size font-str button-font) 30) 26)
+                  :font button-font
                   :di-action #'(lambda (item)
                                  (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                                 (and update (om-get-font update))))))
@@ -583,7 +584,7 @@
                                  ))
 
          (button (om-make-graphic-object 'om-icon-button :size (omp 20 18)
-                                         :icon :folder :icon-pushed :folder-pushed
+                                         :icon :folder-button :icon-pushed :folder-button-pushed
                                          :action #'(lambda (button) (declare (ignore button))
                                                      (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
                                                                                         :types (doctype-info :om)

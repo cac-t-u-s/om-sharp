@@ -22,15 +22,20 @@
 ;;; A general box that evaluates prior to the execution of the patch
 ;;; Much of its behaviour is similar to the "OUT" boxes, except that
 ;;; it is not returning anything out
-;;; it is also useful to use along with iterator to do something fbefore to start a loop
+;;; it is also useful to use along with iterator to do something before to start a loop
 
-(defclass OMPatchInit (OMPatchComponent) ())
+(defclass OMPatchInit (OMPatchComponent) ()
+  (:documentation "A box that evaluates prior to the execution of the patch.
+Can be used along with iterators to do something before to start a loop."))
+
+
 (defclass OMPatchInitBox (OMPatchComponentBox) ())
 
 (defmethod special-box-p ((name (eql 'init-do))) t)
 (defmethod get-box-class ((self OMPatchInit)) 'OMPatchInitBox)
 (defmethod box-symbol ((self OMPatchInit)) 'init-do)
 
+(defmethod special-item-reference-class ((item (eql 'init-do))) 'OMPatchInit)
 
 (defmethod get-icon-id ((self OMPatchInitBox)) :s-play)
 

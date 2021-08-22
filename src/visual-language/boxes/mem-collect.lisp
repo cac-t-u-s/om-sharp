@@ -43,7 +43,8 @@
 (defclass OMMemory (OMPatchComponentWithMemory)
   ((size :initform 1 :accessor size)
    (timer-var :initform  nil :accessor timer-var)
-   (timetag :initform nil :accessor timetag)))
+   (timetag :initform nil :accessor timetag))
+  (:documentation "Memory: Return the input on first output, and the result of N previous evaluations on a second output."))
 
 (defclass OMMemoryBox (OMPatchComponentBox) ())
 
@@ -57,6 +58,7 @@
 
 (defmethod get-icon-id ((self OMMemoryBox)) :mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "MEMORY/DELAY box")
+(defmethod special-item-reference-class ((item (eql 'mem))) 'OMMemory)
 
 (defmethod box-draw ((self OMMemoryBox) frame)
   (when (integerp (size (reference self)))
@@ -230,11 +232,11 @@
 (defmethod special-item-reference-class ((item (eql 'collect))) 'OMCollect)
 
 (defclass OMCollect (OMPatchComponentWithMemory) ()
-  (:documentation "Collector box: collects data in an internal memory.
+  (:documentation "Collect data in an local memory.
 
 Inputs:
 - Collected value
-- When t: trigger reactive notification.
+- When t: trigger reactive notification through outputs.
 - Initial value.
 
 Outputs:
@@ -396,7 +398,7 @@ Outputs:
   ((timer-var :initform  nil :accessor timer-var)
    (last-tt :initform nil :accessor last-tt)
    (first-tt :initform nil :accessor first-tt))
-  (:documentation "Timed-collector: collects data like COLLECT, by grouping it into chuncks using an internal timer and the value determined in <delay>."))
+  (:documentation "Collect data like COLLECT, segmenting data it into chuncks using an internal timer (<delay>)."))
 
 
 (defclass OMTimedCollectBox (OMCollectBox) ())
@@ -579,19 +581,19 @@ Outputs:
 (defmethod special-item-reference-class ((item (eql 'accum))) 'OMAccum)
 
 (defclass OMAccum (OMCollect) ()
-  (:documentation "General accumulator: ACCUM is a collector allowing you to specify the collection strategy (= how to combine new collected values with current state of the memory).
+  (:documentation "A collector with free accumulation strategy (= how to combine new collected values with current state of the memory).
 
 Inputs:
 - Collected value
 - Accum function
-- Initial state
+- Initial state.
 
 Outputs:
 - Collect from input 1 and return this value
 - Return current state of memory
 - Initialize memory with input 3.
 
-The default value for the accumulation function simply substitutes the current memory with the incoming value."))
+The default value for the accumulation function substitutes the current memory with the incoming value."))
 
 (defclass OMAccumBox (OMCollectBox) ())
 

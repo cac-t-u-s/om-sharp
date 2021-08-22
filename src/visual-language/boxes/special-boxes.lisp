@@ -35,9 +35,9 @@
 
 Accepts many optional inputs as needed.
 
-The outputs correspond to each of the inputs. To get the result of the nth item connected to the sequence box after the sequential evaluation, evaluate or connect the nth output (all the inputs will be evaluated anyway).
+The outputs correspond to each successive inputs. To get the result of the nth item connected to the sequence box after the sequential evaluation, evaluate or connect the nth output (all the inputs will be evaluated anyway).
 
-Mind using this box in 'eval-once' mode when connected to several other boxes."
+!! Mind using this box in 'eval-once' mode when connected to several other boxes."
 
   (values-list (cons op op+)))
 
@@ -82,7 +82,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 Use > and < to add/remove outputs.
 
-It is advised to use this box in mode 'eval once' in order to avoid useless computations.
+!! It is advised to use this box in mode 'eval once' in order to avoid repeated computations of the connected input.
 "
   :icon 'list
   :numouts 1
@@ -153,10 +153,9 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
   :initvals '(nil)
   :indoc '("anthing")
   :doc
-  "The same value to all its outputs.
+  "A patching utility, returning the same value to all its outputs.
 
 Use > and < to add/remove outputs.
-
 "
   :icon 'hub
   :numouts 1

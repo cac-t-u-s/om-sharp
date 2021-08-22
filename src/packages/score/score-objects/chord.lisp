@@ -13,7 +13,6 @@
 ; File author: J. Bresson
 ;============================================================================
 
-
 (in-package :om)
 
 ;;;=============
@@ -38,15 +37,12 @@
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
    )
 
-  (:documentation "
-A simple NOTE defined with :
+  (:documentation "A simple NOTE defined with :
 
 - pitch (midicents: 100 = 1 half-tone - 6000 = C3)
 - velocity (MIDI velocity from 0 to 127)
 - duration in milliseconds
-- MIDI channel
-")
-  )
+- MIDI channel"))
 
 
 (defmethod initialize-instance ((self note) &rest args)
@@ -57,7 +53,6 @@ A simple NOTE defined with :
             (consp (getf args :port)))
     (error "NOTE attributes can not be lists!"))
   (call-next-method))
-
 
 
 ;;; allow as additional slot
@@ -90,8 +85,7 @@ A simple NOTE defined with :
    (Ldur :initform '(1000) :initarg :Ldur :type list :documentation "durations (list of values in ms)")
    )
 
-  (:documentation "
-A CHORD object (set of simultaneous notes) defined with
+  (:documentation "A CHORD object (set of simultaneous notes) defined with
 
 - <lmidic>: list of pitches (midicents: 100 = 1 half-tone - 6000 = C3)
 - <lvel>: velocities (MIDI velocity from 0 to 127)
@@ -99,8 +93,7 @@ A CHORD object (set of simultaneous notes) defined with
 - <ldur> durations in milliseconds
 - <lchan> MIDI channels for each note
 - <lport> (additional/optional) MIDI port for each note (defaults to the value defined in MIDI preferences)
-These slots are simpel accessor for initialization. In reality the CHORD contains a list of NOTE instance.
-"))
+These slots are simpel accessor for initialization. In reality the CHORD contains a list of NOTE instance."))
 
 ;;; allow as additional slots
 (defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport extras))
@@ -247,6 +240,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                                        )))
     self))
 
+
 (defmethod objfromobjs ((model note) (target Chord))
   (objfromobjs (list model) target))
 
@@ -254,7 +248,6 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 (defmethod objfromobjs ((model list) (target Chord))
 
   (cond
-
    ;;; a list of chords (=> merge)
    ((list-subtypep model 'chord)
     (let ((notes (flat (mapcar 'notes model))))
@@ -287,5 +280,3 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (if (notes self)
       (apply 'max (mapcar 'dur (notes self)))
     0))
-
-

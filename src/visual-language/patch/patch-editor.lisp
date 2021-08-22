@@ -1617,7 +1617,6 @@
   (om-lisp::om-select-all-command view))
 
 
-
 ;;;======================================
 ;;; INSPECTOR
 ;;;======================================
@@ -1663,8 +1662,7 @@
 
 
 (defmethod default-editor-help-text ((self patch-editor))
-  "
-This is a patch editor window.
+  "This is a patch editor window.
 
 Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
 
@@ -1697,67 +1695,56 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                :focus t  ;; prevents focus on other items :)
                                :font title-font)
 
-                   (when t ;object
-                     (list
-                      (om-make-layout
-                       'om-grid-layout
-                       :delta '(10 2) :align '(:left :center)
-                       :subviews
+                   (list
+                    (om-make-layout
+                     'om-grid-layout
+                     :delta '(10 2) :align '(:left :center)
+                     :subviews
 
-                       (if (get-properties-list object)
+                     (if (get-properties-list object)
 
-                           ;;; ok
-                           (loop for category in (get-properties-list object)
-                                 when (cdr category)
-                                 append
-                                 (append
-                                  (list
-                                   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                                   (om-make-di 'om-simple-text :text (car category) :font title-font
-                                               :fg-color (om-def-color :dark-gray)
-                                               :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
-                                               )
-                                   )
-                                  (loop for prop in (cdr category) append
-                                        (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (omp 80 16))
-                                              (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
-                                                              :update (get-update-frame object))
-                                              ))
+                         ;;; ok
+                         (loop for category in (get-properties-list object)
+                               when (cdr category)
+                               append
+                               (append
+                                (list
+                                 (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                                 (om-make-di 'om-simple-text :text (car category) :font title-font
+                                             :fg-color (om-def-color :dark-gray)
+                                             :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
+                                             ))
 
-                                  (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
-                                        (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                                  )
-                                 )
+                                (loop for prop in (cdr category) append
+                                      (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
+                                                        :size (omp 94 16))
+                                            (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
+                                                            :update (get-update-frame object))
+                                            ))
 
-                         ;;; object has no properties (unlikely)
-                         (list
-                          (om-make-di 'om-simple-text :size (om-make-point 100 20)
-                                      :text "[no properties]"
-                                      :font text-font)
-                          nil))
+                                (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
+                                      (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                                ))
 
-
-                       ))))
+                       ;;; object has no properties (unlikely)
+                       (list
+                        (om-make-di 'om-simple-text :size (om-make-point 100 20)
+                                    :text "[no properties]"
+                                    :font text-font)
+                        nil))
+                     )))
 
                   (when (get-documentation object)
                     (list
-
                      :separator
-
-                     (let* ((doc (get-documentation object))
-                            (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
-                            (n-lines (length (om-string-wrap doc def-w text-font))))
+                     (let* ((doc (get-documentation object)))
                        (om-make-di 'om-multi-text
-                                   :size (om-make-point nil (min 100 (* line-h (+ 2 n-lines))))
-                                   :text (format nil "~%~A" doc)
+                                   :size (om-make-point nil nil)
+                                   :text (format nil "~%~A~%~%" doc)
                                    :fg-color (om-def-color :dark-gray)
                                    :font text-font)
-                       )
-
-                     ))
-                  )
-                 )
+                       )))
+                  ))
 
               ;;; else: no object
               (om-make-layout
@@ -1773,8 +1760,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                               :fg-color (om-def-color :dark-gray)
                               :font text-font)
                   )))
-              )
-            ))
+              )))
 
       (om-add-subviews self inspector-layout))
 
@@ -1962,9 +1948,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
                                  (t nil))
                            ))
-
-
-
                ))
 
           (values
@@ -1976,8 +1959,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
              (otherwise (om-make-layout 'om-row-layout
                                         :delta 2 :ratios '(10 nil 1 nil)
-                                        :subviews (list patch-view :divider side-pane layout-items)))
-             )
+                                        :subviews (list patch-view :divider side-pane layout-items))))
 
            patch-view))
 
@@ -1988,7 +1970,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
               patch-view)
       )
     ))
-
 
 
 ;;;======================================
@@ -2028,7 +2009,3 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
       (when text-win
         (om-lisp::revert-text-file text-win))
       )))
-
-
-
-

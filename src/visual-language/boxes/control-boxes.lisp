@@ -52,14 +52,22 @@
        ,(gen-code (third (inputs self))))))
 
 
-;;; compatibility...
+(setf (documentation 'if 'function)
+      "Conditional statement:
+Syntax: (IF <predicate> <then> &optional <else>).
+
+- If <predicate> evaluates to non-null, eval <then> input and return the result.
+- If not, eval and return <else> input, or return NIL.
+")
+
+
+;;; compatibility
 (defmethod function-changed-name ((reference (eql 'omif))) 'if)
 
 
 ;;;------------------------
 ;;; LOGICAL CONTROLS (AND/OR)
 ;;;------------------------
-
 
 (defclass OMAndBoxCall (OMFunBoxcall) ())
 (defmethod get-box-class ((self (eql 'and))) 'OMAndBoxCall)
@@ -105,7 +113,20 @@
     `(or ,.arguments)))
 
 
-;;; compatibility...
+(setf (documentation 'and 'function)
+      "Evaluate inputs in order, left to right.
+
+- If any eval to NIL, quit and return NIL.
+- Else, return the value(s) of the last input.")
+
+(setf (documentation 'or 'function)
+      "Evaluate inputs in order, left to right.
+
+- If any eval to non-NIL, quit and return that (single) value.
+- If the last input is reached, return whatever value(s) it returns.")
+
+
+;;; compatibility
 (defmethod function-changed-name ((reference (eql 'omand))) 'and)
 (defmethod function-changed-name ((reference (eql 'omor))) 'or)
 (defmethod function-changed-name ((reference (eql 'conditional))) 'or)

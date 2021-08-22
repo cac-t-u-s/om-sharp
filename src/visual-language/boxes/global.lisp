@@ -20,13 +20,17 @@
 
 ;;; OMGlobalVar is actually not really used:
 ;;; the name of the OMGlobalBox refers to a Lisp global.
-(defclass OMGlobalVar (OMPatchComponent) ())
+(defclass OMGlobalVar (OMPatchComponent) ()
+  (:documentation "A box holding the value of a global variable.
+
+Use it at different places to set and share some value across the environment."))
+
 (defclass OMGlobalBox (OMPatchComponentBox) ())
 
 (defmethod special-box-p ((ref (eql 'global))) t)
 (defmethod get-box-class ((ref OMGlobalVar)) 'OMGlobalBox)
 (defmethod box-symbol ((self OMGlobalVar)) 'global)
-
+(defmethod special-item-reference-class ((item (eql 'global))) 'OMGlobalVar)
 
 (defmethod omNG-make-special-box ((reference (eql 'global)) pos &optional init-args)
   (let* ((name (car (list! init-args)))

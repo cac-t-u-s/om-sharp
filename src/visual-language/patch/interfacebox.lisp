@@ -127,7 +127,13 @@
 ;;;===============================================================
 ;;; CHECK-BOX
 ;;;===============================================================
-(defclass CheckBoxBox (OMInterfaceBox) ())
+(defclass CheckBoxBox (OMInterfaceBox) ()
+  (:documentation "An interface box to choose between T and NIL.
+
+Click with CMD or when the patch is locked to toggle the value.
+
+Returns T or NIL."))
+
 
 (defmethod special-item-reference-class ((item (eql 'check-box))) 'CheckBoxBox)
 (defmethod special-box-p ((self (eql 'check-box))) t)
@@ -182,7 +188,14 @@
    (increment :accessor increment :initarg :increment :initform 1)
    (decimals :accessor decimals :initarg :decimals :initform 0)
    (orientation :accessor orientation :initarg :orientation :initform :vertical)
-   (action :accessor action :initarg :action :initform nil)))
+   (action :accessor action :initarg :action :initform nil))
+  (:documentation "An interface box to select a value via an interactive slider.
+
+Use the optional inputs or box properties to set the orientation, range, and increment of the slider.
+
+Click+drag with CMD or when the patch is locked to change the selected value.
+
+Returns the current value."))
 
 (defmethod special-item-reference-class ((item (eql 'slider))) 'SliderBox)
 
@@ -306,7 +319,14 @@
 (defclass ButtonBox (OMInterfaceBox)
   ((send-value :accessor send-value :initarg :send-value :initform t)
    (text :accessor text :initarg :text :initform "")
-   (pushed :accessor pushed :initform nil)))
+   (pushed :accessor pushed :initform nil))
+  (:documentation "An interface box to trigger reactive updates.
+
+Use the optional inputs to set a value to send through, and/or text to display on the button.
+
+Click with CMD or when the patch is locked to trigger.
+
+Returns the trigger value while pushed down, and NIL the rest of the time."))
 
 (defmethod special-box-p ((self (eql 'button))) t)
 (defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
@@ -411,7 +431,16 @@
    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)
    (cell-height :accessor cell-height :initarg :cell-height :initform 12)
    (cell-font :accessor cell-font :initarg :cell-font :initform (om-def-font :font1))
-   (output-mode :accessor output-mode :initarg :output-mode :initform :value)))
+   (output-mode :accessor output-mode :initarg :output-mode :initform :value))
+  (:documentation "An interface box to graphically select among different items in a list.
+
+Use the optional inputs to set the list of items.
+
+Click with CMD or when the patch is locked to change the selected item.
+
+Returns the selected item, or the selected index depending on how this is set in the box properties.
+Can return a list of selected items if 'multiple selection' is enabled in the box properties."
+   ))
 
 
 (defmethod special-box-p ((self (eql 'list-selection))) t)
@@ -556,7 +585,15 @@
   ((items :accessor items :initarg :items :initform nil)
    (selection :accessor selection :initarg :selection :initform 0)
    (output-mode :accessor output-mode :initarg :output-mode :initform :value)
-   (font :accessor font :initarg :font :initform (om-def-font :font1b))))
+   (font :accessor font :initarg :font :initform (om-def-font :font1b)))
+  (:documentation "An interface box to graphically select among different items in a list, using a drop-down menu.
+
+Use the optional inputs to set the list of items.
+
+Click with CMD or when the patch is locked to change the selected item.
+
+Returns the selected item, or the selected index depending on how this is set in the box properties."
+   ))
 
 
 (defmethod special-box-p ((self (eql 'list-menu))) t)
@@ -666,10 +703,13 @@
 (defclass SwitchBox (OMInterfaceBox)
   ((selection :accessor selection :initarg :selection :initform nil)
    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil))
-  (:documentation "An interface utility to graphically select among different options to pass through.
+  (:documentation "An interface box to graphically select among different inputs.
 
-Click with CMD or when the patch is locked to change the selected input."
-   ))
+Use the optional inputs to add choices.
+
+Click with CMD or when the patch is locked to change the selected input.
+
+Can evaluate and return the ouputs of several selected options if 'multiple selection' is enabled in the box properties."))
 
 
 (defmethod special-item-reference-class ((item (eql 'switch))) 'SwitchBox)
