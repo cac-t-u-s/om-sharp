@@ -584,7 +584,7 @@
                                  ))
 
          (button (om-make-graphic-object 'om-icon-button :size (omp 20 18)
-                                         :icon :folder :icon-pushed :folder-pushed
+                                         :icon :folder-button :icon-pushed :folder-button-pushed
                                          :action #'(lambda (button) (declare (ignore button))
                                                      (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
                                                                                         :types (doctype-info :om)
