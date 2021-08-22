@@ -38,7 +38,7 @@
   (save-as-text self file))
 
 (defmethod* save-as-text ((self t) &optional (path "data") (type "txt"))
-  :icon 908
+  :icon :write
   :initvals '(nil "data")
   :indoc '("data (list, BPF, or TextBuffer)" "a file location")
   :doc "Saves the data from <self> as a text file in <path>."
