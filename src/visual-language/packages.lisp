@@ -48,7 +48,10 @@
        (omNG-make-package
         "Files"
         :doc "File I/O management and utilities"
-        :functions '(file-chooser infile outfile tmpfile open-file-stream close-file-stream
+        :functions '(file-chooser infile outfile tmpfile
+                                  home-directory folder-contents
+                                  create-pathname pathname-directory pathname-name pathname-type
+                                  open-file-stream close-file-stream
                                   file-write file-write-line file-read-line)
         )
        (omNG-make-package

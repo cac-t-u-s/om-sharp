@@ -263,11 +263,40 @@ Returns the selected pathname or NIL if cancelled."
     rep))
 
 
+;;;===================================
+;;; OTHER PATHNAME UTILITIES
+;;;===================================
 
 
+(defmethod* home-directory ()
+  :icon :folder
+  :doc "Path to the home user directory."
+  (om-user-home))
 
 
+(defmethod* create-pathname (directory &optional name type)
+  :icon :folder
+  :doc "Generates a pathname.
+
+<directory> can be a list of directory/folder names or another pathname.
+<name> can be a string or NIL (and the pathname is a directory)
+<type> is a file extension string (or NIL if no extension).
+"
+  (om-make-pathname :directory directory :name name :type type))
 
 
+(defmethod* folder-contents (path &key (type nil) (folders nil) (files t) (hidden-files nil) (recursive nil))
+  :icon :folder
+  :initvals '(nil nil nil t nil nil)
+  :indoc '("path to the folder" "file type(s)" "show sub-folders" "show files" "show hidden files" "recursive")
+  :doc "Lists the contents of <path>.
 
+<type> can be a string or list of strings. Fiters files of specific type(s).
+<folders> shows/hide sub-folders.
+<files> shows/hide files.
+<hidden-files> include hidden syste,m files (typically starting with '.'
+<recursive> search recursively in sub-folders."
 
+  (om-directory path
+                :type type :directories folders :files files
+                :hidden-files hidden-files :recursive recursive))
