@@ -805,7 +805,7 @@ Right outlet = list of N previous values")
    (:text-font nil)
    (:align nil)
    (:text
-    "See also: COLLECT/ACCUM -- some variants of MEM allowing to conrol the memory initialization and state.")
+    "See also: COLLECT/ACCUM -- some variants of MEM with conrol of memory initialization and state.")
    (:id 29))
   (:box
    (:type :function)

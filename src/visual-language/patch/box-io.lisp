@@ -189,7 +189,7 @@
 
 
 
-;;; :++ is a special keyword allowing to set a personalized keyword name
+;;; :++ is a special keyword to set a personalized keyword name
 ;;; used for instance in class-array
 (defmethod box-free-keyword-name ((self t)) :++)
 

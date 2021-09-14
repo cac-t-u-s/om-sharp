@@ -123,8 +123,7 @@ If this is done, this type is used to initialize or convert the input list of ob
         collect (list (format nil "[~D]" i) obj)))
 
 
-;;; CollectionBox has a little hack on cache-display,
-;;; allowing to store a different cache for each object
+;;; CollectionBox has a little hack on cache-display to store a different cache for each object
 ;;; The multi-cache display is a list of list (object cache)
 
 ;;; collection boxes create "multi-cache" by calling get-collection-cache-display on internbal objects
