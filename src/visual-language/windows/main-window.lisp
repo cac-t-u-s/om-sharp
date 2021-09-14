@@ -381,7 +381,7 @@ Double click on one of these items and add it by just clicking in an patch windo
     (when (or (equal view (libs-view window))
               (equal view (package-view window))))
     (let ((info-text (nth 2 (om-subviews view))))
-      (om-set-fg-color info-text (om-def-color :dark-gray))
+      (om-set-fg-color info-text (om-def-color :black))
       (om-set-dialog-item-text
        info-text
        (if doc-info
