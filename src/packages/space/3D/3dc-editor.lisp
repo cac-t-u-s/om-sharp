@@ -99,6 +99,7 @@
 (defmethod make-timeline-left-item ((self 3DC-editor) id)
   (om-make-view 'om-view :size (omp 0 15)))
 
+
 (defmethod make-editor-window-contents ((editor 3DC-editor))
   (let* ((object (or (object-value editor) (make-instance '3DC))) ;;; dummy-object just in case...
          (decimals (decimals object))
@@ -163,9 +164,8 @@
             front-panel nil
             (setf (x-ruler front-panel)
                   (om-make-view 'x-ruler-view :related-views (list front-panel)
-                                :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals)))))
+                                :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals))))))
 
-         )
 
     ;bottom area
     (setf bottom-area

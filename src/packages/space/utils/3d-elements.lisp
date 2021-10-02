@@ -91,3 +91,4 @@
    :center (list (om-point-x (center self)) (om-point-y (center self)) (om-point-z (center self)))
    :color (om-def-color :gray)
    :filled nil))
+
