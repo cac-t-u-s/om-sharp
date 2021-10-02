@@ -101,19 +101,21 @@
       (loop for elt in self do
             (multiple-value-bind (xmin xmax ymin ymax zmin zmax)
                 (get-extents elt)
-              (push xmin xmins)
-              (push xmax xmaxs)
-              (push ymin ymins)
-              (push ymax ymaxs)
-              (push zmin zmins)
-              (push zmax zmaxs)))
-      (values
-       (reduce 'min xmins)
-       (reduce 'max xmaxs)
-       (reduce 'min ymins)
-       (reduce 'max ymaxs)
-       (reduce 'min zmins)
-       (reduce 'max zmaxs)))))
+              (when xmin
+                (push xmin xmins)
+                (push xmax xmaxs)
+                (push ymin ymins)
+                (push ymax ymaxs)
+                (push zmin zmins)
+                (push zmax zmaxs))))
+      (when xmins
+        (values
+         (reduce 'min xmins)
+         (reduce 'max xmaxs)
+         (reduce 'min ymins)
+         (reduce 'max ymaxs)
+         (reduce 'min zmins)
+         (reduce 'max zmaxs))))))
 
 
 ;;;;;;;;;;;;;LIST OF 3D OBJ;;;;;;;;;;;;;
