@@ -169,176 +169,147 @@
 
     ;bottom area
     (setf bottom-area
-          (om-make-layout
-           'om-row-layout :size (omp nil 40)
-           :ratios '(1 1 1 10 1)
-           :subviews
-           (list (om-make-layout
-                  'om-column-layout
-                  :subviews
-                  (list
-                   (om-make-di 'om-simple-text :text "Options (general)"
-                               :size (omp 200 22)
-                               :font (om-def-font :font1b))
-                   (om-make-layout
-                    'om-row-layout
-                    :subviews
-                    (list
-                     (om-make-di 'om-simple-text :text "draw mode:"
-                                 :size (omp 80 22)
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items '(:default :points :lines)
-                                 :size (omp 80 24) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :draw-style)
-                                 :di-action #'(lambda (list)
-                                                (editor-set-edit-param editor :draw-style (om-get-selected-item list))
-                                                ))))
-                   (om-make-layout
-                    'om-row-layout
-                    :subviews
-                    (list
-                     (om-make-di 'om-simple-text :text "line size:"
-                                 :size (omp 80 20)
-                                 :font (om-def-font :font1))
-                     (om-make-graphic-object 'numbox
-                                             :value (editor-get-edit-param editor :line-width)
-                                             :bg-color (om-def-color :white)
-                                             :border t
-                                             :size (om-make-point 28 18)
-                                             :font (om-def-font :font1)
-                                             :min-val 1 :max-val 10
-                                             :after-fun #'(lambda (item)
-                                                            (editor-set-edit-param editor :line-width (value item))
-                                                            (set-3D-objects editor)))
-                     ))
-                   (when (color-options editor)
-                     (om-make-layout
-                      'om-row-layout
-                      :subviews
-                      (list
-                       (om-make-di 'om-simple-text :text "color mapping:" :size (omp 80 30)
-                                   :font (om-def-font :font1))
-                       (om-make-di 'om-popup-list
-                                   :items (color-options editor)
-                                   :size (omp 80 22) :font (om-def-font :font1)
-                                   :value (editor-get-edit-param editor :color-style)
-                                   :di-action #'(lambda (list)
-                                                  (editor-set-edit-param editor :color-style
-                                                                         (om-get-selected-item list))
-                                                  (update-3d-curve-vertices-colors editor)
-                                                  (update-3D-view editor))))
-                      ))
-                   ))
-                 (om-make-layout
-                  'om-column-layout
-                  :subviews
-                  (list
-                   (om-make-di 'om-simple-text :text "3D view"
-                               :size (omp 100 22)
-                               :font (om-def-font :font1b))
-                   (om-make-layout
-                    'om-row-layout
-                    :subviews
-                    (list (om-make-di 'om-check-box :text "axes" :size (omp 46 24) :font (om-def-font :font1)
-                                      :checked-p (editor-get-edit-param editor :show-axes)
-                                      :di-action #'(lambda (item)
-                                                     (editor-set-edit-param editor :show-axes (om-checked-p item))
-                                                     (update-3D-view editor)))
-                          (om-make-view '3D-axis-view :size (omp 30 24))
-                          )
-                    )
+          (let ((item-h 18))
 
-                   (om-make-layout
-                    'om-row-layout
-                    :subviews
-                    (list
-                     (om-make-di 'om-simple-text :text "background color"
-                                 :size (omp 100 20)
-                                 :font (om-def-font :font1))
-                     (om-make-view 'color-view
-                                   :size (om-make-point 35 16) :resizable nil
-                                   :color (editor-get-edit-param editor :3D-bg-color)
-                                   :after-fun #'(lambda (item)
-                                                  (editor-set-edit-param editor :3D-bg-color (color item))
-                                                  (om-set-bg-color (get-g-component editor :main-panel) (color item))
-                                                  (update-3D-view editor)
-                                                  ))
-                     ))
+            (om-make-layout
+             'om-row-layout
+             :ratios '(.01 1 1)
+             :subviews
+             (list
 
-                   (om-make-di 'om-check-box :text "background elements" :size (omp 160 24) :font (om-def-font :font1)
-                               :checked-p (editor-get-edit-param editor :show-background)
-                               :di-action #'(lambda (item)
-                                              (editor-set-edit-param editor :show-background (om-checked-p item))
-                                              (set-3D-objects editor)))
+              NIL ; small gap
 
-                   ; anaglyph works biut not really useful for the moment
-                   ;(om-make-di 'om-check-box :text "anaglyph" :size (omp 75 24) :font (om-def-font :font1)
-                   ;            :checked-p gl-user::*om-3d-anaglyph*
-                   ;            :di-action #'(lambda (item)
-                   ;                           (gl-user::opengl-enable-or-disable-anaglyph (om-checked-p item))
-                   ;                           (update-3D-view editor)))
+              (om-make-layout
+               'om-grid-layout
+               :dimensions '(2 3)
+               :align '(:left :center)
+               :subviews
+               (list
+                (om-make-layout
+                 'om-row-layout
+                 :align :center
+                 :subviews
+                 (list (om-make-di 'om-check-box :text "axes" :size (omp 46 item-h) :font (om-def-font :font1)
+                                   :checked-p (editor-get-edit-param editor :show-axes)
+                                   :di-action #'(lambda (item)
+                                                  (editor-set-edit-param editor :show-axes (om-checked-p item))
+                                                  (update-3D-view editor)))
+                       (om-make-view '3D-axis-view :size (omp 30 24))))
 
-                   nil))
 
-                 (om-make-layout
-                  'om-column-layout
-                  :subviews
-                  (list
-                   (om-make-di 'om-simple-text :text "2D views"
-                               :size (omp 100 22)
-                               :font (om-def-font :font1b))
-                   (om-make-di 'om-check-box :text "indices" :size (omp 60 24) :font (om-def-font :font1)
-                               :checked-p (editor-get-edit-param editor :show-indices)
-                               :di-action #'(lambda (item)
-                                              (editor-set-edit-param editor :show-indices (om-checked-p item))))
-                   (om-make-di 'om-check-box :text "times" :size (omp 60 24) :font (om-def-font :font1)
-                               :checked-p (editor-get-edit-param editor :show-times)
-                               :di-action #'(lambda (item)
-                                              (editor-set-edit-param editor :show-times (om-checked-p item))))
-                   ))
 
-                 nil ;; fill whitespace in the middle
+                (om-make-layout
+                 'om-row-layout
+                 :align :center
+                 :subviews
+                 (list
+                  (om-make-di 'om-simple-text :text "draw mode:"
+                              :size (omp 80 item-h)
+                              :font (om-def-font :font1))
+                  (om-make-di 'om-popup-list :items '(:default :points :lines)
+                              :size (omp 80 24) :font (om-def-font :font1)
+                              :value (editor-get-edit-param editor :draw-style)
+                              :di-action #'(lambda (list)
+                                             (editor-set-edit-param editor :draw-style (om-get-selected-item list))
+                                             ))))
 
-                 (om-make-layout
-                  'om-column-layout
-                  :subviews
-                  (list
-                   (when timeline-editor
-                     (om-make-di 'om-check-box
-                                 :text "show timeline" :size (omp 100 24)
-                                 :font (om-def-font :font1)
-                                 :checked-p (editor-get-edit-param editor :show-timeline)
-                                 :di-action #'(lambda (item)
-                                                (editor-set-edit-param editor :show-timeline (om-checked-p item))
-                                                (clear-timeline timeline-editor)
-                                                (om-invalidate-view (get-g-component timeline-editor :main-panel))
-                                                (when (om-checked-p item)
-                                                  (make-timeline-view timeline-editor))
-                                                (om-update-layout (main-view editor))))
-                     )
-                   #|
-                   (om-make-layout
-                    'om-row-layout
-                    :subviews
-                    (list
-                     (om-make-di 'om-simple-text :text "Gesture offset (ms):"
-                                 :font (om-def-font :font1)
-                                 :size (omp 120 30))
-                     (om-make-graphic-object 'numbox
-                                             :value (gesture-interval-time top-editor)
-                                             :min-val 0 :size (omp 40 18)
-                                             :font (om-def-font :font1)
-                                             :bg-color (om-def-color :white)
-                                             :after-fun #'(lambda (numbox)
-                                                            (setf (gesture-interval-time top-editor) (value numbox)
-                                                                  (gesture-interval-time front-editor) (value numbox)))))
-                    )
-|#
-                   ))
+                (om-make-di 'om-check-box :text "background elements" :size (omp 160 item-h) :font (om-def-font :font1)
+                            :checked-p (editor-get-edit-param editor :show-background)
+                            :di-action #'(lambda (item)
+                                           (editor-set-edit-param editor :show-background (om-checked-p item))
+                                           (set-3D-objects editor)))
 
-                 nil
-                 )))
+                (om-make-layout
+                 'om-row-layout
+                 :align :center
+                 :subviews
+                 (list
+                  (om-make-di 'om-simple-text :text "line size:"
+                              :size (omp 80 item-h)
+                              :font (om-def-font :font1))
+                  (om-make-view
+                   'om-view :size (om-make-point 28 18)
+                   :subviews
+                   (list (om-make-graphic-object 'numbox
+                                                 :value (editor-get-edit-param editor :line-width)
+                                                 :bg-color (om-def-color :white)
+                                                 :border t
+                                                 :size (om-make-point 28 18)
+                                                 :font (om-def-font :font1)
+                                                 :min-val 1 :max-val 10
+                                                 :after-fun #'(lambda (item)
+                                                                (editor-set-edit-param editor :line-width (value item))
+                                                                (set-3D-objects editor)))))))
 
+                (om-make-layout
+                 'om-row-layout
+                 :align :center
+                 :subviews
+                 (list
+                  (om-make-di 'om-simple-text :text "background"
+                              :size (omp 80 item-h)
+                              :font (om-def-font :font1))
+                  (om-make-view 'color-view
+                                :size (om-make-point 35 16) :resizable nil
+                                :color (editor-get-edit-param editor :3D-bg-color)
+                                :after-fun #'(lambda (item)
+                                               (editor-set-edit-param editor :3D-bg-color (color item))
+                                               (om-set-bg-color (get-g-component editor :main-panel) (color item))
+                                               (update-3D-view editor)
+                                               ))))
+
+                (when (color-options editor)
+                  (om-make-layout
+                   'om-row-layout
+                   :align :center
+                   :subviews
+                   (list
+                    (om-make-di 'om-simple-text :text "color mapping:" :size (omp 80 item-h)
+                                :font (om-def-font :font1))
+                    (om-make-di 'om-popup-list
+                                :items (color-options editor)
+                                :size (omp 80 24) :font (om-def-font :font1)
+                                :value (editor-get-edit-param editor :color-style)
+                                :di-action #'(lambda (list)
+                                               (editor-set-edit-param editor :color-style
+                                                                      (om-get-selected-item list))
+                                               (update-3d-curve-vertices-colors editor)
+                                               (update-3D-view editor))))))
+
+
+                ))
+
+              NIL ;; fill whitespace in the middle
+
+              (om-make-layout
+               'om-column-layout
+               :subviews
+               (list
+                (when timeline-editor
+                  (om-make-di 'om-check-box
+                              :text "show timeline" :size (omp 100 item-h)
+                              :font (om-def-font :font1)
+                              :checked-p (editor-get-edit-param editor :show-timeline)
+                              :di-action #'(lambda (item)
+                                             (editor-set-edit-param editor :show-timeline (om-checked-p item))
+                                             (clear-timeline timeline-editor)
+                                             (om-invalidate-view (get-g-component timeline-editor :main-panel))
+                                             (when (om-checked-p item)
+                                               (make-timeline-view timeline-editor))
+                                             (om-update-layout (main-view editor))))
+                  )
+
+                (om-make-di 'om-check-box :text "indices" :size (omp 60 item-h) :font (om-def-font :font1)
+                            :checked-p (editor-get-edit-param editor :show-indices)
+                            :di-action #'(lambda (item)
+                                           (editor-set-edit-param editor :show-indices (om-checked-p item))))
+
+                (om-make-di 'om-check-box :text "times" :size (omp 60 item-h) :font (om-def-font :font1)
+                            :checked-p (editor-get-edit-param editor :show-times)
+                            :di-action #'(lambda (item)
+                                           (editor-set-edit-param editor :show-times (om-checked-p item))))
+                ))
+              ))))
 
     (when (timeline-enabled editor)
       (setf transport-area (om-make-layout 'om-row-layout ;:align :center
