@@ -482,7 +482,7 @@
 
       (when (editor-get-edit-param self :show-background)
         (mapcar 'make-3D-background-element
-                (editor-get-edit-param self :background)))
+                (list! (editor-get-edit-param self :background))))
       ))
     ))
 
