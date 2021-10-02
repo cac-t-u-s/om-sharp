@@ -47,12 +47,22 @@
 (load (current-pathname "mac/application-bundle"))
 
 
+#|
+;;; not really working...
+#+mswindows
+(load (current-pathname "win/dde"))
+|#
+
+
 (defun init-omsharp-standalone ()
 
   (push :om-deliver *features*)
 
   #+cocoa
   (omsharp-interface)
+  
+  ;; #+mswindows(startup-omsharp-dde-server)
+  
   (om::init-root-folders)
 
   (setf dspec::*active-finders*
