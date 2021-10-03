@@ -139,6 +139,7 @@
   :icon 'sound-normalize
   :initvals '(nil 0 :peak)
   :menuins '((2 (("Peak" :peak)
+                 ("RMS" :rms)
                  ("Peak RMS / Hard limiting" :peak-rms))))
   :indoc '("a sound" "a normalization level" "a normalization method")
   :doc "Normalizes a sound <s>.
@@ -178,7 +179,25 @@
                           (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))
                 ))))
 
-         ((equal method :peak-rms)
+         ((equal method :rms)
+
+          (let* ((summed-square-signal
+                  (loop for i from 0 to (1- size) sum
+                        (loop for n from 0 to (1- nch)
+                              sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)
+                              into sample-sum
+                              finally return (let ((mean-value (/ sample-sum nch)))
+                                               (* mean-value mean-value)))))
+
+                 (gain (sqrt (/ (* size normalize-level normalize-level) summed-square-signal))))
+
+            (dotimes (i size)
+              (dotimes (n nch)
+                (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                      (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))
+            ))
+
+         ((equal method :peak-rms) ;; remove this one? (is this working?)
 
           (let ((peak-rms 0.0)
                 (tampon (list))
