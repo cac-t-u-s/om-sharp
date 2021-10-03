@@ -120,6 +120,11 @@
   (release-sound-buffer self))
 
 
+(defmethod check-valid-sound-buffer ((self om-internal-sound))
+  (or (and (buffer self) (oa::om-pointer-ptr (buffer self)))
+      (om-beep-msg "Error: Invalid/null sound buffer")))
+
+
 ;;; mostly for compatibility...
 (defmethod get-om-sound-data ((self om-internal-sound))
   (buffer self))
@@ -655,16 +660,17 @@ Press 'space' to play/stop the sound file.
   :indoc '("a sound object" "number of points" "channel number")
   :doc "Returns <num> sampled points from the audio waveform of channel <channel> in <self>."
   :icon 'sound
-  (with-audio-buffer (b self)
-    (let ((numdat (n-samples self))
-          (numchan (n-channels self))
-          (ch (or channel 1)))
-      (if (or (> ch numchan) (> num numdat))
-          (om-beep-msg "SOUND-POINTS: out-of-range input values !!")
-        (let ((channel-ptr (om-read-ptr (om-sound-buffer-ptr b) (1- ch) :pointer)))
-          (loop for i from 0 to numdat by (round numdat num) collect
-                (om-read-ptr channel-ptr i :float)))
-        ))))
+  (when (check-valid-sound-buffer self)
+    (with-audio-buffer (b self)
+      (let ((numdat (n-samples self))
+            (numchan (n-channels self))
+            (ch (or channel 1)))
+        (if (or (> ch numchan) (> num numdat))
+            (om-beep-msg "SOUND-POINTS: out-of-range input values !!")
+          (let ((channel-ptr (om-read-ptr (om-sound-buffer-ptr b) (1- ch) :pointer)))
+            (loop for i from 0 to numdat by (round numdat num) collect
+                  (om-read-ptr channel-ptr i :float)))
+          )))))
 
 
 (defmethod* sound-dur ((sound sound))
