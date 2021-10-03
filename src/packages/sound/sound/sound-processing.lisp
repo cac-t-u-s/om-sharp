@@ -143,8 +143,8 @@
   :indoc '("a sound" "a normalization level" "a normalization method")
   :doc "Normalizes a sound <s>.
 
-<level> is the max level of normalized samples. It is used only in the default 'peak' normalization method.
-<method> is a normalization method. Choose between Peak detection or Peak RMS detection."
+<level> is the targetted level of normalized samples. If negative, it is considered as a dB value. Not used with 'Peak RMS' method.
+<method> is the normalization method used."
 
   (with-audio-buffer (input-buffer s)
 
@@ -161,24 +161,25 @@
         (cond
 
          ((equal method :peak)
-          (let ((gain 0.0)
-                (peak 0.0)
+
+          (let ((peak 0.0)
                 (x 0.0))
 
-            ; get peak
             (dotimes (i size)
               (dotimes (n nch)
                 (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
                 (if (> x peak) (setf peak x))))
 
             (when (> peak 0)
-              (setq gain (/ normalize-level peak))
-              (dotimes (i size)
-                (dotimes (n nch)
-                  (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
-                        (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type))))))))
+              (let ((gain (/ normalize-level peak)))
+                (dotimes (i size)
+                  (dotimes (n nch)
+                    (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                          (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))
+                ))))
 
          ((equal method :peak-rms)
+
           (let ((peak-rms 0.0)
                 (tampon (list))
                 (indx 0)
@@ -186,11 +187,10 @@
                 (tampon-size 100)
                 (x 0.0))
 
-                 ; get peak-rms
             (loop while (< indx size) do
                   (dotimes (i tampon-size)
                     (dotimes (n nch)
-                      (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
+                      (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon))
                     (incf indx))
 
                   (when tampon
@@ -205,7 +205,8 @@
                 (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                       (cond ((< x -1) -1.0)
                             ((> x 1) 1.0)
-                            (t x))))))))
+                            (t x)))))
+            )))
 
         (make-instance 'sound
                        :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
