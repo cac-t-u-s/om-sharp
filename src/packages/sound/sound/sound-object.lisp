@@ -191,8 +191,7 @@ Press 'space' to play/stop the sound file.
                             (omng-save (relative-pathname
                                         (file-pathname self)
                                         *relative-path-reference*))))
-      ))
-    ))
+      ))))
 
 
 ;;;===========================
@@ -654,7 +653,7 @@ Press 'space' to play/stop the sound file.
 (defmethod* sound-points ((self sound) (num integer) &optional channel)
   :initvals '(nil 1000 1)
   :indoc '("a sound object" "number of points" "channel number")
-  :doc "Reurns <num> sampled points from the audio waveform of channel <channel> in <self>."
+  :doc "Returns <num> sampled points from the audio waveform of channel <channel> in <self>."
   :icon 'sound
   (with-audio-buffer (b self)
     (let ((numdat (n-samples self))

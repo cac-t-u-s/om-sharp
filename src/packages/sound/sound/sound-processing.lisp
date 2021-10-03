@@ -427,6 +427,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                      :sample-rate sr
                      :smpl-type type))))
 
+
 ; compatibility
 (defmethod sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
   (sound-gain s gain in out))
@@ -437,7 +438,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
   :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
   :indoc '("a sound" "a panoramic value between -100 and 100")
-  :doc "Stereo-ize a mono sound with possible panoramic <s>.
+  :doc "Convers a mono sound to stereo (with possible pan).
 
 <pan> is a panoramic value between -100 (Left channel) and 100 (Right channel)."
 
@@ -476,7 +477,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
   :icon 'sound-to-mono
   :initvals '(nil)
   :indoc '("a sound")
-  :doc "Mono-ize a sound."
+  :doc "Merges all channels of <s> into a single-channel (mono) a sound."
 
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
@@ -639,7 +640,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
   :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a list of sounds")
-  :doc "Merges several sounds into a single multi-channel sound."
+  :doc "Merges the sounds in <sound-list> into a single multi-channel sound."
 
   (let* ((sounds (mapcar 'get-sound sound-list))
          (type (smpl-type (car sounds)))
@@ -701,6 +702,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
   :initvals '(nil nil 0)
   :indoc '("a sound" "a sound" "cross-fading duration (ms)")
   :doc "Concatenates <s1> and <s2>.
+
 <crossfade> (duration in seconds/flots or milliseconds/int) determines a fade-in/fade out overlapping between the sounds."
 
   (cond ((or (null (oa::om-pointer-ptr (buffer s1))) (null (oa::om-pointer-ptr (buffer s2))))
@@ -749,9 +751,9 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
 
 (defmethod* sound-reverse ((s om-internal-sound))
   :icon 'sound-reverse
-  :initvals '(nil -100 100)
   :indoc '("a sound")
-  :doc "Reverse a sound."
+  :doc "Reverses the sound."
+
 
   (cond ((null (oa::om-pointer-ptr (buffer s)))
          (om-beep-msg "Error: null sound buffer"))
