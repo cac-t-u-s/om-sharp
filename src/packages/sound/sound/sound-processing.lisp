@@ -206,7 +206,9 @@
                       (cond ((< x -1) -1.0)
                             ((> x 1) 1.0)
                             (t x)))))
-            )))
+            ))
+
+         (t (om-beep-msg "Error unsupported normalization method: ~A" method)))
 
         (make-instance 'sound
                        :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
