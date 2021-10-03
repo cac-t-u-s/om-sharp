@@ -655,7 +655,7 @@ Press 'space' to play/stop the sound file.
 ;;; METHODS
 ;;;===========================
 
-(defmethod* sound-points ((self sound) (num integer) &optional channel)
+(defmethod* sound-samples ((self sound) (num integer) &optional channel)
   :initvals '(nil 1000 1)
   :indoc '("a sound object" "number of points" "channel number")
   :doc "Returns <num> sampled points from the audio waveform of channel <channel> in <self>."
@@ -671,6 +671,11 @@ Press 'space' to play/stop the sound file.
             (loop for i from 0 to numdat by (round numdat num) collect
                   (om-read-ptr channel-ptr i :float)))
           )))))
+
+
+; compatibility
+(defmethod* sound-points ((self sound) (num integer) &optional channel)
+  (sound-samples self num channel))
 
 
 (defmethod* sound-dur ((sound sound))
