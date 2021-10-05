@@ -25,16 +25,20 @@
  :container-pack *om-package-tree*
  :doc "Sound/DSP objects and support"
  :classes '(sound)
- :functions '(sound-dur sound-dur-ms sound-samples sound-rms sound-transients save-sound)
+ :functions '(sound-dur sound-dur-ms sound-samples save-sound)
  :subpackages (list (omNG-make-package
                      "Processing"
                      :functions '(sound-silence
-                                  sound-fade sound-loop sound-reverse sound-cut
+                                  sound-cut sound-fade
                                   sound-mix sound-seq
                                   sound-normalize sound-gain
                                   sound-mono-to-stereo sound-to-mono sound-stereo-pan
                                   sound-merge sound-split sound-resample
+                                  sound-loop sound-reverse
                                   ))
+                    (omNG-make-package
+                     "Analysis"
+                     :functions '(sound-rms sound-transients))
                     (omNG-make-package
                      "Conversions"
                      :functions '(lin->db db->lin samples->sec sec->samples ms->sec sec->ms))

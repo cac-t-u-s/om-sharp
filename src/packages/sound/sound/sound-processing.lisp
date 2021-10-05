@@ -23,40 +23,6 @@
 ;======================================================
 
 
-(defmethod* save-sound ((self om-internal-sound) filename &key format resolution)
-  :icon 'save-sound
-  :initvals '(nil nil :aiff)
-  :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
-  :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg)))
-             (3 ((16 16) (24 24) (32 32))))
-  :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
-
-  (when (check-valid-sound-buffer self)
-
-    (let* ((format (or format (get-pref-value :audio :format)))
-           (file (or filename (om-choose-new-file-dialog :directory (def-save-directory)
-                                                         :prompt (om-str "Save as...")
-                                                         :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
-                                                                      ((equal format :wav) (list (format nil (om-str :file-format) "WAV") "*.wav"))
-                                                                      ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
-                                                                      ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
-                                                                      (t nil)))))
-           )
-
-      (when file
-        (setf *last-saved-dir* (make-pathname :directory (pathname-directory file)))
-        (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer self))
-                                          (namestring file)
-                                          (n-samples self)
-                                          (n-channels self)
-                                          (sample-rate self)
-                                          (or resolution (get-pref-value :audio :resolution))
-                                          format))
-
-      (probe-file (namestring file)))))
-
-
-
 (defmethod* sound-resample ((s om-internal-sound) sample-rate &optional (resample-method 0))
   :icon 'sound-resample
   :initvals '(nil 44100 0)
@@ -111,32 +77,6 @@
       (progn
         (om-beep-msg "The sample-rate supplied is invalid. It must be an integer, and the output-sr/input-sr ratio must be inside [1/256, 256] range. Output is the original input.")
         s))))
-
-
-
-(defmethod* sound-rms ((s om-internal-sound))
-  :icon 'sound-normalize
-  :indoc '("a sound")
-  :doc "Returns the linear Root-Mean-Square (RMS) value of <s>."
-
-  (when (check-valid-sound-buffer s)
-
-    (with-audio-buffer (input-buffer s)
-      (let* ((ptr (oa::om-pointer-ptr input-buffer))
-             (type (smpl-type s))
-             (nch (n-channels s))
-             (size (n-samples s)))
-
-        (let ((summed-square-signal
-               (loop for i from 0 to (1- size) sum
-                     (loop for n from 0 to (1- nch)
-                           sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)
-                           into sample-sum
-                           finally return (let ((mean-value (/ sample-sum nch)))
-                                            (* mean-value mean-value))))))
-
-          (sqrt (/ summed-square-signal size)))
-        ))))
 
 
 (defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
@@ -240,7 +180,6 @@
         ))))
 
 
-
 (defmethod* sound-silence ((dur float) &optional (channels 1) sample-rate)
   :icon 'sound-silence
   :initvals (list 1.0 1 nil)
@@ -273,7 +212,6 @@
                    :n-channels ch
                    :sample-rate sr
                    :smpl-type :float)))
-
 
 
 (defmethod* sound-fade ((s om-internal-sound) (in float) (out float))
@@ -323,7 +261,6 @@
   (sound-fade s (ms->sec in) (ms->sec out)))
 
 
-
 (defmethod* sound-loop ((s om-internal-sound) n)
   :icon 'sound-loop
   :initvals '(nil 3)
@@ -347,7 +284,6 @@
                      :n-channels nch
                      :sample-rate (sample-rate s)
                      :smpl-type (smpl-type s)))))
-
 
 
 (defmethod* sound-cut ((s om-internal-sound) (beg float) (end float))
@@ -383,7 +319,6 @@
 
 (defmethod* sound-cut ((s om-internal-sound) (beg integer) (end integer))
   (sound-cut s (ms->sec beg) (ms->sec end)))
-
 
 
 (defmethod* sound-gain ((s om-internal-sound) gain &optional (in 1) (out 1))
@@ -433,7 +368,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
   (sound-gain s gain in out))
 
 
-
 (defmethod* sound-mono-to-stereo ((s om-internal-sound) &optional (pan 0))
   :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
@@ -475,7 +409,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
     ))
 
 
-
 (defmethod* sound-to-mono ((s om-internal-sound))
   :icon 'sound-to-mono
   :initvals '(nil)
@@ -505,7 +438,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                      :sample-rate (sample-rate s)
                      :smpl-type type))
     ))
-
 
 
 (defmethod* sound-stereo-pan ((s om-internal-sound) left right)
@@ -550,7 +482,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
         (om-beep-msg "Error: Trying to pan a sound with ~A channels. Needs 2. Output is the original input." (n-channels s))
         s))
     ))
-
 
 
 (defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &key (s1-offset 0) (s2-offset 0) (method 0))
@@ -641,7 +572,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
         s1))))
 
 
-
 (defmethod* sound-merge ((sound-list list))
   :icon 'sound-mix
   :initvals '(nil)
@@ -679,7 +609,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
       )))
 
 
-
 (defmethod* sound-split ((s om-internal-sound))
   :icon 'sound-mix
   :initvals '(nil)
@@ -704,7 +633,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                                  :smpl-type type)
                   )))
         ))))
-
 
 
 (defmethod* sound-seq ((s1 om-internal-sound) (s2 om-internal-sound) &optional (crossfade 0))
@@ -761,7 +689,6 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
       s1)))
 
 
-
 (defmethod* sound-reverse ((s om-internal-sound))
   :icon 'sound-reverse
   :indoc '("a sound")
@@ -786,4 +713,3 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                      :sample-rate (sample-rate s)
                      :smpl-type type))
     ))
-

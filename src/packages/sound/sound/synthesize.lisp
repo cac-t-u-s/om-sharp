@@ -54,7 +54,6 @@
 ;;; (calls appropriate specific method for the type of input)
 ;;;==============================================
 
-
 (defmethod* synthesize ((obj synthesisevt)
                         &key (name "my-synth") (run t)
                         format resolution
@@ -79,6 +78,7 @@
                  :sr sr :kr kr)
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
+
 
 (defmethod* synthesize ((obj list)
                         &key (name "my-synth") (run t)
@@ -123,5 +123,3 @@
               rep-list)))
        )
       )))
-
-
