@@ -304,7 +304,7 @@ Press 'space' to play/stop the sound file.
   ((label :accessor label :initarg :label :initform nil)))
 
 (defmethod print-object ((self marker-frame) out)
-  (format out "#<marker-at ~D: ~A>" (date self) (label self)))
+  (format out "[marker ~D: ~A]" (date self) (label self)))
 
 (defmethod data-frame-text-description ((self marker-frame))
   (list (format nil "t=~A" (date self))
