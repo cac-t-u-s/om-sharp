@@ -29,9 +29,6 @@
   (state :stop)
   (:documentation ""))
 
-(defun get-bp-buffer (bp) (bp-buffer bp))
-(defun get-bp-pointer (bp) (bp-pointer bp))
-
 (defun make-player-from-buffer (buffer size channels sample-rate)
   (let ((bp (make-buffer-player :buffer buffer
                                 :size size
