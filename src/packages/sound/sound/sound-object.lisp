@@ -920,6 +920,15 @@ Press 'space' to play/stop the sound file.
 ;;; BOX
 ;;;===========================
 
+;;; Drop a sound file in patch
+(pushr '(:sound ("aif" "aiff" "wav" "wave") "Audio files") *doctypes*)
+
+(defmethod omNG-make-new-box-from-file ((type (eql :sound)) file pos)
+  (let* ((sound (objfromobjs file (make-instance 'sound)))
+         (box (make-new-box-with-instance (om-init-instance sound) pos)))
+    (set-lock-state box :locked)
+    box))
+
 
 (defmethod display-modes-for-object ((self sound))
   '(:mini-view :text :hidden))
