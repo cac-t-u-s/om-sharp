@@ -1149,16 +1149,22 @@
       (om-drag-receive patchview dragged-view position effect))))
 
 
+(defmethod omNG-make-new-box-from-file (type file pos) nil)
+
 ;;; drag&drop from the computer...
 (defmethod om-import-files-in-app ((self patch-editor-view) file-list position)
   (let* ((file (pathname (car file-list)))
          (objtype (extension-to-doctype (pathname-type file)))
          (newbox
-          (cond ((member objtype *om-doctypes*)
-                 ;;; TRY TO LOAD THE PATCH
-                 (let ((obj (load-doc-from-file file objtype)))
-                   (when obj (omNG-make-new-boxcall obj position))))
-                (t (om-beep)))))
+          (if (member objtype *om-doctypes*)
+              (let ((obj (load-doc-from-file file objtype)))
+                (when obj (omNG-make-new-boxcall obj position)))
+
+            (let ((other-supported-type (find objtype *doctypes* :key 'car)))
+              (if other-supported-type
+                (omNG-make-new-box-from-file (car other-supported-type) file position)
+              (om-beep))))))
+
     (when newbox
       (store-current-state-for-undo (editor self))
       (add-box-in-patch-editor newbox self)
