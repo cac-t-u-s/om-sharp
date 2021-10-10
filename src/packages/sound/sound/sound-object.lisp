@@ -748,9 +748,13 @@ Press 'space' to play/stop the sound file.
 
   (declare (ignore parent))
 
-  (unless (buffer-player object) (set-play-buffer object))
+  (unless (buffer-player object)
+    (set-play-buffer object))
 
   (when (buffer-player object)
+
+    (buffer-player-set-gain (buffer-player object) (gain object))
+
     (start-buffer-player (buffer-player object)
                          :start-frame (if (car interval)
                                           (round (* (car interval) (/ (sample-rate object) 1000.0)))
