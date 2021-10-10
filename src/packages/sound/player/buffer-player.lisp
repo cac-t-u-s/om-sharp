@@ -90,3 +90,6 @@
    (min
     (max 0 (round (* time (/ (bp-sample-rate self) 1000.0))))
     (bp-size self))))
+
+(defmethod buffer-player-set-gain ((self buffer-player) gain)
+  (juce::setAudioSourceGain (bp-pointer self) gain))
