@@ -143,7 +143,7 @@ A sound can be initialized/attached to a pathname (<file-pathname>) correspondin
 If it is unlocked and unconnected, evaluating the box will open a file chooser dialog and allow the selection of a sound file to load.
 
 The other inputs/outputs :
-- <gain> = a gain applied to the audio buffer for playback. If a list is supplied, it will be considered as a set of gains to apply to the different channels of the sound.
+- <gain> = a gain applied to the audio buffer for playback.
 - <markers> = a list of markers (time in milliseconds). The markers can also be added/moved/removed from the sound editor.
 - <access-from-file> = if this parameter is non-NIL, then this sound will work without an internal audio buffer, that is, referring to a file on disk.
 
