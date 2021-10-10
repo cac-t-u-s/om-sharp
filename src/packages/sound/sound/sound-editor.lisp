@@ -33,8 +33,36 @@
 
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
-(defmethod editor-view-after-init-space ((self sound)) 0)
+(defmethod make-editor-controls ((editor sound-editor))
+  (let ((sound (object-value editor)))
+    (om-make-layout
+     'om-row-layout
+     :align :center
+     :subviews
+     (list
+      (om-make-di 'om-simple-text :text "Gain"
+                  :size (omp 40 20)
+                  :font (om-def-font :font1))
+      (om-make-view
+       'om-view :size (om-make-point 28 20)
+       :subviews
+       (list (om-make-graphic-object 'numbox
+                                     :value (gain sound)
+                                     :bg-color (om-def-color :white)
+                                     :border t
+                                     :decimals 2
+                                     :size (om-make-point 36 18)
+                                     :font (om-def-font :font1)
+                                     :min-val 0.0 :max-val 10.0
+                                     :change-fun #'(lambda (item)
+                                                     (set-gain sound (get-value item)))
+                                     :after-fun #'(lambda (item)
+                                                    (declare (ignore item))
+                                                    (report-modifications editor)))
+             ))))))
 
+
+(defmethod editor-view-after-init-space ((self sound)) 0)
 
 (defmethod default-editor-min-x-range ((self sound-editor)) 0)
 

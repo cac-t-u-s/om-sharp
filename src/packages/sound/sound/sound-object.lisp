@@ -245,6 +245,12 @@ Press 'space' to play/stop the sound file.
 (defmethod om-sound-n-channels ((self sound)) (n-channels self))
 
 
+(defmethod set-gain ((self sound) (gain number))
+  (setf (gain self) (float gain))
+  (when (buffer-player self)
+    (buffer-player-set-gain (buffer-player self) (gain self))))
+
+
 ;;; UTILS FOR SYNTHESIS AND PROCESSING
 
 (defmacro with-sound-output ((snd &key (size 0) (nch 1) (sr 44100) (type :float)) &body body)
