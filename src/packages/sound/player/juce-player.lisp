@@ -32,8 +32,8 @@
 
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Devices")
-(add-preference :audio :output "Output device" nil nil nil 'setup-audio-device) ;; will be set at player startup
-(add-preference-section :audio "Configuration")
+(add-preference :audio :output "Output" nil nil nil 'setup-audio-device) ;; will be set at player startup
+(add-preference-section :audio "Settings")
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
 (add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)

@@ -20,6 +20,8 @@
 
 (in-package :om)
 
+(add-preference-section :audio "Files")
+
 (add-preference :audio :format "Default format" '(:aiff :wav) #+macosx :aiff #-macosx :wav
                 "Applies as default choice for audio synthesis functions")
 
