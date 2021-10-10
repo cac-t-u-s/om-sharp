@@ -95,7 +95,7 @@
 ;    rep))
 
 
-(defmethod additional-class-attributes ((sekf midievent)) '(ev-track))
+(defmethod additional-class-attributes ((self midievent)) '(ev-track))
 
 (defun make-midievent (&key ev-date ev-type ev-chan ev-port ev-values ev-track)
   (let ((evt (make-instance 'MIDIEvent
