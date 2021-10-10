@@ -230,6 +230,16 @@
   target)
 
 
+;;; Drop a MIDI file in patch
+(pushr '(:midi ("mid" "midi") "MIDI files") *doctypes*)
+
+(defmethod omNG-make-new-box-from-file ((type (eql :midi)) file pos)
+  (let* ((miditrack (objfromobjs file (make-instance 'midi-track)))
+         (box (make-new-box-with-instance (om-init-instance miditrack) pos)))
+    (set-lock-state box :locked)
+    box))
+
+
 ;;;===================================
 ;;; TO MIDIEVENT
 ;;;===================================
