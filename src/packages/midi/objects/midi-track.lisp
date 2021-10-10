@@ -557,7 +557,9 @@
 
 (defmethod send-current-midi-key-offs ((self midi-track))
   (close-open-midinotes-at-time
-   (data-stream-get-frames self)
+   (remove-if-not
+    #'(lambda (n) (typep n 'midi-note))
+    (data-stream-get-frames self))
    (get-obj-time self)))
 
 
