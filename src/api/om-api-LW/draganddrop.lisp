@@ -273,8 +273,7 @@
       (:drop
        #+mswindows (oa::end-windows-d&d self)
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
-         (let ((dropview (or (capi::pinboard-object-at-position self x y) self))
-               )
+         (let ((dropview (or (capi::pinboard-object-at-position self x y) self)))
            (setf *last-pinboard-under-mouse* nil)
            (if (or
                 (and (capi:drop-object-provides-format drop-object :filename-list)

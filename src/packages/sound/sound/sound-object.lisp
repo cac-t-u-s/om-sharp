@@ -420,7 +420,7 @@ Press 'space' to play/stop the sound file.
            (final-new-path (if (buffer self)
                                ;;; a buffer was already in: save the buffer in the new file
                                (save-sound-data self new-path)
-                             ;;; a path alreadt existed: copy in new
+                             ;;; a path already existed: copy in new
                              (if old-path (om-copy-file old-path new-path)))))
       (setf (slot-value self 'file-pathname) new-path)
       final-new-path)))
@@ -920,8 +920,6 @@ Press 'space' to play/stop the sound file.
 ;;; BOX
 ;;;===========================
 
-;(defclass OMBoxSound (omboxeditcall) ())
-;(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
 
 (defmethod display-modes-for-object ((self sound))
   '(:mini-view :text :hidden))
