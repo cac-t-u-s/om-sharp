@@ -147,6 +147,15 @@ Lock the box ('b') to keep the current file.
      )))
 
 
+;;; Drop an SDIF file in patch
+(pushr '(:sdif ("sdif") "SDIF files") *doctypes*)
+
+(defmethod omNG-make-new-box-from-file ((type (eql :sdif)) file pos)
+  (let* ((sdiffile (objfromobjs file (make-instance 'SDIFFile)))
+         (box (make-new-box-with-instance (om-init-instance sdiffile T) pos)))
+    (set-lock-state box :locked)
+    box))
+
 ;;;========================
 ;;; FILL FILE-MAP from file
 ;;;========================
