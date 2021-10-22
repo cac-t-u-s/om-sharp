@@ -91,6 +91,8 @@
                       :from-height (or src-h (gp:image-height pict-id))
                       ))))
 
+#|
+; On Windows, the resulting pict has height divided by 2 (?)
 (defmacro om-record-pict (w h &body body)
   (let ((portname (gensym))
         (imagename (gensym))
@@ -100,6 +102,13 @@
             (,imagename (capi::draw-metafile-to-image oa::*dummy-view* ,metafilename)))
        (capi::free-metafile ,metafilename)
        ,imagename)))
+|#
+
+; Alternative implementation, inspired by LW's "image-scaling" example
+(defmacro om-record-pict (w h &body body)
+  `(gp:with-pixmap-graphics-port (pixmap oa::*dummy-view* ,w ,h :clear nil)
+     (let ((*curstream* pixmap)) ,@body)
+     (gp:make-image-from-port pixmap)))
 
 (defun om-pict-width (image) (gp::image-width image))
 (defun om-pict-height (image) (gp::image-height image))
