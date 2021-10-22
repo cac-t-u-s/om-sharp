@@ -68,9 +68,12 @@
         (when image
           (unwind-protect
               (gp::draw-image port image x y
-                              :to-width (or w (gp:image-width image)) :to-height (or h (gp:image-height image))
-                              :from-x src-x :from-y src-y
-                              :from-width (or src-w (gp:image-width image)) :from-height (or src-h (gp:image-height image)))
+                              :from-x src-x
+                              :from-y src-y
+                              :to-width (or w (gp:image-width image))
+                              :to-height (or h (gp:image-height image))
+                              :from-width (or src-w (gp:image-width image))
+                              :from-height (or src-h (gp:image-height image)))
             (gp::free-image port image) ;;; will be freed when port is destroyed
             ))))))
 
@@ -80,9 +83,12 @@
                             (abort))))
     (let* ((port *curstream*))
       (gp::draw-image port pict-id x y
-                      :to-width (or w (gp:image-width pict-id)) :to-height (or h (gp:image-height pict-id))
-                      :from-width (or src-w (gp:image-width pict-id)) :from-height (or src-h (gp:image-height pict-id))
-                      :from-x src-x :from-y src-y
+                      :from-x src-x
+                      :from-y src-y
+                      :to-width (or w (gp:image-width pict-id))
+                      :to-height (or h (gp:image-height pict-id))
+                      :from-width (or src-w (gp:image-width pict-id))
+                      :from-height (or src-h (gp:image-height pict-id))
                       ))))
 
 (defmacro om-record-pict (w h &body body)
