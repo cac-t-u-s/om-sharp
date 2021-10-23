@@ -125,6 +125,11 @@
              (report-modifications editor)
              )
            )))
+      (#\L
+       (loop for pos in (selection editor) do
+             (setf (label (nth pos (frames stream))) nil))
+       (om-invalidate-view panel)
+       (report-modifications editor))
       (:om-key-esc NIL) ;;; we don't want to reinit-x-ranges as in the next-method
       (otherwise (call-next-method)))
     ))
