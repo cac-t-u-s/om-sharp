@@ -245,7 +245,8 @@
   (color::color-alpha (omcolor-c color)))
 
 (defun om-color-null-p (color)
-  (= (color::color-alpha (omcolor-c color)) 0))
+  (or (null color)
+      (= (color::color-alpha (omcolor-c color)) 0)))
 
 (defun om-color-equal (c1 c2)
   (and (= (om-color-r c1) (om-color-r c2))
