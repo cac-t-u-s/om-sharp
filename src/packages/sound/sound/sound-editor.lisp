@@ -68,6 +68,9 @@
 
 (defmethod om-draw-contents ((self sound-panel))
 
+  (when (get-pref-value :appearance :waveform-bg)
+    (om-draw-rect 0 0 (w self) (h self) :color (get-pref-value :appearance :waveform-bg) :fill t))
+
   (let* ((editor (editor self))
          (sound (if (multi-display-p editor)
                     (nth (stream-id self) (multi-obj-list editor))

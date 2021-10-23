@@ -799,6 +799,11 @@ Press 'space' to play/stop the sound file.
 ;;; DISPLAY ARRAY
 ;;;============================================
 
+(add-preference-section :appearance "Sound")
+(add-preference :appearance :waveform-color "Waveform color" :color (om-make-color 0.41 0.54 0.67))
+(add-preference :appearance :waveform-bg "Waveform background" :color-a nil)
+
+
 ;;;Fill a sound's display array (for waveform)
 ;;;Inspired from OM6's display-array (to do)
 (defun fill-sound-display-array (audio-ptr audio-ptr-size array-ptr array-size n-channels)
@@ -863,7 +868,12 @@ Press 'space' to play/stop the sound file.
                pixpoint pixpointprev)
 
           (om-record-pict array-size 1000
-          ;(om-draw-rect 0 0 array-size 1000 :fill t)
+
+            (when (get-pref-value :appearance :waveform-bg)
+              (om-draw-rect 0 0 array-size 1000
+                            :color (get-pref-value :appearance :waveform-bg)
+                            :fill t))
+
             (om-with-fg-color color
               (dotimes (c nch)
                 (let ((ch-y (+ (* c channels-h) offset-y)))
@@ -901,7 +911,7 @@ Press 'space' to play/stop the sound file.
                                           (n-samples self) ptr array-size (n-channels self)))
               (create-waveform-pict
                (resample-2D-array array 0 array-size (min array-size pictsize))
-               (om-make-color 0.41 0.54 0.67)))
+               (get-pref-value :appearance :waveform-color)))
           :error
           )))))
 
