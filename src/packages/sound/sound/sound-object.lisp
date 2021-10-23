@@ -957,18 +957,19 @@ Press 'space' to play/stop the sound file.
       (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b)))
      )
 
-    (when (markers self)
-      (let* ((dur (if (plusp (get-obj-dur self))
-                      (get-obj-dur self)
-                    (+ (last-elem (markers self))
-                       (- (last-elem (markers self))
-                          (or (last-elem (butlast (markers self))) 0)))))
-             (fact (/ w dur)))
+    (let ((marker-times (markers-time self)))
+      (when marker-times
+        (let* ((dur (if (plusp (get-obj-dur self))
+                        (get-obj-dur self)
+                      (+ (last-elem marker-times)
+                         (- (last-elem marker-times)
+                            (or (last-elem (butlast marker-times)) 0)))))
+               (fact (/ w dur)))
 
-        (loop for mrk in (markers-time self) do
-              (om-with-fg-color (om-def-color :gray)
-                (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
-                              :style '(2 2)
-                              ))
-              )))
+          (loop for mrk in marker-times do
+                (om-with-fg-color (om-def-color :gray)
+                  (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
+                                :style '(2 2)
+                                ))
+                ))))
     ))
