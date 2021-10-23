@@ -67,7 +67,7 @@
 (defmethod default-editor-min-x-range ((self sound-editor)) 0)
 
 (defmethod om-draw-contents ((self sound-panel))
-  (call-next-method)
+
   (let* ((editor (editor self))
          (sound (if (multi-display-p editor)
                     (nth (stream-id self) (multi-obj-list editor))
@@ -81,6 +81,9 @@
                       (om-draw-string 10 (+ (round (h self) 2) (round (h self) 8)) "No sound loaded..")
                       ))
       )
+
+    ; will draw the markers
+    (call-next-method)
     ))
 
 
