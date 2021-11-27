@@ -1162,8 +1162,8 @@
 
             (let ((other-supported-type (find objtype *doctypes* :key 'car)))
               (if other-supported-type
-                (omNG-make-new-box-from-file (car other-supported-type) file position)
-              (om-beep))))))
+                  (omNG-make-new-box-from-file (car other-supported-type) file position)
+                (om-beep))))))
 
     (when newbox
       (store-current-state-for-undo (editor self))

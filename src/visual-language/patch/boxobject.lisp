@@ -630,7 +630,8 @@
          (ensure-cache-display-draw box object)
          (draw-mini-view object box
                          *miniview-x-margin* *miniview-y-margin*
-                         (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*))
+                         (- (w frame) (* 2 *miniview-x-margin*))
+                         (- (h frame) (* 2 *miniview-y-margin*))
                          (box-play-time frame))
          ))
       (:hidden

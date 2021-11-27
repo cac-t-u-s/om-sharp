@@ -73,14 +73,12 @@
                     (nth (stream-id self) (multi-obj-list editor))
                   (object-value editor))))
     (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file-pathname sound))))
-        ;;; draw the sound..
         (draw-sound-waveform sound editor self (x1 self) (x2 self) (stream-id self))
       ;;; no sound
       (om-with-fg-color (om-def-color :light-gray)
         (om-with-font (om-make-font "Arial" (round (h self) 4) :style '(:bold))
                       (om-draw-string 10 (+ (round (h self) 2) (round (h self) 8)) "No sound loaded..")
-                      ))
-      )
+                      )))
 
     ; will draw the markers
     (call-next-method)

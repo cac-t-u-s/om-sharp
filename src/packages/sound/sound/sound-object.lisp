@@ -264,8 +264,7 @@ Press 'space' to play/stop the sound file.
   `(setf (fli:dereference
           (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer)
           :index ,pos :type (smpl-type ,snd))
-         ,value)
-  )
+         ,value))
 
 (defmacro read-in-sound (snd chan pos)
   `(fli:dereference
@@ -721,13 +720,14 @@ Press 'space' to play/stop the sound file.
   (when (check-valid-sound-buffer self)
 
     (let* ((format (or format (get-pref-value :audio :format)))
-           (file (or filename (om-choose-new-file-dialog :directory (def-save-directory)
-                                                         :prompt (om-str "Save as...")
-                                                         :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
-                                                                      ((equal format :wav) (list (format nil (om-str :file-format) "WAV") "*.wav"))
-                                                                      ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
-                                                                      ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
-                                                                      (t nil)))))
+           (file (or filename (om-choose-new-file-dialog
+                               :directory (def-save-directory)
+                               :prompt (om-str "Save as...")
+                               :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
+                                            ((equal format :wav) (list (format nil (om-str :file-format) "WAV") "*.wav"))
+                                            ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
+                                            ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
+                                            (t nil)))))
            )
 
       (when file
@@ -751,21 +751,17 @@ Press 'space' to play/stop the sound file.
   (external-player-actions self time-interval parent))
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
-
   (declare (ignore parent))
 
   (unless (buffer-player object)
     (set-play-buffer object))
 
   (when (buffer-player object)
-
     (buffer-player-set-gain (buffer-player object) (gain object))
-
     (start-buffer-player (buffer-player object)
                          :start-frame (if (car interval)
                                           (round (* (car interval) (/ (sample-rate object) 1000.0)))
                                         (or (car interval) 0))))
-
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
@@ -903,7 +899,6 @@ Press 'space' to play/stop the sound file.
                   (ptr array :type :float)
                 (fill-sound-display-array (om-sound-buffer-ptr b)
                                           (n-samples self) ptr array-size (n-channels self)))
-
               (create-waveform-pict
                (resample-2D-array array 0 array-size (min array-size pictsize))
                (om-make-color 0.41 0.54 0.67)))
@@ -922,6 +917,7 @@ Press 'space' to play/stop the sound file.
 
 ;;; Drop a sound file in patch
 (pushr '(:sound ("aif" "aiff" "wav" "wave") "Audio files") *doctypes*)
+
 
 (defmethod omNG-make-new-box-from-file ((type (eql :sound)) file pos)
   (let* ((sound (objfromobjs file (make-instance 'sound)))
@@ -954,8 +950,7 @@ Press 'space' to play/stop the sound file.
       (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
 
      (t
-      (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b)))
-     )
+      (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b))))
 
     (let ((marker-times (markers-time self)))
       (when marker-times
