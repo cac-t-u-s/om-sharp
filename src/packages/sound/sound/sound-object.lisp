@@ -41,9 +41,9 @@
 (defmethod om-pointer-release-function ((self om-sound-buffer)) 'om-cleanup)
 
 ;;; if the om-sound-buffer is created like this, it will be garbaged automatically
-(defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
+(defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1) (size nil))
   (om-print-dbg "Initializing audio buffer (~A channels)..." (list nch))
-  (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
+  (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch :size size)))
 
 ;;; this is the garbage action
 (defmethod om-cleanup ((self om-sound-buffer))
@@ -560,7 +560,7 @@ Press 'space' to play/stop the sound file.
                                          (probe-file (file-pathname snd))
                                          (n-channels snd) (n-samples snd))
                                 (make-om-sound-buffer-GC
-                                 :count 1 :nch (n-channels snd)
+                                 :count 1 :nch (n-channels snd) :size (n-samples self)
                                  :ptr (audio-io::om-get-audio-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
                 (,buffer-name (or tmp-buffer (buffer snd))))
            (unwind-protect
@@ -588,7 +588,7 @@ Press 'space' to play/stop the sound file.
           (when buffer
             (unwind-protect
                 (progn
-                  (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
+                  (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels :size size)
                         (smpl-type sound) *default-internal-sample-size*
                         (n-samples sound) size
                         (n-channels sound) channels
