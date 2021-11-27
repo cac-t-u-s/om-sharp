@@ -804,121 +804,164 @@ Press 'space' to play/stop the sound file.
 (add-preference :appearance :waveform-bg "Waveform background" :color-a nil)
 
 
-;;;Fill a sound's display array (for waveform)
-;;;Inspired from OM6's display-array (to do)
-(defun fill-sound-display-array (audio-ptr audio-ptr-size array-ptr array-size n-channels)
-  ;(print (list audio-ptr audio-ptr-size (* audio-ptr-size n-channels) array-ptr array-size (* array-size n-channels) n-channels))
-  (let* ((sample-ratio (/ audio-ptr-size array-size))
-         (window (floor sample-ratio))
-         (maxindx (1- (* n-channels audio-ptr-size)))
-         (maxi 0.0)
-         (pos-in-buffer 0))
-    (if (or (fli:null-pointer-p audio-ptr) (fli:null-pointer-p array-ptr))
-        (print "ERROR BUILDING DISPLAY ARRAY: NULL POINTER")
-        ;(print (list window maxindx))
-      (dotimes (array-frame array-size)
-          ;(print (list "::array-cell" array-frame))
-        (setq pos-in-buffer (floor (* sample-ratio array-frame)))
-        (dotimes (chan n-channels)
-            ;(print (list "::::ch" chan))
-          (dotimes (i window)
-              ;(print (list "POS IN SOUND" (+ (* pos-in-buffer n-channels) (+ chan (* n-channels i)))))
-            (setq maxi (max (abs
-                               ;(fli:dereference audio-ptr :type :float :index (min maxindx (+ (* pos-in-buffer n-channels) (+ chan (* n-channels i)))))
-                             (fli:dereference
-                              (fli:dereference audio-ptr :type :pointer :index chan)
-                              :type :float :index (min maxindx (+ pos-in-buffer i)))
-                             ) maxi)))
-          (setf (fli:dereference array-ptr :index (+ array-frame (* chan array-size))) maxi)
-            ;(print (list "POS IN ARRAY" (+ array-frame (* chan array-size)) maxi))
-          (setq maxi 0.0))))))
+(defmethod get-sample-array-from-sound ((self sound) window-size)
 
-(defun resample-2D-array (array start-pos end-pos nbpix)
-  (let* ((n-channels (car (array-dimensions array)))
-         (slice-size (- end-pos start-pos))
-         (maxi 0.0)
-         result)
-    (cond ((= nbpix slice-size)
-           (setq result (make-array (list n-channels slice-size) :element-type 'single-float))
-           (dotimes (i nbpix)
-             (dotimes (n n-channels)
-               (setf (aref result n i) (aref array n (+ start-pos i))))))
-          ((< nbpix slice-size)
-           (let ((step (/ slice-size nbpix 1.0)))
-             (setq result (make-array (list n-channels nbpix) :element-type 'single-float))
-             (dotimes (c n-channels)
-               (dotimes (i nbpix)
-                 (dotimes (j (floor step))
-                   (setq maxi (max maxi (aref array c (round (+ start-pos j (* i step)))))))
-                 (setf (aref result c i) maxi)
-                 (setq maxi 0.0)))))
-          (t (om-print "ERROR: ARRAY IS SMALLER THAN NBPIX") nil))
-    (values result (if result (< (cadr (array-dimensions result)) nbpix) t))))
+  (with-audio-buffer (b self)
+    (when b
+      (let* ((n-channels (n-channels self))
+             (n-samples (n-samples self))
+             (array-size (ceiling n-samples window-size)))
+
+        (let ((array (make-array (list n-channels array-size)
+                                 :element-type 'single-float :initial-element 0.0 :allocation :static)))
+
+          (fli:with-dynamic-lisp-array-pointer
+              (array-ptr array :type :float)
+
+            (let* ((maxindx (1- n-samples))
+                   (audio-ptr (om-sound-buffer-ptr b))
+                   (pos-in-buffer 0))
+
+              (if (or (fli:null-pointer-p audio-ptr) (fli:null-pointer-p array-ptr))
+                  (om-beep-msg "Error building SOUND display array: NULL POINTER")
+
+                (dotimes (array-frame array-size)
+                  (setq pos-in-buffer (* window-size array-frame))
+                  (dotimes (chan n-channels)
+                    (let ((max-value 0.0))
+                      (dotimes (i window-size)
+                        (let ((val (fli:dereference
+                                    (fli:dereference audio-ptr :type :pointer :index chan)
+                                    :type :float :index (min maxindx (+ pos-in-buffer i)))))
+                          (when (> (abs val) (abs max-value)) (setq max-value  val))))
+
+                      (setf (fli:dereference array-ptr :index (+ array-frame (* chan array-size))) max-value)))
+                  ))))
+          array)))))
 
 
-;;; CREATES An INTERNAL PICTURE FROM MAX DETECTION OVER DOWNSAMPLED BUFFER
-(defun create-waveform-pict (array &optional color)
-  (when array
-    (let ((pict-h 1000)
-          (nch (car (array-dimensions array)))
-          (array-size (cadr (array-dimensions array))))
-      (when (and (> nch 0) (> array-size 0))
-        (let* ((channels-h (round pict-h nch))
-               (offset-y (round channels-h 2))
-               pixpoint pixpointprev)
+(defun resample-sample-array (array nb-samples &key from-sample to-sample)
 
-          (om-record-pict array-size 1000
+  (let ((from (or from-sample 0))
+        (to (or to-sample (1- (array-dimension array 1)))))
 
-            (when (get-pref-value :appearance :waveform-bg)
-              (om-draw-rect 0 0 array-size 1000
-                            :color (get-pref-value :appearance :waveform-bg)
-                            :fill t))
+    (assert (> (array-dimension array 1) to))
+    (assert (> to from))
 
-            (om-with-fg-color color
-              (dotimes (c nch)
-                (let ((ch-y (+ (* c channels-h) offset-y)))
-                  (om-draw-line 0 ch-y array-size ch-y)
-                  (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
-                  (loop for i from 1 to (1- array-size) do
-                        (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
-                        (unless (= pixpointprev pixpoint 0)
-                          (om-draw-polygon `(,(om-make-point (1- i) (+ ch-y pixpointprev))
-                                             ,(om-make-point i (+ ch-y pixpoint))
-                                             ,(om-make-point i (+ ch-y (- pixpoint)))
-                                             ,(om-make-point (1- i) (+ ch-y (- pixpointprev))))
-                                           :fill t))
-                        (setq pixpointprev pixpoint))))
-              ))
-          )))
-    ))
+    (let* ((n-channels (array-dimension array 0))
+           (slice-size (1+ (- to from)))
+           (result (make-array (list n-channels nb-samples) :element-type 'single-float)))
+
+      (if (>= nb-samples slice-size)
+
+          (progn
+            (dotimes (n n-channels)
+              (dotimes (i slice-size)
+                (setf (aref result n i) (aref array n (+ from i))))
+              (loop for pad from slice-size to (1- nb-samples)
+                    do (setf (aref result n pad) 0.0))))
+
+        (let ((window-size (/ slice-size nb-samples)))
+          (dotimes (c n-channels)
+            (dotimes (i nb-samples)
+              (let ((window-start (+ from (floor (* i window-size))))
+                    (window-end (+ from (1- (floor (* (1+ i) window-size)))))
+                    (max-value 0.0))
+                (loop for j from window-start to window-end do
+                      (let ((val (aref array c j)))
+                        (when (> (abs val) (abs max-value)) (setq max-value val))))
+                (setf (aref result c i) max-value)))))
+        )
+      result)))
 
 
-(defun get-pict-from-sound (self)
-  (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
+(defun draw-waveform (array width height &optional from to (resolution 1))
+
+  (let* ((n-channels (array-dimension array 0))
+         (n-samples (array-dimension array 1))
+         (from-sample (or from 0))
+         (to-sample (or to (* resolution (1- n-samples))))
+         (n-samples-to-draw (1+ (- to-sample from-sample)))
+         (channel-h (round height n-channels))
+         (wave-h (* .49 channel-h))
+         (offset-y (round channel-h 2)))
+
+    (multiple-value-bind (first-index offset-samples)
+        (ceiling from-sample resolution)
+
+      (let* ((sample-x-factor (/ width n-samples-to-draw))
+             (offset-x (* (- offset-samples) sample-x-factor))
+             (array-x-factor (/ width (/ n-samples-to-draw resolution)))
+             (draw-mode (if (and from to (<= resolution 4)) :samples ; (<= nb-samples-in-array width)
+                          (if (< array-x-factor 2) :polygons
+                            :polygons))))
+
+        (om-with-fg-color (get-pref-value :appearance :waveform-color)
+
+          (dotimes (c n-channels)
+
+            (let ((ch-y (+ (* c channel-h) offset-y))
+                  (y 0))
+
+              (om-draw-line 0 ch-y width ch-y)
+
+              (when (< first-index n-samples)
+                (loop with previous-x = (- offset-x array-x-factor)
+                      with previous-y = (* wave-h (aref array c (max (1- first-index) 0)))
+                      for i = 0 then (+ i 1)
+                      for x = (+ offset-x (* i array-x-factor))
+                      for index = (+ first-index i)
+                      while (and (< (* index resolution) (+ to-sample resolution))
+                                 (< index n-samples))
+                      do
+
+                      (setq y (* wave-h (aref array c index)))
+
+                      (unless (= previous-y y 0)
+                        (case draw-mode
+                          (:samples
+                           (om-draw-line previous-x (+ ch-y previous-y) x (+ ch-y y) :line 1))
+                          (:lines
+                           (om-draw-line x (+ ch-y y) x (- ch-y y) :line 1))
+                          (:polygons
+                           (om-draw-polygon (list (om-make-point previous-x (+ ch-y previous-y))
+                                                  (om-make-point x (+ ch-y y))
+                                                  (om-make-point x (+ ch-y (- y)))
+                                                  (om-make-point previous-x (- ch-y previous-y)))
+                                            :fill t))
+                          )
+                        (setq previous-x x)
+                        (setq previous-y y)))
+                ))))
+        ))))
+
+
+(defun create-waveform-pict (array height)
+  (let ((width (array-dimension array 1)))
+    (om-record-pict width height
+      (when (get-pref-value :appearance :waveform-bg)
+        (om-draw-rect 0 0 width height
+                      :color (get-pref-value :appearance :waveform-bg)
+                      :fill t))
+      (draw-waveform array width height))))
+
+
+(defmethod get-pict-from-sound ((self sound) &key (width 512) (height 200))
+  (when (and (n-samples self) (> (n-samples self) 0)
+             (n-channels self)
              (or (buffer self) (file-pathname self)))
     (let* ((window 128)
-           (pictsize 512)
-           (array-size (floor (n-samples self) window))
-           (array (make-array (list (n-channels self) array-size)
-                              :element-type 'single-float :initial-element 0.0 :allocation :static))
-           )
-      (with-audio-buffer (b self)
-        (if b
-            (let ()
-              (fli:with-dynamic-lisp-array-pointer
-                  (ptr array :type :float)
-                (fill-sound-display-array (om-sound-buffer-ptr b)
-                                          (n-samples self) ptr array-size (n-channels self)))
-              (create-waveform-pict
-               (resample-2D-array array 0 array-size (min array-size pictsize))
-               (get-pref-value :appearance :waveform-color)))
-          :error
-          )))))
+           (array (get-sample-array-from-sound self window)))
+      (if array
+          (create-waveform-pict
+           (resample-sample-array array (min width (array-dimension array 1)))
+           height)
+        :error))))
 
 
 (defmethod get-cache-display-for-draw ((self sound) box)
   (declare (ignore box))
-  (get-pict-from-sound self))
+  (get-pict-from-sound self :width 512 :height 512))
 
 
 ;;;===========================
