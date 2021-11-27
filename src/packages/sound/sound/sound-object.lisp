@@ -888,14 +888,31 @@ Press 'space' to play/stop the sound file.
 
 (defun draw-waveform (array width height &optional from to (resolution 1))
 
-  (let* ((n-channels (array-dimension array 0))
-         (n-samples (array-dimension array 1))
+  (let* ((n-channels (cond ((arrayp array)
+                            (array-dimension array 0))
+                           ((om-sound-buffer-p array)
+                            (om-sound-buffer-nch array))
+                           (t 0)))
+         (n-samples (cond ((arrayp array)
+                           (array-dimension array 1))
+                          ((om-sound-buffer-p array)
+                           (om-sound-buffer-size array))
+                          (t 0)))
          (from-sample (or from 0))
          (to-sample (or to (* resolution (1- n-samples))))
          (n-samples-to-draw (1+ (- to-sample from-sample)))
          (channel-h (round height n-channels))
          (wave-h (* .49 channel-h))
-         (offset-y (round channel-h 2)))
+         (offset-y (round channel-h 2))
+         (access-fun (cond ((arrayp array)
+                            #'(lambda (array channel sample)
+                                (aref array channel sample)))
+                           ((om-sound-buffer-p array)
+                            #'(lambda (array channel sample)
+                                (fli:dereference
+                                 (fli:dereference (om-sound-buffer-ptr array) :index channel :type :pointer)
+                                 :index sample :type :float)))
+                           (t (error "wrong array for waveform")))))
 
     (multiple-value-bind (first-index offset-samples)
         (ceiling from-sample resolution)
@@ -918,7 +935,7 @@ Press 'space' to play/stop the sound file.
 
               (when (< first-index n-samples)
                 (loop with previous-x = (- offset-x array-x-factor)
-                      with previous-y = (* wave-h (aref array c (max (1- first-index) 0)))
+                      with previous-y = (* wave-h (funcall access-fun array c (max (1- first-index) 0)))
                       for i = 0 then (+ i 1)
                       for x = (+ offset-x (* i array-x-factor))
                       for index = (+ first-index i)
@@ -926,7 +943,7 @@ Press 'space' to play/stop the sound file.
                                  (< index n-samples))
                       do
 
-                      (setq y (* wave-h (aref array c index)))
+                      (setq y (* wave-h (funcall access-fun array c index)))
 
                       (unless (= previous-y y 0)
                         (case draw-mode
