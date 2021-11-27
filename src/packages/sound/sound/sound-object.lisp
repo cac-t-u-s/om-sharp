@@ -301,6 +301,17 @@ Press 'space' to play/stop the sound file.
       )))
 |#
 
+
+(defmethod get-buffer ((self sound))
+  (or (buffer self)
+      (when (and (valid-pathname-p (file-pathname self))
+                 (probe-file (file-pathname self))
+                 (n-channels self) (n-samples self))
+        (make-om-sound-buffer-GC
+         :count 1 :nch (n-channels self) :size (n-samples self)
+         :ptr (audio-io::om-get-audio-buffer (namestring (file-pathname self)) *default-internal-sample-size*)))))
+
+
 ;;;===========================
 ;;; TIME MARKERS
 ;;;===========================
