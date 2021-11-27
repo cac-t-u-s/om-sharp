@@ -987,8 +987,7 @@ Press 'space' to play/stop the sound file.
         :error))))
 
 
-(defmethod get-cache-display-for-draw ((self sound) box)
-  (declare (ignore box))
+(defmethod get-cache-display-for-draw ((self sound) (box ombox))
   (get-pict-from-sound self :width 512 :height 512))
 
 
