@@ -140,7 +140,7 @@
                            :icon :edit+ :icon-pushed :edit+-pushed
                            :action #'(lambda (item)
                                        (declare (ignore item))
-                                       (poly-editor-add-voice (editor self)))
+                                       (add-new-voice (editor self)))
                            )))
 
 
@@ -382,12 +382,21 @@
       )))
 
 
-;;; voice can also be a list
-(defmethod poly-editor-add-voice ((self poly-editor-mixin) &optional voice)
+(defmethod add-new-voice ((self poly-editor-mixin))
   (let* ((obj (object-value self))
-         (new-voice (or voice (make-instance (voice-type obj)))))
+         (new-voice (make-instance (voice-type obj))))
     (store-current-state-for-undo self)
-    (setf (obj-list obj) (append (obj-list obj) (list! new-voice))))
+    (setf (obj-list obj) (append (obj-list obj) (list new-voice))))
+  (update-edit-params self)
+  (editor-invalidate-views self)
+  (report-modifications self)
+  (set-interior-size-from-contents self))
+
+
+(defmethod add-voices ((self poly-editor-mixin) (voices list))
+  (let* ((obj (object-value self)))
+    (store-current-state-for-undo self)
+    (setf (obj-list obj) (append (obj-list obj) voices)))
   (update-edit-params self)
   (editor-invalidate-views self)
   (report-modifications self)
@@ -442,6 +451,6 @@
 
   (if (list-subtypep elements (voice-type (object-value self)))
       ;;; add voice(s)
-      (poly-editor-add-voice self (mapcar #'om-copy elements))
+      (add-voices self (mapcar #'om-copy elements))
     ;;; add chords
     (call-next-method)))
