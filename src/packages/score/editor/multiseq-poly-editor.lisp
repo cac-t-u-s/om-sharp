@@ -165,9 +165,6 @@
                                                (<= (om-point-y position) (cadr range))))
                                       staff-y-map)))
 
-    ;;; in calse the y-shift / staff list are not up-to-date with the list of voices
-    (update-edit-params editor)
-
     (if selected-staff
 
         (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
