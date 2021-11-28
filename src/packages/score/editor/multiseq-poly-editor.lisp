@@ -190,6 +190,7 @@
                                  (max (round *default-inter-staff* 2) (+ (nth selected-staff new-list) y-diff-in-units)))
 
                            (editor-set-edit-param editor :y-shift new-list)
+                           (set-interior-size-from-contents (editor self))
                            (om-invalidate-view self)
                            (om-invalidate-view (main-view editor)))
                          ))))
