@@ -391,6 +391,7 @@
          (new-voice (or voice (make-instance (voice-type obj)))))
     (store-current-state-for-undo self)
     (setf (obj-list obj) (append (obj-list obj) (list! new-voice))))
+  (update-edit-params self)
   (editor-invalidate-views self)
   (report-modifications self)
   (set-interior-size-from-contents self))
