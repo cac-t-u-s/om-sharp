@@ -48,15 +48,13 @@
 
 (defmethod update-edit-params ((editor poly-editor-mixin))
   (let* ((n-voices (length (obj-list (object-value editor))))
-         (new-list (make-list n-voices))
          (previous-y-list (list! (editor-get-edit-param editor :y-shift))))
 
-    (loop for i from 0 to (1- n-voices)
-          do (setf (nth i new-list) (or (nth i previous-y-list)
-                                        *default-inter-staff*)))
-
-    (editor-set-edit-param editor :y-shift new-list)
-    ))
+    (editor-set-edit-param editor :y-shift
+                           (loop for i from 0 to (1- n-voices)
+                                 collect (or
+                                          (nth i previous-y-list)
+                                          *default-inter-staff*)))))
 
 
 (defmethod accum-y-shift-list ((editor poly-editor-mixin))
