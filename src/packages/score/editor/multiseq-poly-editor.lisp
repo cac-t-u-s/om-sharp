@@ -49,7 +49,7 @@
 ;;;=========================
 
 (defvar *default-inter-staff* 8)
-
+(defvar *min-inter-staff* 2)
 
 
 (defmethod update-edit-params ((editor poly-editor-mixin))
@@ -188,7 +188,7 @@
                                (new-list (copy-list previous-y-list)))
 
                            (setf (nth selected-staff new-list)
-                                 (max (round *default-inter-staff* 2) (+ (nth selected-staff new-list) y-diff-in-units)))
+                                 (max *min-inter-staff* (+ (nth selected-staff new-list) y-diff-in-units)))
 
                            (editor-set-edit-param editor :y-shift new-list)
                            (set-interior-size-from-contents (editor self))
@@ -355,7 +355,7 @@
                   (editor-set-edit-param self :y-shift
                                          (subs-posn (editor-get-edit-param self :y-shift)
                                                     pos
-                                                    (max 2 (+ curr direction)))))
+                                                    (max *min-inter-staff* (+ curr direction)))))
                 ))))
     ))
 
