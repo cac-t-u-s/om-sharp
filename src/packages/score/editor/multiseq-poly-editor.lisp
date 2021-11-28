@@ -23,7 +23,7 @@
 
 (defclass poly-editor-mixin () ())
 
-;;; The editor will inherit from data-stream-editor, althouhg MULTI-SEQ in not a data-stream...
+;;; !! The editor will inherit from data-stream-editor, although MULTI-SEQ in not a data-stream...
 (defclass multi-seq-editor (poly-editor-mixin chord-seq-editor) ())
 (defmethod get-editor-class ((self multi-seq)) 'multi-seq-editor)
 
@@ -43,6 +43,7 @@
 ;;;=========================
 
 (defvar *default-inter-staff* 8)
+
 
 
 (defmethod update-edit-params ((editor poly-editor-mixin))
@@ -142,8 +143,8 @@
                            :action #'(lambda (item)
                                        (declare (ignore item))
                                        (poly-editor-add-voice (editor self)))
-                           ))
-  )
+                           )))
+
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
@@ -193,9 +194,9 @@
                            (editor-set-edit-param editor :y-shift new-list)
                            (om-invalidate-view self)
                            (om-invalidate-view (main-view editor)))
-                         )))
-          )
+                         ))))
 
+      ;; no selected staff
       (set-selection editor nil))
 
     (om-invalidate-view self)
@@ -294,8 +295,8 @@
                        (obj-list self)
                        )))
     (when cseq
-      (remove-from-obj cseq item))
-    ))
+      (remove-from-obj cseq item))))
+
 
 (defmethod remove-from-obj ((self multi-seq) (item note))
   (loop for cseq in (obj-list self)
@@ -307,8 +308,7 @@
 (defmethod remove-from-obj ((self poly) (item measure))
   (let ((voice (find-if #'(lambda (v) (find item (inside v))) (obj-list self))))
     (when voice
-      (remove-from-obj voice item))
-    ))
+      (remove-from-obj voice item))))
 
 
 (defmethod score-editor-handle-voice-selection ((self poly-editor-mixin) direction)
@@ -323,7 +323,6 @@
         (when selected-voices
 
           (let ((posi (position (car selected-voices) (obj-list obj))))
-
             (when posi
               ;;; the group of selected voices will move to posi+1 or posi-1
               (loop for voice in selected-voices do
@@ -343,7 +342,6 @@
                                                         (make-list (length selected-voices)
                                                                    :initial-element *default-inter-staff*)
                                                         newpos)))
-
                 )))))
 
     ;;; change shift for selected voices
@@ -364,10 +362,8 @@
   (let ((pos (position removed (obj-list (object-value self)))))
     (when pos
       (editor-set-edit-param self :y-shift
-                             (remove-nth pos (editor-get-edit-param self :y-shift)))
-      )
-    (set-interior-size-from-contents self)
-    ))
+                             (remove-nth pos (editor-get-edit-param self :y-shift))))
+    (set-interior-size-from-contents self)))
 
 
 ;;; add chord/notes
@@ -453,4 +449,3 @@
       (poly-editor-add-voice self (mapcar #'om-copy elements))
     ;;; add chords
     (call-next-method)))
-

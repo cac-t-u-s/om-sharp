@@ -147,9 +147,7 @@
 
     (om-with-fg-color (om-make-color 0.0 0.2 0.2)
       (score-object-mini-view self box x y y-u w h))
-
     ))
-
 
 
 ;;; draw on a collection box...
@@ -174,9 +172,9 @@
 (defmethod get-box-fontsize ((self OMBox)) (get-pref-value :appearance :score-font))
 (defmethod set-box-fontsize ((self OMBox) size) nil)
 
-
 ;;; what do we do with other objects ?
 (defmethod score-object-mini-view ((self t) box x-pix y-pix y-u w h) t)
+
 
 ;;;===========================
 ;;; NOTE
@@ -207,8 +205,7 @@
                 font-size
                 :scale scale :staff staff
                 :stem NIL
-                :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
-                )
+                :time-function #'(lambda (time) (declare (ignore time)) (/ w 2)))
     ))
 
 
@@ -257,7 +254,6 @@
 
           (self-notify box)
           (update-after-eval box)
-
           )))))
 
 
@@ -308,9 +304,7 @@
                       w h
                       font-size :scale scale :staff staff
                       :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box (frame box) time))
-                      :offsets offsets
-                      )
-          )
+                      :offsets offsets))
     ))
 
 
@@ -328,9 +322,7 @@
          (shift-x x-u) ; (+ (score-mini-view-left-shift-in-units box) x-u))
          (frame (frame box))
          (max-w (w frame))
-
-         (in-sequencer? (typep frame 'sequencer-track-view))
-         )
+         (in-sequencer? (typep frame 'sequencer-track-view)))
 
     (if (> h 5)
         (progn

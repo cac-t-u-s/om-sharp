@@ -655,13 +655,15 @@ Press 'space' to play/stop the sound file.
   (when (buffer sound)
     (let* ((nch (n-channels sound))
            (nsmp (n-samples sound)))
+
       (om-print-format "Writing file to disk: ~S" (list path))
+
       (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound))
                                         (namestring path)
                                         nsmp nch (sample-rate sound)
                                         (get-pref-value :audio :resolution)
-                                        (get-pref-value :audio :format)
-                                        )
+                                        (get-pref-value :audio :format))
+
       (or (probe-file path)
           (om-beep-msg "Error -- no file written")))
     ))

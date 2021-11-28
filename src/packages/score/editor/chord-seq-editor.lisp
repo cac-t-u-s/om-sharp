@@ -37,6 +37,7 @@
 ;;; this will just disable the display-mode menu
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-element)) '(:chords))
 
+;;; offset can be :shift, :grace-notes, or :hidden
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000)
@@ -49,7 +50,6 @@
             (:stems t)
             (:offsets :small-notes))))
 
-;;; offset can be :shift, :small-notes, or :hidden
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
