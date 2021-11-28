@@ -31,6 +31,11 @@
 (defmethod get-editor-class ((self poly)) 'poly-editor)
 
 
+(defmethod init-editor ((editor poly-editor-mixin))
+  (call-next-method)
+  (update-edit-params editor))
+
+
 ;;;========================================================================
 ;;; COMMON FEATURES
 ;;;========================================================================
@@ -59,20 +64,18 @@
 
 (defmethod accum-y-shift-list ((editor poly-editor-mixin))
   (let* ((y-shift (editor-get-edit-param editor :y-shift))
-         (y-shift-list (list! y-shift))
          (ed-staff (editor-get-edit-param editor :staff))
          (accum-y-list ()))
 
-    (push (or (car y-shift-list) *default-inter-staff*) accum-y-list)
-
-    (loop with tmp-y = (car accum-y-list)
+    (loop with next-y = 0
+          for voice-shift in y-shift
           for i from 0 to (1- (length (obj-list (object-value editor))))
           do
           (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
-            (setf tmp-y (+ tmp-y
-                           (- (staff-higher-line staff) (staff-lower-line staff))
-                           (or (nth i y-shift-list) *default-inter-staff*)))
-            (push tmp-y accum-y-list)))
+            (setf next-y (+ next-y voice-shift))
+            (push next-y accum-y-list)
+            (setf next-y (+ next-y (- (staff-higher-line staff) (staff-lower-line staff)))))
+          finally (push next-y accum-y-list))
 
     (reverse accum-y-list)))
 

@@ -31,7 +31,8 @@
 
 (defmethod object-default-edition-params ((self chord))
   (append (call-next-method)
-          '((:chord-mode :chord))))
+          '((:y-shift 4)
+            (:chord-mode :chord))))
 
 ;;; chord-mode:
 ;;; - chord = play the chord (with offsets if there are offsets)

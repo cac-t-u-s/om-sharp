@@ -34,7 +34,6 @@
     (:channel-display :hidden)
     (:midiport-display nil)
     (:h-stretch 1)
-    (:y-shift 4)
     (:groups nil)
     (:group-names t)
     (:selected-group :all)))
