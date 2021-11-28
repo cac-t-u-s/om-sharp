@@ -324,25 +324,27 @@
 
           (let ((posi (position (car selected-voices) (obj-list obj))))
             (when posi
-              ;;; the group of selected voices will move to posi+1 or posi-1
-              (loop for voice in selected-voices do
-                    (score-editor-update-params-before-remove self voice)
-                    (remove-from-obj obj voice))
+              (let ((selected-y-shifts (subseq
+                                        (editor-get-edit-param self :y-shift)
+                                        posi (+ posi (length selected-voices)))))
+                ;;; the group of selected voices will move to posi+1 or posi-1
+                (loop for voice in selected-voices do
+                      (score-editor-update-params-before-remove self voice)
+                      (remove-from-obj obj voice))
 
-              (let ((newpos (max 0
-                                 (min (length (obj-list obj))
-                                      (+ posi direction)))))
+                (let ((newpos (max 0
+                                   (min (length (obj-list obj))
+                                        (+ posi direction)))))
 
-                (setf (obj-list obj)
-                      (flat (insert-in-list (obj-list obj) selected-voices newpos)))
+                  (setf (obj-list obj)
+                        (flat (insert-in-list (obj-list obj) selected-voices newpos)))
 
-                (editor-set-edit-param self :y-shift
-                                       (flat
-                                        (insert-in-list (editor-get-edit-param self :y-shift)
-                                                        (make-list (length selected-voices)
-                                                                   :initial-element *default-inter-staff*)
-                                                        newpos)))
-                )))))
+                  (editor-set-edit-param self :y-shift
+                                         (flat
+                                          (insert-in-list (editor-get-edit-param self :y-shift)
+                                                          selected-y-shifts
+                                                          newpos)))
+                  ))))))
 
     ;;; change shift for selected voices
     (loop for obj in (selection self) do
