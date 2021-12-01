@@ -682,11 +682,11 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
                          :n-samples final-size
                          :n-channels nch
                          :sample-rate (sample-rate s1)
-                         :smpl-type type1)))
-    (progn
-      (om-beep-msg "Error: Trying to sequence incompatible audio buffers: s1: ~Dch - sr=~DHz / s2: ~Dch - sr=~DHz. Output is input 1."
-                   (n-channels s1) (sample-rate s1) (n-channels s2) (sample-rate s2))
-      s1)))
+                         :smpl-type type1))
+      (progn
+        (om-beep-msg "Error: Trying to sequence incompatible audio buffers: s1: ~Dch - sr=~DHz / s2: ~Dch - sr=~DHz. Output is input 1."
+                     (n-channels s1) (sample-rate s1) (n-channels s2) (sample-rate s2))
+        s1))))
 
 
 (defmethod* sound-reverse ((s om-internal-sound))
