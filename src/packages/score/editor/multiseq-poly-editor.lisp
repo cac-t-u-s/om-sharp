@@ -41,7 +41,9 @@
           '((:grid nil) (:grid-step 1000)
             (:stems t)
             (:y-shift (4))
-            (:offsets :small-notes))))
+            (:offsets :small-notes)
+            (:staff-list nil) ;; a list of staffs for each voice
+            )))
 
 
 ;;;========================================================================
@@ -62,28 +64,36 @@
 
 (defmethod update-edit-params ((editor poly-editor-mixin))
   (let* ((n-voices (length (obj-list (object-value editor))))
-         (previous-y-list (list! (editor-get-edit-param editor :y-shift))))
+         (previous-y-list (list! (editor-get-edit-param editor :y-shift)))
+         (previous-staff-list (editor-get-edit-param editor :staff-list)))
 
     (editor-set-edit-param editor :y-shift
                            (loop for i from 0 to (1- n-voices)
                                  collect (or
                                           (nth i previous-y-list)
-                                          *default-inter-staff*)))))
+                                          *default-inter-staff*)))
+
+    (editor-set-edit-param editor :staff-list
+                           (loop for i from 0 to (1- n-voices)
+                                 collect (or
+                                          (nth i previous-staff-list)
+                                          (editor-get-edit-param editor :staff))))
+    ))
 
 
 (defmethod accum-y-shift-list ((editor poly-editor-mixin))
   (let* ((y-shift (editor-get-edit-param editor :y-shift))
-         (ed-staff (editor-get-edit-param editor :staff))
+         (staff-list (editor-get-edit-param editor :staff-list))
          (accum-y-list ()))
 
     (loop with next-y = 0
           for voice-shift in y-shift
+          for staff in staff-list
           for i from 0 to (1- (length (obj-list (object-value editor))))
           do
-          (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
-            (setf next-y (+ next-y voice-shift))
-            (push next-y accum-y-list)
-            (setf next-y (+ next-y (- (staff-higher-line staff) (staff-lower-line staff)))))
+          (setf next-y (+ next-y voice-shift))
+          (push next-y accum-y-list)
+          (setf next-y (+ next-y (- (staff-higher-line staff) (staff-lower-line staff))))
           finally (push next-y accum-y-list))
 
     (reverse accum-y-list)))
@@ -93,12 +103,11 @@
 (defun make-staff-y-map (editor)
 
   (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
-         (ed-staff (editor-get-edit-param editor :staff)))
+         (staff-list (editor-get-edit-param editor :staff-list)))
 
     (loop for ys in (butlast (accum-y-shift-list editor))
           for i from 0
-          collect (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
-                    (staff-y-range staff ys unit)))
+          collect (staff-y-range (nth i staff-list) ys unit))
     ))
 
 
@@ -221,25 +230,23 @@
 
 (defmethod poly-editor-draw-staff-in-editor-view ((editor poly-editor-mixin) (self score-view))
   (let* ((fontsize (editor-get-edit-param editor :font-size))
-         (ed-staff (editor-get-edit-param editor :staff)))
+         (staff-list (editor-get-edit-param editor :staff-list)))
 
     (loop for shift in (butlast (accum-y-shift-list editor))
           for i from 0
           do
-          (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
-
-            (om-with-fg-color (when (find (nth i (obj-list (object-value editor)))
-                                          (selection editor))
-                                (om-def-color :selection))
-              (draw-staff 0 0
-                          shift
-                          (w self) (h self)
-                          fontsize
-                          staff
-                          :margin-l (margin-l self)
-                          :margin-r (margin-r self)
-                          :keys (keys self))
-              )))))
+          (om-with-fg-color (when (find (nth i (obj-list (object-value editor)))
+                                        (selection editor))
+                              (om-def-color :selection))
+            (draw-staff 0 0
+                        shift
+                        (w self) (h self)
+                        fontsize
+                        (nth i staff-list)
+                        :margin-l (margin-l self)
+                        :margin-r (margin-r self)
+                        :keys (keys self))
+            ))))
 
 
 ;;;---------------------------------------------
@@ -257,10 +264,11 @@
           (draw-tempo voice (* 2 unit) (* shift unit) fontsize))
     ))
 
-(defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
+(defmethod draw-sequence ((object multi-seq) editor view unit &optional force-y-shift voice-staff)
   (loop for voice in (obj-list object)
         for shift in (accum-y-shift-list editor)
-        do (draw-sequence voice editor view unit shift)))
+        for staff in (editor-get-edit-param editor :staff-list)
+        do (draw-sequence voice editor view unit shift staff)))
 ;;;---------------------------------------------
 
 
@@ -370,7 +378,9 @@
   (let ((pos (position removed (obj-list (object-value self)))))
     (when pos
       (editor-set-edit-param self :y-shift
-                             (remove-nth pos (editor-get-edit-param self :y-shift))))
+                             (remove-nth pos (editor-get-edit-param self :y-shift)))
+      (editor-set-edit-param self :staff-list
+                             (remove-nth pos (editor-get-edit-param self :staff-list))))
     (set-interior-size-from-contents self)))
 
 
@@ -430,23 +440,57 @@
 ;;;---------------------------------------------
 
 
-;;; multi-staff: indicate selected-voice's staff in menu (if any)
+;;; multi-staff
+
 (defmethod set-selection ((editor multi-seq-editor) (new-selection t))
 
   (call-next-method)
 
-  (let ((selected-cseq (car (get-selected-voices editor))))
-    ;;; the first found :)
-    (when (and selected-cseq (get-g-component editor :staff-menu))
-      (let ((ed-staff (editor-get-edit-param editor :staff)))
-        (when (listp ed-staff)
-          (om-set-selected-item
-           (get-g-component editor :staff-menu)
-           (or (nth (position selected-cseq (obj-list (object-value editor))) ed-staff)
-               (car ed-staff)))
-          ))))
+  (let ((selected-voices (get-selected-voices editor)))
+
+    (if selected-voices
+        (let ((selected-staffs (loop for staff in (editor-get-edit-param editor :staff-list)
+                                     for voice in (get-all-voices editor)
+                                     when (find voice selected-voices)
+                                     collect staff)))
+
+          (when (all-equal selected-staffs)
+            (om-set-selected-item
+             (get-g-component editor :staff-menu)
+             (car selected-staffs))))
+
+      (om-set-selected-item
+       (get-g-component editor :staff-menu)
+       (editor-get-edit-param editor :staff))
+      ))
 
   (update-score-inspector editor))
+
+
+(defmethod set-editor-staff ((editor poly-editor-mixin) new-staff)
+  (let ((selected-voices (get-selected-voices editor))
+        (all-voices (get-all-voices editor))
+        (current-staffs (editor-get-edit-param editor :staff-list)))
+
+    (assert (= (length all-voices) (length current-staffs)))
+
+    (let ((new-staff-list (loop for voice in all-voices
+                                for curr-staff in current-staffs
+                                collect
+                                (if (or (null selected-voices)
+                                        (find voice selected-voices))
+                                    new-staff
+                                  curr-staff))))
+
+      (unless (equal current-staffs new-staff-list)
+
+        (store-current-state-for-undo editor)
+
+        (editor-set-edit-param editor :staff-list new-staff-list)
+        (when (all-equal new-staff-list)
+          (editor-set-edit-param editor :staff (car new-staff-list)))
+        ))
+    ))
 
 
 ;;; add voices

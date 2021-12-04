@@ -572,7 +572,7 @@
                                    :size (omp 100 control-h) :font (om-def-font :font1)
                                    :value (editor-get-edit-param editor :staff)
                                    :di-action #'(lambda (list)
-                                                  (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                                  (set-editor-staff editor (om-get-selected-item list))
                                                   (set-interior-size-from-contents editor)
                                                   (report-modifications editor) ;; update the box display
                                                   ))))))
@@ -686,6 +686,11 @@
         (set-ruler-range (get-g-component self :x-ruler) x1 x2))
       (update-score-inspector self t)
       )))
+
+
+;;; redefined for multi-seq-editor
+(defmethod set-editor-staff ((editor score-editor) staff)
+  (editor-set-edit-param editor :staff staff))
 
 
 ;;;======================

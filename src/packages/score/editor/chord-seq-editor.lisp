@@ -585,10 +585,10 @@
 
 
 ;;; redefined for other objects
-(defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
+(defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil) voice-staff)
 
   (let ((font-size (editor-get-edit-param editor :font-size))
-        (staff (editor-get-edit-param editor :staff))
+        (staff (or voice-staff (editor-get-edit-param editor :staff)))
         (scale (editor-get-edit-param editor :scale))
         (chan (editor-get-edit-param editor :channel-display))
         (vel (editor-get-edit-param editor :velocity-display))
