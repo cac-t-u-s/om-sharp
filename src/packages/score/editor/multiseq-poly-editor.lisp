@@ -136,6 +136,12 @@
   (set-interior-size-from-contents self))
 
 
+(defmethod get-selected-voices ((self poly-editor-mixin))
+  (loop for item in (selection self)
+        when (subtypep (type-of item) 'chord-seq)
+        collect item))
+
+
 ;;;=========================
 ;;; LEFT VIEW (KEYS etc.)
 ;;;=========================
@@ -325,9 +331,7 @@
 
       ;;; change order: put selected voice(s) above the previous one
       (let ((obj (object-value self))
-            (selected-voices  (loop for item in (selection self)
-                                    when (subtypep (type-of item) 'chord-seq)
-                                    collect item)))
+            (selected-voices (get-selected-voices self)))
         (when selected-voices
 
           (let ((posi (position (car selected-voices) (obj-list obj))))
@@ -355,16 +359,16 @@
                   ))))))
 
     ;;; change shift for selected voices
-    (loop for obj in (selection self) do
-          (when (subtypep (type-of obj) 'chord-seq)
-            (let ((pos (position obj (obj-list (object-value self)))))
-              (when pos
-                (let ((curr (nth pos (editor-get-edit-param self :y-shift))))
-                  (editor-set-edit-param self :y-shift
-                                         (subs-posn (editor-get-edit-param self :y-shift)
-                                                    pos
-                                                    (max *min-inter-staff* (+ curr direction)))))
-                ))))
+
+    (loop for obj in (get-selected-voices self) do
+          (let ((pos (position obj (obj-list (object-value self)))))
+            (when pos
+              (let ((curr (nth pos (editor-get-edit-param self :y-shift))))
+                (editor-set-edit-param self :y-shift
+                                       (subs-posn (editor-get-edit-param self :y-shift)
+                                                  pos
+                                                  (max *min-inter-staff* (+ curr direction)))))
+              )))
     ))
 
 
@@ -433,11 +437,11 @@
   (obj-list (object-value self)))
 
 (defmethod get-default-voice ((self multi-seq-editor))
-  (or (find 'chord-seq (selection self) :key #'type-of :test #'subtypep)
+  (or (car (get-selected-voices self))
       (car (obj-list (object-value self)))))
 
 (defmethod get-default-voice ((self poly-editor))
-  (or (find 'voice (selection self) :key #'type-of :test #'subtypep)
+  (or (car (get-selected-voices self))
       (car (obj-list (object-value self)))))
 ;;;---------------------------------------------
 
@@ -447,7 +451,7 @@
 
   (call-next-method)
 
-  (let ((selected-cseq (find 'chord-seq (selection editor) :key #'type-of :test #'subtypep)))
+  (let ((selected-cseq (car (get-selected-voices editor))))
     ;;; the first found :)
     (when (and selected-cseq (get-g-component editor :staff-menu))
       (let ((ed-staff (editor-get-edit-param editor :staff)))
