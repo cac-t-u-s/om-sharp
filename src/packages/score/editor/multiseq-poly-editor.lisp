@@ -104,9 +104,7 @@
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
-(defmethod get-total-y-shift ((editor multi-seq-editor) voice-num)
-  (nth voice-num (accum-y-shift-list editor)))
-(defmethod get-total-y-shift ((editor poly-editor) voice-num)
+(defmethod get-total-y-shift ((editor poly-editor-mixin) voice-num)
   (nth voice-num (accum-y-shift-list editor)))
 ;;;---------------------------------------------
 
@@ -164,8 +162,7 @@
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
-(defmethod left-score-view-class ((self multi-seq-editor)) 'poly-left-score-view)
-(defmethod left-score-view-class ((self poly-editor)) 'poly-left-score-view)
+(defmethod left-score-view-class ((self poly-editor-mixin)) 'poly-left-score-view)
 ;;;---------------------------------------------
 
 ;;; hack / for some reason the initerior size initialization doesn't work on windows...
@@ -247,10 +244,7 @@
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
-
-(defmethod draw-staff-in-editor-view ((editor multi-seq-editor) (self score-view))
-  (poly-editor-draw-staff-in-editor-view editor self))
-(defmethod draw-staff-in-editor-view ((editor poly-editor) (self score-view))
+(defmethod draw-staff-in-editor-view ((editor poly-editor-mixin) (self score-view))
   (poly-editor-draw-staff-in-editor-view editor self))
 
 (defmethod draw-tempo-in-editor-view ((editor poly-editor) (self score-view))
@@ -424,23 +418,13 @@
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
-(defmethod get-voice-at-pos ((self multi-seq-editor) position)
+(defmethod get-voice-at-pos ((self poly-editor-mixin) position)
   (poly-editor-get-voice-at-pos self position))
 
-(defmethod get-voice-at-pos ((self poly-editor) position)
-  (poly-editor-get-voice-at-pos self position))
-
-(defmethod get-all-voices ((self multi-seq-editor))
+(defmethod get-all-voices ((self poly-editor-mixin))
   (obj-list (object-value self)))
 
-(defmethod get-all-voices ((self poly-editor))
-  (obj-list (object-value self)))
-
-(defmethod get-default-voice ((self multi-seq-editor))
-  (or (car (get-selected-voices self))
-      (car (obj-list (object-value self)))))
-
-(defmethod get-default-voice ((self poly-editor))
+(defmethod get-default-voice ((self poly-editor-mixin))
   (or (car (get-selected-voices self))
       (car (obj-list (object-value self)))))
 ;;;---------------------------------------------
