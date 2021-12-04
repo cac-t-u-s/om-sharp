@@ -55,6 +55,21 @@
      ,(loop for s in *all-scales* collect (list (string (car s)) (car s))))
     ))
 
+(defmethod set-edit-param ((self ScoreBoxEditCall) (param (eql :staff)) value)
+  (call-next-method)
+  (init-object-staff-param (get-box-value self) self value))
+
+(defmethod init-object-staff-param ((self t) box value)
+  (declare (ignore box value))
+  nil)
+
+(defmethod init-object-staff-param ((self multi-seq) box value)
+  (set-edit-param
+   box 
+   :staff-list 
+   (make-list (length (obj-list self)) :initial-element value)))
+
+
 (defmethod miniview-time-to-pixel-proportional ((object score-element) box view time)
 
   (let* ((fontsize (get-box-fontsize box))
@@ -108,27 +123,39 @@
       1 5))
 
 
+(defmethod get-staff-for-voice ((self score-element) (box OMBox) (n integer))
+  (declare (ignore n))
+  (get-edit-param box :staff))
+
+(defmethod get-staff-for-voice ((self multi-seq) (box OMBox) (n integer))
+  (declare (ignore n))
+  (or (nth n (get-edit-param box :staff-list))
+      (call-next-method)))
+
+
+(defparameter *score-box-voice-margin* 8)
+
 (defmethod compute-font-size ((self score-element) (box OMBox) h y)
 
   (let* ((font-size (get-pref-value :appearance :score-font))
          (unit (font-size-to-unit font-size))
-         (y-in-units (/ y unit)))
+         (y-in-units (/ y unit))
+         (num-voices (num-voices self)))
 
-    (when (> (num-voices self) 0)
+    (when (> num-voices 0)
 
-      (let* ((n-lines-max (+ (loop for staff in (list! (get-edit-param box :staff))
-                                   maximize
-                                   (staff-line-range staff))
-                             8)) ;; + margin
-             (h-per-voice (/ h (num-voices self)))
-             (draw-box-h (* n-lines-max unit)))
+      (let* ((n-lines (loop for n from 0 to (1- num-voices)
+                            for staff = (get-staff-for-voice self box n)
+                            sum (+ *score-box-voice-margin* (staff-line-range staff))))
+             (draw-h (* n-lines unit)))
 
-        (if (> draw-box-h h-per-voice)
+        (if (> draw-h h)
             ;;; there's no space: reduce font ?
-            (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines-max))
+            (setf unit (- unit (/ (- draw-h h) n-lines))
                   font-size (unit-to-font-size unit))
           ;;; there's space: draw more in the middle
-          (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit))))
+          (setf y-in-units (+ y-in-units (/ (round (- h draw-h) 2) unit)))
+          )
         ))
 
     (values font-size y-in-units)))
@@ -172,7 +199,7 @@
 (defmethod set-box-fontsize ((self OMBox) size) nil)
 
 ;;; what do we do with other objects ?
-(defmethod score-object-mini-view ((self t) box x-pix y-pix y-u w h) t)
+(defmethod score-object-mini-view ((self t) box x-pix y-pix y-u w h &optional voice-staff) t)
 
 
 ;;;===========================
@@ -187,9 +214,9 @@
      ,(loop for s in *all-scales* collect (list (string (car s)) (car s))))
     ))
 
-(defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
+(defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h &optional voice-staff)
 
-  (let ((staff (get-edit-param box :staff))
+  (let ((staff (or voice-staff (get-edit-param box :staff)))
         (scale (get-edit-param box :scale))
         (font-size (get-box-fontsize box))
         (in-sequencer? (typep (frame box) 'sequencer-track-view)))
@@ -259,9 +286,9 @@
 ;;;===========================
 ;;; CHORD
 ;;;===========================
-(defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h)
+(defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h &optional voice-staff)
 
-  (let ((staff (get-edit-param box :staff))
+  (let ((staff (or voice-staff (get-edit-param box :staff)))
         (scale (get-edit-param box :scale))
         (in-sequencer? (typep (frame box) 'sequencer-track-view))
         (font-size (get-box-fontsize box)))
@@ -280,9 +307,9 @@
 ;;;===========================
 ;;; CHORD-SEQ
 ;;;===========================
-(defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h)
+(defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h &optional voice-staff)
 
-  (let* ((staff (get-edit-param box :staff))
+  (let* ((staff (or voice-staff (get-edit-param box :staff)))
          (scale (get-edit-param box :scale))
          (offsets (get-edit-param box :offsets))
          (font-size (get-box-fontsize box))
@@ -311,9 +338,9 @@
 ;;; VOICE
 ;;;===========================
 
-(defmethod score-object-mini-view ((self voice) box x-pix y-pix shift-y w h)
+(defmethod score-object-mini-view ((self voice) box x-pix y-pix shift-y w h &optional voice-staff)
 
-  (let* ((staff (get-edit-param box :staff))
+  (let* ((staff (or voice-staff (get-edit-param box :staff)))
          (font-size (get-box-fontsize box))
          (unit (font-size-to-unit font-size))
          (x-u (/ x-pix unit))
@@ -368,15 +395,22 @@
 ;;; POLY
 ;;;===========================
 
-(defmethod score-object-mini-view ((self multi-seq) box x-pix y-pix y-u w h)
-  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
-    (loop for voice in (obj-list self)
-          for i from 0 do
-          (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))
-    ))
+(defmethod score-object-mini-view ((self multi-seq) box x-pix y-pix y-u w h &optional voice-staff)
+  (let* ((staff-list (or (get-edit-param box :staff-list)
+                         (make-list (length (obj-list self)) :initial-element (get-edit-param box :staff))))
+         (total-lines (loop for staff in staff-list
+                            sum (+ *score-box-voice-margin* (staff-line-range staff)))))
+    (loop with y = y-pix
+          for voice in (obj-list self)
+          for staff in staff-list
+          do
+          (let ((voice-h (* h (/ (+ *score-box-voice-margin* (staff-line-range staff)) total-lines))))
+            (score-object-mini-view voice box x-pix y 0 w voice-h staff)
+            (setf y (+ y voice-h)))
+          )))
 
 
-(defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
+(defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h &optional voice-staff)
   (call-next-method)
   (let ((frame (frame box)))
     (when (> (time-to-pixel frame (get-obj-dur self)) (w frame))
