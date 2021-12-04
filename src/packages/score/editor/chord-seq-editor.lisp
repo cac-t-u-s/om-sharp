@@ -45,14 +45,6 @@
             (:y-shift 4)
             (:offsets :grace-note))))
 
-(defmethod object-default-edition-params ((self multi-seq))
-  (append (call-next-method)
-          '((:grid nil) (:grid-step 1000)
-            (:stems t)
-            (:y-shift (4))
-            (:offsets :small-notes))))
-
-
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
 
