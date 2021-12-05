@@ -118,8 +118,7 @@
 
       (let* ((n-lines-max (+ (loop for staff in (list! (get-edit-param box :staff))
                                    maximize
-                                   (let ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff)))))
-                                     (- (car (last staff-lines)) (car staff-lines))))  ;;; range of the staff lines
+                                   (staff-line-range staff))
                              8)) ;; + margin
              (h-per-voice (/ h (num-voices self)))
              (draw-box-h (* n-lines-max unit)))

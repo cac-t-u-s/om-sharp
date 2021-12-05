@@ -291,6 +291,12 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 (defun staff-higher-line (staff)
   (last-elem (staff-lines (last-elem (staff-split staff)))))
 
+(defun staff-line-range (staff)
+  (let ((split-staffs (staff-split staff)))
+    (- (last-elem (staff-lines (last-elem split-staffs)))
+       (car (staff-lines (car split-staffs))))))
+
+
 (defun head-leger-lines (head-line staff-lines)
   (when (> (length staff-lines) 1) ;;; don't do it for empty or "line" staffs
     (cond ((>= head-line (1+ (car (last staff-lines))))

@@ -93,7 +93,7 @@
           do
           (setf next-y (+ next-y voice-shift))
           (push next-y accum-y-list)
-          (setf next-y (+ next-y (- (staff-higher-line staff) (staff-lower-line staff))))
+          (setf next-y (+ next-y (staff-line-range staff)))
           finally (push next-y accum-y-list))
 
     (reverse accum-y-list)))
