@@ -314,7 +314,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
     (:empty 0)
     ))
 
-(defun staff-line-range (staff)
+(defun staff-line-pitch-range (staff)
   (case staff
     (:g '(6400 7700))
     (:g+ '(8800 10100))
@@ -327,8 +327,8 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
 (defun staff-medium-pitch (staff-symb)
   (let ((lines (staff-split staff-symb)))
-    (round (+ (cadr (staff-line-range (car (last lines))))
-              (car (staff-line-range (car lines))))
+    (round (+ (cadr (staff-line-pitch-range (car (last lines))))
+              (car (staff-line-pitch-range (car lines))))
            2)))
 
 ;;; global display shift-down of the line-0(in number of lines)
