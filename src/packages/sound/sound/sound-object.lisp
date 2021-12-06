@@ -749,9 +749,9 @@ Press 'space' to play/stop the sound file.
                                           (n-channels self)
                                           (sample-rate self)
                                           (or resolution (get-pref-value :audio :resolution))
-                                          format))
-
-      (probe-file (namestring file)))))
+                                          format)
+        (or (file-exists-p file)
+            (om-beep-msg "Error: File ~A was not written on disk. :(" (namestring file)))))))
 
 
 ;;;====================
