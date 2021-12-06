@@ -639,9 +639,13 @@
 
   ;;; in/outs etc.
   (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
-
   )
 
+
+(defmethod draw-def-eval-once ((self OMBoxCall))
+  (> (length (get-out-connections self)) 1))
+
+(defmethod draw-def-eval-once ((self OMPatchComponentBox)) nil)
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBoxCall))
   (call-next-method)
@@ -667,22 +671,30 @@
       ))
 
   ;;; lock button
-  (when (lock-state box)
-    (let ((state-str (if (equal (lock-state box) :locked)
-                         "X"
-                       (if (and (equal (lock-state box) :eval-once)
-                                (not (get-pref-value :general :auto-ev-once-mode)))
-                           "1"))))
-      (when state-str
-        (om-draw-rounded-rect x-lock y-lock 13 11
-                              :color (om-def-color :dark-gray) :round 2 :fill t)
-       
-        (om-draw-string (+ x-lock 3) (+ y-lock 9)
-                        state-str
-                        :font (om-def-font :font1 :size 9)
-                        :color (om-def-color :white)))
-      ))
-  )
+  (let ((state-str nil)
+        (bg-color (om-def-color :dark-gray)))
+
+    (cond ((equal (lock-state box) :locked)
+           (setf state-str "X"))
+
+          ((and (equal (lock-state box) :eval-once)
+                (not (get-pref-value :general :auto-ev-once-mode)))
+           (setf state-str "1"))
+
+          ((and (get-pref-value :general :auto-ev-once-mode)
+                (draw-def-eval-once box))
+           (setf state-str "1"
+                 bg-color (om-gray-color 0.8 0.7))))
+
+    (when state-str
+      (om-draw-rounded-rect x-lock y-lock 13 11
+                            :color bg-color :round 2 :fill t)
+
+      (om-draw-string (+ x-lock 3) (+ y-lock 9)
+                      state-str
+                      :font (om-def-font :font1 :size 9)
+                      :color (om-def-color :white)))
+    ))
 
 
 ;;;=============================
