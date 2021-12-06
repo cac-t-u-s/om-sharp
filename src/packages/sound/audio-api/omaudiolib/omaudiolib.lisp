@@ -175,8 +175,9 @@
 
 
 (defun juce-get-sound-info (path)
-  (let ((fileptr (juce::makeAudioFileReader path)))
-    (unless (fli:null-pointer-p fileptr)
+  (let ((fileptr (print (juce::makeAudioFileReader path))))
+    (if (fli:null-pointer-p fileptr)
+        (error "Error reading file: ~A" path)
       (unwind-protect
           (let ((channels (juce::getAudioFileNumChannels fileptr))
                 (size (juce::getAudioFileNumSamples fileptr))
@@ -191,7 +192,8 @@
 
 (defun juce-get-sound-buffer (path &optional (datatype :float))
   (let ((fileptr (juce::makeAudioFileReader path)))
-    (unless (fli:null-pointer-p fileptr)
+    (if (fli:null-pointer-p fileptr)
+        (error "Error reading file: ~A" path)
       (unwind-protect
           (let ((channels (juce::getAudioFileNumChannels fileptr))
                 (size (juce::getAudioFileNumSamples fileptr))
