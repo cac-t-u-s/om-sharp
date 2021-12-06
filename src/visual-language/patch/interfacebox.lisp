@@ -657,7 +657,11 @@ Returns the selected item, or the selected index depending on how this is set in
     box))
 
 (defmethod draw-interface-component ((self ListMenuBox) x y w h)
-  (om-draw-rect x y 24 h :color (om-def-color :gray) :fill t)
+
+  (om-draw-rounded-rect x y 24 h 
+                        :round (box-draw-roundness self) 
+                        :color (om-def-color :gray) :fill t)
+
   (let* ((font (or (font self) (om-def-font :font1b)))
          (text-h (cadr (multiple-value-list (om-string-size "A" font))))
          (text-y-pos (if (>= text-h h) h (* .5 (+ h text-h 1)))))
