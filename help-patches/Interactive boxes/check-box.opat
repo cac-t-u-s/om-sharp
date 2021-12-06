@@ -4,12 +4,12 @@
  (:doc "")
  (:info
   (:created "2020/06/30 12:53:21")
-  (:modified "2020/10/04 21:10:08")
+  (:modified "2021/12/06 23:32:36")
   (:by "om-sharp")
-  (:version 1.0))
+  (:version 1.05))
  (:window (:size (739 560)) (:position (167 239)))
  (:grid nil)
- (:lock nil)
+ (:lock t)
  (:boxes
   (:box
    (:type :interface)
@@ -25,7 +25,7 @@
    (:roundness nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value nil)
+   (:value t)
    (:id 0))
   (:box
    (:type :value)
@@ -43,6 +43,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 6000 6550 6200 7400 6950 5700))
@@ -82,6 +83,7 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -123,18 +125,19 @@
       ((:onset 0)
        (:duration 6000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:name "CHORD-SEQ")
+       (:name nil)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
        (:extras nil)
+       (:group-ids nil)
        (:lmidic
         (:list
-         (:list 6000)
-         (:list 6550)
-         (:list 6200)
          (:list 7400)
          (:list 6950)
+         (:list 6550)
+         (:list 6200)
+         (:list 6000)
          (:list 5700)))
        (:lonset (:list 0 1000 2000 3000 4000 5000 6000))
        (:ldur (:list 1000))
@@ -152,7 +155,7 @@
    (:x 443)
    (:y 196)
    (:w 159)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -161,6 +164,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -187,7 +191,7 @@
    (:x 536)
    (:y 82)
    (:w 55)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -196,6 +200,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -218,7 +223,7 @@
    (:roundness nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value nil)
+   (:value t)
    (:id 6))
   (:comment
    (:x 323)
@@ -244,7 +249,7 @@
    (:x 384)
    (:y 325)
    (:w 174)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -253,6 +258,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -279,7 +285,7 @@
    (:x 426)
    (:y 275)
    (:w 81)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -288,6 +294,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -300,7 +307,7 @@
    (:x 38)
    (:y 68)
    (:w 140)
-   (:h 50)
+   (:h 30)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
@@ -341,7 +348,7 @@ Use in consort with reactive mode to get instant results.")
    (:x 477)
    (:y 135)
    (:w 81)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -350,6 +357,7 @@ Use in consort with reactive mode to get instant results.")
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)

@@ -4,18 +4,18 @@
  (:doc "")
  (:info
   (:created "2020/06/30 13:35:53")
-  (:modified "2020/10/04 21:12:58")
+  (:modified "2021/12/06 23:31:53")
   (:by "om-sharp")
-  (:version 1.0))
+  (:version 1.05))
  (:window (:size (929 755)) (:position (501 52)))
  (:grid nil)
- (:lock nil)
+ (:lock t)
  (:boxes
   (:comment
    (:x 62)
    (:y 27)
    (:w 100)
-   (:h 31)
+   (:h 30)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
@@ -81,7 +81,7 @@
        (:x 136)
        (:y 214)
        (:w 104)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -90,6 +90,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -121,6 +122,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :left)
+       (:reactive nil)
        (:lock nil)
        (:inputs
         (:input
@@ -153,6 +155,7 @@
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 3)
@@ -196,7 +199,7 @@
        (:x 389)
        (:y 312)
        (:w 104)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -205,6 +208,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -236,6 +240,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :left)
+       (:reactive nil)
        (:lock nil)
        (:inputs
         (:input
@@ -258,7 +263,7 @@
        (:x 439)
        (:y 278)
        (:w 51)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -267,6 +272,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -293,6 +299,7 @@
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 20)
@@ -337,7 +344,7 @@
        (:x 709)
        (:y 341)
        (:w 104)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -346,6 +353,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -377,6 +385,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :left)
+       (:reactive nil)
        (:lock nil)
        (:inputs
         (:input
@@ -409,6 +418,7 @@
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value -1)
@@ -431,6 +441,7 @@
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 1)
@@ -443,7 +454,7 @@
        (:x 375)
        (:y 586)
        (:w 106)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -452,6 +463,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -473,7 +485,7 @@
        (:x 178)
        (:y 312)
        (:w 104)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -482,6 +494,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -503,7 +516,7 @@
        (:x 376)
        (:y 721)
        (:w 180)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -512,6 +525,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -533,7 +547,7 @@
        (:x 343)
        (:y 653)
        (:w 330)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -542,6 +556,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -574,6 +589,7 @@
        (:show-markers t)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -620,6 +636,7 @@
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
            (:extras nil)
+           (:group-ids nil)
            (:lmidic
             (:list
              (:list 6000)
@@ -682,7 +699,7 @@
        (:x 131)
        (:y 495)
        (:w 153)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -691,6 +708,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -717,7 +735,7 @@
        (:x 454)
        (:y 523)
        (:w 187)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -726,6 +744,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -752,7 +771,7 @@
        (:x 735)
        (:y 598)
        (:w 153)
-       (:h 34)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -761,6 +780,7 @@
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -819,6 +839,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -858,6 +879,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -897,6 +919,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -936,6 +959,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 6000)
@@ -995,9 +1019,10 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
+   (:pre-delay 0)
    (:lock nil)
    (:lambda nil)
-   (:pre-delay 0)
+   (:reactive nil)
    (:inputs)
    (:outputs)
    (:id 1))
@@ -1027,7 +1052,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 230)
    (:y 202)
    (:w 76)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1036,6 +1061,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1047,8 +1073,8 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
   (:comment
    (:x 62)
    (:y 74)
-   (:w 304)
-   (:h 53)
+   (:w 344)
+   (:h 38)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1093,6 +1119,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:text-font nil)
    (:align :center)
    (:icon :top)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1122,7 +1149,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:color nil)
    (:border nil)
    (:roundness nil)
-   (:send-value 0)
+   (:send-value 8)
    (:text "Add a number")
    (:inputs
     (:input
@@ -1158,7 +1185,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 71)
    (:y 432)
    (:w 104)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1167,6 +1194,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "LOW") (:value 0) (:reactive t))
     (:input
@@ -1192,6 +1220,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
@@ -1212,6 +1241,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 10)
@@ -1224,7 +1254,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 95)
    (:y 530)
    (:w 113)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1233,6 +1263,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "OP") (:value nil) (:reactive t))
     (:input
@@ -1278,6 +1309,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive nil)))
@@ -1291,7 +1323,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 192)
    (:y 575)
    (:w 50)
-   (:h 34)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1300,6 +1332,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :optional)

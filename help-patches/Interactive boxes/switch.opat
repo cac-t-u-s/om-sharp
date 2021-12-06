@@ -4,12 +4,12 @@
  (:doc "")
  (:info
   (:created "2020/06/30 10:26:11")
-  (:modified "2021/06/13 23:39:41")
+  (:modified "2021/12/06 23:39:20")
   (:by "om-sharp")
-  (:version 1.0301))
+  (:version 1.05))
  (:window (:size (726 730)) (:position (234 135)))
  (:grid nil)
- (:lock nil)
+ (:lock t)
  (:boxes
   (:box
    (:type :object)
@@ -30,6 +30,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -103,6 +104,7 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -150,7 +152,7 @@
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
-       (:lmidic (:list 6200 6900 7500 8200 8800 9500 10100))
+       (:lmidic (:list 6500 6800 7000 7300 7500 7800 8000))
        (:lvel (:list 80 80 80 80 80 80 80))
        (:loffset (:list 0 0 0 0 0 0 0))
        (:ldur (:list 1000 1000 1000 1000 1000 1000 1000))
@@ -200,13 +202,13 @@
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
-       (:lmidic (:list 6200 6900 7500))
+       (:lmidic (:list 6500 6800 7000))
        (:lvel (:list 100 100 100))
        (:loffset (:list 0 0 0))
        (:ldur (:list 1000 1000 1000))
        (:lchan (:list 1 1 1))
        (:lport (:list nil nil nil))))))
-   (:state (:list 2))
+   (:state (:list 0))
    (:id 2))
   (:box
    (:type :object)
@@ -227,6 +229,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -298,6 +301,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -322,6 +326,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 3)
@@ -343,6 +348,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "START") (:value 0) (:reactive t))
     (:input
@@ -369,6 +375,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -394,6 +401,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -424,6 +432,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -451,6 +460,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -561,6 +571,7 @@ If \"multiple-selection\" mode is on, the selected inputs will be collected into
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -608,7 +619,7 @@ If \"multiple-selection\" mode is on, the selected inputs will be collected into
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
-       (:lmidic (:list 6200 6900 7500))
+       (:lmidic (:list 6500 6800 7000))
        (:lvel (:list 100 100 100))
        (:loffset (:list 0 0 0))
        (:ldur (:list 1000 1000 1000))
