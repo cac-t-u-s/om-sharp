@@ -161,7 +161,8 @@
                                        (if (multi-display-p ed)
                                            (mapcar #'(lambda (o) (get-cache-display-for-draw o nil)) (multi-obj-list ed))
                                          (list (get-cache-display-for-draw (object-value ed) nil))))
-                                 (setf *gen-cache-flag* nil))
+                                 (setf *gen-cache-flag* nil)
+                                 (editor-invalidate-views editor))
                              :args
                              (list editor)))
 
