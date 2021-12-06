@@ -100,33 +100,33 @@
 ;;; box null = this is for the sound editor
 (defmethod get-cache-display-for-draw ((self sound) (box null))
   (when (or (buffer self) (file-pathname self))
-    (let* ((n-samples (n-samples self))
-           (height 512)
+    (let* ((height 512)
            (window 8)
-           (array (get-sample-array-from-sound self window))
-           (max-pict-res (min (array-dimension array 1) 16368)))
+           (array (get-sample-array-from-sound self window)))
       (when array
-        (make-sound-display-cache
-         :resolutions
-         (reverse
-          (append
-           (list (make-sound-display-cache-resolution
-                  :samples-per-pixel 1
-                  :cache (get-buffer self))
-                 (make-sound-display-cache-resolution
-                  :samples-per-pixel window
-                  :cache array))
-           (loop for samples-per-pixel = (* window 4) then (* samples-per-pixel 4)
-                 for new-array-size = (ceiling n-samples samples-per-pixel)
-                 for new-array = (resample-sample-array array new-array-size)
-                 while (>= new-array-size 512)
-                 collect
-                 (make-sound-display-cache-resolution
-                  :samples-per-pixel samples-per-pixel
-                  :cache (if (< new-array-size max-pict-res)
-                             (create-waveform-pict new-array height)
-                           new-array))))))
-        ))))
+        (let ((max-pict-res (min (array-dimension array 1) 16368))
+              (n-samples (n-samples self)))
+          (make-sound-display-cache
+           :resolutions
+           (reverse
+            (append
+             (list (make-sound-display-cache-resolution
+                    :samples-per-pixel 1
+                    :cache (get-buffer self))
+                   (make-sound-display-cache-resolution
+                    :samples-per-pixel window
+                    :cache array))
+             (loop for samples-per-pixel = (* window 4) then (* samples-per-pixel 4)
+                   for new-array-size = (ceiling n-samples samples-per-pixel)
+                   for new-array = (resample-sample-array array new-array-size)
+                   while (>= new-array-size 512)
+                   collect
+                   (make-sound-display-cache-resolution
+                    :samples-per-pixel samples-per-pixel
+                    :cache (if (< new-array-size max-pict-res)
+                               (create-waveform-pict new-array height)
+                             new-array))))))
+          )))))
 
 
 (defmethod find-best-cache-display ((self sound-display-cache) samples-per-pixel)
