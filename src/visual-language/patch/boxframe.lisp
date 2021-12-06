@@ -650,19 +650,19 @@
 (defmethod draw-eval-buttons ((self OMFrame) (box OMBoxCall) x-lock y-lock x-lambda y-lambda)
   ;;; lambda button
   (when (lambda-state box)
-    (om-draw-rect x-lambda y-lambda 11 11
-                  :color (om-def-color :dark-gray) :angles :round :fill t)
+    (om-draw-rounded-rect x-lambda y-lambda 13 11
+                          :color (om-def-color :dark-gray) :round 2 :fill t)
     (om-with-fg-color (om-def-color :white)
       (case (lambda-state box)
         (:lambda (multiple-value-bind (char font) (om-font-lambda 10)
                    (om-with-font font
-                                 (om-draw-string (+ x-lambda 3) (+ y-lambda 9)
+                                 (om-draw-string (+ x-lambda 4) (+ y-lambda 9)
                                                  (string char)))))
         (:reference
-         (om-draw-line (+ x-lambda 5) (+ y-lambda 2) (+ x-lambda 5) (+ y-lambda 9))
-         (om-draw-line (+ x-lambda 5) (+ y-lambda 9) (+ x-lambda 2) (+ y-lambda 6))
-         (om-draw-line (+ x-lambda 5) (+ y-lambda 9) (+ x-lambda 8) (+ y-lambda 6)))
-        (:box (om-draw-rect (+ x-lambda 2) (+ y-lambda 2) 7 7 :fill t))
+         (om-draw-line (+ x-lambda 6) (+ y-lambda 2) (+ x-lambda 6) (+ y-lambda 9))
+         (om-draw-line (+ x-lambda 6) (+ y-lambda 9) (+ x-lambda 3) (+ y-lambda 6))
+         (om-draw-line (+ x-lambda 6) (+ y-lambda 9) (+ x-lambda 9) (+ y-lambda 6)))
+        (:box (om-draw-rect (+ x-lambda 3) (+ y-lambda 2) 7 7 :fill t))
         )
       ))
 
@@ -674,9 +674,10 @@
                                 (not (get-pref-value :general :auto-ev-once-mode)))
                            "1"))))
       (when state-str
-        (om-draw-rect x-lock y-lock 11 11
-                      :color (om-def-color :dark-gray) :angles :round :fill t)
-        (om-draw-string (+ x-lock 2) (+ y-lock 9)
+        (om-draw-rounded-rect x-lock y-lock 13 11
+                              :color (om-def-color :dark-gray) :round 2 :fill t)
+       
+        (om-draw-string (+ x-lock 3) (+ y-lock 9)
                         state-str
                         :font (om-def-font :font1 :size 9)
                         :color (om-def-color :white)))
