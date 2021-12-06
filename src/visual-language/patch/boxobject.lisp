@@ -247,11 +247,13 @@
                               (funcall accessor input))))
                   (cdr (inputs self)))))
 
+
 (defmethod get-all-args ((self OMBoxRelatedWClass) &optional (accessor #'omng-box-value))
   (mapcar #'(lambda (input)
               (list (intern-k (name input))
                     (funcall accessor input)))
           (cdr (inputs self))))
+
 
 ;;; Called by the main box evaluation procedure
 ;;; <initargs> are all the input values (connected or not)
@@ -298,7 +300,6 @@
       (progn (om-beep-msg "Error creating a ~A from ~A" type model)
         (abort-eval)))
     ))
-
 
 
 (defmethod prepare-obj-for-request ((object t) (box OMBoxRelatedWClass)) object)
@@ -436,7 +437,6 @@
 
 (defmethod object-default-edition-params ((self t)) nil)
 
-
 (defmethod get-default-edit-param ((self OMBoxEditCall) param)
   (let ((val (or (car (value self)) (make-instance (reference self)))))
     (find-value-in-kv-list (object-default-edition-params val) param)))
@@ -471,7 +471,6 @@
          "Sequencer"
          '((:show-markers "Show markers" :bool show-markers)))
       properties)
-
     ))
 
 
@@ -578,13 +577,11 @@
                       (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
                         (loop for line in lines for y = y0 then (+ y sh) do
                               (om-draw-string 10 y line)
-                              ))
-                      )
+                              )))
         ))))
 
 
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
-
 
   (let ((type-str (string-upcase (type-of object)))
         (type-font (om-def-font :font1b :size 10)))
@@ -606,8 +603,8 @@
                (om-draw-string (+ x 4) i (concatenate 'string (subseq str 0 (min (length str) (1- (round w 5)))) "..."))
              (om-draw-string (+ x 4) i str))
            ))
-   )
-  )
+   ))
+
 
 (defmethod draw-type-of-object ((object t))
   (string-upcase (type-of object)))
@@ -740,16 +737,9 @@
   (om-beep-msg "Error: can not create a SLOTS box from ~A" reference))
 
 
-
 ;;===========================================
-;; THE 'INSTANCE' BOX
+;; 'INSTANCE' BOX
 ;;===========================================
-
-;;; not necessary ?
-;;; instances can be contained in existing value/factory box
-;;; maybe add an attribuite just to remove the inputs ?
-;;; (defclass OMInstanceBox (OMBoxRelatedWClass) ())
-
 
 (defmethod make-new-box-with-instance ((instance standard-object) pos &optional connect-to)
   (let ((box (omng-make-new-boxcall (class-of instance) pos instance)))

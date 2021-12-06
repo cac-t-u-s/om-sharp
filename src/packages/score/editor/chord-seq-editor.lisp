@@ -37,19 +37,13 @@
 ;;; this will just disable the display-mode menu
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-element)) '(:chords))
 
+;;; offset can be :shift, :grace-notes, or :hidden
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000)
             (:stems t)
+            (:y-shift 4)
             (:offsets :grace-note))))
-
-(defmethod object-default-edition-params ((self multi-seq))
-  (append (call-next-method)
-          '((:grid nil) (:grid-step 1000)
-            (:stems t)
-            (:offsets :small-notes))))
-
-;;; offset can be :shift, :small-notes, or :hidden
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
@@ -591,10 +585,10 @@
 
 
 ;;; redefined for other objects
-(defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
+(defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil) voice-staff)
 
   (let ((font-size (editor-get-edit-param editor :font-size))
-        (staff (editor-get-edit-param editor :staff))
+        (staff (or voice-staff (editor-get-edit-param editor :staff)))
         (scale (editor-get-edit-param editor :scale))
         (chan (editor-get-edit-param editor :channel-display))
         (vel (editor-get-edit-param editor :velocity-display))

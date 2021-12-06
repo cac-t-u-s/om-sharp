@@ -291,6 +291,12 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 (defun staff-higher-line (staff)
   (last-elem (staff-lines (last-elem (staff-split staff)))))
 
+(defun staff-line-range (staff)
+  (let ((split-staffs (staff-split staff)))
+    (- (last-elem (staff-lines (last-elem split-staffs)))
+       (car (staff-lines (car split-staffs))))))
+
+
 (defun head-leger-lines (head-line staff-lines)
   (when (> (length staff-lines) 1) ;;; don't do it for empty or "line" staffs
     (cond ((>= head-line (1+ (car (last staff-lines))))
@@ -314,7 +320,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
     (:empty 0)
     ))
 
-(defun staff-line-range (staff)
+(defun staff-line-pitch-range (staff)
   (case staff
     (:g '(6400 7700))
     (:g+ '(8800 10100))
@@ -327,8 +333,8 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
 (defun staff-medium-pitch (staff-symb)
   (let ((lines (staff-split staff-symb)))
-    (round (+ (cadr (staff-line-range (car (last lines))))
-              (car (staff-line-range (car lines))))
+    (round (+ (cadr (staff-line-pitch-range (car (last lines))))
+              (car (staff-line-pitch-range (car lines))))
            2)))
 
 ;;; global display shift-down of the line-0(in number of lines)
