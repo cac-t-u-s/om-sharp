@@ -471,15 +471,21 @@ Press 'space' to play/stop the sound file.
 
           ;; We want to keep working with this file (and no buffer)
           (if (buffer self)
-              (release-sound-buffer self)
-            (set-sound-info self (file-pathname self)))
 
-        (om-beep-msg "Cannot use ACCESS-FROM-FILE without a valid file !!"))
+              (release-sound-buffer self)
+
+            (if (pathname-type (file-pathname self))
+                (set-sound-info self (file-pathname self))
+              (om-beep-msg "Cannot load audio file without a valid extension!")))
+
+        (om-beep-msg "Cannot set SOUND with :ACCESS-FROM-FILE without a valid file!"))
 
     ;;; else we set the buffer (if needed)
     (when (and (file-pathname self)
                (not (buffer self)))
-      (set-sound-data self (file-pathname self))))
+      (if (pathname-type (file-pathname self))
+          (set-sound-data self (file-pathname self))
+        (om-beep-msg "Cannot load audio file without a valid extension!"))))
 
   self)
 
