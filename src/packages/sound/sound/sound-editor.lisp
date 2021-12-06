@@ -76,6 +76,7 @@
                     (nth (stream-id self) (multi-obj-list editor))
                   (object-value editor))))
     (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file-pathname sound))))
+
         (editor-draw-sound-waveform sound editor self (x1 self) (x2 self) (stream-id self))
 
       ;;; no sound

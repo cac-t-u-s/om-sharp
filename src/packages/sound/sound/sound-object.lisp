@@ -438,6 +438,7 @@ Press 'space' to play/stop the sound file.
 (defmethod file-pathname ((self sound))
   (slot-value self 'file-pathname))
 
+
 (defmethod set-play-buffer ((self sound))
 
   (if (and (file-pathname self) (access-from-file self))
@@ -478,11 +479,8 @@ Press 'space' to play/stop the sound file.
     ;;; else we set the buffer (if needed)
     (when (and (file-pathname self)
                (not (buffer self)))
-      (set-sound-data self (file-pathname self)))
+      (set-sound-data self (file-pathname self))))
 
-    )
-
-  ; (set-play-buffer self)  ;; be lazy => do it later!
   self)
 
 
@@ -816,7 +814,6 @@ Press 'space' to play/stop the sound file.
 
 
 (defmethod get-sample-array-from-sound ((self sound) window-size)
-
   (with-audio-buffer (b self)
     (when b
       (let* ((n-channels (n-channels self))
