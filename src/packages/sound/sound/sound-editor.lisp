@@ -142,64 +142,71 @@
 
 (defun editor-draw-sound-waveform (sound editor view from to &optional (sound-id 0))
 
-  (let ((editor-display-cache-ready-p (nth sound-id (cache-display-list editor))))
+  (cond ((and (access-from-file sound) (not (probe-file (file-pathname sound))))
+         (om-draw-string 10 16 (string+ "File not found: " (namestring (file-pathname sound)))
+                         :color (om-def-color :red)))
 
-    ;; (re)create display cache if needed
-    (unless (or editor-display-cache-ready-p *gen-cache-flag*)
-      (setf *gen-cache-flag* t)
-      (om-run-process "Generate waveform cache"
-                      #'(lambda (ed)
-                          (setf (cache-display-list ed)
-                                (if (multi-display-p ed)
-                                    (mapcar #'(lambda (o) (get-cache-display-for-draw o nil)) (multi-obj-list ed))
-                                  (list (get-cache-display-for-draw (object-value ed) nil))))
-                          (setf *gen-cache-flag* nil))
-                      :args
-                      (list editor)))
+        ((not (and (sample-rate sound) (n-samples sound) (n-channels sound)))
+         (om-draw-string 10 16 "Error with loaded sound data."
+                         :color (om-def-color :red)))
 
-    (let* (;; Use the box display cache if the editor cache is not ready
-           (display-cache (or editor-display-cache-ready-p
-                              (ensure-cache-display-draw (object editor) (object-value editor))))
-           (sound-duration (get-obj-dur sound))
-           (draw-end-time (min sound-duration to)) ;; space after sound end
-           (draw-end-pix (x-to-pix view draw-end-time))
-           (duration-to-draw (- draw-end-time from))
-           (samples-per-pixel (ceiling (ms->samples duration-to-draw (sample-rate sound)) draw-end-pix))
-           ;; If using the editor display cache, find best resolution
-           (cache (if (sound-display-cache-p display-cache)
-                      (find-best-cache-display display-cache samples-per-pixel)
-                    display-cache)))
+        (t
+         (let ((editor-display-cache-ready-p (nth sound-id (cache-display-list editor))))
+           ;; (re)create display cache if needed
+           (unless (or editor-display-cache-ready-p *gen-cache-flag*)
+             (setf *gen-cache-flag* t)
+             (om-run-process "Generate waveform cache"
+                             #'(lambda (ed)
+                                 (setf (cache-display-list ed)
+                                       (if (multi-display-p ed)
+                                           (mapcar #'(lambda (o) (get-cache-display-for-draw o nil)) (multi-obj-list ed))
+                                         (list (get-cache-display-for-draw (object-value ed) nil))))
+                                 (setf *gen-cache-flag* nil))
+                             :args
+                             (list editor)))
 
-      (when cache
-        (cond
-         ;; Using the editor display cache at high-res (cache is an array or a buffer)
-         ((and (sound-display-cache-resolution-p cache)
-               (or (arrayp (sound-display-cache-resolution-cache cache))
-                   (om-sound-buffer-p (sound-display-cache-resolution-cache cache))))
-          (let* ((array (sound-display-cache-resolution-cache cache))
-                 (res (sound-display-cache-resolution-samples-per-pixel cache))
-                 (sr (sample-rate sound)))
-            (draw-waveform array
-                           (w view) (h view)
-                           (ms->samples from sr)
-                           (ms->samples to sr)
-                           res)))
+           (let* (;; Use the box display cache if the editor cache is not ready
+                  (display-cache (or editor-display-cache-ready-p
+                                     (ensure-cache-display-draw (object editor) (object-value editor))))
+                  (sound-duration (get-obj-dur sound))
+                  (draw-end-time (min sound-duration to)) ;; space after sound end
+                  (draw-end-pix (x-to-pix view draw-end-time))
+                  (duration-to-draw (- draw-end-time from))
+                  (samples-per-pixel (ceiling (ms->samples duration-to-draw (sample-rate sound)) draw-end-pix))
+                  ;; If using the editor display cache, find best resolution
+                  (cache (if (sound-display-cache-p display-cache)
+                             (find-best-cache-display display-cache samples-per-pixel)
+                           display-cache)))
+             (when cache
+               (cond
+                ;; Using the editor display cache at high-res (cache is an array or a buffer)
+                ((and (sound-display-cache-resolution-p cache)
+                      (or (arrayp (sound-display-cache-resolution-cache cache))
+                          (om-sound-buffer-p (sound-display-cache-resolution-cache cache))))
+                 (let* ((array (sound-display-cache-resolution-cache cache))
+                        (res (sound-display-cache-resolution-samples-per-pixel cache))
+                        (sr (sample-rate sound)))
+                   (draw-waveform array
+                                  (w view) (h view)
+                                  (ms->samples from sr)
+                                  (ms->samples to sr)
+                                  res)))
 
-         ;; Using the box display cache or the editor display cache at low-res (cache is a picture)
-         (t
-          (let* ((pict (if (sound-display-cache-resolution-p cache)
-                           (sound-display-cache-resolution-cache cache)
-                         cache))
-                 (pict-factor (/ (om-pict-width pict) sound-duration)))
-            (when (and pict (not (equal :error pict)))
-              (om-draw-picture pict
-                               :w (w view) :h (h view)
-                               :src-x (* pict-factor from)
-                               :src-w (* pict-factor (- to from))))
-            (unless editor-display-cache-ready-p
-              (om-draw-string 10 16 "Generating waveform display..." :color (om-def-color :orange)))
-            ))))
-      )))
+                ;; Using the box display cache or the editor display cache at low-res (cache is a picture)
+                (t
+                 (let* ((pict (if (sound-display-cache-resolution-p cache)
+                                  (sound-display-cache-resolution-cache cache)
+                                cache))
+                        (pict-factor (/ (om-pict-width pict) sound-duration)))
+                   (when (and pict (not (equal :error pict)))
+                     (om-draw-picture pict
+                                      :w (w view) :h (h view)
+                                      :src-x (* pict-factor from)
+                                      :src-w (* pict-factor (- to from))))
+                   (unless editor-display-cache-ready-p
+                     (om-draw-string 10 16 "Generating waveform display..." :color (om-def-color :orange)))
+                   ))))
+             )))))
 
 
 (defmethod update-to-editor ((editor sound-editor) (from t))
