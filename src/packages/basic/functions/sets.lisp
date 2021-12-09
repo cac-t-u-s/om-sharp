@@ -35,7 +35,7 @@
 
 Ex. (x-union '(1 2 3 4 5) '(4 5 6 7 8)) => (8 7 6 1 2 3 4 5)
 "
-  :icon 191
+  :icon 'set
   (noRep-union  (list* l1? l2? (and lists (list! lists))) 'union test key))
 
 
@@ -50,7 +50,7 @@ Ex. (x-union '(1 2 3 4 5) '(4 5 6 7 8)) => (8 7 6 1 2 3 4 5)
 <key> is a name or function name to apply to the elements before comparison.
 
 Ex. (x-intersect '(1 2 3 4 5) '(4 5 6 7 8)) => (4 5)"
-  :icon 191
+  :icon 'set
   (nreverse (noRep-union (list* l1? l2? (and list (list! list))) 'intersection test key)))
 
 
@@ -66,7 +66,7 @@ XOR keeps only the elements present in one list and not in the other one(s).
 <key> is a name or function name to apply to the elements before comparison.
 
 Ex. (x-xor '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3 6 7 8)"
-  :icon 191
+  :icon 'set
   (nreverse (noRep-union (list* l1? l2? (and list (list! list))) 'set-exclusive-or test key)))
 
 (x-xor '(1 2 3 4 5) '(4 5 6 7 8))
@@ -83,7 +83,7 @@ Ex. (x-xor '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3 6 7 8)"
 <key> is a name or function name to apply to the elements before comparison.
 
 Ex. (x-diff '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3)"
-  :icon 191
+  :icon 'set
   (nreverse (noRep-union (list* l1? l2? (and list (list! list))) 'set-difference test key)))
 
 
@@ -97,7 +97,7 @@ Ex. (x-diff '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3)"
 Ex. (included? '(1 2 3 4 5) '(4 5 6 7 8)) => NIL
 Ex. (included? '(5 6) '(4 5 6 7 8)) => T
 "
-  :icon 191
+  :icon 'set
   (subsetp lst1 lst2 :test test))
 
 (defmethod* included? ((lst1 number) (lst2 list) &optional (test 'equal))
