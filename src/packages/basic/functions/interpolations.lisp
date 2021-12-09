@@ -51,7 +51,8 @@
   :initvals '(0 0 1 1)
   :indoc '("x0" "y0" "x1" "y1")
   :doc "Constructs a linear function passing through the points (x0 y0) and (x1 y1).
-The resulting function can be connected for example to SAMPLEFUN."
+
+The resulting function can be connected for example to OM-SAMPLE."
   (linear x0 y0 x1 y1))
 
 
