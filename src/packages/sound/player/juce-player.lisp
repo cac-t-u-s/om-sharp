@@ -133,7 +133,7 @@
 
   (if *audio-driver*
       (progn
-        (om-print (format nil "Selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO")
+        (om-print (format nil "selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO")
         (juce::setDeviceType *juce-player* *audio-driver*)
         (setup-audio-device))
     (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver."))
@@ -149,7 +149,7 @@
 ;;; c = 0 : play on its original channel
 ;;; c = -1 : mute
 (defun configure-audio-channels (list)
-  (om-print (format nil "Routing channels:") "AUDIO")
+  (om-print (format nil "routing channels:") "AUDIO")
   (unless list (om-print "[reset]" "AUDIO"))
   (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
          (checked-list
@@ -158,12 +158,12 @@
                 (cond
 
                  ((or (null to) (not (integerp to)))
-                  (om-print (format nil "   ~D => X" from) "AUDIO")
+                  (om-print (format nil "~D => off" from) "AUDIO")
                   -1) ;; don't play this channel
 
                  ((and (find to available-channels :test '=)
                        (<= to (get-pref-value :audio :out-channels)))
-                  (om-print (format nil "   ~D => ~D" from to) "AUDIO")
+                  (om-print (format nil "~D => ~D" from to) "AUDIO")
                   to) ;; ok
 
                  (t ;;; 'to' channel not available
@@ -173,8 +173,8 @@
                                ))
                       (om-print-format
                        "~D => ERROR: channel ~D not available/enabled => ~A"
-                       (list from to (if (minusp to2) "X" to2))
-                       "AUDIO SETUP")
+                       (list from to (if (minusp to2) "off" to2))
+                       "AUDIO")
                       to2)
                     ))))
          )
