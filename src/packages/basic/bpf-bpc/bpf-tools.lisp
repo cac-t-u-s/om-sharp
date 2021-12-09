@@ -74,7 +74,6 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 
 
 (defmethod! bpf-extract ((self bpf) x1 x2)
-  :icon 233
   :indoc '("a BPF" "x1" "x2")
   :initvals '(nil nil nil)
   :doc "Extracts a segment (between <x1> and <x2>) from <self>."
