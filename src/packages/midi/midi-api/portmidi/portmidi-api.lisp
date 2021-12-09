@@ -109,18 +109,17 @@
     (om-lisp::om-print "initialized" "MIDI")
     (let ((devices (list-devices)))
       (if devices
-          (om-lisp::om-print-format "Devices detected:~%~{     ~A~^~%~}"
-                                    (list
-                                     (mapcar #'(lambda (device) (format nil "[~A] ~A"
-                                                                        (cond ((and (nth 6 device) (nth 8 device)) "in-out")
-                                                                              ((nth 6 device) "in")
-                                                                              ((nth 8 device) "out")
-                                                                              (t "-"))
-                                                                        (nth 4 device)
-                                                                        ))
-                                             devices))
-                                    "MIDI")
-        (om-lisp::om-print "No MIDI devices detected"))
+          (progn
+            (om-lisp::om-print "devices detected:" "MIDI")
+            (loop for device in devices 
+                  do (om-lisp:om-print-format "~A ~A"
+                                              (list (cond ((and (nth 6 device) (nth 8 device)) "[in-out]")
+                                                          ((nth 6 device) "[in] ")
+                                                          ((nth 8 device) "[out]")
+                                                          (t "[-]"))
+                                                    (nth 4 device))
+                                              "MIDI")))
+        (om-lisp::om-print "no MIDI devices detected" "MIDI"))
       )))
 
 ; (portmidi-restart)

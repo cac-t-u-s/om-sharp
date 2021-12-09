@@ -39,6 +39,7 @@
 
 (defun portmidi-connect-ports (settings)
   (portmidi-restart)
+  (om-lisp::om-print "ports setup" "MIDI")
   (unless (pm-time-started) (pm-time-start))
   (let ((pm-devices (list-devices)))
     ;;; IN
@@ -50,7 +51,7 @@
                       (when device-id
                         (setf stream (pm::pm-open-input device-id *portmidi-def-buffer-size*))
                         )))
-                  (om-lisp::om-print-format "IN ~D => ~A" (list (car item) indevice) "MIDI-CONNECT")
+                  (om-lisp::om-print-format "[in]  ~D => ~A~A" (list (car item) indevice (if stream "" ": device not found!")) "MIDI")
                   (push (list (car item) indevice stream) *portmidi-in-ports-table*) ;;; add this port/stream pair in the table
                   )))
 
@@ -62,7 +63,7 @@
                     (let ((device-id (car (find-if #'(lambda (device) (and (string-equal (getf (cdr device) :name) outdevice) (getf (cdr device) :output))) pm-devices))))
                       (when device-id
                         (setf stream (pm::pm-open-output device-id *portmidi-def-buffer-size* 0)))))
-                  (om-lisp::om-print-format "OUT ~D => ~A" (list (car item) outdevice) "MIDI-CONNECT")
+                  (om-lisp::om-print-format "[out] ~D => ~A~A" (list (car item) outdevice (if stream "" ": device not found!")) "MIDI")
                   (push (list (car item) outdevice stream) *portmidi-out-ports-table*)   ;;; add this port/stream pair in the table
                   ))
           )
