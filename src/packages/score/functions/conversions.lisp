@@ -253,7 +253,7 @@ program has a strange way of expressing downward intervals:
 (defmethod* symb->int ((symb list))
   :initvals (list '(1 2))
   :indoc '("ints")
-  :icon 128
+  :icon 'conversion
   :doc  "symb->int takes a symbolic interval name  , and returns an interval
 expressed in midi-cents. Intervals are labeled as follows:
 

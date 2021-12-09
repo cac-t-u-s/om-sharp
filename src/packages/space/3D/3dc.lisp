@@ -114,7 +114,6 @@
   ((x-points :initform nil :initarg :x-points :documentation "X coordinates (list)")
    (y-points :initform nil :initarg :y-points :documentation "Y coordinates (list)")
    (z-points :initform nil :initarg :z-points :documentation "Z coordinates (list)"))
-  (:icon 500)
   (:documentation
    "3D CURVE: a 3D function defined by a list of [x,y,z] coordinates.
 

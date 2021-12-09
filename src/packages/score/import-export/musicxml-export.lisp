@@ -920,7 +920,6 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 
 (defmethod! export-musicxml ((self t) &optional (keys '((G 2))) (approx 2) (path nil))
-  :icon 351
   :indoc '("a VOICE or POLY object" "list of voice keys" "tone subdivision approximation" "a target pathname")
   :initvals '(nil ((G 2)) 2 nil)
   :doc "

@@ -654,7 +654,7 @@ nonleaves. "
   (less-tree-mapcar #'(lambda (x y) (om* x (/ y (apply #'+ x)))) list sum t))
 
 (defmethod* om-scale/sum ((self list) (sum number))
-  :initvals (list '(1 2 3) 10) :indoc '("number or list"  "number" ) :icon 209
+  :initvals (list '(1 2 3) 10) :indoc '("number or list"  "number" )
   :doc "Scales <self> so that the sum of its elements become <sum>
 
 Ex. (om-scale/sum '(2 3 5) 30)  => (6 9 15) "

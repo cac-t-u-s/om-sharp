@@ -664,7 +664,7 @@ If <val-list> is supplied, the component itself is returned.
 
 If the component is attached to an array, i.e. previously passed through 'get-comp' or 'add-comp',
 then the modifications are immediately stored in the original array."
-  :icon 323
+  :icon 'array-comp
   (if val-list
       (progn
         (setf (component-vals self) val-list)

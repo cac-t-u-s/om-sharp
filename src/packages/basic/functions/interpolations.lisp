@@ -50,7 +50,6 @@
 (defmethod* linear-fun ((x0 number) (y0 number) (x1 number) (y1 number))
   :initvals '(0 0 1 1)
   :indoc '("x0" "y0" "x1" "y1")
-  :icon 236
   :doc "Constructs a linear function passing through the points (x0 y0) and (x1 y1).
 The resulting function can be connected for example to SAMPLEFUN."
   (linear x0 y0 x1 y1))

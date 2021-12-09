@@ -365,7 +365,7 @@
   :indoc '("Instrument name")
   :menuins `((0 ,*midi-gm-programs*))
   :doc "Outputs General MIDI program number corresponding to <progName>."
-  :icon :midi
+  :icon :synth
   progName)
 
 
@@ -374,7 +374,7 @@
   :indoc '("Drum name")
   :menuins `((0 ,*midi-gm-drum-notes*))
   :doc "Outputs General MIDI note number corresponding to <drumname>."
-  :icon 916
+  :icon :drum
   (if midicents (* drumName 100) drumName)
   )
 
