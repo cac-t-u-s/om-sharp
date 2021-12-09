@@ -41,7 +41,7 @@
  "3D"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
  :classes '(3DC 3D-model)
- :functions '())
+ :functions '(3D-interpol))
 
 (omNG-make-package
  "Conversions"
