@@ -167,15 +167,13 @@
 
 ;;; voice editor has a different ruler
 (defmethod make-time-ruler ((editor data-stream-editor) dur)
-
   (om-make-view 'time-ruler
                 :related-views (get-g-component editor :data-panel-list)
                 :size (omp nil 20)
                 :bg-color (om-def-color :white)
                 :vmin (data-stream-get-x-ruler-vmin editor)
                 :x1 (data-stream-get-x-ruler-vmin editor)
-                :x2 dur)
-  )
+                :x2 dur))
 
 
 (defmethod editor-scroll-v ((self data-stream-editor)) nil)
