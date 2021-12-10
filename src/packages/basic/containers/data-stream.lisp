@@ -43,7 +43,7 @@
   (:documentation "A container for a set of actions to be performed at a given time in a DATA-STREAM."))
 
 (defmethod get-frame-action ((self action-bundle))
-  #'(lambda () (mapcar 'funcall (actions self))))
+  #'(lambda () (mapcar 'funcall (list! (actions self)))))
 
 (defun make-action-bundle (date actions)
   (make-instance 'action-bundle
