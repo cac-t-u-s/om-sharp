@@ -115,7 +115,7 @@
    (y-points :initform nil :initarg :y-points :documentation "Y coordinates (list)")
    (z-points :initform nil :initarg :z-points :documentation "Z coordinates (list)"))
   (:documentation
-   "3D CURVE: a 3D function defined by a list of [x,y,z] coordinates.
+   "3D Curve: a 3D path defined by a list of [x,y,z] coordinates.
 
 3DC objects are constructed from the list of X coordinates (<x-points>), the list of Y coordinates (<y-points>) and the list of Z coordinates (<z-points>).
 If <x-list>, <y-list> and <z-list> are not of the same length, the last coordinate (for y and z) or the last step (for x) is repeated in the shorter lists.

@@ -70,7 +70,7 @@
    (y-points :initform '(0 100) :initarg :y-points :documentation "Y coordinates (list)")
    (gain :initform 1 :accessor gain :documentation "A gain factor for Y values"))
   (:icon 'bpf)
-  (:documentation "BREAK-POINTS FUNCTION: a 2D function defined as y=f(x) by a list of [x,y] coordinates (<x-points> / <y-points>).
+  (:documentation "Break-Points Function: a 2D function defined as y=f(x) by a list of [x,y] coordinates (<x-points> / <y-points>).
 
 - <x-point> must be stricly increasing or will be sorted at initialization.
 
