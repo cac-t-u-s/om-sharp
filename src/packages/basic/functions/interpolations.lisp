@@ -215,7 +215,7 @@ Optional <dec> is the number of decimals in the result."
 ;;;==========================
 
 (defmethod* om-sample ((self t) (nbs-sr number) &optional xmin xmax dec)
-  :initvals '(nil 1 nil nil nil)
+  :initvals '(nil 10 nil nil nil)
   :indoc '("object to resample" "number of samples (int) or sample rate (float)" "" "" "decimals")
   :icon 'bpf-sample
   :numouts 3
