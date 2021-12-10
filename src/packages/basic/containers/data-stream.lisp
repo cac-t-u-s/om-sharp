@@ -38,23 +38,23 @@
 (defmethod get-obj-dur ((self data-frame)) (item-get-duration self))
 
 ;;; SIMPLEST DATA FRAME
-(defclass act-bundle (data-frame)
-  (;; (date :accessor date :initarg :dateg :initform 0 :documentation "date/time of the frame")
-   (actions :accessor actions :initarg :actions :initform nil)))
+(defclass* action-bundle (data-frame)
+  ((actions :accessor actions :initarg :actions :initform nil :documentation "list of function or lambdas"))
+  (:documentation "A container for a set of actions to be performed at a given time in a DATA-STREAM."))
 
-(defmethod get-frame-action ((self act-bundle))
+(defmethod get-frame-action ((self action-bundle))
   #'(lambda () (mapcar 'funcall (actions self))))
 
-(defun make-act-bundle (date actions)
-  (make-instance 'act-bundle
+(defun make-action-bundle (date actions)
+  (make-instance 'action-bundle
                  :date date
-                 :actions actions))
+                 :actions (list! actions)))
 
 ;;;======================================
 ;;; INTERNAL CLASS
 ;;;======================================
 (defclass internal-data-stream (named-object time-sequence schedulable-object)
-  ((default-frame-type :accessor default-frame-type :initform 'act-bundle)
+  ((default-frame-type :accessor default-frame-type :initform 'action-bundle)
    (frames :initform nil :documentation "a list of timed data chunks")
    (locked :initform nil :accessor locked)
    ))
@@ -95,10 +95,16 @@
 
 ;;; redefines the slots as :initargs
 (defclass* data-stream (internal-data-stream named-object time-sequence schedulable-object)
-  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
-   (frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
-   )
-  (:documentation "A general container to organize data in time."))
+  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'action-bundle)
+   (frames :initarg :frames :initform nil :documentation "a list of timed data chunks"))
+  (:documentation "A container and editor to organize and play data in time.
+
+<frames> can be a list of any sub-type of DATA-FRAME, such as: ACTION-BUNDLE, OSC-BUNDLE, SDIFFRAME, MIDIEVENT/MIDI-NOTE.
+
+<default-frame-type> determines the class of DATA-FRAME that will be created by default by CMD/CTRL-clicking in the editor.
+
+This class is also the super-class of most 'temporal data' editors in OM#, such as SOUND, MIDI-TRACK, CHORD-SEQ editors.
+"))
 
 
 ;;; called after initialize-instance in OM-context

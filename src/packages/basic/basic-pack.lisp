@@ -55,7 +55,7 @@
                                           (omNG-make-package "Containers"
                                                              :doc ""
                                                              :functions nil
-                                                             :classes '(data-stream))
+                                                             :classes '(data-stream action-bundle))
                                           (omNG-make-package "Arrays"
                                                              :doc ""
                                                              :classes '(2D-array class-array)

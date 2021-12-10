@@ -1193,7 +1193,7 @@
     (:input
      (:type :standard)
      (:name "DEFAULT-FRAME-TYPE")
-     (:value act-bundle)
+     (:value action-bundle)
      (:reactive nil))
     (:input
      (:type :standard)
