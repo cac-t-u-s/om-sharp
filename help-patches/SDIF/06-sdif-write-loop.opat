@@ -44,7 +44,7 @@
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "File-Box allows to design iterative write operations to a file and write your SDIF data in an efficient and fully controlled way")
+    "File-Box allows designing iterative write operations to a file and write your SDIF data in an efficient and fully controlled way")
    (:id 1))
   (:comment
    (:x 49)

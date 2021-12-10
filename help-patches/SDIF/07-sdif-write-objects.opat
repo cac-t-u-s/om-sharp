@@ -1148,7 +1148,7 @@
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "A few functions exist that allow to write directly the contents of some OM objects into an SDIF file...")
+    "A few functions exist that allow writing directly the contents of some OM objects into an SDIF file...")
    (:id 22))
   (:comment
    (:x 64)

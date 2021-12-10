@@ -1236,7 +1236,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "One of the default actions in the BPF editor is 'midi-controller' : it allows to automatically set the action to a MIDI continuous controller")
+    "One of the default actions in the BPF editor is 'midi-controller' : it allows setting the action to a MIDI continuous controller")
    (:id 14))
   (:box
    (:type :function)

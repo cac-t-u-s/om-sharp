@@ -456,7 +456,7 @@
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "OPEN-FILE-STREAM / CLOSE-FILE-STREAM allow to open/close a file in order to read or write data using the FIL-WRITE / FILE-WRITE-LINE / FILE-READ-LINE functions.")
+    "OPEN-FILE-STREAM / CLOSE-FILE-STREAM allow opening/closing a file in order to read or write data using the FIL-WRITE / FILE-WRITE-LINE / FILE-READ-LINE functions.")
    (:id 7))
   (:comment
    (:x 358)

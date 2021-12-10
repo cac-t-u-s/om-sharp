@@ -88,7 +88,7 @@
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "Additional inputs (+) allow to access (read and/or set) other properties and attributes of the sound object. 
+    "Additional inputs (+) allow accessing (reading and/or setting) other properties and attributes of the sound object. 
 They can be set at the same time as the sound initialization.")
    (:id 2))
   (:box
@@ -223,7 +223,7 @@ Note: Lock the box (b) after the sound is loaded, in order to prevent releasing 
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "The :file-pathname attribute allows to (re)save the sound in a new file.")
+    "The :file-pathname attribute allows (re)saving the sound in a new file.")
    (:id 7))
   (:box
    (:type :object)
