@@ -230,8 +230,8 @@ Returns :
 If <nbs-sr> is an integer (e.g. 100) it is interpreted as the number of samples to be returned
 If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate (or step between two samples) of the function to return
 
-<xmin> and <xmax> allow to specify the x-range to resample.
-<dec> (decimals) is the precision of the result
+<xmin> and <xmax> specify the x-range to resample.
+<dec> (decimals) is the precision of the result.
 "
   nil)
 

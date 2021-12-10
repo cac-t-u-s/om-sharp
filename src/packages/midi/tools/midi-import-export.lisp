@@ -145,7 +145,7 @@
 
 - <filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
 - <approx> specifies the tone division (2, 4 or 8).
-- <format> allows to choose the MIDIFile format (0 or 1)
+- <format> selects the MIDIFile format (0 or 1)
 - <retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
 
 For POLY objects: If all voice have same tempo, this tempo is saved in MidiFile. Otherwise all voices are saved at tempo 60."

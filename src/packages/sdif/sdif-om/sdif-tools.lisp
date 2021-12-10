@@ -123,7 +123,7 @@
 Default values are suited to read and convert 1FQ0 frame and matrix types, typically resulting from fundamental frequency analysis.
 Other type of data can be extracted by setting the <stream>, <frame>, <matrix> and <field> arguments accordingly.
 
-<tmin> and <tmax> allow to bound the extracted data in a time interval.
+<tmin> and <tmax> bound the extracted data in a time interval.
 "
   (when (and stream frametype frametype field)
     (multiple-value-bind (y x) (getsdifdata self stream frametype matrixtype field nil nil tmin tmax)
@@ -137,12 +137,12 @@ Other type of data can be extracted by setting the <stream>, <frame>, <matrix> a
   :menuins '((3 (("Time" time) ("Elements" elts))))
   :doc "Saves the contents of <self> (a BPF) as an SDIF file in <outfile>.
 
-<ftype> and <mtype> allow to determine the SDIF type to enclose the data in (default = 1FQ0, i.e. fundamental frequency).
+<ftype> and <mtype> determine the SDIF type to enclose the data in (default = 1FQ0, i.e. fundamental frequency).
 If these types are not standard, they must be declared and given as a list of SDIFType objects in <typedefs>
 
 If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.
 
-<scope> allows to choose whether the x-dimension of the BPF should be considered as time (default) or as the elements in a single matrix.
+<scope> chooses whether the x-dimension of the BPF should be considered as time (default) or as the elements in a single matrix.
 "
   (let* ((out-path (handle-new-file-exists
                     (cond ((pathnamep out-file) out-file)
@@ -214,7 +214,7 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 Default values are suited to read 1MRK frames, typically resulting from markers or transient detection analysis.
 Other more specific type of data can be extracted by setting the <stream>, <frame>, <matrix> arguments accordingly.
 
-<tmin> and <tmax> allow to bound the extracted data in a time interval.
+<tmin> and <tmax> bound the extracted data in a time interval.
 "
   (when (and stream frame)
     (GetSDIFTimes self stream frame matrix tmin tmax)))
@@ -226,7 +226,7 @@ Other more specific type of data can be extracted by setting the <stream>, <fram
   :indoc '("onset list (s)" "SDIF frame type" "custom types declaration" "output file")
   :doc "Saves <self> (a list of onsets) as an SDIF file in <outfile>.
 
-<ftype> allows to determine the SDIF frame type to use (default = 1MRK, the standard SDIF type for time markers).
+<ftype> determines the SDIF frame type to use (default = 1MRK, the standard SDIF type for time markers).
 If this type is not standard, it must be declared and given as an SDIFType object in <typedefs>
 
 If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.

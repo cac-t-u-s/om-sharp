@@ -97,7 +97,7 @@ By default the test is 'eql so the items that are equal to <item> are removed.
 
 <test> can be a function or a function name.
 <start> and <end> determine bounding indices in the original sequence for removing elements.
-<count> allows to specify a maximal number of items to remove.
+<count> specifies a maximal number of items to remove.
 <from-end> if T, starts removing items from end of the sequence
 <key> is a function applyed to each item before to be tested
 <test-not> is used to remove elemet that do not satistfy the test (deprecated use)

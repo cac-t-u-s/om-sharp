@@ -87,7 +87,7 @@
   :doc "
 Constructs a POLY object from a MusicXML file.
 
-- <path> allows to specify the MusicXML file to import. If not specified, a file chooser dialog will be dispaled at evaluating the box.
+- <path> specifies the MusicXML file to import. If not specified, a file chooser dialog will be dispaled at evaluating the box.
 "
   (let ((file (or path (om-choose-file-dialog))))
     (when file (setf *import-error* nil)

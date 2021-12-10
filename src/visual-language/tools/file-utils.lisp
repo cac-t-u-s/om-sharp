@@ -235,10 +235,10 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
              (2 (("home" home) ("desktop" desktop) ("other" nil))))
   :doc "Pops up a file or directory chooser dialog.
 
-<type> allows to choose between a file or directory.
+<type> chooses between a file or directory.
 <mode> determines whether this should be an existing file or directory or a new one to be created.
-<initial-folder> allows to determine a strating directory for browsing the file system.
-<message> allows to set a specific message on the dialog.
+<initial-folder> determines a strating directory for browsing the file system.
+<message> sets a specific message on the dialog.
 
 Returns the selected pathname or NIL if cancelled."
 

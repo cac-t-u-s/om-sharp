@@ -186,7 +186,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
   :indoc '("a textfile object")
   :doc "Evaluates the contents of a TEXTBUFFER (<self>).
 
-Evaluation allows to define functions or data in Lisp and run commands or programs from the TEXTBUFFER."
+Evaluation allows defining functions or data in Lisp and running commands or programs from the TEXTBUFFER."
   (eval (read-from-string (apply 'string+ (append '("(progn ") (contents self) '(")"))))))
 
 (defmethod* textbuffer-read ((self textbuffer) mode)

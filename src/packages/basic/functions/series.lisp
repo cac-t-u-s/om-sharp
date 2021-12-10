@@ -54,7 +54,7 @@ Ex. (dx->x 0 '(1000 200 800 3000)) => (0 1000 1200 2000 5000))
   :indoc '("begin" "end " "step" "nummax")
   :icon 'series
   :doc "Arithmetic series: returns a list of numbers from <begin> to <end> with increment of <step>.
-<nummax> allows to limit the number of elements returned.
+<nummax> limits the number of elements returned.
 
 Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
   (if (plusp step)
@@ -116,8 +116,8 @@ Ex. (fibo-ser 1 3 10) => (1 3 4 7)
   :doc  "Geometric series: starts from <seed> and returns a list with f(i) = factor * f(i-1)
 <limit> is the limit of returned list list.
 
-<begin> and <end> allow to delimit the series.
-<nummax> allows to limit the number of elements.
+<begin> and <end> delimit the series.
+<nummax> limits the number of elements.
 
 Ex. (geometric-ser 1 3 60) => (1 3 9 27)
 Ex. (geometric-ser 2 3 60) => (2 6 18 54)

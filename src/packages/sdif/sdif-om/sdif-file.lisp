@@ -444,7 +444,7 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
   :doc "Returns a description of type <signature>.
 
 This function must be connected to an SDIF file (<self>) containing this data type.
-<type> (m/f) allows to specify if the type correspond to matrices (default) or to frames.
+<type> (m/f) specifies if the type correspond to matrices (default) or to frames.
 
 Matrix type description is a list of the different field (columns) names.
 Frame type description is a list of lists containing the internal matrix signatures and their respective type descriptions.
@@ -535,7 +535,7 @@ Name/Value tables are formatted as SDIFNVT objects.
   :icon :sdif
   :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
 
-<table-num> allows to look specifically in table number <table-num> as internally assigned to SDIF NVTs.
+<table-num> allows looking specifically in table number <table-num> as internally assigned to SDIF NVTs.
 "
   (if (and table-num (numberp table-num))
       (let ((nvt (find table-num nvtlist :key 'tnum)))
@@ -824,7 +824,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 <sid> can be a list of IDs (intergers)
 
 <tmin> and <tmax> determine a time window in the stream(s).
-<frameType> and <matType> allow to select frames and/or matrices of a specific type.
+<frameType> and <matType> select frames and/or matrices of a specific type.
 
 See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 "

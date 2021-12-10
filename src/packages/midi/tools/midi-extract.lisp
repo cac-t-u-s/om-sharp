@@ -31,7 +31,7 @@
 
  (midi-number (pitch) , onset-time(ms), duration(ms), velocity, channel)
 
- optional <tracknum> (a number in 0-15) allows to choose a single track."
+ optional <tracknum> (a number in 0-15) allows choosing a single track."
   :icon :midi
   (if tracknum
 
