@@ -121,7 +121,7 @@
 (defmethod get-box-frame-class ((self OMValueBox)) 'OMValueBoxFrame)
 
 (defmethod display-text-and-area ((self OMValueBoxFrame))
-  (let ((font (or (font-font (text-font (object self))) (om-get-font self))))
+  (let ((font (or (box-draw-font (object self)) (om-get-font self))))
     (multiple-value-bind (w h) (om-string-size (print-value (object self)) font)
       (values (print-value (object self))
               (case (box-draw-text-align (object self))
