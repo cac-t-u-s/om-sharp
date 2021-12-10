@@ -528,7 +528,7 @@
                                      (set-property
                                       object prop-id
                                       (make-font-or-nil :font (if (om-checked-p item)
-                                                                  (get-default-value default)
+                                                                  (font font-chooser)
                                                                 nil)
                                                         :t-or-nil (om-checked-p item)))
                                      (when update (update-after-prop-edit update object))
