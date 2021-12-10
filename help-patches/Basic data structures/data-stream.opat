@@ -4,9 +4,9 @@
  (:doc "")
  (:info
   (:created "2017/02/05 14:08:32")
-  (:modified "2021/06/13 23:35:15")
+  (:modified "2021/12/10 1:38:18")
   (:by "om-sharp")
-  (:version 1.0301))
+  (:version 1.05))
  (:window (:size (500 644)) (:position (729 201)))
  (:grid nil)
  (:lock nil)
@@ -28,8 +28,9 @@
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:lock nil)
+   (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -50,7 +51,7 @@
     (:output (:name "SELF") (:reactive nil))
     (:output (:name "DEFAULT-FRAME-TYPE") (:reactive nil))
     (:output (:name "FRAMES") (:reactive nil)))
-   (:window (:size (855 365)) (:position (884 345)))
+   (:window (:size (855 365)) (:position (825 345)))
    (:edition-params (:display-mode :bubbles) (:show-timeline t))
    (:value
     (:object
@@ -68,7 +69,10 @@
            ((:onset 116)
             (:item-internal-time 116)
             (:item-type :master)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.95605016 0.13174439 0.6166667 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -81,7 +85,10 @@
            ((:onset 295)
             (:item-internal-time 295)
             (:item-type 295)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.5160364 0.93760705 0.7487587 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -94,7 +101,10 @@
            ((:onset 333)
             (:item-internal-time 333)
             (:item-type 333)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.5199199 0.45293355 0.57626474 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -104,10 +114,13 @@
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 852)
-            (:item-internal-time 852)
-            (:item-type 852)
-            (:attributes nil)
+           ((:onset 634)
+            (:item-internal-time 634)
+            (:item-type 634)
+            (:attributes
+             (:list
+              :color
+              (:color 0.22831905 0.27848876 0.9940131 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -117,23 +130,13 @@
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 953)
-            (:item-internal-time 953)
-            (:item-type 953)
-            (:attributes nil)
-            (:messages
+           ((:onset 949)
+            (:item-internal-time 949)
+            (:item-type 949)
+            (:attributes
              (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 79)
-              (:list "/size" 14))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 1051)
-            (:item-internal-time 1051)
-            (:item-type 1051)
-            (:attributes nil)
+              :color
+              (:color 0.02946341 0.9024769 0.6451607 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -143,10 +146,29 @@
          (:object
           (:class osc-bundle)
           (:slots
+           ((:onset 953)
+            (:item-internal-time 953)
+            (:item-type 953)
+            (:attributes
+             (:list
+              :color
+              (:color 0.07734513 0.81607986 0.24039448 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 79)
+              (:list "/size" 14))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
            ((:onset 1254)
             (:item-internal-time 1254)
             (:item-type 1254)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.13533807 0.39198995 0.3382461 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -159,7 +181,10 @@
            ((:onset 1750)
             (:item-internal-time 1750)
             (:item-type 1750)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.33870602 0.18952763 0.12014222 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -172,7 +197,10 @@
            ((:onset 1840)
             (:item-internal-time 1840)
             (:item-type 1840)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.15629244 0.2405814 0.6368866 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -185,7 +213,10 @@
            ((:onset 2006)
             (:item-internal-time 2006)
             (:item-type 2006)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.89800907 0.2769252 0.9399543 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -198,7 +229,10 @@
            ((:onset 2389)
             (:item-internal-time 2389)
             (:item-type 2389)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.48131478 0.29410398 0.7779535 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -211,7 +245,10 @@
            ((:onset 2417)
             (:item-internal-time 2417)
             (:item-type 2417)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8472239 0.13582325 0.57869447 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -224,7 +261,10 @@
            ((:onset 2460)
             (:item-internal-time 2460)
             (:item-type 2460)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7369555 0.8543935 0.16504944 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -237,7 +277,10 @@
            ((:onset 2491)
             (:item-internal-time 2491)
             (:item-type 2491)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.2859156 0.3008145 0.048400045 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -250,7 +293,10 @@
            ((:onset 2513)
             (:item-internal-time 2513)
             (:item-type 2513)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.58250595 0.6512772 0.46971834 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -263,7 +309,8 @@
            ((:onset 2544)
             (:item-internal-time 2544)
             (:item-type 2544)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.2775396 0.1673615 0.6450161 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -276,7 +323,10 @@
            ((:onset 2739)
             (:item-internal-time 2739)
             (:item-type 2739)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.4480152 0.6031771 0.77136195 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -289,7 +339,10 @@
            ((:onset 2907)
             (:item-internal-time 2907)
             (:item-type 2907)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.98221994 0.49653625 0.8643118 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -302,7 +355,10 @@
            ((:onset 2988)
             (:item-internal-time 2988)
             (:item-type 2988)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.25015438 0.9096979 0.4638908 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -315,7 +371,10 @@
            ((:onset 3175)
             (:item-internal-time 3175)
             (:item-type 3175)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6518599 0.51630176 0.4857142 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -328,7 +387,8 @@
            ((:onset 3260)
             (:item-internal-time 3260)
             (:item-type 3260)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.3743136 0.617983 0.86218036 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -341,7 +401,8 @@
            ((:onset 3331)
             (:item-internal-time 3331)
             (:item-type 3331)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.5291338 0.32688904 0.576519 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -354,7 +415,8 @@
            ((:onset 3434)
             (:item-internal-time 3434)
             (:item-type 3434)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.7286223 0.2857982 0.5179343 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -367,7 +429,10 @@
            ((:onset 3549)
             (:item-internal-time 3549)
             (:item-type 3549)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.19682515 0.5474932 0.09317613 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -380,7 +445,10 @@
            ((:onset 3647)
             (:item-internal-time 3647)
             (:item-type 3647)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7385154 0.16335213 0.32046628 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -393,7 +461,10 @@
            ((:onset 3668)
             (:item-internal-time 3668)
             (:item-type 3668)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8352423 0.053839445 0.3702966 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -406,7 +477,10 @@
            ((:onset 3724)
             (:item-internal-time 3724)
             (:item-type 3724)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.06599057 0.7044722 0.28874648 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -419,7 +493,10 @@
            ((:onset 3874)
             (:item-internal-time 3874)
             (:item-type 3874)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.41431105 0.7626394 0.31426787 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -432,7 +509,10 @@
            ((:onset 3927)
             (:item-internal-time 3927)
             (:item-type 3927)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.09929776 0.15628457 0.30708754 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -445,7 +525,10 @@
            ((:onset 3975)
             (:item-internal-time 3975)
             (:item-type 3975)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.17411292 0.7123425 0.30731702 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -458,7 +541,10 @@
            ((:onset 4000)
             (:item-internal-time 4000)
             (:item-type 4000)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.022753716 0.3723278 0.36187458 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -471,7 +557,10 @@
            ((:onset 4015)
             (:item-internal-time 4015)
             (:item-type 4015)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.83340884 0.39399064 0.7869154 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -484,7 +573,10 @@
            ((:onset 4141)
             (:item-internal-time 4141)
             (:item-type 4141)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7458581 0.97174347 0.3049606 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -497,7 +589,10 @@
            ((:onset 4271)
             (:item-internal-time 4271)
             (:item-type 4271)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.3313793 0.53765834 0.71100665 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -510,7 +605,8 @@
            ((:onset 4279)
             (:item-internal-time 4279)
             (:item-type 4279)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.15248764 0.8919238 0.185673 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -523,7 +619,8 @@
            ((:onset 4368)
             (:item-internal-time 4368)
             (:item-type 4368)
-            (:attributes nil)
+            (:attributes
+             (:list :color (:color 0.7448596 0.8108041 0.9636098 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -536,7 +633,10 @@
            ((:onset 4582)
             (:item-internal-time 4582)
             (:item-type 4582)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.40643895 0.21678543 0.6380037 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -549,7 +649,10 @@
            ((:onset 4634)
             (:item-internal-time 4634)
             (:item-type 4634)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.36420238 0.82361877 0.5084679 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -562,7 +665,10 @@
            ((:onset 4676)
             (:item-internal-time 4676)
             (:item-type 4676)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.74664164 0.97985757 0.6955894 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -575,7 +681,10 @@
            ((:onset 4990)
             (:item-internal-time 4990)
             (:item-type :master)
-            (:attributes nil)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9231247 0.11380446 0.32237732 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
@@ -601,6 +710,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -642,8 +752,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "vb")
-   (:x 289)
-   (:y 378)
+   (:x 254)
+   (:y 388)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -652,6 +762,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 40)
@@ -661,10 +772,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 163/2)
+   (:x 82)
    (:y 283)
-   (:w 78)
-   (:h 29)
+   (:w 84)
+   (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -673,6 +784,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -698,7 +810,7 @@
    (:name "vb")
    (:x 102)
    (:y 246)
-   (:w 38)
+   (:w 44)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -706,6 +818,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "/y")
@@ -715,10 +828,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 147)
+   (:x 166)
    (:y 246)
-   (:w 103)
-   (:h 29)
+   (:w 97)
+   (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -727,6 +840,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -745,10 +859,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 186)
-   (:y 378)
-   (:w 78)
-   (:h 29)
+   (:x 189)
+   (:y 374)
+   (:w 84)
+   (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -757,6 +871,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -781,8 +896,8 @@
    (:group-id nil)
    (:name "vb")
    (:x 199)
-   (:y 342)
-   (:w 51)
+   (:y 310)
+   (:w 64)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -790,6 +905,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "/size")
@@ -799,10 +915,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 252)
+   (:x 254)
    (:y 342)
-   (:w 103)
-   (:h 29)
+   (:w 97)
+   (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -811,6 +927,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "LOW") (:value 5) (:reactive nil))
     (:input
@@ -825,9 +942,9 @@
    (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
-   (:x 202)
+   (:x 207)
    (:y 420)
-   (:w 91)
+   (:w 97)
    (:h 28)
    (:color
     (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
@@ -836,6 +953,7 @@
    (:text-font nil)
    (:align :center)
    (:icon :left)
+   (:reactive nil)
    (:lock nil)
    (:inputs
     (:input
@@ -872,10 +990,10 @@
    (:reference osc-timetag)
    (:group-id nil)
    (:name "osc-timetag")
-   (:x 200)
+   (:x 194)
    (:y 170)
-   (:w 103)
-   (:h 29)
+   (:w 111)
+   (:h 30)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -884,6 +1002,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -905,7 +1024,7 @@
    (:x 223)
    (:y 128)
    (:w 103)
-   (:h 29)
+   (:h 30)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -914,6 +1033,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "LOW") (:value 0) (:reactive nil))
     (:input
