@@ -52,7 +52,7 @@
   (mapcar 'string-downcase (append (gp::list-known-image-formats nil) '(:tif))))
 
 
-;;; allows to call image by its name from then on
+;;; allows calling image by its name from then on
 (defun om-register-picture (name path)
   (gp:register-image-translation name (gp:read-external-image path)))
 

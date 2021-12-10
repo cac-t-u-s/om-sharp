@@ -109,7 +109,7 @@
 
 
 ;;; => call this before any action which might require undo
-;;; => action and item allow to prevent multiple-undo storage for sequences of similar actions (to do: add also a timer?)
+;;; => action and item allow preventing multiple-undo storage for sequences of similar actions (to do: add also a timer?)
 (defmethod store-current-state-for-undo ((editor undoable-editor-mixin) &key action item)
   (unless (and action
                (equal action (last-action editor))
@@ -210,7 +210,7 @@
 
   (if (typep (car self) '(or symbol string number))
 
-      ;;; allows to just copy "simple" value lists
+      ;;; copies "simple" value lists
       (om-copy self)
 
     ;;; handles list of standard objects

@@ -133,7 +133,7 @@
                            bg-color fg-color font
                            scrollbars
                            (enabled t)
-                           (direct-draw t)  ;;; DIRECT-DRAW NIL ALLOWS TO DRAW PINBOARDS
+                           (direct-draw t)  ;;; DIRECT-DRAW = NIL ALLOWS DRAWING PINBOARDS
                            &allow-other-keys)
   (let  ((x (and position (om-point-x position)))
          (y (and position (om-point-y position)))

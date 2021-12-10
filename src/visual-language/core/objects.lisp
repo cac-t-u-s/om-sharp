@@ -26,7 +26,7 @@
 (defmethod set-name ((self t) newname) nil)
 (defmethod get-name ((self t)) nil)
 
-;;; Allows to use :name
+;;; allows using :name
 (defmacro om-make-instance (class &rest initargs)
   "Special make-instance - class must be an OMObject."
   (if (getf initargs :name)

@@ -1450,7 +1450,7 @@
       (om-beep-msg "Abort external import"))))
 
 
-;;; refpatch allows to type the file path relative to the cirrebt patch
+;;; refpatch allows typing the file path relative to the cirrebt patch
 ;;; this is available from the "p" shortcut
 ;;; handle/warn on possible duplicates
 
@@ -1529,7 +1529,7 @@
                             :font (om-def-font :font1))
 
                 ;; main pane
-                ;; om-simple-layout allows to st a background color
+                ;; om-simple-layout allows setting a background color
                 (om-make-layout 'om-simple-layout :bg-color (om-def-color :white)
                                 :subviews (list lisp-pane))
 

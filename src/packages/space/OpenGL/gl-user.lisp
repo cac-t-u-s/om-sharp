@@ -276,7 +276,7 @@
    (camera :initform (make-camera :color '(0.9 0.9 0.9 1.0)) :initarg :camera :accessor camera))
   (:default-initargs
    :configuration
-   #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 64) ;depth buffer allows to have depth in 3D drawing
+   #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 64) ;depth buffer allows using depth in 3D drawing
    #+linux (list :rgba t :depth nil :double-buffered t)
    :use-display-list t
    :display-callback 'opengl-redisplay-canvas

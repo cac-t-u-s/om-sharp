@@ -53,7 +53,7 @@
 (add-preference :libraries :libs-folder4 "Search folder 4" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :auto-load "Auto load" :bool nil "Will silently load any required libraries")
 
-;; typically used from libraries, this Preference tab will allow to deal with externalk utils' preferences (e.g. Csound, etc.)
+;; typically used from libraries, this Preference tab will deal with external utils' preferences (e.g. Csound, etc.)
 (add-preference-module :externals "Externals")
 
 

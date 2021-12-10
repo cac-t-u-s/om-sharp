@@ -219,7 +219,7 @@
 
 ;;; number-or-nil work slightly differently:
 ;;; the type needs to be intanciated in order to embed a min and max value
-;;; t-or-nil allow to specify an unspecified number, typically to get it from the preferences
+;;; t-or-nil allows specifying an unspecified number, typically to get it from the preferences
 (defstruct number-or-nil
   (t-or-nil) (number)
   (min) (max) (decimals)  ;;; 'meta-attributes' used to instanciate the type

@@ -255,7 +255,7 @@
         (om-set-focus (get-g-component self :main-panel)))
       )))
 
-;;; the g-component p-list allows to store and access
+;;; the g-component p-list stores and accesses
 ;;; views and dialog items related to the editor
 (defmethod set-g-component ((self OMEditor) name comp)
   (setf (getf (g-components self) name) comp))

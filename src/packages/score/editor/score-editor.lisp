@@ -43,7 +43,7 @@
 ;;; It is useful to control the spacing between lines (by mouse/key actions) but needs to be maintained up-to-date
 ;;; when voices are added/removed etc.
 
-;;; only chord-seq-editor allows to edit time
+;;; only chord-seq-editor allows editing time
 (defmethod edit-time-? ((self score-editor)) nil)
 
 ;;;============

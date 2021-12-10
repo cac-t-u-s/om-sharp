@@ -1382,7 +1382,7 @@ CMD-click to add boxes. Play contents, etc.
                              :size (omp (+ 2 *track-control-w*) *ruler-view-h*))
                             metric-ruler))
 
-                ;;; allows to scroll the sub-layout
+                ;;; allows scrolling the sub-layout
                 (om-make-layout
                  'om-simple-layout
                  :subviews

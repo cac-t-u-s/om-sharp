@@ -162,7 +162,7 @@
 (defmethod* add-frame-in-data-stream ((self t) frame)
   (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
 
-;;; when editing in mode "box" => allows to update editor
+;;; when editing in mode "box" => allows updating editor
 (defmethod* add-frame-in-data-stream ((self omboxeditcall) frame)
   (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
   (update-after-eval self)
@@ -174,7 +174,7 @@
 (defmethod* clear-data-stream ((self t))
   (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
 
-;;; when editing in mode "box" => allows to update editor
+;;; when editing in mode "box" => allows updating editor
 (defmethod* clear-data-stream ((self omboxeditcall))
   (clear-data-stream (get-box-value self))
   (update-after-eval self))
