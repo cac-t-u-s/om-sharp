@@ -925,9 +925,9 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
   :doc "
 Exports <self> to MusicXML format.
 
-- <keys> defines the staff
-- <approx> is the microtonal pitch approximation
-- <path> is a pathname to write the file in
+<keys> defines the staff
+<approx> is the microtonal pitch approximation
+<path> is a pathname to write the file in
 "
   (xml-export self :keys keys :approx approx :path path))
 

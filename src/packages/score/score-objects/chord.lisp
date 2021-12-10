@@ -87,12 +87,12 @@
 
   (:documentation "A CHORD object (set of simultaneous notes) defined with
 
-- <lmidic>: list of pitches (midicents: 100 = 1 half-tone - 6000 = C3)
-- <lvel>: velocities (MIDI velocity from 0 to 127)
-- <loffset>: offsets (delay of notes after the actual chord onset)
-- <ldur> durations in milliseconds
-- <lchan> MIDI channels for each note
-- <lport> (additional/optional) MIDI port for each note (defaults to the value defined in MIDI preferences)
+<lmidic>: list of pitches (midicents: 100 = 1 half-tone - 6000 = C3)
+<lvel>: velocities (MIDI velocity from 0 to 127)
+<loffset>: offsets (delay of notes after the actual chord onset)
+<ldur> durations in milliseconds
+<lchan> MIDI channels for each note
+<lport> (additional/optional) MIDI port for each note (defaults to the value defined in MIDI preferences)
 These slots are simpel accessor for initialization. In reality the CHORD contains a list of NOTE instance."))
 
 ;;; allow as additional slots

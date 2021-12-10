@@ -143,10 +143,10 @@
   :icon :midi-export
   :doc "Saves <object> as a MIDI file.
 
-- <filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
-- <approx> specifies the tone division (2, 4 or 8).
-- <format> selects the MIDIFile format (0 or 1)
-- <retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
+<filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
+<approx> specifies the tone division (2, 4 or 8).
+<format> selects the MIDIFile format (0 or 1)
+<retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
 
 For POLY objects: If all voice have same tempo, this tempo is saved in MidiFile. Otherwise all voices are saved at tempo 60."
 

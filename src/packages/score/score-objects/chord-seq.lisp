@@ -59,14 +59,14 @@ Time is expressed in absolute dates and durations. (For rhytmic structures see t
 
 CHORD-SEQ is defined with:
 
-- <lmidic>: a list of list of pitches (midicents: 100 = 1 half-tone - 6000 = C3); e.g. '((6000 6500) (6100 6700 7100)). Each pitch list is considered as a chord in the sequence. Single-note sequences can be specified with simple list of pitches, e.g. (6000 61000 6800) ; in this case each pitch will be considered as a single-note chord.
-- <lonsets>: a list of onsets in milliseconds (one for each chord). If the list is shorter than the list of pitch, the last interval is repeated.
-- <ldur>: a list or list of lists values (in milliseconds) expressing chords durations or note durations inside each chord.
-- <lvel>: a list or list of lists of values (MIDI velocity from 0 to 127) expressing chords velocities or note durations inside each chord.
-- <loffset>: a list or list of lists of values (milliseconds) expressing note offsets for the notes inside each chord.
-- <lchan>: a list or list of lists of values (1-16) expressing MIDI channels for each chord or notes inside each chord.
-- <lport>: a list or list of lists of values expressing MIDI ports for each chord or notes inside each chord.
-- <llegato>: list of float numbers > 0.0 (or NIL), indicating the duration of chords as a ratio of inter-onsets time intervals. When applied, the ldur and loffset inputs are ignored, and note durations are set with regard to the legato value.
+<lmidic>: a list of list of pitches (midicents: 100 = 1 half-tone - 6000 = C3); e.g. '((6000 6500) (6100 6700 7100)). Each pitch list is considered as a chord in the sequence. Single-note sequences can be specified with simple list of pitches, e.g. (6000 61000 6800) ; in this case each pitch will be considered as a single-note chord.
+<lonsets>: a list of onsets in milliseconds (one for each chord). If the list is shorter than the list of pitch, the last interval is repeated.
+<ldur>: a list or list of lists values (in milliseconds) expressing chords durations or note durations inside each chord.
+<lvel>: a list or list of lists of values (MIDI velocity from 0 to 127) expressing chords velocities or note durations inside each chord.
+<loffset>: a list or list of lists of values (milliseconds) expressing note offsets for the notes inside each chord.
+<lchan>: a list or list of lists of values (1-16) expressing MIDI channels for each chord or notes inside each chord.
+<lport>: a list or list of lists of values expressing MIDI ports for each chord or notes inside each chord.
+<llegato>: list of float numbers > 0.0 (or NIL), indicating the duration of chords as a ratio of inter-onsets time intervals. When applied, the ldur and loffset inputs are ignored, and note durations are set with regard to the legato value.
 Note: for compatibility, legato can also be specified as an integer [0-100], and is then considered a percentage value.
 
 All values (excepted lonsets and legato) are returned (in the box outputs) as list of lists (one value for each note, missing values computed from previous notes or chords).

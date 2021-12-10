@@ -392,7 +392,7 @@ Outputs
   :numouts 1
   :doc "Generates a new BPF by crossfading the overlapping interval between BPF1 and BPF2.
 
-- <xfade-profile> determines the general crossfade profile (default = linear).
+<xfade-profile> determines the general crossfade profile (default = linear).
 "
   (let* ((first bpf1)
          (second bpf2))
