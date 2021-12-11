@@ -51,7 +51,7 @@
 (defun editor-point-set-y (editor point y) (funcall 'om-point-set point (y-axis-key editor) y))
 
 (defmethod additional-box-attributes ((self bpf))
-  '((:background "sets one or more background-element(s) (picture, etc.) in the editor" nil)
+  '((:background "sets one or more background-element(s) in the editor" nil)
     (:display-min "sets a min y-value for display" nil)
     (:display-max "sets a max y-value for display" nil)))
 
