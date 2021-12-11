@@ -39,15 +39,19 @@
 
 (omNG-make-package
  "3D"
- :container-pack (get-subpackage *om-package-tree* "Basic Tools")
- :classes '(3DC 3D-model)
- :functions '(3D-interpol get-transformed-data)
- :subpackages (list (omNG-make-package 
-                     "3D-objects" 
-                     :doc "Objects to construct a 3D-model"
-                     :classes '(3D-cube 3D-sphere 3D-lines))))
+ :container-pack *om-package-tree*
+ :classes '(3DC)
+ :functions '(3D-interpol)
+ :subpackages (list 
+               (omNG-make-package 
+                "3D-model" 
+                :classes '(3D-model 3D-cube 3D-sphere 3D-lines)
+                :functions '(get-transformed-data))
+               (omNG-make-package
+                "Conversions"
+                :functions '(xyz->aed aed->xyz))))
 
 (omNG-make-package
  "Conversions"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
- :functions '(car->pol pol->car xy->ad ad->xy xyz->aed aed->xyz))
+ :functions '(car->pol pol->car xy->ad ad->xy))
