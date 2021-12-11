@@ -49,7 +49,10 @@
                 :functions '(get-transformed-data))
                (omNG-make-package
                 "Conversions"
-                :functions '(xyz->aed aed->xyz))))
+                :functions '(xyz->aed aed->xyz))
+               (omNG-make-package
+                "Background Elements"
+                :classes '(speaker project-room))))
 
 (omNG-make-package
  "Conversions"
