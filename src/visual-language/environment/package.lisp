@@ -153,7 +153,6 @@ For easier browsing it is recommended that a package do not contain at the same 
             (progn
               (export-symbol-from-om funname)
               (omNG-add-element inPackage (fdefinition funname)))
-          ;;;(omNG-add-element inPackage (omNG-make-new-lispfun funName)) ; je crois que c'est pas la peine
           (omNG-add-element inPackage (fdefinition funname))))
     (om-beep-msg (format nil "Undefined function: ~A" funname))
     ))
