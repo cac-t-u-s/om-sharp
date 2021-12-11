@@ -73,7 +73,8 @@
             (unless (find-value-in-kv-list initargs :scaler-z)
               (setf (scaler-z self) (float (/ scaled-ref (- zma zmi)))))
             )))
-      self)))
+      )
+    self))
 
 
 (defun format-3D-objects (list)
