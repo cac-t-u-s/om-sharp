@@ -21,6 +21,13 @@
   ((pos :accessor pos :initarg :pos :initform nil)
    (size :accessor size :initarg :size :initform 1)))
 
+(defmethod initialize-instance :after ((self speaker) &rest args)
+  (let ((pos (slot-value self 'pos)))
+    (when (listp pos)
+      (setf (slot-value self 'pos)
+            (make-3dpoint :x (car pos) :y (cadr pos) :z (or (caddr pos) 0))))
+    self))
+
 
 (defun make-bg-speakers (speakers)
 
