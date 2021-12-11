@@ -117,7 +117,10 @@
   self)
 
 
-(defmethod get-transformed-data ((self 3d-model))
+(defmethod* get-transformed-data ((self 3d-model))
+  :indoc '("a 3D-MODEL object")
+  :outdoc '("transformed 3D-MODEL")
+  :doc "Returns a new 3D-MODEL object as trasformed by the scalers and rotation values of an initial 3D-MODEL."
 
   (loop for obj in (data self) collect
 
