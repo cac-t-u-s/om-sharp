@@ -324,6 +324,7 @@
 (defmethod get-icon ((self Function)) :icon-fun)
 (defmethod get-icon ((self OMGenericFunction)) :icon-genfun)
 (defmethod get-icon ((self OMClass)) :icon-class)
+(defmethod get-icon ((self standard-class)) :icon-class)
 (defmethod get-icon ((self OMLib)) (if (loaded? self) :icon-lib-loaded :icon-lib))
 (defmethod get-icon ((self symbol)) :icon-special)
 
