@@ -148,7 +148,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 ;;; Fill package tools : Functions
 (defmethod AddFun2Pack ((funname symbol) inPackage)
   (if (fboundp funname)
-      (unless (find funname (functions inPackage) :test 'equal :test 'function-name)
+      (unless (find funname (functions inPackage) :test 'equal :key 'function-name)
         (if (subtypep (type-of (fdefinition funname)) 'omgenericfunction)
             (progn
               (export-symbol-from-om funname)
