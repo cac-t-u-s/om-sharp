@@ -26,8 +26,18 @@
            :documentation "a 3D point used as reference for data transformation and output")
    (rotation-x :accessor rotation-x :initform 0 :documentation "rotation angles on x axis")
    (rotation-y :accessor rotation-y :initform 0 :documentation "rotation angles on y axis")
-   (rotation-z :accessor rotation-z :initform 0 :documentation "rotation angles on z axis")
-   ))
+   (rotation-z :accessor rotation-z :initform 0 :documentation "rotation angles on z axis"))
+
+  (:documentation "A container for 3D-objects, with associated graphical editor.
+
+Construct with a list of 3D objects: 3D-CUBE, 3D-SPHERE, 3D-LINES, and additional visualization parameters:
+
+- X, Y, Z scalers.
+- X, Y, Z-axis rotation angles.
+- Rotation center.
+
+Use 'get-transformed-data' to export the data as transformed by the rotation and scalers.
+"))
 
 #|
 (defmethod get-properties-list ((self 3d-model))
