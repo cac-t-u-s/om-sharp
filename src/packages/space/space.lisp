@@ -41,7 +41,11 @@
  "3D"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
  :classes '(3DC 3D-model)
- :functions '(3D-interpol))
+ :functions '(3D-interpol get-transformed-data)
+ :subpackages (list (omNG-make-package 
+                     "3D-objects" 
+                     :doc "Objects to construct a 3D-model"
+                     :classes '(3D-cube 3D-sphere 3D-lines))))
 
 (omNG-make-package
  "Conversions"
