@@ -46,4 +46,4 @@
 (omNG-make-package
  "Conversions"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
- ::functions '(car->pol pol->car xy->ad ad->xy xyz->aed aed->xyz))
+ :functions '(car->pol pol->car xy->ad ad->xy xyz->aed aed->xyz))
