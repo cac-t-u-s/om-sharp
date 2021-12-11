@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2015/11/25 11:31:00")
-  (:modified "2020/01/02 8:45:59")
+  (:modified "2021/12/11 17:34:20")
   (:by "om-sharp")
-  (:version 1.0))
- (:window (:size (916 613)) (:position (44 319)))
+  (:version 1.05))
+ (:window (:size (872 567)) (:position (44 319)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,7 +16,7 @@
    (:reference om-sample)
    (:group-id 0)
    (:name "om-sample")
-   (:x 642)
+   (:x 640.16796875D0)
    (:y 226)
    (:w 108.83203125D0)
    (:h 30)
@@ -28,6 +28,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -61,6 +62,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -91,6 +93,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value 0) (:reactive nil))
     (:input
@@ -105,7 +108,7 @@
    (:reference 3dc)
    (:group-id 0)
    (:name "3DC")
-   (:x 484)
+   (:x 473)
    (:y 382)
    (:w 186)
    (:h 125)
@@ -119,6 +122,7 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -261,310 +265,310 @@
        (:decimals 2)
        (:x-points
         (:list
-         -0.09
-         -0.38
-         -0.63
-         -0.81
-         -0.9
-         -0.89
-         -0.8
-         -0.64
-         -0.42
-         -0.17
          0.09
-         0.32
-         0.51
-         0.64
-         0.7
+         0.39
+         0.65
+         0.83
+         0.94
+         0.94
+         0.86
          0.69
-         0.61
-         0.48
-         0.3
-         0.11
-         -0.08
-         -0.25
+         0.46
+         0.19
+         -0.1
+         -0.37
+         -0.59
+         -0.76
+         -0.84
+         -0.84
+         -0.76
+         -0.6
          -0.39
-         -0.47
-         -0.51
-         -0.49
-         -0.43
-         -0.32
-         -0.2
-         -0.07
-         0.06
-         0.17
-         0.25
-         0.3
-         0.31
-         0.29
-         0.24
-         0.18
-         0.1
-         0.03
-         -0.03
+         -0.15
+         0.11
+         0.34
+         0.54
+         0.68
+         0.75
+         0.74
+         0.66
+         0.52
+         0.33
+         0.11
+         -0.11
+         -0.31
+         -0.48
+         -0.6
+         -0.65
+         -0.64
+         -0.56
+         -0.44
+         -0.27
          -0.08
-         -0.11
-         -0.12
-         -0.11
-         -0.09
-         -0.06
+         0.11
+         0.28
+         0.42
+         0.51
+         0.55
+         0.54
+         0.47
+         0.36
+         0.22
+         0.06
+         -0.1
+         -0.24
+         -0.35
+         -0.42
+         -0.45
+         -0.43
+         -0.37
+         -0.28
+         -0.16
+         -0.04
+         0.09
+         0.2
+         0.28
+         0.34
+         0.35
+         0.33
+         0.28
+         0.21
+         0.12
+         0.02
+         -0.07
+         -0.15
+         -0.21
+         -0.24
+         -0.25
+         -0.23
+         -0.19
+         -0.14
+         -0.08
+         -0.01
+         0.05
+         0.1
+         0.13
+         0.15
+         0.15
+         0.14
+         0.11
+         0.07
+         0.04
+         0.0
          -0.03
+         -0.05
+         -0.06
+         -0.06
+         -0.05
+         -0.04
+         -0.02
          -0.01
          0.0
-         0.0
-         -0.02
-         -0.04
-         -0.06
-         -0.09
-         -0.11
-         -0.11
-         -0.1
-         -0.07
-         -0.02
-         0.05
-         0.12
-         0.19
-         0.25
-         0.29
-         0.3
-         0.28
-         0.23
-         0.14
-         0.03
-         -0.1
-         -0.23
-         -0.35
-         -0.44
-         -0.49
-         -0.5
-         -0.45
-         -0.35
-         -0.2
-         -0.03
-         0.16
-         0.35
-         0.52
-         0.64
-         0.7
-         0.69
-         0.61
-         0.46
-         0.26
-         0.02
-         -0.24
-         -0.48
-         -0.69
-         -0.83
-         -0.9
-         -0.88
-         -0.76
-         -0.57
-         -0.3
          0.0))
        (:y-points
         (:list
-         -1.0
-         -0.9
-         -0.72
-         -0.48
-         -0.2
-         0.09
-         0.35
+         1.0
+         0.91
+         0.74
+         0.49
+         0.21
+         -0.09
+         -0.38
+         -0.62
+         -0.8
+         -0.89
+         -0.89
+         -0.81
+         -0.65
+         -0.42
+         -0.17
+         0.1
+         0.36
          0.57
-         0.73
-         0.8
+         0.72
+         0.79
          0.79
          0.71
          0.56
          0.36
-         0.14
-         -0.08
-         -0.29
-         -0.45
-         -0.56
-         -0.61
-         -0.59
-         -0.52
-         -0.4
-         -0.25
-         -0.09
-         0.07
-         0.21
-         0.32
-         0.39
-         0.41
-         0.39
-         0.33
-         0.25
-         0.15
-         0.05
-         -0.05
-         -0.13
-         -0.18
-         -0.21
-         -0.21
-         -0.19
-         -0.15
-         -0.1
-         -0.06
-         -0.01
-         0.02
-         0.03
-         0.04
-         0.03
-         0.01
-         -0.01
-         -0.03
-         -0.03
-         -0.03
-         -0.01
-         0.02
-         0.07
-         0.11
-         0.16
-         0.19
-         0.21
-         0.2
-         0.17
-         0.11
-         0.02
-         -0.07
-         -0.17
-         -0.27
-         -0.35
-         -0.39
-         -0.4
-         -0.37
-         -0.29
-         -0.17
-         -0.03
          0.13
-         0.29
-         0.43
-         0.54
+         -0.11
+         -0.33
+         -0.51
+         -0.64
+         -0.7
+         -0.69
+         -0.61
+         -0.48
+         -0.3
+         -0.1
+         0.11
+         0.3
+         0.45
+         0.55
          0.6
          0.59
-         0.53
-         0.41
-         0.23
-         0.02
-         -0.2
-         -0.42
-         -0.6
-         -0.73
-         -0.8
-         -0.78
-         -0.69
-         -0.52
-         -0.28
-         -0.01
-         0.28
-         0.55
-         0.77
-         0.93
-         1.0))
-       (:z-points
-        (:list
-         -1.0
-         -0.98
-         -0.96
-         -0.94
-         -0.92
-         -0.9
-         -0.88
-         -0.86
-         -0.84
-         -0.82
-         -0.8
-         -0.78
-         -0.76
-         -0.74
-         -0.72
-         -0.7
-         -0.68
-         -0.66
-         -0.64
-         -0.62
-         -0.6
-         -0.58
-         -0.56
-         -0.54
-         -0.52
-         -0.49
-         -0.47
-         -0.45
-         -0.43
-         -0.41
+         0.52
+         0.4
+         0.24
+         0.07
+         -0.1
+         -0.26
          -0.39
-         -0.37
-         -0.35
-         -0.33
-         -0.31
-         -0.29
-         -0.27
-         -0.25
-         -0.23
-         -0.21
+         -0.47
+         -0.5
+         -0.48
+         -0.42
+         -0.32
          -0.19
+         -0.05
+         0.09
+         0.22
+         0.32
+         0.38
+         0.4
+         0.38
+         0.33
+         0.24
+         0.14
+         0.03
+         -0.08
          -0.17
-         -0.15
-         -0.13
-         -0.11
+         -0.25
+         -0.29
+         -0.3
+         -0.28
+         -0.24
+         -0.17
+         -0.1
+         -0.01
+         0.06
+         0.13
+         0.17
+         0.2
+         0.2
+         0.18
+         0.15
+         0.11
+         0.06
+         0.01
+         -0.04
+         -0.07
+         -0.1
+         -0.1
+         -0.1
          -0.09
          -0.07
-         -0.05
-         -0.03
-         -0.01
+         -0.04
+         -0.02
+         0.0
          0.01
-         0.03
-         0.05
-         0.07
-         0.09
-         0.11
-         0.13
-         0.15
-         0.17
-         0.19
-         0.21
-         0.23
-         0.25
-         0.27
-         0.29
-         0.31
-         0.33
-         0.35
-         0.37
-         0.39
-         0.41
-         0.43
-         0.45
-         0.47
-         0.49
-         0.52
-         0.54
-         0.56
-         0.58
-         0.6
-         0.62
-         0.64
-         0.66
-         0.68
-         0.7
-         0.72
-         0.74
-         0.76
-         0.78
-         0.8
-         0.82
-         0.84
-         0.86
-         0.88
-         0.9
-         0.92
-         0.94
-         0.96
+         0.02
+         0.02
+         0.01
+         0.0))
+       (:z-points
+        (:list
+         1.0
+         0.99
          0.98
-         1.0))))
+         0.97
+         0.96
+         0.95
+         0.94
+         0.93
+         0.92
+         0.91
+         0.9
+         0.89
+         0.88
+         0.87
+         0.86
+         0.85
+         0.84
+         0.83
+         0.82
+         0.81
+         0.8
+         0.79
+         0.78
+         0.77
+         0.76
+         0.75
+         0.74
+         0.73
+         0.72
+         0.71
+         0.7
+         0.69
+         0.68
+         0.67
+         0.66
+         0.65
+         0.64
+         0.63
+         0.62
+         0.61
+         0.6
+         0.59
+         0.58
+         0.57
+         0.56
+         0.55
+         0.54
+         0.53
+         0.52
+         0.51
+         0.49
+         0.48
+         0.47
+         0.46
+         0.45
+         0.44
+         0.43
+         0.42
+         0.41
+         0.4
+         0.39
+         0.38
+         0.37
+         0.36
+         0.35
+         0.34
+         0.33
+         0.32
+         0.31
+         0.3
+         0.29
+         0.28
+         0.27
+         0.26
+         0.25
+         0.24
+         0.23
+         0.22
+         0.21
+         0.2
+         0.19
+         0.18
+         0.17
+         0.16
+         0.15
+         0.14
+         0.13
+         0.12
+         0.11
+         0.1
+         0.09
+         0.08
+         0.07
+         0.06
+         0.05
+         0.04
+         0.03
+         0.02
+         0.01
+         0.0))))
      (:add-slots ((:name "3DC")))))
    (:id 3))
   (:box
@@ -572,9 +576,9 @@
    (:reference aed->xyz)
    (:group-id 0)
    (:name "aed->xyz")
-   (:x 533)
+   (:x 522)
    (:y 333)
-   (:w 90.80859375D0)
+   (:w 91)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border nil)
@@ -584,6 +588,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "A") (:value 0) (:reactive nil))
     (:input (:type :standard) (:name "E") (:value 0) (:reactive nil))
@@ -598,7 +603,7 @@
    (:reference om-sample)
    (:group-id 0)
    (:name "om-sample")
-   (:x 450)
+   (:x 461)
    (:y 226)
    (:w 108.83203125D0)
    (:h 30)
@@ -610,6 +615,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -627,7 +633,7 @@
     (:output (:name "out2") (:reactive nil)))
    (:id 5))
   (:comment
-   (:x 51)
+   (:x 67)
    (:y 61)
    (:w 192)
    (:h 30)
@@ -647,8 +653,8 @@
    (:reference switch)
    (:group-id nil)
    (:name "switch")
-   (:x 662)
-   (:y 161)
+   (:x 629)
+   (:y 122)
    (:w 87)
    (:h 35)
    (:color nil)
@@ -672,17 +678,17 @@
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value (:list -1 1))
-   (:state (:list 1))
+   (:value (:list 1 0))
+   (:state (:list 0))
    (:id 7))
   (:box
    (:type :value)
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 703)
-   (:y 88)
-   (:w 40)
+   (:x 702)
+   (:y 80)
+   (:w 50)
    (:h 30)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
@@ -691,6 +697,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 2))
@@ -700,9 +707,9 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 680)
-   (:y 120)
-   (:w 40)
+   (:x 637)
+   (:y 80)
+   (:w 59)
    (:h 30)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
@@ -711,6 +718,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list -1 1))
@@ -720,9 +728,9 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 658)
-   (:y 88)
-   (:w 40)
+   (:x 581)
+   (:y 80)
+   (:w 51)
    (:h 30)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
@@ -731,22 +739,23 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 1 0))
    (:id 10))
   (:comment
-   (:x 763)
-   (:y 162)
-   (:w 90)
-   (:h 35)
+   (:x 726)
+   (:y 127)
+   (:w 73)
+   (:h 23)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
    (:text-font nil)
    (:align nil)
-   (:text "Hello! I'm a new switch box !")
+   (:text "<= switch!")
    (:id 11))
   (:box
    (:type :value)
@@ -754,7 +763,7 @@
    (:group-id nil)
    (:name "value box")
    (:x 586)
-   (:y 177)
+   (:y 167)
    (:w 40)
    (:h 30)
    (:color
@@ -764,6 +773,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 100)
@@ -773,7 +783,7 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 501)
+   (:x 487)
    (:y 104)
    (:w 40)
    (:h 30)
@@ -784,6 +794,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 360)
@@ -794,7 +805,7 @@
    (:group-id nil)
    (:name "value box")
    (:x 461)
-   (:y 104)
+   (:y 72)
    (:w 40)
    (:h 30)
    (:color
@@ -804,6 +815,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 5)
@@ -824,6 +836,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 5)
@@ -833,9 +846,9 @@
    (:reference cons)
    (:group-id 0)
    (:name "vb")
-   (:x 69)
+   (:x 62)
    (:y 146)
-   (:w 49.830078125D0)
+   (:w 64)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -843,6 +856,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 360))
@@ -866,6 +880,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -999,7 +1014,7 @@
    (:reference fixnum)
    (:group-id 0)
    (:name "vb")
-   (:x 188)
+   (:x 189)
    (:y 186)
    (:w 32)
    (:h 30)
@@ -1009,6 +1024,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
@@ -1020,7 +1036,7 @@
    (:name "aed->xyz")
    (:x 159)
    (:y 268)
-   (:w 90.80859375D0)
+   (:w 91)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -1030,6 +1046,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :standard) (:name "A") (:value 0) (:reactive nil))
     (:input (:type :standard) (:name "E") (:value 0) (:reactive nil))
@@ -1056,6 +1073,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1087,6 +1105,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1)
@@ -1106,6 +1125,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 40)
