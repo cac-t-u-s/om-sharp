@@ -189,7 +189,13 @@
 
 ;; <data> is redefined with :initarg so as to appear as a box input
 (defclass* 2D-array (OMArray)
-  ((data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)")))
+  ((data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)"))
+  (:documentation "A simple 2D container.
+
+<data> is a list containing the data. Each element can be a list, or a constant value for the whole array row.
+
+<field-names> (optional) is a list of string / names of the array rows.
+"))
 
 (defmethod additional-class-attributes ((self 2D-array)) '(field-names))
 
