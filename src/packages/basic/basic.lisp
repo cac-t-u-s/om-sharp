@@ -26,10 +26,6 @@
         "functions/series"
         "functions/interpolations"
 
-        "time-sequence/object-with-action"
-        "time-sequence/time-sequence"
-        "time-sequence/timeline-editor"
-
         "bpf-bpc/bpf"
         "bpf-bpc/bpc"
         "bpf-bpc/bpf-tools"
@@ -44,9 +40,6 @@
         "automation/automation-editor"
 
         "containers/2d-array"
-
-        "containers/data-stream"
-        "containers/data-stream-editor"
 
         "compatibility"
         "basic-pack"
