@@ -21,7 +21,7 @@
 
 ;;; INTERPOLATION
 (defmethod 3D-interpolation ((first 3DC) (second 3DC) (steps number)
-                             &optional (curve 0.0) (decimals nil) (mode 'points))
+                             &optional (curve 0.0) (decimals nil) (mode 'points) color)
   (cond ((equal mode 'points)
          (let ((interp-x (interpolation (x-points first) (x-points second) steps curve))
                (interp-y (interpolation (y-points first) (y-points second) steps curve))
@@ -31,22 +31,29 @@
                                             steps curve)))
            (values
             (loop for x1 in interp-x for y1 in interp-y for z1 in interp-z for t1 in interp-times
-                  collect (make-instance (class-of first) :x-points x1 :y-points y1 :z-points z1 :times t1 :decimals (decimals first) ))
+                  collect (make-instance (class-of first) 
+                                         :x-points x1 
+                                         :y-points y1 
+                                         :z-points z1 
+                                         :times t1 
+                                         :decimals (decimals first)
+                                         :color (if (equal color 'random) (om-random-color) color)
+                                         ))
             interp-x interp-y interp-z interp-times)
            ))
         ((equal mode 'sample)
          (let ((l1 (length (point-list first)))
                (l2 (length (point-list second))))
-           (cond ((> l1 l2) (3D-interpolation first (3D-sample second l1) steps curve decimals 'points))
-                 ((> l2 l1) (3D-interpolation (3d-sample first l2) second steps curve decimals 'points))
-                 (t (3D-interpolation first second steps curve decimals 'points)))
+           (cond ((> l1 l2) (3D-interpolation first (3D-sample second l1) steps curve decimals 'points color))
+                 ((> l2 l1) (3D-interpolation (3d-sample first l2) second steps curve decimals 'points color))
+                 (t (3D-interpolation first second steps curve decimals 'points color)))
            ))
         ))
 
-(defmethod* 3D-interpol ((first 3DC) (second 3DC) (steps number) &optional (curve 0.0) (decimals nil) (mode 'points))
+(defmethod* 3D-interpol ((first 3DC) (second 3DC) (steps number) &key (curve 0.0) (decimals nil) (mode 'points) (color nil))
   :icon 'bpf-interpol
-  :initvals '(nil nil 1 0.0 nil points)
-  :indoc '("a 3DC or trajectory" "a 3DC or trajectory" "number of steps" "interpolation curve" "precision" "interpolation mode")
+  :initvals '(nil nil 1 0.0 nil points nil)
+  :indoc '("a 3DC or trajectory" "a 3DC or trajectory" "number of steps" "interpolation curve" "precision" "interpolation mode" "coloring")
   :outdoc '("list of 3DC" "list of x-points" "list of y-points" "list of z-points" "list of times")
   :numouts 5
   :menuins '((5 (("points to point" points) ("resample curves" sample))))
@@ -67,6 +74,8 @@
  - 'points is point-by-point interpolation: the curves must have the same number of points, or the bigger one will be truncated.
  - 'sample means that the curves are resampled before interpolation. In case of BPfs, x-points will be added if needed so that the interpolated curves all have the same x points. In case of BPCs, the one with fewer points is resampled, then point-by-point interpolation is applied.
 
+<color> sets a color for the resulting curves. Use 'random to assign random colors for each interpolated curve. 
+
 Outputs
  1) list of interpolated BPFs/BPCs
  2) list of x-points
@@ -74,7 +83,7 @@ Outputs
  4) list of z-points
  5) list of times
 "
-  (3D-interpolation first second steps curve decimals mode))
+  (3D-interpolation first second steps curve decimals mode color))
 
 
 ;;; RESAMPLE
