@@ -110,19 +110,20 @@
 
 ;;; => call this before any action which might require undo
 ;;; => action and item allow preventing multiple-undo storage for sequences of similar actions (to do: add also a timer?)
-(defmethod store-current-state-for-undo ((editor undoable-editor-mixin) &key action item)
-  (unless (and action
-               (equal action (last-action editor))
-               (equal item (last-item editor)))
-    ;;; this is a new 'key state' we want to store
-    (push-undo-state editor)
-    ;;; when we push a new undo state, the redo is reinitialized
-    (let ((deleted-states (copy-list (redo-stack editor))))
-      (setf (redo-stack editor) nil)
-      (cleanup-undoable-editor-stack-elements editor deleted-states)
-      ))
-  (setf (last-action editor) action
-        (last-item editor) item))
+(defmethod store-current-state-for-undo ((self undoable-editor-mixin) &key action item)
+  (let ((editor (undoable-container-editor self)))
+    (unless (and action
+                 (equal action (last-action editor))
+                 (equal item (last-item editor)))
+      ;;; this is a new 'key state' we want to store
+      (push-undo-state editor)
+      ;;; when we push a new undo state, the redo is reinitialized
+      (let ((deleted-states (copy-list (redo-stack editor))))
+        (setf (redo-stack editor) nil)
+        (cleanup-undoable-editor-stack-elements editor deleted-states)
+        ))
+    (setf (last-action editor) action
+          (last-item editor) item)))
 
 
 (defmethod store-current-state-for-undo ((self t) &key action item) nil)
@@ -134,33 +135,35 @@
 
 ;;; => call this to undo
 (defmethod do-undo ((self undoable-editor-mixin))
-  (setf (last-action self) nil
-        (last-item self) nil)
-  (if (undo-stack self)
-      (progn
-        ;;; push state in redo-stack
-        (push-redo-state self)
-        ;;; restore state from undo-stack
-        (let ((restored-state (pop (undo-stack self))))
+  (let ((editor (undoable-container-editor self)))
+    (setf (last-action editor) nil
+          (last-item editor) nil)
+    (if (undo-stack editor)
+        (progn
+          ;;; push state in redo-stack
+          (push-redo-state editor)
+          ;;; restore state from undo-stack
+          (let ((restored-state (pop (undo-stack editor))))
         ;(print restored-state)
-          (restore-undoable-editor-state self restored-state)
+            (restore-undoable-editor-state editor restored-state)
+            )
           )
-        )
-    (om-beep)))
+      (om-beep))))
 
 ;;; call this to redo
 (defmethod do-redo ((self undoable-editor-mixin))
-  (setf (last-action self) nil
-        (last-item self) nil)
-  (if (redo-stack self)
-      (progn
-        ;;; push state in undo-stack
-        (push-undo-state self)
-        ;;; restore state from redo-stack
-        (let ((restored-state (pop (redo-stack self))))
-          (restore-undoable-editor-state self restored-state))
-        )
-    (om-beep)))
+  (let ((editor (undoable-container-editor self)))
+    (setf (last-action editor) nil
+          (last-item editor) nil)
+    (if (redo-stack editor)
+        (progn
+          ;;; push state in undo-stack
+          (push-undo-state editor)
+          ;;; restore state from redo-stack
+          (let ((restored-state (pop (redo-stack editor))))
+            (restore-undoable-editor-state editor restored-state))
+          )
+      (om-beep))))
 
 
 ;;;=====================================
