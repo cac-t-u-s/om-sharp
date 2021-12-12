@@ -232,27 +232,26 @@
          (left-item-w 0)
          (foldable-containers nil))
 
-    (loop for obj in (editor-get-all-time-sequences container-editor)
-          for i = 0 then (+ i 1) do
-          (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
-                 (foldable-container (om-make-layout 'om-column-layout))
-                 (timeline-item (make-timeline-left-item container-editor (id timeline-view)))
-                 (fold-group (om-make-layout 'om-column-layout
-                                             :ratios '(1.0 0.001)
-                                             :subviews
-                                             (list
-                                              (om-make-layout
-                                               'om-row-layout
-                                               :ratios '(0.001 1)
-                                               :subviews
-                                               (list timeline-item timeline-view)) ;; fold-icon
-                                              foldable-container))))
-            (setq left-item-w (om-width timeline-item))
+    (dotimes (i (length (editor-get-all-time-sequences container-editor)))
+      (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
+             (foldable-container (om-make-layout 'om-column-layout))
+             (timeline-item (make-timeline-left-item container-editor (id timeline-view)))
+             (fold-group (om-make-layout 'om-column-layout
+                                         :ratios '(1.0 0.001)
+                                         :subviews
+                                         (list
+                                          (om-make-layout
+                                           'om-row-layout
+                                           :ratios '(0.001 1)
+                                           :subviews
+                                           (list timeline-item timeline-view)) ;; fold-icon
+                                          foldable-container))))
+        (setq left-item-w (om-width timeline-item))
 
-            (setf (cursor-interval timeline-view) (play-interval (print container-editor)))
+        (setf (cursor-interval timeline-view) (play-interval container-editor))
 
-            (pushr timeline-view timeline-views)
-            (pushr fold-group foldable-containers)))
+        (pushr timeline-view timeline-views)
+        (pushr fold-group foldable-containers)))
 
     (setf (related-views time-ruler) (append timeline-views (related-views time-ruler)))
 
