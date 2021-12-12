@@ -28,7 +28,7 @@
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
-(defparameter *version-beta* t)
+(defparameter *version-beta* nil)
 
 (defparameter *version*
   (+ *version-major*
