@@ -208,7 +208,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
       (setq xylist (mat-trans samples))
       (set-bpf-points rep :x (car xylist) :y (cadr xylist))
 
-      (values rep
+      (values (om-init-instance rep)
               (car xylist)
               (cadr xylist))     ;;;npts-per-seg
       )))
