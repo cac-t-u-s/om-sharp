@@ -355,9 +355,7 @@
       (om-with-fg-color (om-make-color 0.3 0.3 1 0.9)
         (om-draw-line cx 0 cx 50)
         (om-draw-circle cx cy (+ 2 radius) :fill nil)))
-    ;draw circle
     (when active-p
-        ;selected highlight
       (om-with-fg-color col
         (om-draw-circle cx cy (+ radius 1) :fill t)))
     (om-with-fg-color (if selected-p (om-def-color :dark-red) light-col)
