@@ -37,7 +37,7 @@
 
         "functions/modulations"
 
-        "text/textfile"
+        "text/textbuffer"
 
         "automation/automation"
         "automation/tempo-automation"
