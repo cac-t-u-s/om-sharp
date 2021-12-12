@@ -208,7 +208,6 @@
   (let* ((box (make-instance (or
                               (get-box-class reference) ;; symbol name takes precedence
                               (get-box-class (fdefinition reference)))
-
                              :name (string-downcase reference)
                              :reference reference))
          (size (minimum-size box)))
@@ -230,8 +229,7 @@
   (let* ((symbol (function-name reference)))
     (if args-supplied-p
         (omNG-make-new-funboxcall symbol pos init-args)
-      (omNG-make-new-funboxcall symbol pos))
-    ))
+      (omNG-make-new-funboxcall symbol pos))))
 
 (defmethod box-n-outs ((self OMFunBoxcall)) 1)
 
@@ -245,8 +243,7 @@
                              :name (string arg) :reference arg
                              :box self
                              :value (get-input-def-value self arg)
-                             :doc-string (get-input-doc self arg)
-                             ))
+                             :doc-string (get-input-doc self arg)))
           (subseq (function-arglist (reference self)) 0 (function-n-args (reference self)))))
 
 (defmethod add-args-to-box (box args)
