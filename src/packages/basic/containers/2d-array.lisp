@@ -213,10 +213,12 @@
                 maximize (length field))))     ;; (get-array-field-data field)
 
   ;;; if a field is specified as a single/constant value: reset data as a list with this values
-  (loop for i from 0 to (1- (fields self)) do
-        (unless (listp (nth i (data self)))
-          (setf (nth i (data self)) (make-list (elts self) :initial-element (nth i (data self))))
-          ))
+  (setf (data self)
+        (loop for i from 0 to (1- (fields self))
+              collect (if (listp (nth i (data self)))
+                          (nth i (data self))
+                        (make-list (elts self) :initial-element (nth i (data self))))
+              ))
 
   self)
 
