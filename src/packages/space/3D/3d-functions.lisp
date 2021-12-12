@@ -79,7 +79,7 @@ Outputs
 
 ;;; RESAMPLE
 (defmethod* 3D-sample ((self 3Dc) (samples number)  &optional decimals)
-  :icon 'om-sample
+  :icon 'bpf-sample
   :initvals '(nil 1000 nil) ;
   :indoc '("object (3Dc)" "number of samples" "decimals")
   :numouts 5

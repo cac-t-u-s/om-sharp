@@ -41,7 +41,7 @@
  "3D"
  :container-pack *om-package-tree*
  :classes '(3DC)
- :functions '(3D-interpol)
+ :functions '(3D-sample 3D-interpol)
  :subpackages (list 
                (omNG-make-package 
                 "3D-model" 
