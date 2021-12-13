@@ -33,7 +33,7 @@
 (defmethod data-frame-text-description ((self data-frame)) '("DATA FRAME"))
 
 (defmethod get-frame-action ((self data-frame))
-  #'(lambda () (print "EMPTY ACTION")))
+  #'(lambda () nil))
 
 (defmethod get-obj-dur ((self data-frame)) (item-get-duration self))
 
