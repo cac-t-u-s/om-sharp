@@ -31,11 +31,11 @@
                                             steps curve)))
            (values
             (loop for x1 in interp-x for y1 in interp-y for z1 in interp-z for t1 in interp-times
-                  collect (make-instance (class-of first) 
-                                         :x-points x1 
-                                         :y-points y1 
-                                         :z-points z1 
-                                         :times t1 
+                  collect (make-instance (class-of first)
+                                         :x-points x1
+                                         :y-points y1
+                                         :z-points z1
+                                         :times t1
                                          :decimals (decimals first)
                                          :color (if (equal color 'random) (om-random-color) color)
                                          ))
@@ -74,7 +74,7 @@
  - 'points is point-by-point interpolation: the curves must have the same number of points, or the bigger one will be truncated.
  - 'sample means that the curves are resampled before interpolation. In case of BPfs, x-points will be added if needed so that the interpolated curves all have the same x points. In case of BPCs, the one with fewer points is resampled, then point-by-point interpolation is applied.
 
-<color> sets a color for the resulting curves. Use 'random to assign random colors for each interpolated curve. 
+<color> sets a color for the resulting curves. Use 'random to assign random colors for each interpolated curve.
 
 Outputs
  1) list of interpolated BPFs/BPCs

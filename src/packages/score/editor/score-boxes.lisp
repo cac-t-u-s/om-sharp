@@ -65,8 +65,8 @@
 
 (defmethod init-object-staff-param ((self multi-seq) box value)
   (set-edit-param
-   box 
-   :staff-list 
+   box
+   :staff-list
    (make-list (length (obj-list self)) :initial-element value)))
 
 

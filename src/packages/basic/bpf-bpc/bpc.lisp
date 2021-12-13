@@ -112,7 +112,7 @@
   (:documentation
    "Break-Points Curve: a 2D path defined by a list of [x,y] coordinates.
 
-BPC objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>). 
+BPC objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>).
 The values in <x-point> are not necesarily increasing (contrary to BPF objects).
 
 - If <x-list> and <y-list> are not of the same length, the last step in the shorter one is repeated.

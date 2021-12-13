@@ -1447,9 +1447,9 @@
 ;;; e.g.: (defmethod update-value ((self 'old-class)) (make-instance 'new-class))
 (defmethod update-value ((self t)) self)
 
-;;; This compatibility system favors name-semantics over order: inputs will be correctly imported 
-;;; (in particular, if they have a default value) and connected if they have the same name in OM6. 
-;;; This permits same arguments to have a different position on the box. If they don't the following 
+;;; This compatibility system favors name-semantics over order: inputs will be correctly imported
+;;; (in particular, if they have a default value) and connected if they have the same name in OM6.
+;;; This permits same arguments to have a different position on the box. If they don't the following
 ;; function allows covering specific cases:
 
 ;;; When some box inputs have changed name

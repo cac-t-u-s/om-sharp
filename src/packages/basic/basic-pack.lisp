@@ -16,7 +16,7 @@
 (in-package :om)
 
 
-(omNG-make-package 
+(omNG-make-package
  "Basic Tools"
  :container-pack *om-package-tree*
  :doc "Objects and tools for data representation and processing"

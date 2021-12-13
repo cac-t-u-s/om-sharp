@@ -42,9 +42,9 @@
  :container-pack *om-package-tree*
  :classes '(3DC)
  :functions '(3D-sample 3D-interpol)
- :subpackages (list 
-               (omNG-make-package 
-                "3D-model" 
+ :subpackages (list
+               (omNG-make-package
+                "3D-model"
                 :classes '(3D-model 3D-cube 3D-sphere 3D-lines)
                 :functions '(get-transformed-data))
                (omNG-make-package
