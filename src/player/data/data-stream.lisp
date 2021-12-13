@@ -54,7 +54,7 @@
 ;;; INTERNAL CLASS
 ;;;======================================
 (defclass internal-data-stream (named-object time-sequence schedulable-object)
-  ((default-frame-type :accessor default-frame-type :initform 'action-bundle)
+  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'action-bundle)
    (frames :initform nil :documentation "a list of timed data chunks")
    (locked :initform nil :accessor locked)
    ))
@@ -95,15 +95,12 @@
 
 ;;; redefines the slots as :initargs
 (defclass* data-stream (internal-data-stream named-object time-sequence schedulable-object)
-  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'action-bundle)
-   (frames :initarg :frames :initform nil :documentation "a list of timed data chunks"))
+  ((frames :initarg :frames :initform nil :documentation "a list of timed data chunks"))
   (:documentation "A container and editor to organize and play data in time.
 
 <frames> can be a list of any sub-type of DATA-FRAME, such as: ACTION-BUNDLE, OSC-BUNDLE, SDIFFRAME, MIDIEVENT/MIDI-NOTE.
 
-<default-frame-type> determines the class of DATA-FRAME that will be created by default by CMD/CTRL-clicking in the editor.
-
-This class is also the super-class of most 'temporal data' editors in OM#, such as SOUND, MIDI-TRACK, CHORD-SEQ editors.
+<self> can be a symbol designating one of these types to create an empty DATA-STREAM of this type.
 "))
 
 
@@ -121,6 +118,12 @@ This class is also the super-class of most 'temporal data' editors in OM#, such 
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
 
   (call-next-method))
+
+
+(defmethod objFromObjs ((model symbol) (target data-stream))
+  (if (subtypep model 'data-frame)
+      (make-instance (type-of target) :default-frame-type model)
+    (om-beep-msg "Unrecognized DATA-FRAME type: ~A" model)))
 
 
 (defmethod display-modes-for-object ((self data-stream))
