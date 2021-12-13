@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2017/02/05 14:08:32")
-  (:modified "2021/12/10 1:38:18")
+  (:modified "2021/12/13 22:36:22")
   (:by "om-sharp")
   (:version 1.05))
- (:window (:size (500 644)) (:position (729 201)))
+ (:window (:size (796 679)) (:position (729 201)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,17 +16,17 @@
    (:reference data-stream)
    (:group-id nil)
    (:name "DATA-STREAM")
-   (:x 83)
-   (:y 484)
+   (:x 447)
+   (:y 506)
    (:w 269)
-   (:h 102)
+   (:h 71)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
    (:display :mini-view)
-   (:showname t)
+   (:showname nil)
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
@@ -39,17 +39,11 @@
      (:reactive nil))
     (:input
      (:type :standard)
-     (:name "DEFAULT-FRAME-TYPE")
-     (:value action-bundle)
-     (:reactive nil))
-    (:input
-     (:type :standard)
      (:name "FRAMES")
      (:value nil)
      (:reactive nil)))
    (:outputs
     (:output (:name "SELF") (:reactive nil))
-    (:output (:name "DEFAULT-FRAME-TYPE") (:reactive nil))
     (:output (:name "FRAMES") (:reactive nil)))
    (:window (:size (855 365)) (:position (825 345)))
    (:edition-params (:display-mode :bubbles) (:show-timeline t))
@@ -58,7 +52,7 @@
      (:class data-stream)
      (:slots
       ((:onset 0)
-       (:duration 4990)
+       (:duration 4679)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:default-frame-type osc-bundle)
        (:frames
@@ -66,641 +60,708 @@
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 116)
-            (:item-internal-time 116)
+           ((:onset 2)
+            (:item-internal-time 2)
             (:item-type :master)
             (:attributes
              (:list
               :color
-              (:color 0.95605016 0.13174439 0.6166667 0.4)))
+              (:color 0.37862384 0.25628674 0.06165719 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 93)
-              (:list "/size" 6))))))
+              (:list "/y" 81)
+              (:list "/size" 9))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 295)
-            (:item-internal-time 295)
-            (:item-type 295)
+           ((:onset 133)
+            (:item-internal-time 133)
+            (:item-type 133)
             (:attributes
              (:list
               :color
-              (:color 0.5160364 0.93760705 0.7487587 0.4)))
+              (:color 0.3295455 0.96086145 0.73265005 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 78)
-              (:list "/size" 7))))))
+              (:list "/y" 69)
+              (:list "/size" 9))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 333)
-            (:item-internal-time 333)
-            (:item-type 333)
+           ((:onset 194)
+            (:item-internal-time 194)
+            (:item-type 194)
             (:attributes
              (:list
               :color
-              (:color 0.5199199 0.45293355 0.57626474 0.4)))
+              (:color 0.7693672 0.48315823 0.23204434 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 57)
+              (:list "/y" 83)
               (:list "/size" 17))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 634)
-            (:item-internal-time 634)
-            (:item-type 634)
+           ((:onset 388)
+            (:item-internal-time 388)
+            (:item-type 388)
             (:attributes
              (:list
               :color
-              (:color 0.22831905 0.27848876 0.9940131 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 48)
-              (:list "/size" 26))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 949)
-            (:item-internal-time 949)
-            (:item-type 949)
-            (:attributes
-             (:list
-              :color
-              (:color 0.02946341 0.9024769 0.6451607 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 32)
-              (:list "/size" 11))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 953)
-            (:item-internal-time 953)
-            (:item-type 953)
-            (:attributes
-             (:list
-              :color
-              (:color 0.07734513 0.81607986 0.24039448 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 79)
-              (:list "/size" 14))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 1254)
-            (:item-internal-time 1254)
-            (:item-type 1254)
-            (:attributes
-             (:list
-              :color
-              (:color 0.13533807 0.39198995 0.3382461 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 30)
-              (:list "/size" 9))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 1750)
-            (:item-internal-time 1750)
-            (:item-type 1750)
-            (:attributes
-             (:list
-              :color
-              (:color 0.33870602 0.18952763 0.12014222 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 60)
-              (:list "/size" 10))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 1840)
-            (:item-internal-time 1840)
-            (:item-type 1840)
-            (:attributes
-             (:list
-              :color
-              (:color 0.15629244 0.2405814 0.6368866 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 94)
-              (:list "/size" 6))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2006)
-            (:item-internal-time 2006)
-            (:item-type 2006)
-            (:attributes
-             (:list
-              :color
-              (:color 0.89800907 0.2769252 0.9399543 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 63)
-              (:list "/size" 11))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2389)
-            (:item-internal-time 2389)
-            (:item-type 2389)
-            (:attributes
-             (:list
-              :color
-              (:color 0.48131478 0.29410398 0.7779535 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 78)
-              (:list "/size" 27))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2417)
-            (:item-internal-time 2417)
-            (:item-type 2417)
-            (:attributes
-             (:list
-              :color
-              (:color 0.8472239 0.13582325 0.57869447 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 66)
-              (:list "/size" 6))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2460)
-            (:item-internal-time 2460)
-            (:item-type 2460)
-            (:attributes
-             (:list
-              :color
-              (:color 0.7369555 0.8543935 0.16504944 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 100)
-              (:list "/size" 23))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2491)
-            (:item-internal-time 2491)
-            (:item-type 2491)
-            (:attributes
-             (:list
-              :color
-              (:color 0.2859156 0.3008145 0.048400045 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 70)
-              (:list "/size" 21))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2513)
-            (:item-internal-time 2513)
-            (:item-type 2513)
-            (:attributes
-             (:list
-              :color
-              (:color 0.58250595 0.6512772 0.46971834 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 98)
-              (:list "/size" 28))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2544)
-            (:item-internal-time 2544)
-            (:item-type 2544)
-            (:attributes
-             (:list :color (:color 0.2775396 0.1673615 0.6450161 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 71)
-              (:list "/size" 27))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2739)
-            (:item-internal-time 2739)
-            (:item-type 2739)
-            (:attributes
-             (:list
-              :color
-              (:color 0.4480152 0.6031771 0.77136195 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 46)
-              (:list "/size" 19))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2907)
-            (:item-internal-time 2907)
-            (:item-type 2907)
-            (:attributes
-             (:list
-              :color
-              (:color 0.98221994 0.49653625 0.8643118 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 64)
-              (:list "/size" 5))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 2988)
-            (:item-internal-time 2988)
-            (:item-type 2988)
-            (:attributes
-             (:list
-              :color
-              (:color 0.25015438 0.9096979 0.4638908 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 47)
-              (:list "/size" 28))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3175)
-            (:item-internal-time 3175)
-            (:item-type 3175)
-            (:attributes
-             (:list
-              :color
-              (:color 0.6518599 0.51630176 0.4857142 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 42)
-              (:list "/size" 21))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3260)
-            (:item-internal-time 3260)
-            (:item-type 3260)
-            (:attributes
-             (:list :color (:color 0.3743136 0.617983 0.86218036 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 90)
-              (:list "/size" 11))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3331)
-            (:item-internal-time 3331)
-            (:item-type 3331)
-            (:attributes
-             (:list :color (:color 0.5291338 0.32688904 0.576519 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 32)
-              (:list "/size" 22))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3434)
-            (:item-internal-time 3434)
-            (:item-type 3434)
-            (:attributes
-             (:list :color (:color 0.7286223 0.2857982 0.5179343 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 62)
-              (:list "/size" 25))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3549)
-            (:item-internal-time 3549)
-            (:item-type 3549)
-            (:attributes
-             (:list
-              :color
-              (:color 0.19682515 0.5474932 0.09317613 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 71)
-              (:list "/size" 21))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3647)
-            (:item-internal-time 3647)
-            (:item-type 3647)
-            (:attributes
-             (:list
-              :color
-              (:color 0.7385154 0.16335213 0.32046628 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 82)
-              (:list "/size" 12))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3668)
-            (:item-internal-time 3668)
-            (:item-type 3668)
-            (:attributes
-             (:list
-              :color
-              (:color 0.8352423 0.053839445 0.3702966 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 66)
-              (:list "/size" 19))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3724)
-            (:item-internal-time 3724)
-            (:item-type 3724)
-            (:attributes
-             (:list
-              :color
-              (:color 0.06599057 0.7044722 0.28874648 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 78)
-              (:list "/size" 22))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3874)
-            (:item-internal-time 3874)
-            (:item-type 3874)
-            (:attributes
-             (:list
-              :color
-              (:color 0.41431105 0.7626394 0.31426787 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 48)
-              (:list "/size" 28))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3927)
-            (:item-internal-time 3927)
-            (:item-type 3927)
-            (:attributes
-             (:list
-              :color
-              (:color 0.09929776 0.15628457 0.30708754 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 74)
-              (:list "/size" 20))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 3975)
-            (:item-internal-time 3975)
-            (:item-type 3975)
-            (:attributes
-             (:list
-              :color
-              (:color 0.17411292 0.7123425 0.30731702 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 46)
-              (:list "/size" 12))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4000)
-            (:item-internal-time 4000)
-            (:item-type 4000)
-            (:attributes
-             (:list
-              :color
-              (:color 0.022753716 0.3723278 0.36187458 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 58)
-              (:list "/size" 19))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4015)
-            (:item-internal-time 4015)
-            (:item-type 4015)
-            (:attributes
-             (:list
-              :color
-              (:color 0.83340884 0.39399064 0.7869154 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 50)
-              (:list "/size" 9))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4141)
-            (:item-internal-time 4141)
-            (:item-type 4141)
-            (:attributes
-             (:list
-              :color
-              (:color 0.7458581 0.97174347 0.3049606 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 65)
-              (:list "/size" 12))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4271)
-            (:item-internal-time 4271)
-            (:item-type 4271)
-            (:attributes
-             (:list
-              :color
-              (:color 0.3313793 0.53765834 0.71100665 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 77)
-              (:list "/size" 24))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4279)
-            (:item-internal-time 4279)
-            (:item-type 4279)
-            (:attributes
-             (:list :color (:color 0.15248764 0.8919238 0.185673 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 80)
-              (:list "/size" 10))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4368)
-            (:item-internal-time 4368)
-            (:item-type 4368)
-            (:attributes
-             (:list :color (:color 0.7448596 0.8108041 0.9636098 0.4)))
-            (:messages
-             (:list
-              (:list "/aaa" 2 3)
-              (:list "/bbb" 5 7 8 9)
-              (:list "/y" 67)
-              (:list "/size" 7))))))
-         (:object
-          (:class osc-bundle)
-          (:slots
-           ((:onset 4582)
-            (:item-internal-time 4582)
-            (:item-type 4582)
-            (:attributes
-             (:list
-              :color
-              (:color 0.40643895 0.21678543 0.6380037 0.4)))
+              (:color 0.31816888 0.9146346 0.87177897 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
               (:list "/y" 75)
-              (:list "/size" 11))))))
+              (:list "/size" 15))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 4634)
-            (:item-internal-time 4634)
-            (:item-type 4634)
+           ((:onset 519)
+            (:item-internal-time 519)
+            (:item-type 519)
             (:attributes
              (:list
               :color
-              (:color 0.36420238 0.82361877 0.5084679 0.4)))
+              (:color 0.77512587 0.9907956 0.90732885 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 43)
+              (:list "/y" 53)
+              (:list "/size" 23))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 629)
+            (:item-internal-time 629)
+            (:item-type 629)
+            (:attributes
+             (:list
+              :color
+              (:color 0.32714188 0.9506253 0.89140606 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 45)
+              (:list "/size" 5))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 630)
+            (:item-internal-time 630)
+            (:item-type 630)
+            (:attributes
+             (:list
+              :color
+              (:color 0.59818066 0.7466016 0.2944243 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 49)
+              (:list "/size" 25))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 680)
+            (:item-internal-time 680)
+            (:item-type 680)
+            (:attributes
+             (:list
+              :color
+              (:color 0.76917077 0.0032653809 0.04103422 0.4)
+              :posy
+              58))
+            (:messages nil))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 802)
+            (:item-internal-time 802)
+            (:item-type 802)
+            (:attributes
+             (:list
+              :color
+              (:color 0.3302598 0.38075435 0.6950933 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 66)
+              (:list "/size" 16))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 889)
+            (:item-internal-time 889)
+            (:item-type 889)
+            (:attributes
+             (:list
+              :color
+              (:color 0.033260346 0.638016 0.17137897 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 99)
               (:list "/size" 18))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 4676)
-            (:item-internal-time 4676)
-            (:item-type 4676)
+           ((:onset 936)
+            (:item-internal-time 936)
+            (:item-type 936)
             (:attributes
              (:list
               :color
-              (:color 0.74664164 0.97985757 0.6955894 0.4)))
+              (:color 0.908128 0.22125077 0.118673086 0.4)
+              :posy
+              85))
+            (:messages nil))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1013)
+            (:item-internal-time 1013)
+            (:item-type 1013)
+            (:attributes
+             (:list
+              :color
+              (:color 0.77635384 0.6150166 0.25666428 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 58)
-              (:list "/size" 28))))))
+              (:list "/y" 76)
+              (:list "/size" 12))))))
          (:object
           (:class osc-bundle)
           (:slots
-           ((:onset 4990)
-            (:item-internal-time 4990)
+           ((:onset 1168)
+            (:item-internal-time 1168)
+            (:item-type 1168)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9114809 0.22618735 0.5934831 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 36)
+              (:list "/size" 6))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1241)
+            (:item-internal-time 1241)
+            (:item-type 1241)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9016086 0.21995628 0.5673804 0.4)
+              :posy
+              51))
+            (:messages nil))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1270)
+            (:item-internal-time 1270)
+            (:item-type 1270)
+            (:attributes
+             (:list
+              :color
+              (:color 0.123244405 0.064297796 0.6816405 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 65)
+              (:list "/size" 6))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1407)
+            (:item-internal-time 1407)
+            (:item-type 1407)
+            (:attributes
+             (:list
+              :color
+              (:color 0.84177614 0.9702605 0.030115724 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 47)
+              (:list "/size" 5))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1685)
+            (:item-internal-time 1685)
+            (:item-type 1685)
+            (:attributes
+             (:list
+              :color
+              (:color 0.4636866 0.96814096 0.49951708 0.4)
+              :posy
+              78))
+            (:messages nil))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1771)
+            (:item-internal-time 1771)
+            (:item-type 1771)
+            (:attributes
+             (:list
+              :color
+              (:color 0.20443237 0.056887865 0.86242867 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 60)
+              (:list "/size" 21))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1796)
+            (:item-internal-time 1796)
+            (:item-type 1796)
+            (:attributes
+             (:list
+              :color
+              (:color 0.5861944 0.8066299 0.04300356 0.4)
+              :posy
+              62))
+            (:messages nil))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1801)
+            (:item-internal-time 1801)
+            (:item-type 1801)
+            (:attributes
+             (:list
+              :color
+              (:color 0.32610798 0.6005478 0.7388053 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 84)
+              (:list "/size" 6))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1852)
+            (:item-internal-time 1852)
+            (:item-type 1852)
+            (:attributes
+             (:list
+              :color
+              (:color 0.15566147 0.7079785 0.7868346 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 85)
+              (:list "/size" 29))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1867)
+            (:item-internal-time 1867)
+            (:item-type 1867)
+            (:attributes
+             (:list :color (:color 0.874681 0.9023688 0.16702938 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 79)
+              (:list "/size" 20))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 1893)
+            (:item-internal-time 1893)
+            (:item-type 1893)
+            (:attributes
+             (:list
+              :color
+              (:color 0.0024935007 0.7875284 0.2072233 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 96)
+              (:list "/size" 5))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2186)
+            (:item-internal-time 2186)
+            (:item-type 2186)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6048112 0.84977007 0.18490184 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 71)
+              (:list "/size" 26))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2209)
+            (:item-internal-time 2209)
+            (:item-type 2209)
+            (:attributes
+             (:list :color (:color 0.3938433 0.6425022 0.5744262 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 52)
+              (:list "/size" 13))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2365)
+            (:item-internal-time 2365)
+            (:item-type 2365)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7396277 0.51327396 0.43647695 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 85)
+              (:list "/size" 6))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2376)
+            (:item-internal-time 2376)
+            (:item-type 2376)
+            (:attributes
+             (:list
+              :color
+              (:color 0.37505674 0.7770635 0.19788695 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 30)
+              (:list "/size" 13))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2507)
+            (:item-internal-time 2507)
+            (:item-type 2507)
+            (:attributes
+             (:list
+              :color
+              (:color 0.3756739 0.7296009 0.062990546 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 60)
+              (:list "/size" 23))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2525)
+            (:item-internal-time 2525)
+            (:item-type 2525)
+            (:attributes
+             (:list
+              :color
+              (:color 0.035120368 0.73746014 0.7660873 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 38)
+              (:list "/size" 18))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 2954)
+            (:item-internal-time 2954)
+            (:item-type 2954)
+            (:attributes
+             (:list
+              :color
+              (:color 0.50054944 0.9136312 0.29691803 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 86)
+              (:list "/size" 22))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3127)
+            (:item-internal-time 3127)
+            (:item-type 3127)
+            (:attributes
+             (:list
+              :color
+              (:color 0.117788196 0.58797765 0.2999047 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 86)
+              (:list "/size" 11))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3257)
+            (:item-internal-time 3257)
+            (:item-type 3257)
+            (:attributes
+             (:list :color (:color 0.8830304 0.8229178 0.5652225 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 50)
+              (:list "/size" 14))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3316)
+            (:item-internal-time 3316)
+            (:item-type 3316)
+            (:attributes
+             (:list
+              :color
+              (:color 0.41885602 0.18944276 0.996292 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 71)
+              (:list "/size" 12))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3372)
+            (:item-internal-time 3372)
+            (:item-type 3372)
+            (:attributes
+             (:list :color (:color 0.4247551 0.6626643 0.9685401 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 50)
+              (:list "/size" 17))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3477)
+            (:item-internal-time 3477)
+            (:item-type 3477)
+            (:attributes
+             (:list
+              :color
+              (:color 0.90030814 0.26218474 0.057314635 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 61)
+              (:list "/size" 19))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3586)
+            (:item-internal-time 3586)
+            (:item-type 3586)
+            (:attributes
+             (:list
+              :color
+              (:color 0.57137704 0.033251047 0.06523609 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 35)
+              (:list "/size" 13))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3720)
+            (:item-internal-time 3720)
+            (:item-type 3720)
+            (:attributes
+             (:list
+              :color
+              (:color 0.94189275 0.8229754 0.36297834 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 50)
+              (:list "/size" 15))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3807)
+            (:item-internal-time 3807)
+            (:item-type 3807)
+            (:attributes
+             (:list
+              :color
+              (:color 0.23973918 0.8974658 0.8565935 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 66)
+              (:list "/size" 18))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 3853)
+            (:item-internal-time 3853)
+            (:item-type 3853)
+            (:attributes
+             (:list
+              :color
+              (:color 0.74363935 0.007883191 0.66986526 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 90)
+              (:list "/size" 23))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4142)
+            (:item-internal-time 4142)
+            (:item-type 4142)
+            (:attributes
+             (:list
+              :color
+              (:color 0.69759906 0.4675913 0.58588565 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 77)
+              (:list "/size" 8))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4172)
+            (:item-internal-time 4172)
+            (:item-type 4172)
+            (:attributes
+             (:list :color (:color 0.1919365 0.7838204 0.6319784 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 31)
+              (:list "/size" 13))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4380)
+            (:item-internal-time 4380)
+            (:item-type 4380)
+            (:attributes
+             (:list
+              :color
+              (:color 0.26747572 0.8183104 0.085209966 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 82)
+              (:list "/size" 17))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4480)
+            (:item-internal-time 4480)
+            (:item-type 4480)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6560283 0.6998168 0.14580345 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 33)
+              (:list "/size" 16))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4529)
+            (:item-internal-time 4529)
+            (:item-type 4529)
+            (:attributes
+             (:list
+              :color
+              (:color 0.77287877 0.5785103 0.3783697 0.4)))
+            (:messages
+             (:list
+              (:list "/aaa" 2 3)
+              (:list "/bbb" 5 7 8 9)
+              (:list "/y" 82)
+              (:list "/size" 21))))))
+         (:object
+          (:class osc-bundle)
+          (:slots
+           ((:onset 4679)
+            (:item-internal-time 4679)
             (:item-type :master)
             (:attributes
              (:list
               :color
-              (:color 0.9231247 0.11380446 0.32237732 0.4)))
+              (:color 0.19803214 0.14004207 0.43762636 0.4)))
             (:messages
              (:list
               (:list "/aaa" 2 3)
               (:list "/bbb" 5 7 8 9)
-              (:list "/y" 100)
-              (:list "/size" 15))))))))))))
+              (:list "/y" 93)
+              (:list "/size" 9))))))))))))
    (:id 0))
   (:box
    (:type :object)
    (:reference osc-bundle)
    (:group-id nil)
    (:name "OSC-BUNDLE")
-   (:x 76)
-   (:y 70)
-   (:w 110)
-   (:h 87)
+   (:x 484)
+   (:y 126)
+   (:w 88)
+   (:h 60)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -752,8 +813,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "vb")
-   (:x 254)
-   (:y 388)
+   (:x 618)
+   (:y 430)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -772,10 +833,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 82)
-   (:y 283)
+   (:x 446)
+   (:y 305)
    (:w 84)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -808,8 +869,8 @@
    (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 102)
-   (:y 246)
+   (:x 466)
+   (:y 268)
    (:w 44)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -828,10 +889,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 166)
-   (:y 246)
-   (:w 97)
-   (:h 30)
+   (:x 530)
+   (:y 268)
+   (:w 103)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -859,10 +920,10 @@
    (:reference osc-set)
    (:group-id nil)
    (:name "osc-set")
-   (:x 189)
-   (:y 374)
+   (:x 553)
+   (:y 396)
    (:w 84)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -895,8 +956,8 @@
    (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 199)
-   (:y 310)
+   (:x 563)
+   (:y 333)
    (:w 64)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -915,10 +976,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 254)
-   (:y 342)
-   (:w 97)
-   (:h 30)
+   (:x 618)
+   (:y 364)
+   (:w 103)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -942,8 +1003,8 @@
    (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
-   (:x 207)
-   (:y 420)
+   (:x 571)
+   (:y 462)
    (:w 97)
    (:h 28)
    (:color
@@ -969,17 +1030,17 @@
    (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 9))
   (:comment
-   (:x 50)
-   (:y 36)
-   (:w 359)
-   (:h 25)
+   (:x 41)
+   (:y 34)
+   (:w 259)
+   (:h 42)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
+     (:font (:font (:face "Lucida Grande") (:size 14) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -990,10 +1051,10 @@
    (:reference osc-timetag)
    (:group-id nil)
    (:name "osc-timetag")
-   (:x 194)
-   (:y 170)
+   (:x 558)
+   (:y 192)
    (:w 111)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1021,10 +1082,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 223)
-   (:y 128)
+   (:x 587)
+   (:y 150)
    (:w 103)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1042,7 +1103,803 @@
      (:value 5000)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 12)))
+   (:id 12))
+  (:box
+   (:type :object)
+   (:reference data-stream)
+   (:group-id nil)
+   (:name "DATA-STREAM")
+   (:x 45)
+   (:y 452)
+   (:w 269)
+   (:h 71)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FRAMES")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FRAMES") (:reactive nil)))
+   (:window (:size (648 378)) (:position (79 69)))
+   (:edition-params (:display-mode :bubbles) (:show-timeline t))
+   (:value
+    (:object
+     (:class data-stream)
+     (:slots
+      ((:onset 0)
+       (:duration 4938)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:default-frame-type action-bundle)
+       (:frames
+        (:list
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 52)
+            (:item-internal-time 52)
+            (:item-type :master)
+            (:attributes
+             (:list
+              :color
+              (:color 0.040350438 0.69981134 0.3304546 0.4)
+              :posy
+              43))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 54)
+            (:item-internal-time 54)
+            (:item-type 54)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8398812 0.10823989 0.34921813 0.4)
+              :posy
+              48))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 266)
+            (:item-internal-time 266)
+            (:item-type 266)
+            (:attributes
+             (:list
+              :color
+              (:color 0.33111954 0.7392565 0.3863206 0.4)
+              :posy
+              84))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 410)
+            (:item-internal-time 410)
+            (:item-type 410)
+            (:attributes
+             (:list
+              :color
+              (:color 0.96359587 0.57526386 0.37120605 0.4)
+              :posy
+              35))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 1107)
+            (:item-internal-time 1107)
+            (:item-type 1107)
+            (:attributes
+             (:list
+              :color
+              (:color 0.68884206 0.70455897 0.52718294 0.4)
+              :posy
+              57))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 1278)
+            (:item-internal-time 1278)
+            (:item-type 1278)
+            (:attributes
+             (:list
+              :color
+              (:color 0.635244 0.30851018 0.98488284 0.4)
+              :posy
+              61))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 1335)
+            (:item-internal-time 1335)
+            (:item-type 1335)
+            (:attributes
+             (:list
+              :color
+              (:color 0.3558396 0.03027165 0.30337513 0.4)
+              :posy
+              32))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 1439)
+            (:item-internal-time 1439)
+            (:item-type 1439)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6867502 0.7275878 0.48469436 0.4)
+              :posy
+              76))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 1919)
+            (:item-internal-time 1919)
+            (:item-type 1919)
+            (:attributes
+             (:list
+              :color
+              (:color 0.17688287 0.65946055 0.3443967 0.4)
+              :posy
+              45))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 2157)
+            (:item-internal-time 2157)
+            (:item-type 2157)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6182674 0.7785317 0.06941366 0.4)
+              :posy
+              33))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 2221)
+            (:item-internal-time 2221)
+            (:item-type 2221)
+            (:attributes
+             (:list
+              :color
+              (:color 0.20407605 0.016037703 0.45460022 0.4)
+              :posy
+              54))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 2997)
+            (:item-internal-time 2997)
+            (:item-type 2997)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8758906 0.68622387 0.033688665 0.4)
+              :posy
+              73))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 3387)
+            (:item-internal-time 3387)
+            (:item-type 3387)
+            (:attributes
+             (:list
+              :color
+              (:color 0.14894474 0.63862157 0.38193095 0.4)
+              :posy
+              74))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 3422)
+            (:item-internal-time 3422)
+            (:item-type 3422)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7686223 0.6512668 0.51151205 0.4)
+              :posy
+              79))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 3467)
+            (:item-internal-time 3467)
+            (:item-type 3467)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9899154 0.5019684 0.6101072 0.4)
+              :posy
+              51))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 3590)
+            (:item-internal-time 3590)
+            (:item-type 3590)
+            (:attributes
+             (:list
+              :color
+              (:color 0.80534375 0.22286737 0.41325748 0.4)
+              :posy
+              34))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 3788)
+            (:item-internal-time 3788)
+            (:item-type 3788)
+            (:attributes
+             (:list
+              :color
+              (:color 0.12775004 0.35607588 0.9881028 0.4)
+              :posy
+              66))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 4149)
+            (:item-internal-time 4149)
+            (:item-type 4149)
+            (:attributes
+             (:list
+              :color
+              (:color 0.40235853 0.21280253 0.8187964 0.4)
+              :posy
+              81))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 4181)
+            (:item-internal-time 4181)
+            (:item-type 4181)
+            (:attributes
+             (:list
+              :color
+              (:color 0.057430148 0.639416 0.26593268 0.4)
+              :posy
+              89))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 4657)
+            (:item-internal-time 4657)
+            (:item-type 4657)
+            (:attributes
+             (:list
+              :color
+              (:color 0.16580475 0.9349226 0.3252598 0.4)
+              :posy
+              45))
+            (:actions nil))))
+         (:object
+          (:class action-bundle)
+          (:slots
+           ((:date 4938)
+            (:item-internal-time 4938)
+            (:item-type :master)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6361499 0.6370727 0.23253405 0.4)
+              :posy
+              67))
+            (:actions nil))))))))))
+   (:id 13))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "vb")
+   (:x 269)
+   (:y 387)
+   (:w 32)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 20)
+   (:id 14))
+  (:box
+   (:type :special)
+   (:reference repeat-n)
+   (:group-id nil)
+   (:name "repeat-n")
+   (:x 222)
+   (:y 419)
+   (:w 97)
+   (:h 28)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :left)
+   (:reactive nil)
+   (:lock nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "self")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "num")
+     (:value 40)
+     (:reactive nil)))
+   (:outputs (:output (:name "collected results") (:reactive nil)))
+   (:id 15))
+  (:box
+   (:type :function)
+   (:reference om-random)
+   (:group-id nil)
+   (:name "om-random")
+   (:x 45)
+   (:y 217)
+   (:w 103)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input (:type :standard) (:name "LOW") (:value 0) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "HIGH")
+     (:value 5000)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 16))
+  (:box
+   (:type :object)
+   (:reference action-bundle)
+   (:group-id nil)
+   (:name nil)
+   (:x 59)
+   (:y 325)
+   (:w 105)
+   (:h 53)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :hidden)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ONSET")
+     (:value 0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ACTIONS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "ONSET") (:reactive nil))
+    (:output (:name "ACTIONS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class action-bundle)
+     (:slots
+      ((:date 1335)
+       (:item-internal-time nil)
+       (:item-type nil)
+       (:attributes nil)
+       (:actions nil)))))
+   (:id 17))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 97)
+   (:y 182)
+   (:w 46)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 5000)
+   (:id 18))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 57)
+   (:y 182)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0)
+   (:id 19))
+  (:box
+   (:type :abstraction)
+   (:reference
+    (:patch
+     (:name "my-action")
+     (:doc "")
+     (:info
+      (:created nil)
+      (:modified nil)
+      (:by *app-name*)
+      (:version 0))
+     (:window (:size (265 272)) (:position (59 46)))
+     (:grid nil)
+     (:lock nil)
+     (:boxes
+      (:box
+       (:type :io)
+       (:reference
+        (:out (:type omout) (:name "out") (:index 1) (:doc "")))
+       (:group-id nil)
+       (:name "out")
+       (:x 97)
+       (:y 135)
+       (:w 40)
+       (:h 42)
+       (:color
+        (:color-or-nil
+         (:color (:color 1.0 1.0 1.0 0.0))
+         (:t-or-nil t)))
+       (:border 0)
+       (:roundness 0)
+       (:text-font nil)
+       (:align :center)
+       (:icon :top)
+       (:reactive nil)
+       (:inputs
+        (:input
+         (:type :standard)
+         (:name "out-value")
+         (:value nil)
+         (:reactive nil)))
+       (:outputs)
+       (:id 0))
+      (:box
+       (:type :function)
+       (:reference print)
+       (:group-id nil)
+       (:name "print")
+       (:x 85)
+       (:y 94)
+       (:w 64)
+       (:h 29)
+       (:color nil)
+       (:border nil)
+       (:roundness nil)
+       (:text-font nil)
+       (:align nil)
+       (:icon :left)
+       (:lock nil)
+       (:lambda nil)
+       (:reactive nil)
+       (:inputs
+        (:input
+         (:type :standard)
+         (:name "SOMETHING")
+         (:value nil)
+         (:reactive nil)))
+       (:outputs (:output (:name "out") (:reactive nil)))
+       (:id 1))
+      (:box
+       (:type :value)
+       (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+       (:group-id nil)
+       (:name "value box")
+       (:x 91)
+       (:y 56)
+       (:w 52)
+       (:h 29)
+       (:color
+        (:color-or-nil
+         (:color (:color 1.0 1.0 1.0 1.0))
+         (:t-or-nil t)))
+       (:border nil)
+       (:roundness nil)
+       (:text-font nil)
+       (:align nil)
+       (:lock nil)
+       (:reactive nil)
+       (:inputs)
+       (:outputs (:output (:name "value") (:reactive nil)))
+       (:value "hello")
+       (:id 2)))
+     (:connections
+      (:connection (:from (:box 1 :out 0)) (:to (:box 0 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 1 :in 0))))))
+   (:group-id nil)
+   (:name "my-action")
+   (:x 119)
+   (:y 256)
+   (:w 119)
+   (:h 43)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :hidden)
+   (:pre-delay 0)
+   (:lock nil)
+   (:lambda :lambda)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 20))
+  (:comment
+   (:x 154)
+   (:y 208)
+   (:w 38)
+   (:h 23)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "time")
+   (:id 21))
+  (:comment
+   (:x 167)
+   (:y 319)
+   (:w 44)
+   (:h 23)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "action")
+   (:id 22))
+  (:comment
+   (:x 45)
+   (:y 146)
+   (:w 200)
+   (:h 23)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "... with simple ACTION-BUNDLEs")
+   (:id 23))
+  (:comment
+   (:x 493)
+   (:y 76)
+   (:w 136)
+   (:h 23)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "... with OSC-BUNDLEs")
+   (:id 24))
+  (:comment
+   (:x 491)
+   (:y 585)
+   (:w 197)
+   (:h 38)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "by default send through OSC on \"localhost\", port #3000")
+   (:id 25))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 639)
+   (:y 115)
+   (:w 46)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 5000)
+   (:id 26))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 599)
+   (:y 115)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0)
+   (:id 27))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 585)
+   (:y 233)
+   (:w 39)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 100)
+   (:id 28))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 542)
+   (:y 233)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 29))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 630)
+   (:y 329)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 5)
+   (:id 30))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 677)
+   (:y 329)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 31)))
  (:connections
   (:connection (:from (:box 1 :out 0)) (:to (:box 11 :in 0)))
   (:connection (:from (:box 2 :out 0)) (:to (:box 9 :in 1)))
@@ -1072,6 +1929,19 @@
    (:to (:box 6 :in 2))
    (:attributes
     (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-  (:connection (:from (:box 9 :out 0)) (:to (:box 0 :in 2)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 0 :in 1)))
   (:connection (:from (:box 11 :out 0)) (:to (:box 3 :in 0)))
-  (:connection (:from (:box 12 :out 0)) (:to (:box 11 :in 1)))))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 15 :in 1)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 17 :in 1)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 15 :in 0)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 16 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 16 :in 0)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 17 :in 2)))
+  (:connection (:from (:box 26 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 27 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 28 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 29 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 30 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 31 :out 0)) (:to (:box 8 :in 1)))))
