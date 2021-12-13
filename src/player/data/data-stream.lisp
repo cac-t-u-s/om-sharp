@@ -39,7 +39,8 @@
 
 ;;; SIMPLEST DATA FRAME
 (defclass* action-bundle (data-frame)
-  ((actions :accessor actions :initarg :actions :initform nil :documentation "list of function or lambdas"))
+  ((onset :accessor onset :initarg :onset :initform 0 :documentation "date/time of the object")
+   (actions :accessor actions :initarg :actions :initform nil :documentation "list of functions or lambdas"))
   (:documentation "A container for a set of actions to be performed at a given time in a DATA-STREAM."))
 
 (defmethod get-frame-action ((self action-bundle))
