@@ -191,12 +191,14 @@ Evaluation allows defining functions or data in Lisp and running commands or pro
 (defmethod* textbuffer-read ((self textbuffer) mode)
   :indoc '("a textfile object" "a reading mode")
   :initvals '(nil :lines-cols)
-  :menuins '((1 (("value" :value) ("list" :list) ("lines" :lines) ("lines-cols" :lines-cols) ("text" :text))))
+  :menuins '((1 (("value" :value) ("list" :list) ("lines" :lines)
+                 ("lines-cols" :lines-cols) ("list of text lines" :text-list) ("text" :text))))
   :doc "Reads the contents of a TEXTBUFFER (<self>) as Lisp values depending on <mode>:
 - :value = reads the contents as a single value
 - :list = reads the successive values and returns a list
 - :lines = reads each line as a single value (returns a list)
 - :lines-cols = reads each line as a list of values (returns a list of lists)
+- :text-list = collects the contents as list of text lines (returns a list of strings)
 - :text = collects the contents as a single text (string with line returns)
 "
   (format-from-text-lines (contents self) mode))
