@@ -67,7 +67,7 @@
           om-font-size
           om-font-style
           om-def-font
-          om-font-lambda
+          om-lambda
           om-font-equal
           om-list-all-fonts
 
@@ -390,10 +390,15 @@
     font))
 
 
-;;; a special font / char code to write a lambda :)
-(defun om-font-lambda (&optional size)
-  (values (code-char 955)
-          (om-make-font "Times" (or size 12))))
+;;; a special font / char code to write a lambda
+(defparameter *lambda-font*
+  (om-make-font "Times" 10))
+
+(defun om-lambda (&optional size)
+  (let ((font *lambda-font*))
+    (when size (setf font (gp::augment-font-description font :size size)))
+    (values (code-char 955) font)))
+
 
 ;;; #+win32 (gp::font-description capi-win32-lib::*win32-default-gui-font*))
 

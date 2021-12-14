@@ -658,7 +658,7 @@
                           :color (om-def-color :dark-gray) :round 2 :fill t)
     (om-with-fg-color (om-def-color :white)
       (case (lambda-state box)
-        (:lambda (multiple-value-bind (char font) (om-font-lambda 10)
+        (:lambda (multiple-value-bind (char font) (om-lambda)
                    (om-with-font font
                                  (om-draw-string (+ x-lambda 4) (+ y-lambda 9)
                                                  (string char)))))
