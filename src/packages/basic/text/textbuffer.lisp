@@ -80,7 +80,6 @@ As output it returns the contents of the text buffer as a list formatted accordi
     (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ (delete-lisp-comments line) " ")) lines)) nil))
     (:list (flat (mapcar 'om-read-list-from-string lines) 1))
     (:text-list lines)
-      ;(:text (if lines (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) lines) ""))
     (:text (if lines (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) lines) ""))
     ))
 
