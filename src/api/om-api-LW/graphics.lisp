@@ -342,7 +342,7 @@
 
 
 (defparameter *def-font*
-  #+macosx '("Lucida Grande" (11 12 14 16 20)) ;72 ppi
+  #+macosx '("Consolas" (11 12 14 16 20)) ;72 ppi
   #+mswindows '("Segoe UI" (8 9 10 12 14))    ;96 ppi
   #+linux '("Liberation Sans" (9 10 11 12 15)) ;96 ppi
   )
