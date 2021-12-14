@@ -362,30 +362,32 @@
 (defparameter *score-font*
   '("Times New Roman" 10))
 
-(defun om-def-font (font-id &key face size style)
+
+(defparameter *fonts-table*
   (let ((def-face (car *def-font*))
         (sizes (cadr *def-font*)))
-    (let ((font
-           (case font-id
-             (:font1 (om-make-font def-face (nth 0 sizes)))
-             (:font2 (om-make-font def-face (nth 1 sizes)))
-             (:font3 (om-make-font def-face (nth 2 sizes)))
-             (:font4 (om-make-font def-face (nth 3 sizes)))
-             (:font1b (om-make-font def-face (nth 0 sizes) :style '(:bold)))
-             (:font2b (om-make-font def-face (nth 1 sizes) :style '(:bold)))
-             (:font3b (om-make-font def-face (nth 2 sizes) :style '(:bold)))
-             (:font4b (om-make-font def-face (nth 3 sizes) :style '(:bold)))
-             (:gui (apply #'om-make-font *gui-font*))
-             (:score (apply #'om-make-font *score-font*))
-             (:mono (apply #'om-make-font *mono-font*))
-             (otherwise (om-make-font def-face (nth 0 sizes))))))
+    `((:font1 ,(om-make-font def-face (nth 0 sizes)))
+      (:font2 ,(om-make-font def-face (nth 1 sizes)))
+      (:font3 ,(om-make-font def-face (nth 2 sizes)))
+      (:font4 ,(om-make-font def-face (nth 3 sizes)))
+      (:font1b ,(om-make-font def-face (nth 0 sizes) :style '(:bold)))
+      (:font2b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
+      (:font3b ,(om-make-font def-face (nth 2 sizes) :style '(:bold)))
+      (:font4b ,(om-make-font def-face (nth 3 sizes) :style '(:bold)))
+      (:gui ,(apply #'om-make-font *gui-font*))
+      (:score ,(apply #'om-make-font *score-font*))
+      (:mono ,(apply #'om-make-font *mono-font*)))))
+
+(defun om-def-font (font-id &key face size style)
+  (let ((font (cadr (find font-id *fonts-table* :key 'car))))
+    (when font
       (when face (setf font (gp::augment-font-description font :family face)))
       (when size (setf font (gp::augment-font-description font :size size)))
       (when style (setf font (gp::augment-font-description
                               font
                               :slant (if (member :italic style) :italic :roman)
-                              :weight (if (member :bold style) :bold :normal))))
-      font)))
+                              :weight (if (member :bold style) :bold :normal)))))
+    font))
 
 
 ;;; a special font / char code to write a lambda :)
