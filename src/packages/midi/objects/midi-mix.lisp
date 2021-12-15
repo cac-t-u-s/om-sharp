@@ -272,7 +272,7 @@
   (om-set-dialog-item-text (volumeText panel) (format nil "Vol ~D" (vol-ctrl cc)))
 
   (om-set-slider-value (pitchSlider panel) (pitch-ctrl cc))
-  (om-set-dialog-item-text (pitchText panel) (format nil "Pitch (mc) ~D" (pitchwheel-to-mc (pitch-ctrl cc))))
+  (om-set-dialog-item-text (pitchText panel) (format nil "Pitch ~4D mc" (pitchwheel-to-mc (pitch-ctrl cc))))
 
   (om-set-selected-item (ctrl1Menu panel) (number-to-name (control1-num cc) *midi-controllers*))
 
@@ -326,7 +326,7 @@
   (let ((cc (channel-controller self)))
     (unless (= value (pitch-ctrl cc))
       (setf (pitch-ctrl cc) value)
-      (om-set-dialog-item-text (PitchText self) (format nil "Pitch (mc) ~D" (pitchwheel-to-mc value)))
+      (om-set-dialog-item-text (PitchText self) (format nil "Pitch ~4D mc" (pitchwheel-to-mc value)))
       (report-modifications editor))
 
     (when (editor-get-edit-param editor :auto-send)
@@ -407,9 +407,9 @@
     (om-add-subviews
      panel
      (om-make-di 'om-simple-text
-                 :size (omp 40 20)
-                 :font (om-def-font :font3b)
-                 :text (format nil "Ch. ~D" (midichannel self))
+                 :size (omp 16 20)
+                 :font (om-def-font :font2b)
+                 :text (format nil "~D" (midichannel self))
                  )
 
      (setf (programMenu panel)
@@ -445,7 +445,7 @@
 
      (setf (volumetext panel)
            (om-make-di 'om-simple-text
-                       :size (omp 40 20)
+                       :size (omp 46 20)
                        :font font
                        :text (format nil "Vol ~D" (vol-ctrl self))
                        ))
@@ -468,7 +468,7 @@
            (om-make-di 'om-simple-text
                        :size (omp w 20)
                        :font font
-                       :text (format nil "Pitch (mc) ~D" (pitchwheel-to-mc (pitch-ctrl self)))
+                       :text (format nil "Pitch ~4D mc" (pitchwheel-to-mc (pitch-ctrl self)))
                        ))
 
      (setf (pitchSlider panel)
@@ -555,6 +555,7 @@
 
      (om-make-di 'om-button
                  :text "Reset"
+                 :font font
                  :size (omp 80 24)
                  :di-action #'(lambda (item)
                                 (declare (ignore item))
@@ -628,7 +629,7 @@
                               nil
 
                               (om-make-di 'om-check-box
-                                          :size (omp 80 20)
+                                          :size (omp 120 20)
                                           :font (om-def-font :font1)
                                           :text "send on edit"
                                           :checked-p (editor-get-edit-param editor :auto-send)
