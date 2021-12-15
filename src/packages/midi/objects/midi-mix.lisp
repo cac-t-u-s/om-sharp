@@ -578,8 +578,8 @@
   (let ((obj (object-value editor)))
 
     (setf (channel-panels editor)
-          (loop for cc in (channels-ctrl obj)
-                collect (make-channel-track-view cc editor)))
+          (cdr (loop for cc in (channels-ctrl obj)
+                     append (list :separator (make-channel-track-view cc editor)))))
 
     (let ((port-box ;;; needs to be enabled/disabled by other items...
                     (om-make-graphic-object 'numbox
