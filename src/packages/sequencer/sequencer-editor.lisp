@@ -1199,14 +1199,17 @@ CMD-click to add boxes. Play contents, etc.
                 (when  (equal (editor-window-config editor) :inspector)
                   (list :divider
                         (om-make-layout
-                         'om-column-layout :delta nil :ratios '(nil 1) :align :right
-                         :subviews (list (om-make-graphic-object
-                                          'om-icon-button :icon :xx :icon-pushed :xx-pushed
-                                          :size (omp 12 12)
-                                          :action #'(lambda (b)
-                                                      (declare (ignore b))
-                                                      (patch-editor-set-window-config editor nil))
-                                          )
+                         'om-column-layout :delta nil :ratios '(nil 1)
+                         :subviews (list (om-make-layout
+                                          'om-row-layout
+                                          :subviews (list NIL
+                                                          (om-make-graphic-object
+                                                           'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                                                           :size (omp 12 12)
+                                                           :action #'(lambda (b)
+                                                                       (declare (ignore b))
+                                                                       (patch-editor-set-window-config editor nil))
+                                                           )))
 
                                          (om-make-di 'om-simple-text :size (omp 230 18)
                                                      :font (om-def-font :font2b) :text "info and properties"
