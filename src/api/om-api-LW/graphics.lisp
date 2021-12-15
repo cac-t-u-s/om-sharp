@@ -354,9 +354,9 @@
   )
 
 (defparameter *gui-font*
-  #+macosx '("Lucida Grande" 13)
-  #+mswindows '("Segoe UI" 8)
-  #+linux '("Bistream Vera Sans" 10)
+  #+macosx '("Lucida Grande" (11 12))
+  #+mswindows '("Segoe UI" (8 9))
+  #+linux '("Bistream Vera Sans" (9 10))
   )
 
 (defparameter *score-font*
@@ -374,7 +374,9 @@
       (:font2b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
       (:font3b ,(om-make-font def-face (nth 2 sizes) :style '(:bold)))
       (:font4b ,(om-make-font def-face (nth 3 sizes) :style '(:bold)))
-      (:gui ,(apply #'om-make-font *gui-font*))
+      (:gui ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*))))
+      (:gui-b ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*)) :style '(:bold)))
+      (:gui-title ,(om-make-font (car *gui-font*) (nth 1 (cadr *gui-font*)) :style '(:bold)))
       (:score ,(apply #'om-make-font *score-font*))
       (:mono ,(apply #'om-make-font *mono-font*)))))
 
