@@ -1159,7 +1159,7 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :size (om-make-point 120 20)
-                          :text "Selected measures(s)"
+                          :text "Selected measure(s)"
                           :font (om-def-font :font1b))
 
               (om-make-layout
