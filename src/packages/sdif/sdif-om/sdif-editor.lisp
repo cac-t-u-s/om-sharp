@@ -31,7 +31,7 @@
 (defmethod make-editor-window-contents ((editor sdiffile-editor))
 
   (set-g-component editor :filemap-layout (om-make-layout 'om-column-layout))
-  (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :font1)))
+  (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :font1b)))
   (set-g-component editor :field-plot (om-make-view 'field-plot-view :editor editor :bg-color (om-def-color :white)))
 
   (set-g-component editor :matrix-field-menu (om-make-di
@@ -105,7 +105,7 @@
    (get-g-component editor :matrix-text)
    (if m-desc
        (format nil "Matrix: ~A" (mstream-desc-msig m-desc))
-     "Select a matrix stream on the left pane..."))
+     "Select a matrix stream on the left panel.."))
 
   (om-set-item-list
    (get-g-component editor :matrix-field-menu)
