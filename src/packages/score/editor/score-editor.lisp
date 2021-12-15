@@ -1166,7 +1166,7 @@
                'om-row-layout
                :subviews
                (list
-                (om-make-di 'om-simple-text :size (om-make-point 80 text-h)
+                (om-make-di 'om-simple-text :size (om-make-point 84 text-h)
                             :text "time signature:"
                             :font (om-def-font :font1))
 
