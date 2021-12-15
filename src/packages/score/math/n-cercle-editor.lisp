@@ -39,17 +39,19 @@
                              :editor self
                              :size (omp 200 200)
                              :bg-color (om-def-color :white)))
+         (di-h 18)
          (controls
           (om-make-layout 'om-row-layout
-                          :size (omp nil 24)
+                          :size (omp nil di-h)
+                          :align :center
                           :subviews (list
                                      (om-make-di 'om-simple-text
                                                  :text "N="
                                                  :font (om-def-font :font1)
-                                                 :size (omp 20 24))
+                                                 :size (omp 20 di-h))
                                      (om-make-view
                                       'om-view ;;; needed to get the scroll-feature of numbox to work
-                                      :size (omp nil 24)
+                                      :size (omp nil di-h)
                                       :subviews
                                       (list (om-make-graphic-object
                                              'numbox
@@ -58,7 +60,7 @@
                                              :position (omp 0 0)
                                              :db-click t
                                              :decimals 0
-                                             :size (om-make-point 40 20)
+                                             :size (om-make-point 40 18)
                                              :font (om-def-font :font2)
                                              :min-val 1 :max-val 120
                                              :after-fun #'(lambda (item)
@@ -71,7 +73,7 @@
                                      (om-make-di 'om-simple-text
                                                  :text "background"
                                                  :font (om-def-font :font1)
-                                                 :size (omp 70 24))
+                                                 :size (omp 70 di-h))
                                      (om-make-di 'om-popup-list
                                                  :items (list :draw-all :light :hide)
                                                  :size (omp 80 24)
