@@ -693,7 +693,7 @@
 
       (om-draw-string (+ x-lock 3) (+ y-lock 9)
                       state-str
-                      :font (om-def-font :font1 :size 9)
+                      :font (om-def-font :gui :size 9)
                       :color (om-def-color :white)))
     ))
 

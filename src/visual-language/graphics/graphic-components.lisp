@@ -225,7 +225,7 @@
            (om-make-di 'om-popup-list
                        :enabled (om-view-enabled self)
                        :size (omp 116 22)
-                       :font (om-def-font :font1)
+                       :font (om-def-font :gui)
                        :items (om-list-all-fonts)
                        :selected-item (and (font self) (om-font-face (font self)))
                        :di-action #'(lambda (list)
@@ -248,7 +248,7 @@
              (om-make-di 'om-popup-list
                          :enabled (om-view-enabled self)
                          :size (omp 50 22)
-                         :font (om-def-font :font1)
+                         :font (om-def-font :gui)
                          :items '(8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 28 32 36 40 52 64)
                          :selected-item (and (font self) (om-font-size (font self)))
                          :di-action #'(lambda (list)
@@ -265,7 +265,7 @@
              (om-make-di 'om-popup-list
                          :enabled (om-view-enabled self)
                          :size (omp 64 22)
-                         :font (om-def-font :font1)
+                         :font (om-def-font :gui)
                          :items '("plain" "bold" "italic" "bold-italic")
                          :selected-item (cond ((and (font self)
                                                     (find :bold (om-font-style (font self)))

@@ -336,7 +336,7 @@ If this is done, this type is used to initialize or convert the input list of ob
           (when (handle-multi-display (internal-editor editor))
             (om-make-di
              'om-check-box
-             :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
+             :text " Show All" :size (omp 80 16) :font (om-def-font :gui)
              :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
              :di-action #'(lambda (item)
                             (editor-set-edit-param editor :show-all (om-checked-p item))

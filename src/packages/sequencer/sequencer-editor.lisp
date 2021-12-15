@@ -983,7 +983,7 @@ CMD-click to add boxes. Play contents, etc.
                   :color color)
     (om-draw-string 7 15
                     "="
-                    :font (om-def-font :font1 :size fontsize)
+                    :font (om-def-font :gui :size fontsize)
                     :color color)
     ))
 
@@ -1009,13 +1009,12 @@ CMD-click to add boxes. Play contents, etc.
   ((metronome :accessor metronome :initarg :metronome :initform nil)))
 
 (defmethod om-draw-contents ((self metro-view))
-  (let* ((fontsize 11)
-         (color (if (metronome-on (metronome self))
+  (let* ((color (if (metronome-on (metronome self))
                     (om-def-color :dark-blue)
                   (om-def-color :black))))
     (om-draw-string 10 12
                     "Metro"
-                    :font (om-def-font :font1 :size fontsize)
+                    :font (om-def-font :gui)
                     :color color)
     (om-draw-rect 0 4 8 8
                   :color color
@@ -1097,7 +1096,7 @@ CMD-click to add boxes. Play contents, etc.
 
               (make-time-monitor editor
                                  :h 16
-                                 :font (om-def-font :font2b)
+                                 :font (om-def-font :gui-title)
                                  :background +track-color-2+
                                  :color (om-def-color :white)
                                  :time 0)
@@ -1212,7 +1211,7 @@ CMD-click to add boxes. Play contents, etc.
                                                            )))
 
                                          (om-make-di 'om-simple-text :size (omp 230 18)
-                                                     :font (om-def-font :font2b) :text "info and properties"
+                                                     :font (om-def-font :gui-title) :text "info and properties"
                                                      :fg-color (om-def-color :dark-gray))
                                          :separator
                                          inspector-pane))))

@@ -537,20 +537,20 @@
          (control-h 24)
          (title (om-make-di 'om-simple-text :text "Editor params"
                             :size (omp 100 22)
-                            :font (om-def-font :font2b)))
+                            :font (om-def-font :gui-title)))
          (size-item
           (om-make-layout
            'om-row-layout
            :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "size"
-                                  :font (om-def-font :font1)
+                                  :font (om-def-font :gui)
                                   :size (omp 30 text-h))
 
                       (set-g-component
                        editor :font-size-box
                        (om-make-di 'om-popup-list :items *score-fontsize-options*
-                                   :size (omp 55 control-h) :font (om-def-font :font1)
+                                   :size (omp 55 control-h) :font (om-def-font :gui)
                                    :value (editor-get-edit-param editor :font-size)
                                    :di-action #'(lambda (list)
                                                   (set-font-size editor (om-get-selected-item list))
@@ -564,11 +564,11 @@
            :subviews (list
                       (om-make-di 'om-simple-text :text "staff"
                                   :size (omp 35 text-h)
-                                  :font (om-def-font :font1))
+                                  :font (om-def-font :gui))
                       (set-g-component
                        editor :staff-menu  ;; we need to change it sometimes...
                        (om-make-di 'om-popup-list :items *score-staff-options*
-                                   :size (omp 100 control-h) :font (om-def-font :font1)
+                                   :size (omp 100 control-h) :font (om-def-font :gui)
                                    :value (editor-get-edit-param editor :staff)
                                    :di-action #'(lambda (list)
                                                   (set-editor-staff editor (om-get-selected-item list))
@@ -583,9 +583,9 @@
            :subviews (list
                       (om-make-di 'om-simple-text :text "scale"
                                   :size (omp 35 text-h)
-                                  :font (om-def-font :font1))
+                                  :font (om-def-font :gui))
                       (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*)
-                                  :size (omp 100 control-h) :font (om-def-font :font1)
+                                  :size (omp 100 control-h) :font (om-def-font :gui)
                                   :value (editor-get-edit-param editor :scale)
                                   :di-action #'(lambda (list)
                                                  (editor-set-edit-param editor :scale (om-get-selected-item list))
@@ -599,8 +599,8 @@
            :subviews (list
                       (om-make-di 'om-simple-text :text "durations"
                                   :size (omp 56 text-h)
-                                  :font (om-def-font :font1))
-                      (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                  :font (om-def-font :gui))
+                      (om-make-di 'om-check-box :text "" :font (om-def-font :gui)
                                   :size (omp 20 control-h)
                                   :checked-p (editor-get-edit-param editor :duration-display)
                                   :di-action #'(lambda (item)
@@ -630,7 +630,7 @@
            :align :center
            :delta nil
            :subviews (list (om-make-di 'om-simple-text :text "grid"
-                                       :font (om-def-font :font1)
+                                       :font (om-def-font :gui)
                                        :size (omp 56 text-h))
                            (om-make-di 'om-check-box
                                        :checked-p (editor-get-edit-param editor :grid)
@@ -986,7 +986,7 @@
            (list
             (om-make-di 'om-simple-text :size (om-make-point 120 20)
                         :text "Selected note(s)"
-                        :font (om-def-font :font1b))
+                        :font (om-def-font :gui-b))
             (if notes
 
                 (om-make-layout
@@ -1166,7 +1166,7 @@
              (list
               (om-make-di 'om-simple-text :size (om-make-point 120 20)
                           :text "Selected measure(s)"
-                          :font (om-def-font :font1b))
+                          :font (om-def-font :gui-b))
 
               (om-make-layout
                'om-row-layout
@@ -1174,7 +1174,7 @@
                (list
                 (om-make-di 'om-simple-text :size (om-make-point 84 text-h)
                             :text "time signature:"
-                            :font (om-def-font :font1))
+                            :font (om-def-font :gui))
 
                 (om-make-view
                  'om-view :size (omp 25 numbox-h)
@@ -1271,7 +1271,7 @@
              (list
               (om-make-di 'om-simple-text :size (om-make-point 120 20)
                           :text "Selected voice(s)"
-                          :font (om-def-font :font1b))
+                          :font (om-def-font :gui-b))
 
               (om-make-layout
                'om-row-layout
@@ -1279,7 +1279,7 @@
                (list
                 (om-make-di 'om-simple-text :size (om-make-point 80 text-h)
                             :text "tempo:"
-                            :font (om-def-font :font1))
+                            :font (om-def-font :gui))
 
                 (om-make-view
                  'om-view :size (omp 30 numbox-h)
@@ -1317,7 +1317,7 @@
            (list
             (om-make-di 'om-simple-text :size (om-make-point 120 20)
                         :text "Display params"
-                        :font (om-def-font :font1b))
+                        :font (om-def-font :gui-b))
 
             (om-make-layout
              'om-row-layout
@@ -1325,11 +1325,11 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "offsets"
-                          :font (om-def-font :font1)
+                          :font (om-def-font :gui)
                           :size (omp display-params-text-w text-h))
 
               (om-make-di 'om-popup-list :items '(:hidden :shift :grace-note)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :offsets (om-get-selected-item list)))
@@ -1343,9 +1343,9 @@
              (list
               (om-make-di 'om-simple-text :text "velocity"
                           :size (omp display-params-text-w text-h)
-                          :font (om-def-font :font1))
+                          :font (om-def-font :gui))
               (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :velocity-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
@@ -1358,9 +1358,9 @@
              (list
               (om-make-di 'om-simple-text :text "MIDI channel"
                           :size (omp display-params-text-w text-h)
-                          :font (om-def-font :font1))
+                          :font (om-def-font :gui))
               (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :channel-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
@@ -1373,8 +1373,8 @@
              (list
               (om-make-di 'om-simple-text :text "MIDI port"
                           :size (omp display-params-text-w text-h)
-                          :font (om-def-font :font1))
-              (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                          :font (om-def-font :gui))
+              (om-make-di 'om-check-box :text "" :font (om-def-font :gui)
                           :size (omp 28 20)
                           :checked-p (editor-get-edit-param editor :port-display)
                           :di-action #'(lambda (item)

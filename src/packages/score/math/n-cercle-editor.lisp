@@ -47,7 +47,7 @@
                           :subviews (list
                                      (om-make-di 'om-simple-text
                                                  :text "N="
-                                                 :font (om-def-font :font1)
+                                                 :font (om-def-font :gui)
                                                  :size (omp 20 di-h))
                                      (om-make-view
                                       'om-view ;;; needed to get the scroll-feature of numbox to work
@@ -72,12 +72,12 @@
                                      nil
                                      (om-make-di 'om-simple-text
                                                  :text "background"
-                                                 :font (om-def-font :font1)
+                                                 :font (om-def-font :gui)
                                                  :size (omp 70 di-h))
                                      (om-make-di 'om-popup-list
                                                  :items (list :draw-all :light :hide)
                                                  :size (omp 80 24)
-                                                 :font (om-def-font :font1)
+                                                 :font (om-def-font :gui)
                                                  :di-action #'(lambda (item)
                                                                 (setf (bg-mode self) (om-get-selected-item item))
                                                                 (om-invalidate-view view))

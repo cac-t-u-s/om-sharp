@@ -269,7 +269,7 @@
                       :text ""
                       :resizable nil
                       :size (om-make-point 20 14)
-                      :font (om-def-font :font1)
+                      :font (om-def-font :gui)
                       :di-action #'(lambda (item)
                                      (maybe-store-undo-state update nil nil)
                                      (enable-numbox numbox (om-checked-p item))
@@ -302,7 +302,7 @@
               :text ""
               :resizable nil
               :size (om-make-point nil 20)
-              :font (om-def-font :font1)
+              :font (om-def-font :gui)
               :di-action #'(lambda (item)
                              (maybe-store-undo-state update nil nil)
                              (set-property object prop-id (om-checked-p item))
@@ -314,7 +314,7 @@
 ;;;====================================
 ;;; if the list contains :default, that leaves the possibility to check/unceck and activate or not the menu
 (defmethod make-prop-item ((type cons) prop-id object &key default update)
-  (let* ((font (om-def-font :font1))
+  (let* ((font (om-def-font :gui))
          (popup (om-make-di 'om-popup-list
                             :items (remove :default type)
                             :resizable nil
@@ -342,7 +342,7 @@
                          :text ""
                          :resizable nil
                          :size (om-make-point 20 14)
-                         :font (om-def-font :font1)
+                         :font (om-def-font :gui)
                          :di-action #'(lambda (item)
                                         (maybe-store-undo-state update nil nil)
                                         (om-enable-dialog-item popup (om-checked-p item))
@@ -428,7 +428,7 @@
                       :text ""
                       :resizable nil
                       :size (om-make-point 20 14)
-                      :font (om-def-font :font1)
+                      :font (om-def-font :gui)
                       :di-action #'(lambda (item)
                                      (maybe-store-undo-state update nil nil)
                                      (om-set-view-enabled colorview (om-checked-p item))
@@ -472,8 +472,8 @@
                            (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
 
-    (let* ((button-font (om-def-font :font1 :style (and (get-property object prop-id)
-                                                        (om-font-style (get-property object prop-id)))))
+    (let* ((button-font (om-def-font :gui :style (and (get-property object prop-id)
+                                                      (om-font-style (get-property object prop-id)))))
            (font-str (font-to-str button-font)))
       (om-make-di 'om-button
                   :resizable nil
@@ -487,7 +487,7 @@
                                    (when choice
                                      (maybe-store-undo-state update nil nil)
                                      (om-set-dialog-item-text item (font-to-str choice))
-                                     (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
+                                     (om-set-font item (om-def-font :gui :style (om-font-style choice)))
                                      (set-property object prop-id choice)
                                      (when update (update-after-prop-edit update object)))))))))
 
@@ -519,7 +519,7 @@
                       :text ""
                       :resizable nil
                       :size (om-make-point 20 14)
-                      :font (om-def-font :font1)
+                      :font (om-def-font :gui)
                       :di-action #'(lambda (item)
                                      (maybe-store-undo-state update nil nil)
                                      (set-enabled font-chooser (om-checked-p item))
@@ -620,7 +620,7 @@
 (defun get-arguments-dialog (arglist &optional (vals nil vals-supplied-p))
 
   (let* ((win nil) (fields nil)
-         (font (om-def-font :font1))
+         (font (om-def-font :gui))
 
          (cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25) :font font
                          :di-action #'(lambda (b)
@@ -699,7 +699,7 @@
            (def-action-list (get-def-action-list object))
            (print-action-list (append '(nil) def-action-list (list (format nil "other: ~A" other-name))))
            (layout (om-make-layout 'om-row-layout :delta nil))
-           (font (om-def-font :font1))
+           (font (om-def-font :gui))
            (b (om-make-di 'om-button
                           :resizable nil :focus nil :default nil
                           :text "..." :size (om-make-point 40 24) :font font

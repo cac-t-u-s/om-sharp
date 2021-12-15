@@ -499,18 +499,18 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
               'om-column-layout
               :subviews
               (list
-               (om-make-di 'om-simple-text :text "Rotation control axes" :size (omp 180 22) :font (om-def-font :font1b))
+               (om-make-di 'om-simple-text :text "Rotation control axes" :size (omp 180 22) :font (om-def-font :gui-b))
                (om-make-layout
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "shift:" :size (omp 40 22) :font (om-def-font :font1))
-                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                 (om-make-di 'om-simple-text :text "shift:" :size (omp 40 22) :font (om-def-font :gui))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :gui)
                              :items '(:x :y :z :_)
                              :value (editor-get-edit-param editor :shift-x-edit-mode)
                              :di-action #'(lambda (list)
                                             (editor-set-edit-param editor :shift-x-edit-mode (om-get-selected-item list))))
-                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :gui)
                              :items '(:x :y :z :_)
                              :value (editor-get-edit-param editor :shift-y-edit-mode)
                              :di-action #'(lambda (list)
@@ -520,13 +520,13 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "alt:" :size (omp 40 20) :font (om-def-font :font1))
-                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                 (om-make-di 'om-simple-text :text "alt:" :size (omp 40 20) :font (om-def-font :gui))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :gui)
                              :items '(:x :y :z :_)
                              :value (editor-get-edit-param editor :alt-x-edit-mode)
                              :di-action #'(lambda (list)
                                             (editor-set-edit-param editor :alt-x-edit-mode (om-get-selected-item list))))
-                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :gui)
                              :items '(:x :y :z :_)
                              :value (editor-get-edit-param editor :alt-y-edit-mode)
                              :di-action #'(lambda (list)
@@ -538,7 +538,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 :subviews
                 (list
                  (om-make-di 'om-simple-text :text "" :size (omp 40 20))
-                 (om-make-di 'om-button :text "reinit rotations" :size (omp 120 24) :font (om-def-font :font1)
+                 (om-make-di 'om-button :text "reinit rotations" :size (omp 120 24) :font (om-def-font :gui)
                              :di-action #'(lambda (item)
                                             (declare (ignore item))
                                             (init-state obj)
@@ -552,15 +552,15 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
               'om-column-layout
               :subviews
               (list
-               (om-make-di 'om-simple-text :text "Rotation values" :size (omp 240 21) :font (om-def-font :font1b))
+               (om-make-di 'om-simple-text :text "Rotation values" :size (omp 240 21) :font (om-def-font :gui-b))
 
                (om-make-layout
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "center-x:" :size (omp 55 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "center-x:" :size (omp 55 22) :font (om-def-font :gui))
                  (get-g-component editor :center-x-numbox)
-                 (om-make-di 'om-simple-text :text "center-y:" :size (omp 55 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "center-y:" :size (omp 55 22) :font (om-def-font :gui))
                  (get-g-component editor :center-y-numbox)
                  ))
 
@@ -568,7 +568,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "rotation-x:" :size (omp 60 20) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "rotation-x:" :size (omp 60 20) :font (om-def-font :gui))
                  (get-g-component editor :rotation-x-slider)
                  (get-g-component editor :rotation-x-numbox)))
 
@@ -576,7 +576,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "rotation-y:" :size (omp 60 20) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "rotation-y:" :size (omp 60 20) :font (om-def-font :gui))
                  (get-g-component editor :rotation-y-slider)
                  (get-g-component editor :rotation-y-numbox)))
 
@@ -584,7 +584,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "rotation-z:" :size (omp 60 20) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "rotation-z:" :size (omp 60 20) :font (om-def-font :gui))
                  (get-g-component editor :rotation-z-slider)
                  (get-g-component editor :rotation-z-numbox)))
                ))
@@ -594,15 +594,15 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
               'om-column-layout
               :subviews
               (list
-               (om-make-di 'om-simple-text :text "Grid" :size (omp 200 22) :font (om-def-font :font1b))
+               (om-make-di 'om-simple-text :text "Grid" :size (omp 200 22) :font (om-def-font :gui-b))
 
                (om-make-layout
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "x-min:" :size (omp 40 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "x-min:" :size (omp 40 22) :font (om-def-font :gui))
                  (get-g-component editor :x-grid-min-numbox)
-                 (om-make-di 'om-simple-text :text "x-max:"  :size (omp 40 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "x-max:"  :size (omp 40 22) :font (om-def-font :gui))
                  (get-g-component editor :x-grid-max-numbox)
                  ))
 
@@ -610,9 +610,9 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-simple-text :text "y-min:" :size (omp 40 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "y-min:" :size (omp 40 22) :font (om-def-font :gui))
                  (get-g-component editor :y-grid-min-numbox)
-                 (om-make-di 'om-simple-text :text "y-max:" :size (omp 40 22) :font (om-def-font :font1))
+                 (om-make-di 'om-simple-text :text "y-max:" :size (omp 40 22) :font (om-def-font :gui))
                  (get-g-component editor :y-grid-max-numbox)
                  ))
 
@@ -620,13 +620,13 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                 'om-row-layout
                 :subviews
                 (list
-                 (om-make-di 'om-check-box :text "show" :size (omp 100 20) :font (om-def-font :font1)
+                 (om-make-di 'om-check-box :text "show" :size (omp 100 20) :font (om-def-font :gui)
                              :checked-p (editor-get-edit-param editor :show-grid)
                              :di-action #'(lambda (item)
                                             (editor-set-edit-param editor :show-grid (print (om-checked-p item)))
                                             (om-invalidate-view (get-g-component editor :3d-view))))
 
-                 (om-make-di 'om-button :text "fit" :size (omp 60 24) :font (om-def-font :font1)
+                 (om-make-di 'om-button :text "fit" :size (omp 60 24) :font (om-def-font :gui)
                              :di-action #'(lambda (item)
                                             (declare (ignore item))
                                             (editor-set-edit-param editor :x-grid :auto)
@@ -636,7 +636,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                             (om-invalidate-view (om-invalidate-view (get-g-component editor :3d-view)))))
                  ))
 
-               (om-make-di 'om-check-box :text "filter off-grid" :size (omp 100 20) :font (om-def-font :font1)
+               (om-make-di 'om-check-box :text "filter off-grid" :size (omp 100 20) :font (om-def-font :gui)
                            :checked-p (editor-get-edit-param editor :filter-off-grid)
                            :di-action #'(lambda (item)
                                           (editor-set-edit-param editor :filter-off-grid (om-checked-p item))

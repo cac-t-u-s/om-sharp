@@ -72,7 +72,7 @@
               :text ""
               ;:resizable :w
               :size (om-make-point 20 18)
-              :font (om-def-font :font1)
+              :font (om-def-font :gui)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-checked-p item))
                              (maybe-apply-pref-item-after-fun pref-item)
@@ -167,7 +167,7 @@
 
 
 (defmethod make-preference-item ((type cons) pref-item)
-  (let ((font (om-def-font :font1)))
+  (let ((font (om-def-font :gui)))
     (om-make-di 'om-popup-list
                 :items type
                 :resizable :w
@@ -218,7 +218,7 @@
                (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font))
                        (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
-    (let ((font (om-def-font :font1)))
+    (let ((font (om-def-font :gui)))
       (om-make-di 'om-button
                   :resizable :w
                   :focus nil :default nil
@@ -258,7 +258,7 @@
 
 (defmethod make-preference-item ((type (eql :action)) pref-item)
   (let ((buttonstr "Open")
-        (font (om-def-font :font1)))
+        (font (om-def-font :gui)))
     (om-make-di 'om-button
                 :resizable :w
                 :focus nil :default nil
@@ -279,7 +279,7 @@
 
 (defun make-preference-view (pref-item)
 
-  (let* ((font (om-def-font :font1))
+  (let* ((font (om-def-font :gui))
 
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
 
@@ -308,7 +308,7 @@
 
         (let ((title (om-make-di 'om-simple-text
                                  :text (pref-item-name pref-item)
-                                 :font (om-def-font :font2b)
+                                 :font (om-def-font :gui-title)
                                  :size (om-make-point 200 16))))
           (om-make-layout
            'om-column-layout :name (pref-item-id pref-item)
@@ -319,7 +319,7 @@
 
       (let* ((main-text (om-make-di 'om-simple-text
                                     :text (pref-item-name pref-item)
-                                    :font (om-def-font :font1)
+                                    :font (om-def-font :gui)
                                     :size (om-make-point 180 14))))
 
         (om-make-layout

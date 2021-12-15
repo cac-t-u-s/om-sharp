@@ -80,9 +80,9 @@
        :subviews (list
                   (om-make-di 'om-simple-text :text "play-mode"
                               :size (omp 60 text-h)
-                              :font (om-def-font :font1))
+                              :font (om-def-font :gui))
                   (om-make-di 'om-popup-list :items '(:chord :arp-up :arp-down :arp-order)
-                              :size (omp 80 control-h) :font (om-def-font :font1)
+                              :size (omp 80 control-h) :font (om-def-font :gui)
                               :value (editor-get-edit-param editor :chord-mode)
                               :di-action #'(lambda (list)
                                              (editor-set-edit-param editor :chord-mode (om-get-selected-item list))
