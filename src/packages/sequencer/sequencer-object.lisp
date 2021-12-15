@@ -165,7 +165,7 @@
 
   ; (set-meta-inputs (ctrlpatch seq) (car (references-to seq)) seq)
 
-  (when (and from-editor (ctrlpatch seq))
+  (when (and from-editor (ctrlpatch seq) (editor (ctrlpatch seq)))
     (setf *current-eval-panel* (editor-view (ctrlpatch seq))))
 
   (when with-control-patch
