@@ -43,10 +43,8 @@
 
 ;; internal
 (defun mach2ms (mach) 
-  ;(round (* *mach2nanosFactor* mach) 1000000)
   (round mach 1000000))
 (defun ms2mach (ms) 
-  ;(truncate (/ (* ms 1000000) *mach2nanosFactor*))
   (truncate (* ms 1000000)))
 
 ;; used in API/multiprocess
@@ -67,10 +65,6 @@
 (defun load-mach-lib ()
   (print "Loading System library")
   (setf mach::*ommach-lib*
-        ;(om-fi::om-load-foreign-library 
-        ; "LIBMACH"
-        ; `((:macosx "/System/Library/Frameworks/System.framework/System") 
-        ;   (t (:default "System"))))
         (fli::register-module 
          :system :connection-style :immediate
          :real-name "/System/Library/Frameworks/System.framework/System" )
