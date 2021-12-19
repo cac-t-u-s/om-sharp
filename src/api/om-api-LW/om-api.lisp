@@ -45,9 +45,8 @@
     (push fun-name *api-init-list*)))
 
 (defun om-api-init ()
-  (print "== START OM-API INIT CALLS ==")
-  (mapc #'(lambda (fun) (print fun) (funcall fun)) (reverse *api-init-list*))
-  (print "== END OM-API INIT CALLS =="))
+  (print "Initializing API")
+  (mapc #'(lambda (fun) fun (funcall fun)) (reverse *api-init-list*)))
 
 
 (let ((api-files '(
