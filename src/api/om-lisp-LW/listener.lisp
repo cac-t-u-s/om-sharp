@@ -80,12 +80,14 @@
   obj)
 
 (defun om-print-format (format-string &optional args prompt)
-  (format
-   *om-stream*
-   (concatenate 'string
-                (if prompt (concatenate 'string prompt " :: ") "")
-                (apply 'format (append (list nil (concatenate 'string format-string "~%")) args)))
-   ))
+  (let ((string (apply 'format (append (list nil (concatenate 'string format-string "~%")) args))))
+    (format
+     *om-stream*
+     (concatenate 'string
+                  (if prompt (concatenate 'string prompt " :: ") "")
+                  string))
+    string))
+
 
 (defun om-print-list (&rest elements)
   (om-print elements))
