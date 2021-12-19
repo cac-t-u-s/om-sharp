@@ -629,9 +629,7 @@
          )))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                              (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2))) "PATCH"))))
-
-    )
+                              (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2))) "PATCH")))))
 
   (draw-patch-icon self x y)
   (draw-eval-buttons view self x y x 12)
