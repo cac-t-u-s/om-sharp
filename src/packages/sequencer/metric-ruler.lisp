@@ -105,21 +105,16 @@
           (setq cur-pix (ruler-value-to-pix ruler (car beat)))
           (if (>= (- cur-pix last-pix) min-pix-step)
               (progn
-                (if (not (listp (cadr beat)))
-                    (progn
-                      (draw-line-at ruler cur-pix 6)
-                      (om-with-font (om-def-font :font1b :size 8)
-                                    (draw-string-at ruler cur-pix
-                                                    (format nil "~A" (cadr beat)))))
-                  (progn
-                    (draw-line-at ruler cur-pix 4)
-                    (om-with-font (om-def-font :font1 :size 7)
-                                  (om-draw-string (- cur-pix 5) 12 (format nil "~A" (caadr beat)))
-                                  (om-draw-string cur-pix 14 "/")
-                                  (om-draw-string (+ cur-pix 4) 16 (format nil "~A" (cadadr beat)))
-                                  )))
+                (if (numberp (cadr beat))
+                    (om-with-font
+                     *ruler-font*
+                     (draw-line-at ruler cur-pix 6)
+                     (draw-string-at ruler cur-pix
+                                     (format nil "~A" (1+ (cadr beat)))))
+                  (draw-line-at ruler cur-pix 4))
                 (setq last-pix cur-pix))
             (draw-line-at ruler cur-pix 6))))
+
   (when (markers-p ruler)
     (loop for marker in (get-all-time-markers ruler)
           do
@@ -139,6 +134,7 @@
                                        (omp (+ pos 4) 5)
                                        (omp (+ pos 4) (h ruler)))
                                  :fill t))))))
+
   ;(let ((pos (x-to-pix ruler (cursor-pos ruler))))
   ;  (om-with-fg-color (om-make-color 1 1 1 0.5)
   ;    (if (bottom-p ruler)
