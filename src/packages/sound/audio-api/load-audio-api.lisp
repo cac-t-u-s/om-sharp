@@ -42,7 +42,7 @@
 ;     (t (:default "libsndfile"))))
 
   (om-fi::om-load-foreign-library
-   "LIBSAMPLERATE"
+   "libsamplerate"
    `((:macosx ,(om-fi::om-foreign-library-pathname "libsamplerate.dylib"))
      (:unix (:default "libsamplerate"))
      (:windows (:or ,(om-fi::om-foreign-library-pathname "libsamplerate-0.dll")
