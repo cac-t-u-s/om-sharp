@@ -246,25 +246,26 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
   ((viewpoint :accessor viewpoint :initform '(0.0d0 0.0d0 0.0d0) :documentation "x-y-z axis rotation angles")))
 
 (defmethod init-grid ((editor 3d-model-editor))
-  (when (data (object-value editor))
-    (multiple-value-bind (xmi xma ymi yma zmi zma)
-        ;; the data is scaled here. the grid must not
-        (get-extents (data (object-value editor)))
+  (multiple-value-bind (xmi xma ymi yma zmi zma)
+      ;; the data is scaled here. the grid must not
+      (if (data (object-value editor))
+          (get-extents (data (object-value editor)))
+        (values 0 0 0 0 0 0))
 
-      (declare (ignore zmi zma))
+    (declare (ignore zmi zma))
 
-      (set-x-grid editor (if (equal (editor-get-edit-param editor :x-grid) :auto)
-                             (list xmi xma)
-                           (editor-get-edit-param editor :x-grid)))
+    (set-x-grid editor (if (equal (editor-get-edit-param editor :x-grid) :auto)
+                           (list xmi xma)
+                         (editor-get-edit-param editor :x-grid)))
 
-      (set-y-grid editor (if (equal (editor-get-edit-param editor :y-grid) :auto)
-                             (list ymi yma)
-                           (editor-get-edit-param editor :y-grid))))
+    (set-y-grid editor (if (equal (editor-get-edit-param editor :y-grid) :auto)
+                           (list ymi yma)
+                         (editor-get-edit-param editor :y-grid))))
 
-    ;; in case the def value was :auto, we set it now to the actual value
-    (editor-set-edit-param editor :x-grid (x-grid editor))
-    (editor-set-edit-param editor :y-grid (y-grid editor))
-    ))
+  ;; in case the def value was :auto, we set it now to the actual value
+  (editor-set-edit-param editor :x-grid (x-grid editor))
+  (editor-set-edit-param editor :y-grid (y-grid editor)))
+
 
 (defmethod set-x-grid ((editor 3d-model-editor) values)
 
