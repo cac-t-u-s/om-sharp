@@ -35,7 +35,7 @@
 
 (defparameter *api-directory* (pathname-directory (truename *load-pathname*)))
 
-(export '(om-api-init om-api-exit) :om-api)
+(export '(om-api-init) :om-api)
 
 ;;; API INIT
 (defparameter *api-init-list* nil)
@@ -48,20 +48,6 @@
   (print "== START OM-API INIT CALLS ==")
   (mapc #'(lambda (fun) (print fun) (funcall fun)) (reverse *api-init-list*))
   (print "== END OM-API INIT CALLS =="))
-
-;;; API CLEANUP
-(defparameter *api-cleanup-list* nil)
-
-(defun om-add-cleanup-fun (fun-name &optional last?)
-  (unless (member fun-name *api-cleanup-list* :test 'equal)
-    (if last?
-        (push fun-name  *api-cleanup-list*)
-      (setf  *api-cleanup-list* (append  *api-cleanup-list* (list fun-name)))
-      )))
-
-(defun om-api-exit ()
-  (mapc #'(lambda (x) (funcall x)) (reverse *api-cleanup-list*))
-  t)
 
 
 (let ((api-files '(

@@ -259,8 +259,7 @@
               (om-lisp::check-buffers-before-close) ;; handled by om-text-edit-window destroy callback
               )))
     (when rep
-      (perform-om-exit-actions)
-      (oa::om-api-exit))
+      (perform-om-exit-actions))
     rep))
 
 
