@@ -589,7 +589,7 @@
     (om-draw-string (+ x (- w (om-string-size type-str type-font) 12))
                     (+ y 18)
                     type-str
-                    :font (om-def-font :font1b :size 10)
+                    :font type-font
                     :color (om-def-color :gray)))
 
   (om-with-font
