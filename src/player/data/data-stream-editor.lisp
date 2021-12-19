@@ -153,7 +153,7 @@
 ;;; sets the editor slightly longer that the actual object length
 (defmethod editor-view-after-init-space ((self t)) 1000)
 
-;;; the small view at the left of teh timeline should be sized according to the editor's layout
+;;; the small view at the left of the timeline should be sized according to the editor's layout
 (defmethod make-timeline-left-item ((self data-stream-editor) id)
   (om-make-view 'om-view :size (omp 28 15)))
 

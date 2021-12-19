@@ -493,7 +493,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
             'om-row-layout
             :subviews
             (list
-             ;;; CONTROLERS
+             ;;; CONTROLLERS
              (om-make-layout
               'om-column-layout
               :subviews
