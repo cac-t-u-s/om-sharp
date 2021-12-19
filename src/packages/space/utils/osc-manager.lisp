@@ -64,7 +64,7 @@
       (om-select-window (window self))
     (setf (window self)
           (om-make-window
-           'om-window  :title "OSC manager"
+           'om-window  :title "3DC Editor - OSC manager"
            :size (om-make-point 300 nil)
            :subviews
            (list
@@ -72,7 +72,8 @@
              'om-column-layout
              :subviews
              (list
-              (om-make-di 'om-simple-text :size (omp 400 80)
+              (om-make-di 'om-simple-text :size (omp 400 70)
+                          :font (om-def-font :gui)
                           :text (format nil "Send OSC Messages to edit 2D/3D objects:~%- /3dc/clear resets the current object.~%- /3dc/move x y z displays the current position.~%- /3dc/add x y z time appends a new point.")
                           )
               ;;; (if the distance with the previous one is lesser than the distance treshold)
@@ -83,12 +84,13 @@
                 (om-make-di 'om-simple-text
                             :text "OSC port:"
                             :size (omp 150 20)
-                           ;:font (om-def-font :font1)
+                            :font (om-def-font :gui)
                             )
                 (om-make-graphic-object 'numbox
                                         :value (port self) :size (omp 40 18)
                                         :bg-color (om-def-color :white)
-                                        ;:font (om-def-font :font1)
+                                        :font (om-def-font :font1)
+                                        :db-click t
                                         :min-val 0
                                         :after-fun #'(lambda (numbox)
                                                        (setf (port self) (value numbox))
@@ -97,7 +99,7 @@
                 nil
                 (om-make-di 'om-check-box
                             :text "Start/Stop OSC"
-                           ;:font (om-def-font :font1)
+                            :font (om-def-font :gui)
                             :checked-p (active-p self)
                             :size (omp 150 20)
                             :di-action #'(lambda (item)
@@ -112,12 +114,13 @@
                :subviews
                (list
                 (om-make-di 'om-simple-text :text "Distance treshold:"
-                            ;:font (om-def-font :font1)
+                            :font (om-def-font :gui)
                             :size (omp 150 30))
                 (om-make-graphic-object 'numbox
                                         :value (dist-threshold self)
                                         :min-val 0.0 :size (omp 40 18)
-                                        ;:font (om-def-font :font1)
+                                        :font (om-def-font :font1)
+                                        :db-click 1
                                         :bg-color (om-def-color :white)
                                         :after-fun #'(lambda (numbox)
                                                        (setf (dist-threshold self) (value numbox)))))

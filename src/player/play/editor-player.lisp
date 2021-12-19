@@ -609,7 +609,7 @@
   (setf (time-monitor editor)
         (om-make-di 'om-simple-text :size (omp 76 h)
                     :text (if time (time-display time) "")
-                    :font (or font (om-def-font :font1))
+                    :font (or font (om-def-font :gui))
                     :bg-color background
                     :fg-color (or color (om-def-color :black)))))
 

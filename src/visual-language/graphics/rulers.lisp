@@ -196,6 +196,9 @@
 (defmethod om-draw-contents ((self ruler-view))
   (ruler-draw self))
 
+
+(defparameter *ruler-font* (om-def-font :font1 :size 9))
+
 (defmethod ruler-draw ((self ruler-view))
   (let ((min-unit-size 40))
     (multiple-value-bind (unit-dur unit-size)
@@ -210,19 +213,19 @@
                   do
                   (let ((pixi (ruler-value-to-pix self vi)))
                     (draw-line-at self pixi 6)  ; (round rwidth 2.5)
-                    (om-with-font (om-def-font :font1 :size 8)
+                    (om-with-font *ruler-font*
                                   (draw-string-at self pixi (unit-value-str self vi unit-dur)))
                     ;draw detailed graduation
                     (when (> unit-size 4) ; (>= big-unit 10))
                       (loop for vii from (+ vi unit-dur)
                             to (- (+ vi big-unit) unit-dur) by unit-dur do
                             (let ((pixii (ruler-value-to-pix self vii)))
-                              (draw-line-at self pixii 3)  ;(round rwidth 5)
+                              (draw-line-at self pixii 3)
                               (if (> unit-size min-unit-size)
-                                  (om-with-font (om-def-font :font1 :size 8)
+                                  (om-with-font *ruler-font*
                                                 (draw-string-at self pixii (unit-value-str self vii unit-dur)))
                                 (when (eql (mod vii (/ big-unit 4)) 0)
-                                  (om-with-font (om-def-font :font1 :size 8)
+                                  (om-with-font *ruler-font*
                                                 (draw-string-at self pixii (unit-value-str self vii unit-dur)))
                                   ))
                               )))

@@ -116,7 +116,7 @@
                                     (oa::om-make-di 'oa::om-simple-text
                                                     :size (oa::om-make-point 40 24)
                                                     :text (format nil "~D" (car portsetting))
-                                                    :font (oa::om-def-font :font2b))
+                                                    :font (oa::om-def-font :gui-title))
 
                                     (oa::om-make-di 'oa::om-button
                                                     :size (oa::om-make-point 40 24)
@@ -170,7 +170,7 @@
        (oa::om-make-di 'oa::om-simple-text
                        :size (oa::om-make-point 40 24)
                        :text "In"
-                       :font (oa::om-def-font :font2b))
+                       :font (oa::om-def-font :gui-title))
 
        (oa::om-make-di 'oa::om-button
                        :size (oa::om-make-point 40 24)
@@ -189,7 +189,7 @@
        (oa::om-make-di 'oa::om-simple-text
                        :size (oa::om-make-point 120 24)
                        :text "Input Devices"
-                       :font (oa::om-def-font :font2b))
+                       :font (oa::om-def-font :gui-title))
        NIL
        ))
      )
@@ -205,7 +205,7 @@
        (oa::om-make-di 'oa::om-simple-text
                        :size (oa::om-make-point 40 24)
                        :text "Out"
-                       :font (oa::om-def-font :font2b))
+                       :font (oa::om-def-font :gui-title))
 
        (oa::om-make-di 'oa::om-button
                        :size (oa::om-make-point 40 24)
@@ -225,7 +225,7 @@
        (oa::om-make-di 'oa::om-simple-text
                        :size (oa::om-make-point 120 24)
                        :text "Output Devices"
-                       :font (oa::om-def-font :font2b))
+                       :font (oa::om-def-font :gui-title))
        NIL
        ))
      )
@@ -247,7 +247,7 @@
                                                       :size (oa::om-make-point 400 32)
                                                       :fg-color (oa:om-def-color :dark-gray)
                                                       :text "This software detects MIDI devices at startup. If some active MIDI devices do not appear in the lists, you might need to restart."
-                                                      :font (oa::om-def-font :font1))
+                                                      :font (oa::om-def-font :gui))
                                      ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
                                      ;                :di-action #'(lambda (item)
                                      ;                               (portmidi-connect-ports (settings dd))

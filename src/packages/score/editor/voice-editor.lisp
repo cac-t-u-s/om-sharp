@@ -58,10 +58,10 @@
 
                     (om-make-di 'om-simple-text :text "h-stretch"
                                 :size (omp 56 text-h)
-                                :font (om-def-font :font1))
+                                :font (om-def-font :gui))
 
                     (om-make-di 'om-popup-list :items *stretch-options*
-                                :size (omp 80 control-h) :font (om-def-font :font1)
+                                :size (omp 80 control-h) :font (om-def-font :gui)
                                 :value (editor-get-edit-param editor :h-stretch)
                                 :di-action #'(lambda (list)
                                                (editor-set-edit-param editor :h-stretch (om-get-selected-item list))

@@ -189,7 +189,7 @@
                  'om-row-layout
                  :align :center
                  :subviews
-                 (list (om-make-di 'om-check-box :text "axes" :size (omp 46 item-h) :font (om-def-font :font1)
+                 (list (om-make-di 'om-check-box :text "axes" :size (omp 46 item-h) :font (om-def-font :gui)
                                    :checked-p (editor-get-edit-param editor :show-axes)
                                    :di-action #'(lambda (item)
                                                   (editor-set-edit-param editor :show-axes (om-checked-p item))
@@ -205,15 +205,15 @@
                  (list
                   (om-make-di 'om-simple-text :text "draw mode:"
                               :size (omp 80 item-h)
-                              :font (om-def-font :font1))
+                              :font (om-def-font :gui))
                   (om-make-di 'om-popup-list :items '(:default :points :lines)
-                              :size (omp 80 24) :font (om-def-font :font1)
+                              :size (omp 80 24) :font (om-def-font :gui)
                               :value (editor-get-edit-param editor :draw-style)
                               :di-action #'(lambda (list)
                                              (editor-set-edit-param editor :draw-style (om-get-selected-item list))
                                              ))))
 
-                (om-make-di 'om-check-box :text "background elements" :size (omp 160 item-h) :font (om-def-font :font1)
+                (om-make-di 'om-check-box :text "background elements" :size (omp 160 item-h) :font (om-def-font :gui)
                             :checked-p (editor-get-edit-param editor :show-background)
                             :di-action #'(lambda (item)
                                            (editor-set-edit-param editor :show-background (om-checked-p item))
@@ -226,7 +226,7 @@
                  (list
                   (om-make-di 'om-simple-text :text "line size:"
                               :size (omp 80 item-h)
-                              :font (om-def-font :font1))
+                              :font (om-def-font :gui))
                   (om-make-view
                    'om-view :size (om-make-point 28 18)
                    :subviews
@@ -248,7 +248,7 @@
                  (list
                   (om-make-di 'om-simple-text :text "background"
                               :size (omp 80 item-h)
-                              :font (om-def-font :font1))
+                              :font (om-def-font :gui))
                   (om-make-view 'color-view
                                 :size (om-make-point 35 16) :resizable nil
                                 :color (editor-get-edit-param editor :3D-bg-color)
@@ -265,10 +265,10 @@
                    :subviews
                    (list
                     (om-make-di 'om-simple-text :text "color mapping:" :size (omp 80 item-h)
-                                :font (om-def-font :font1))
+                                :font (om-def-font :gui))
                     (om-make-di 'om-popup-list
                                 :items (color-options editor)
-                                :size (omp 80 24) :font (om-def-font :font1)
+                                :size (omp 80 24) :font (om-def-font :gui)
                                 :value (editor-get-edit-param editor :color-style)
                                 :di-action #'(lambda (list)
                                                (editor-set-edit-param editor :color-style
@@ -288,7 +288,7 @@
                 (when timeline-editor
                   (om-make-di 'om-check-box
                               :text "show timeline" :size (omp 100 item-h)
-                              :font (om-def-font :font1)
+                              :font (om-def-font :gui)
                               :checked-p (editor-get-edit-param editor :show-timeline)
                               :di-action #'(lambda (item)
                                              (editor-set-edit-param editor :show-timeline (om-checked-p item))
@@ -299,12 +299,12 @@
                                              (om-update-layout (main-view editor))))
                   )
 
-                (om-make-di 'om-check-box :text "indices" :size (omp 60 item-h) :font (om-def-font :font1)
+                (om-make-di 'om-check-box :text "indices" :size (omp 60 item-h) :font (om-def-font :gui)
                             :checked-p (editor-get-edit-param editor :show-indices)
                             :di-action #'(lambda (item)
                                            (editor-set-edit-param editor :show-indices (om-checked-p item))))
 
-                (om-make-di 'om-check-box :text "times" :size (omp 60 item-h) :font (om-def-font :font1)
+                (om-make-di 'om-check-box :text "times" :size (omp 60 item-h) :font (om-def-font :gui)
                             :checked-p (editor-get-edit-param editor :show-times)
                             :di-action #'(lambda (item)
                                            (editor-set-edit-param editor :show-times (om-checked-p item))))

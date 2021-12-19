@@ -59,10 +59,10 @@
      (list
       (om-make-di 'om-simple-text :size (om-make-point 72 18)
                   :text "Analysis"
-                  :font (om-def-font :font1b))
+                  :font (om-def-font :gui))
 
-      (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
-                  :size (omp 20 20)
+      (om-make-di 'om-check-box :text "" :font (om-def-font :gui)
+                  :size (omp 120 20)
                   :checked-p (editor-get-edit-param editor :analysis)
                   :di-action #'(lambda (item)
                                  (editor-set-edit-param editor :analysis (om-checked-p item))
@@ -84,7 +84,7 @@
       (set-g-component
        editor :analysis-menu
        (om-make-di 'om-popup-list :items *registered-analyses*
-                   :size (omp 120 22) :font (om-def-font :font1)
+                   :size (omp 120 22) :font (om-def-font :gui)
                    :enabled (editor-get-edit-param editor :analysis)
                    :value (editor-get-edit-param editor :selected-analysis)
                    :di-action #'(lambda (list)

@@ -187,7 +187,8 @@
                                                                          (make-pause-button editor :enable t)
                                                                          (make-stop-button editor :enable t))))
                                                    )))
-         (bottom-area nil))
+         (bottom-area nil)
+         (font (om-def-font :gui)))
 
     ;create the bottom area (needed to add remove the timeline-time-monitor
     (setf bottom-area (om-make-layout 'om-row-layout
@@ -197,22 +198,22 @@
                                       (list
                                        (om-make-di 'om-simple-text :text "Display:"
                                                    :size (omp 40 20)
-                                                   :font (om-def-font :font1))
+                                                   :font font)
                                        (om-make-di 'om-popup-list :items (draw-modes-for-object editor)
-                                                   :size (omp 80 24) :font (om-def-font :font1)
+                                                   :size (omp 80 24) :font font
                                                    :value (editor-get-edit-param editor :draw-style)
                                                    :di-action #'(lambda (list)
                                                                   (editor-set-edit-param editor :draw-style (om-get-selected-item list))))
                                        nil
-                                       (om-make-di 'om-check-box :text "indices" :size (omp 60 24) :font (om-def-font :font1)
+                                       (om-make-di 'om-check-box :text "indices" :size (omp 60 24) :font font
                                                    :checked-p (editor-get-edit-param editor :show-indices)
                                                    :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :show-indices (om-checked-p item))))
-                                       (om-make-di 'om-check-box :text "times" :size (omp 60 24) :font (om-def-font :font1)
+                                       (om-make-di 'om-check-box :text "times" :size (omp 60 24) :font font
                                                    :checked-p (editor-get-edit-param editor :show-times)
                                                    :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :show-times (om-checked-p item))))
-                                       (om-make-di 'om-check-box :text "grid" :size (omp 45 24) :font (om-def-font :font1)
+                                       (om-make-di 'om-check-box :text "grid" :size (omp 45 24) :font font
                                                    :checked-p (editor-get-edit-param editor :grid)
                                                    :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :grid (om-checked-p item))))
@@ -221,7 +222,7 @@
                                        ;;; (already set in 3DC as well)
                                        ;(om-make-di 'om-simple-text :text "Offset:"
                                        ;            :size (omp 38 20)
-                                       ;            :font (om-def-font :font1))
+                                       ;            :font font)
                                        ;(om-make-graphic-object 'numbox
                                        ;                        :value (if (eq (type-of editor) 'bpc-editor)
                                        ;                                   (gesture-interval-time editor)
@@ -229,14 +230,14 @@
                                        ;                        :bg-color (om-def-color :white)
                                        ;                        :border t
                                        ;                        :size (om-make-point 40 18)
-                                       ;                        :font (om-def-font :font1)
+                                       ;                        :font font
                                        ;                        :min-val 0
                                        ;                        :after-fun #'(lambda (item)
                                        ;                                       (setf (gesture-interval-time editor) (value item))
                                        ;                                       ))
 
                                        (when timeline-editor
-                                         (om-make-di 'om-check-box :text "timeline" :size (omp 120 24) :font (om-def-font :font1)
+                                         (om-make-di 'om-check-box :text "timeline" :size (omp 120 24) :font font
                                                      :checked-p (editor-get-edit-param editor :show-timeline)
                                                      :di-action #'(lambda (item)
                                                                     (editor-set-edit-param editor :show-timeline (om-checked-p item))

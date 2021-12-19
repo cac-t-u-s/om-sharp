@@ -199,7 +199,7 @@
   (om-make-layout 'om-row-layout :subviews (list (make-time-monitor (timeline-editor self) :time 0))))
 
 (defmethod build-options-view ((self timeline-editor))
-  (let ((snap-to-grid-chk (om-make-di 'om-check-box :text "Snap to Grid" :size (omp 100 20) :font (om-def-font :font1)
+  (let ((snap-to-grid-chk (om-make-di 'om-check-box :text "Snap to Grid" :size (omp 100 20) :font (om-def-font :gui)
                                       :checked-p (snap-to-grid self)
                                       :di-action #'(lambda (item)
                                                      (setf (snap-to-grid self) (om-checked-p item)

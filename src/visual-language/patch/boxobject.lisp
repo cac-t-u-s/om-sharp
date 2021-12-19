@@ -567,7 +567,7 @@
         (str (if (eval-flag box)
                  ".oO__.."
                (object-box-label object)))
-        (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
+        (font (om-make-font "arial" 18 :style '(:bold))))
     (multiple-value-bind (sw sh) (om-string-size str font)
       (declare (ignore sw))
       (let* ((lines (om-string-wrap str (- (w frame) 18) font))
@@ -589,7 +589,7 @@
     (om-draw-string (+ x (- w (om-string-size type-str type-font) 12))
                     (+ y 18)
                     type-str
-                    :font (om-def-font :font1b :size 10)
+                    :font type-font
                     :color (om-def-color :gray)))
 
   (om-with-font
@@ -718,7 +718,6 @@
                              :name (string+ (string-upcase (class-name reference)) " SLOTS")
                              :reference (class-name reference)
                              :icon-pos :left
-                            ;:text-font (om-def-font :font1 :style '(:italic))
                              :color (om-make-color 0.9 0.88 0.81)
                              :text-align :left))
          (size (default-size box)))

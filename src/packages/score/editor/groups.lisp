@@ -251,9 +251,9 @@
        (list
         (om-make-di 'om-simple-text :size (om-make-point 72 18)
                     :text "Groups"
-                    :font (om-def-font :font1b))
+                    :font (om-def-font :gui-b))
 
-        (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+        (om-make-di 'om-check-box :text "" :font (om-def-font :gui)
                     :size (omp 20 20)
                     :checked-p (editor-get-edit-param editor :groups)
                     :di-action #'(lambda (item)
@@ -270,7 +270,7 @@
         (set-g-component
          editor :groups-menu
          (om-make-di 'om-popup-list :items (append '(:all "-") groups)
-                     :size (omp 95 22) :font (om-def-font :font1)
+                     :size (omp 95 22) :font (om-def-font :gui)
                      :enabled (editor-get-edit-param editor :groups)
                      :value (editor-get-edit-param editor :selected-group)
                      :di-action #'(lambda (list)
@@ -283,7 +283,7 @@
          editor :delete-group-button
          (om-make-di 'om-button
                      :text "x"
-                     :size (omp 34 24) :font (om-def-font :font1)
+                     :size (omp 34 24) :font (om-def-font :gui)
                      :enabled (and (editor-get-edit-param editor :groups) groups)
                      :di-action #'(lambda (b)
                                     (declare (ignore b))
@@ -303,11 +303,11 @@
                      :text "Names"
                      :fg-color (if (editor-get-edit-param editor :groups)
                                    (om-def-color :black) (om-def-color :gray))
-                     :font (om-def-font :font1)))
+                     :font (om-def-font :gui)))
 
         (set-g-component
          editor :group-names-box
-         (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+         (om-make-di 'om-check-box :text "" :font (om-def-font :gui)
                      :size (omp 20 20)
                      :checked-p (editor-get-edit-param editor :group-names)
                      :enabled (editor-get-edit-param editor :groups)
@@ -319,7 +319,7 @@
          editor :rename-group-button
          (om-make-di 'om-button
                      :text "Rename"
-                     :size (omp 70 24) :font (om-def-font :font1)
+                     :size (omp 70 24) :font (om-def-font :gui)
                      :enabled (and (editor-get-edit-param editor :groups)
                                    groups
                                    (not (equal (editor-get-edit-param editor :selected-group) :all)))

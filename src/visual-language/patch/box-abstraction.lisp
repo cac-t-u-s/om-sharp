@@ -336,6 +336,7 @@
 
 
 (defun draw-mini-arrow (ax ay b w h i)
+
   (om-with-fg-color (om-make-color 1 1 1)
     (om-draw-polygon (list
                       (+ ax b) ay
@@ -346,6 +347,7 @@
                       ax (+ ay h)
                       (+ ax b) (+ ay h))
                      :fill t))
+
   (om-with-fg-color (om-make-color .5 .5 .5)
     (om-draw-polygon (list
                       (+ ax b) ay
@@ -357,9 +359,7 @@
                       (+ ax b) (+ ay h))
                      :fill nil))
 
-  (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :font1b) :color (om-make-color .5 .5 .5))
-
-  )
+  (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :font1b) :color (om-make-color .5 .5 .5)))
 
 
 ;;; display reference instead of value

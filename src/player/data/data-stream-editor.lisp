@@ -63,7 +63,7 @@
 (defmethod make-editor-controls ((editor data-stream-editor))
   (let ((object (object-value editor)))
     (when (> (length (frame-display-modes-for-object editor object)) 1)
-      (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :font1)
+      (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :gui)
                   :items (frame-display-modes-for-object editor object)
                   :di-action #'(lambda (item)
                                  (editor-set-edit-param editor :display-mode (om-get-selected-item item))
@@ -74,7 +74,7 @@
 (defmethod editor-with-timeline ((self data-stream-editor)) t)
 
 (defun make-timeline-check-box (editor)
-  (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
+  (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :gui)
               :checked-p (editor-get-edit-param editor :show-timeline)
               :enabled (timeline-editor editor)
               :di-action #'(lambda (item)

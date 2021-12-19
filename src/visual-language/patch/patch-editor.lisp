@@ -1523,10 +1523,10 @@
      'om-column-layout :ratios '(nil 1 nil) :delta 10
      :subviews (list
 
-                (om-make-di 'om-multi-text :size (om-make-point nil 42)
+                (om-make-di 'om-multi-text :size (om-make-point nil 54)
                             :text "This is the Lisp code corresponding to the selected box evaluation, or to the whole patch evaluated at its output box(es):"
                             :fg-color (om-def-color :dark-gray)
-                            :font (om-def-font :font1))
+                            :font (om-def-font :gui))
 
                 ;; main pane
                 ;; om-simple-layout allows setting a background color
@@ -1534,7 +1534,7 @@
                                 :subviews (list lisp-pane))
 
                 (om-make-di 'om-button :text "Copy Lisp code"
-                            :size (omp nil #+cocoa 32 #-cocoa 24) :font (om-def-font :font1)
+                            :size (omp nil #+cocoa 32 #-cocoa 24) :font (om-def-font :gui)
                             :di-action #'(lambda (b) (declare (ignore b))
                                            (om-copy-command lisp-pane)
                                            (om-print "Lisp code copied to clipboard")))
@@ -1592,7 +1592,7 @@
                                  nil
                                  (om-make-di 'om-button :text "x"
                                              :size #+cocoa (omp 40 32) #-cocoa (omp 24 24)
-                                             :font (om-def-font :font2)
+                                             :font (om-def-font :gui)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
@@ -1684,8 +1684,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (om-remove-all-subviews self)
 
     (let* ((def-w 260)
-           (text-font (om-def-font :font1))
-           (title-font (om-def-font :font2b))
+           (text-font (om-def-font :gui))
+           (title-font (om-def-font :gui-b))
            (inspector-layout
 
             (if object
@@ -1941,7 +1941,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                 :subviews (list
                            ;; top of the pane
                            (om-make-di 'om-simple-text :size (omp 230 18)
-                                       :font (om-def-font :font2b) :text
+                                       :font (om-def-font :gui-title) :text
                                        (case (editor-window-config editor)
                                          (:lisp-code "Lisp code")
                                          (:listener "listener / system out")

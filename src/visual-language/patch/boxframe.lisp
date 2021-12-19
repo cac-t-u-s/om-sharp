@@ -339,6 +339,7 @@
 
 ;;;=============================
 ;;; SHOW INSPECTOR BUTTON
+;;; (not used)
 ;;;=============================
 
 (defclass get-info-area (frame-area) ())
@@ -692,7 +693,7 @@
 
       (om-draw-string (+ x-lock 3) (+ y-lock 9)
                       state-str
-                      :font (om-def-font :font1 :size 9)
+                      :font (om-def-font :gui :size 9)
                       :color (om-def-color :white)))
     ))
 
@@ -828,10 +829,10 @@
                                 ;;; probably need to adjust these x/y values for different platforms... :
                                 :size (if multi-line
                                           (om-point-mv size :y -8 :x 0)
-                                        (om-point-mv size :y 20 :x -10))
+                                        (om-point-mv size :y 10 :x -10))
                                 :position (if multi-line
                                               (om-point-mv (om-add-points (om-view-position frame) pos) :x 4 :y 9)
-                                            (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5))
+                                            (om-point-mv (om-add-points (om-view-position frame) pos) :x -2 :y 3))
                                 )))
 
     (om-add-subviews container-view textinput)
@@ -1241,10 +1242,10 @@
                                         (om-set-view-size item (om-make-point (list :character (1+ textsize)) 20))
                                         ))
                      :font (om-def-font :font1)
-                     :size (om-make-point 60 30)  ; 100 12
+                     :size (om-make-point 60 30)
                      :position (om-add-points
                                 (om-convert-coordinates (get-position self) (frame self) view)
-                                (om-make-point -10 -12)))))  ;-10 - 34
+                                (om-make-point -10 -12)))))
     (om-add-subviews view textinput)
     (om-set-text-focus textinput t)
     t))

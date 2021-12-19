@@ -203,24 +203,24 @@
                 doc-list
 
                     ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20)
-                    ;            :font (om-def-font :font2)
+                    ;            :font (om-def-font :gui)
                     ;            :fg-color (om-def-color :gray)
                     ;            :text "No Workspace has been created for this session")
                     ;(om-make-di 'om-button :enabled nil :size (om-make-point nil 24)
-                    ;            :font (om-def-font :font2)
+                    ;            :font (om-def-font :gui)
                     ;            :text "Create One?")
 
                 (om-make-layout 'om-row-layout :subviews
                                 (list
                                  nil
                                  (om-make-di 'om-button :text "Save selection"
-                                             :size (omp 125 24) :font (om-def-font :font1)
+                                             :size (omp 125 24) :font (om-def-font :gui)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (save-documents doc-list)
                                                             ))
                                  (om-make-di 'om-button :text "Close selection"
-                                             :size (omp 125 24) :font (om-def-font :font1)
+                                             :size (omp 125 24) :font (om-def-font :gui)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (close-documents doc-list)
@@ -341,7 +341,7 @@ Double click on one of these items and add it by just clicking in an patch windo
                                            :size (omp 160 20)
                                            :expand-item 'get-sub-items
                                            :print-item 'get-name
-                                           :font (om-def-font :font1)
+                                           :font (om-def-font :gui)
                                            :bg-color (om-def-color :light-gray)
                                            :item-icon #'(lambda (item) (get-icon item))
                                            :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-special)
@@ -427,7 +427,7 @@ The list on the left show all libraries found in the libraries search paths.
                                            :size (omp 120 20)
                                            :expand-item 'get-sub-items
                                            :print-item 'get-name
-                                           :font (om-def-font :font1)
+                                           :font (om-def-font :gui)
                                            :bg-color (om-def-color :light-gray)
                                            :item-icon #'(lambda (item) (get-icon item))
                                            :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-lib-loaded :icon-lib)
@@ -447,7 +447,7 @@ The list on the left show all libraries found in the libraries search paths.
                  'om-column-layout  :align :right
                  :subviews (list libs-tree-view
                                  (om-make-di 'om-button :size (om-make-point nil 24)
-                                             :font (om-def-font :font2)
+                                             :font (om-def-font :gui)
                                              :text "Refresh list"
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
@@ -563,14 +563,14 @@ The list on the left show all libraries found in the libraries search paths.
                 (om-make-layout 'om-row-layout :subviews
                                 (list
                                  (om-make-di 'om-button :text "Open as separate window"
-                                             :size (omp 180 24) :font (om-def-font :font1)
+                                             :size (omp 180 24) :font (om-def-font :gui)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (show-listener-win)
                                                             ))
                                  nil
                                  (om-make-di 'om-button :text "x"
-                                             :size (omp 40 24) :font (om-def-font :font1)
+                                             :size (omp 40 24) :font (om-def-font :gui)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
