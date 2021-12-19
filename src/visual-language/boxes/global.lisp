@@ -41,7 +41,7 @@ Use it at different places to set and share some value across the environment.")
 (defmethod box-draw ((self OMGlobalBox) frame)
   (om-with-clip-rect frame 0 0 (- (w frame) 4) (- (h frame) 8)
     (om-with-font
-     (om-def-font :font1 :face "arial" :size 12 :style '(:bold))
+     (om-make-font "Arial" 12 :style '(:bold))
      (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
        (om-draw-string 4 16 "GLOBAL"))
      )))
