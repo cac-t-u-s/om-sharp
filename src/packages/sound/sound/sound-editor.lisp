@@ -41,7 +41,7 @@
      :subviews
      (list
       (om-make-di 'om-simple-text :text "Gain"
-                  :size (omp 40 20)
+                  :size (omp 30 20)
                   :font (om-def-font :font1))
       (om-make-view
        'om-view :size (om-make-point 28 20)
