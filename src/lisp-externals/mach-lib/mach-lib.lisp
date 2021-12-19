@@ -58,17 +58,13 @@
   (mach::mach_wait_until (max (ms2mach absolute-time-ms) 0)))
 
 
-(defvar mach::*ommach-lib* nil)
-
 (push :mach *features*)
 
 (defun load-mach-lib ()
-  (print "Loading System library")
-  (setf mach::*ommach-lib*
-        (fli::register-module 
-         :system :connection-style :immediate
-         :real-name "/System/Library/Frameworks/System.framework/System" )
-        )
+  (print "Loading System framework")
+  (fli::register-module 
+   :system :connection-style :immediate
+   :real-name "/System/Library/Frameworks/System.framework/System" )
   (mach::init-nanofactor))
 
 ;;; CALL THIS BEFORE !
