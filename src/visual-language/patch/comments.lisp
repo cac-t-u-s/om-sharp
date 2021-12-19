@@ -296,10 +296,10 @@
                                                        (omng-resize box new-size)
                                                        (reset-frame-size self))
                                                      ))
-                                    :font (font-font (text-font box))
+                                    :font (box-draw-font box)
                                     :border t
-                                    :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
-                                    :position (omp (box-x box) (box-y box))
+                                    :size (omp (+ (box-w box) 10) (+ (box-h box) 4))
+                                    :position (omp (+ (box-x box) 3) (+ (box-y box) 5))
                                     )))
 
         (om-add-subviews container-view textinput)
