@@ -567,7 +567,7 @@
         (str (if (eval-flag box)
                  ".oO__.."
                (object-box-label object)))
-        (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
+        (font (om-make-font "arial" 18 :style '(:bold))))
     (multiple-value-bind (sw sh) (om-string-size str font)
       (declare (ignore sw))
       (let* ((lines (om-string-wrap str (- (w frame) 18) font))
