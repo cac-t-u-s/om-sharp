@@ -49,8 +49,7 @@
   (mapc #'(lambda (fun) fun (funcall fun)) (reverse *api-init-list*)))
 
 
-(let ((api-files '(
-                   "files"
+(let ((api-files '("files"
                    "processes"
                    "scheduler"
                    "tools"
@@ -74,21 +73,9 @@
                    "tooltips"
                    "libraries"
                    "om-special"
-                   )
-                 ))
+                   )))
 
   (mapc #'(lambda (filename)
             (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))
             (terpri))
-        api-files)
-  )
-
-
-;;; not loaded:
-; print
-; picture-processing
-
-
-
-
-
+        api-files))
