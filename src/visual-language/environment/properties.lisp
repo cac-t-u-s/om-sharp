@@ -653,7 +653,8 @@
                                               'om-row-layout :align :center
                                               :subviews (let ((val (if vals-supplied-p (nth n vals) defval)))
                                                           (list (om-make-di 'om-simple-text
-                                                                            :font font :text (string name)
+                                                                            :font (om-def-font :font1b)
+                                                                            :text (string-downcase name)
                                                                             :size (omp namefied-w 18))
                                                                 (let ((edt (om-make-di 'om-editable-text
                                                                                        :bg-color (om-def-color :white)
