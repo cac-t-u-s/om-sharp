@@ -829,10 +829,10 @@
                                 ;;; probably need to adjust these x/y values for different platforms... :
                                 :size (if multi-line
                                           (om-point-mv size :y -8 :x 0)
-                                        (om-point-mv size :y 20 :x -10))
+                                        (om-point-mv size :y 10 :x -10))
                                 :position (if multi-line
                                               (om-point-mv (om-add-points (om-view-position frame) pos) :x 4 :y 9)
-                                            (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5))
+                                            (om-point-mv (om-add-points (om-view-position frame) pos) :x -2 :y 3))
                                 )))
 
     (om-add-subviews container-view textinput)
