@@ -189,8 +189,12 @@
 (defvar *om-initialized* nil)
 
 (defun start-omsharp ()
+
   (push :om *features*)
+  (om-lisp::om-init-output-stream)
+
   (oa::om-api-init)
+
   (om-fi::om-load-foreign-libs
    #+windows (oa::om-lisp-image)
    #+macosx (if (oa::om-standalone-p)
@@ -217,8 +221,6 @@
 
   ;; #+(or om-deliver mswindows)
   (lispworks::define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
-
-  (om-lisp::om-init-output-stream)
 
   (load-preferences)
 
