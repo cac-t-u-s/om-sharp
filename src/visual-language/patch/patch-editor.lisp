@@ -1523,7 +1523,7 @@
      'om-column-layout :ratios '(nil 1 nil) :delta 10
      :subviews (list
 
-                (om-make-di 'om-multi-text :size (om-make-point nil 42)
+                (om-make-di 'om-multi-text :size (om-make-point nil 54)
                             :text "This is the Lisp code corresponding to the selected box evaluation, or to the whole patch evaluated at its output box(es):"
                             :fg-color (om-def-color :dark-gray)
                             :font (om-def-font :font1))
