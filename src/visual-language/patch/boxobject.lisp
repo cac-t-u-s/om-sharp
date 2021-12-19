@@ -718,7 +718,6 @@
                              :name (string+ (string-upcase (class-name reference)) " SLOTS")
                              :reference (class-name reference)
                              :icon-pos :left
-                            ;:text-font (om-def-font :font1 :style '(:italic))
                              :color (om-make-color 0.9 0.88 0.81)
                              :text-align :left))
          (size (default-size box)))

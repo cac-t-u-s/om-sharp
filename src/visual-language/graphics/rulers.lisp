@@ -217,7 +217,7 @@
                       (loop for vii from (+ vi unit-dur)
                             to (- (+ vi big-unit) unit-dur) by unit-dur do
                             (let ((pixii (ruler-value-to-pix self vii)))
-                              (draw-line-at self pixii 3)  ;(round rwidth 5)
+                              (draw-line-at self pixii 3)
                               (if (> unit-size min-unit-size)
                                   (om-with-font (om-def-font :font1 :size 8)
                                                 (draw-string-at self pixii (unit-value-str self vii unit-dur)))

@@ -465,7 +465,10 @@
                               (om-beep)))))
       )))
 
-;;;===============================================
+
+;==============
+; MINI EDIT
+;==============
 
 (defclass mini-edit-window (om-no-border-win)
   ((textfield :accessor textfield :initform nil)
@@ -474,8 +477,7 @@
 (defmethod om-window-activate ((self mini-edit-window) &optional activatep)
   (unless activatep ;; = loose focus
     (when (action self) (funcall (action self) (textfield self)))
-    (om-close-window self)
-    ))
+    (om-close-window self)))
 
 (defun open-mini-edit (position value action)
   (let ((text (format nil "~A" value))
@@ -498,8 +500,3 @@
         (setf (textfield win) tf)
         (setf (action win) action)
         win))))
-
-
-
-
-

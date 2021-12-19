@@ -536,9 +536,8 @@
   (let* ((text-h 16)
          (control-h 24)
          (title (om-make-di 'om-simple-text :text "Editor params"
-                            :size (omp 100 22) ;; :bg-color (om-def-color :red)
+                            :size (omp 100 22)
                             :font (om-def-font :font2b)))
-
          (size-item
           (om-make-layout
            'om-row-layout

@@ -339,6 +339,7 @@
 
 ;;;=============================
 ;;; SHOW INSPECTOR BUTTON
+;;; (not used)
 ;;;=============================
 
 (defclass get-info-area (frame-area) ())
@@ -1241,10 +1242,10 @@
                                         (om-set-view-size item (om-make-point (list :character (1+ textsize)) 20))
                                         ))
                      :font (om-def-font :font1)
-                     :size (om-make-point 60 30)  ; 100 12
+                     :size (om-make-point 60 30)
                      :position (om-add-points
                                 (om-convert-coordinates (get-position self) (frame self) view)
-                                (om-make-point -10 -12)))))  ;-10 - 34
+                                (om-make-point -10 -12)))))
     (om-add-subviews view textinput)
     (om-set-text-focus textinput t)
     t))
