@@ -33,6 +33,7 @@
 
     (om-create-directory (make-pathname :directory (pathname-directory path)))
     (with-open-file (out path :direction :output
+                         :external-format :utf-8
                          :if-does-not-exist :create
                          :if-exists :supersede)
 
@@ -71,11 +72,15 @@
                          (list-from-file path))))
     (find-values-in-prop-list pref-list key)))
 
+
 ;;; read and load the main prefs for a session
 (defmethod load-preferences ()
   (let* ((path (preference-file))
-         (pr-list (and (file-exists-p path)
-                       (list-from-file path))))
+         (pr-list (and (or (file-exists-p path)
+                           (om-beep-msg "Preference file not found: ~A" (namestring path)))
+                       (progn
+                         (om-print-format "Loading preferences: ~A" (list (namestring path)) "OM")
+                         (list-from-file path)))))
 
     (setq *om-recent-files* (omng-load (find-value-in-kv-list pr-list :recent-files)))
 
