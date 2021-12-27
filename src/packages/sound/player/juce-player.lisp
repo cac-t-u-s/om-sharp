@@ -129,7 +129,7 @@
 
   (if *audio-driver*
       (progn
-        (om-print (format nil "selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO")
+        (om-print (format nil "selecting default audio driver: \"~A\"" *audio-driver*) "AUDIO")
         (juce::setDeviceType *juce-player* *audio-driver*)
         (setup-audio-device))
     (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver.")))
