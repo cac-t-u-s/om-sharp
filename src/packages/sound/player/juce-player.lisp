@@ -13,11 +13,6 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;;===========================================
-;;; IMPLEMENTATION OF AN AUDIO PLAYER
-;;; USING THE LAS ARCHITECTURE JUCE LIB
-;;;===========================================
-
 (in-package :om)
 
 
@@ -53,7 +48,6 @@
 
 ;(default-audio-output-device)
 
-; (juce::get-audio-drivers *juce-player*)
 (defun setup-audio-device ()
   ;; scan for available devices (just in case)
   (let ((out-devices (juce::audio-driver-output-devices *juce-player* *audio-driver*)))
@@ -102,6 +96,7 @@
 
       )))
 
+
 ;;; applies the current prefs
 (defun apply-audio-device-config ()
   (om-print (format nil "[out] ~s, ~D channels / ~D Hz."
@@ -109,15 +104,16 @@
                     (get-pref-value :audio :out-channels)
                     (get-pref-value :audio :samplerate))
             "AUDIO")
+
   (juce::setdevices *juce-player*
                     "" 0 ;; default/0 channels for input
                     (get-pref-value :audio :output)
                     (get-pref-value :audio :out-channels)
                     (get-pref-value :audio :samplerate)
-                    (get-pref-value :audio :buffersize)
-                    )
-  (configure-audio-channels (get-pref-value :audio :channels-config))
-  )
+                    (get-pref-value :audio :buffersize))
+  
+  (configure-audio-channels (get-pref-value :audio :channels-config)))
+
 
 ; (juce::getCurrentDeviceType *juce-player*)
 ; (juce::audio-driver-output-devices *juce-player* "Windows Audio")
@@ -136,12 +132,13 @@
         (om-print (format nil "selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO")
         (juce::setDeviceType *juce-player* *audio-driver*)
         (setup-audio-device))
-    (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver."))
-  )
+    (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver.")))
+
 
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)
   (setf *juce-player* nil))
+
 
 ;;; CONVENTION:
 ;;; (nth n list) = target for channel n in the sounds :
@@ -180,8 +177,11 @@
          )
     (juce::setoutputchannels *juce-player* checked-list)))
 
+
+; INIT AND EXIT CALLS:
 (add-om-init-fun 'open-juce-player)
 (add-om-exit-action 'close-juce-player)
+
 
 #|
 (defun set-juce-devices (input-device-index output-device-index sample-rate)
@@ -192,8 +192,7 @@
    sample-rate))
 |#
 
-
-;(set-juce-devices 0 0 44100) A APPELER
+;(set-juce-devices 0 0 44100)
 ;(listen *terminal-io*)
 ;(defun testgetmono (a) (setq *testbp1* (bp-pointer (buffer-player a))))
 ;(defun testgetstereo (a) (setq *testbp2* (bp-pointer (buffer-player a))))
