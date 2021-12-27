@@ -166,7 +166,7 @@
 
 
 
-(defmethod make-preference-item ((type cons) pref-item)
+(defmethod make-preference-item ((type list) pref-item)
   (let ((font (om-def-font :gui)))
     (om-make-di 'om-popup-list
                 :items type
