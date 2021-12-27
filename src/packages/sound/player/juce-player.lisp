@@ -16,12 +16,6 @@
 (in-package :om)
 
 
-(defmethod player-name ((self (eql :omjuceaudiolib))) "OMJuceAudioLib")
-(defmethod player-desc ((self (eql :omjuceaudiolib))) "OMJuce audio player")
-
-#+omjuceaudiolib(add-player-for-object 'sound :omjuceaudiolib)
-#+omjuceaudiolib(enable-player :omjuceaudiolib)
-
 (defvar *juce-player* nil)
 (defvar *audio-driver* nil)
 
