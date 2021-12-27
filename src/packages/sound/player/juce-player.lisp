@@ -99,6 +99,13 @@
 
 ;;; applies the current prefs
 (defun apply-audio-device-config ()
+
+  (unless (and (numberp (get-pref-value :audio :out-channels))
+               (numberp (get-pref-value :audio :samplerate))
+               (numberp (get-pref-value :audio :buffersize)))
+    (om-beep-msg "Error in audio preferences. Resoring defaults.")
+    (restore-default-preferences :audio))
+
   (om-print (format nil "[out] ~s, ~D channels / ~D Hz."
                     (get-pref-value :audio :output)
                     (get-pref-value :audio :out-channels)
@@ -111,7 +118,7 @@
                     (get-pref-value :audio :out-channels)
                     (get-pref-value :audio :samplerate)
                     (get-pref-value :audio :buffersize))
-  
+
   (configure-audio-channels (get-pref-value :audio :channels-config)))
 
 
