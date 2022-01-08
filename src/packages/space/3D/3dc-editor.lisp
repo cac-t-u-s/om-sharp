@@ -491,10 +491,12 @@
 
 (defmethod update-sub-editors ((self 3DC-editor))
   (when (window self)
-    (setf (selection (top-bpc-editor self)) (selection self)
-          (selection (front-bpc-editor self)) (selection self))
-    (editor-invalidate-views (top-bpc-editor self))
-    (editor-invalidate-views (front-bpc-editor self))
+    (when (top-bpc-editor self)
+      (setf (selection (top-bpc-editor self)) (selection self))
+      (editor-invalidate-views (top-bpc-editor self)))
+    (when (front-bpc-editor self)
+      (setf (selection (front-bpc-editor self)) (selection self))
+      (editor-invalidate-views (front-bpc-editor self)))
     (update-timeline-editor self)))
 
 
