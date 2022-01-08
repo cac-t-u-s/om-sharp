@@ -333,7 +333,7 @@ The list on the left show the packages inbuilt in the environment.
 
 Each packages contain classes (object constructors), functions, and/or special boxes.
 
-Double click on one of these items and add it by just clicking in an patch window.
+Double click on one of these items and then add it by clicking in a patch window.
 ")
 
 (defun make-om-package-tab ()
@@ -418,7 +418,7 @@ Double click on one of these items and add it by just clicking in an patch windo
 The list on the left show all libraries found in the libraries search paths.
 
 - Double click on a library icon to load it.
-- Double click on an internal item's icon (of a loaded library) and add it by just clicking in an patch window.
+- Double click on an internal item's icon (of a loaded library) and then add it by clicking in a patch window.
 ")
 
 
