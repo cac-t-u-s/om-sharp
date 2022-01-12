@@ -155,7 +155,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
                   :z (slot-value self 'z-points)
-                  :time (times self) ;;; time is not accessed by slot-value...
+                  :time (slot-value self 'times)
                   :time-types (slot-value self 'time-types))
   (time-sequence-update-internal-times self)
   self)
