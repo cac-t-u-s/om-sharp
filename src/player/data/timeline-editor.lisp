@@ -455,6 +455,26 @@
                        (item-set-time point (if set-time (item-get-internal-time point) nil)))
                  (update-time-types-from-tpoint-list obj)))))))
 
+(defmethod set-selection-time ((self timeline-editor) id)
+  (when (selection self)
+    (let ((obj (editor-get-time-sequence self id)))
+
+      (if (and (= 1 (length (selection self)))
+               (not (equal T (car (selection self)))))
+
+          (let* ((p (car (selection self)))
+                 (new-time-str (om-get-user-string "New time"
+                                                   :initial-string (number-to-string (item-get-internal-time p)))))
+            (when new-time-str
+              (let ((new-time (ignore-errors (read-from-string new-time-str))))
+                (when (numberp new-time)
+                  (item-set-time p new-time)
+                  (time-sequence-update-internal-times obj)
+                  (time-sequence-reorder-timed-item-list obj)
+                  ))))
+
+        (om-beep-msg "Set time one point at a time!")))))
+
 (defmethod get-selected-indices-for-view ((self om-timeline-view))
   (let ((obj (editor-get-time-sequence (editor self) (id self))))
     (get-indices-from-points obj (selection (editor self)))))
@@ -593,6 +613,18 @@
                        (om-invalidate-view (nth timeline-id (timeline-views editor))))
                    (get-selected-timelines editor))
            (update-to-editor (container-editor editor) editor)
+           (om-invalidate-view (time-ruler editor))
+           t))
+
+    (#\T (when (selection editor)
+           (store-current-state-for-undo (container-editor editor))
+           (mapcar #'(lambda (timeline-id)
+                       (set-selection-time editor timeline-id)
+                       (om-invalidate-view (nth timeline-id (timeline-views editor))))
+                   (get-selected-timelines editor))
+           (notify-scheduler (object-value (container-editor editor)))
+           (update-to-editor (container-editor editor) editor)
+           (report-modifications (container-editor editor))
            (om-invalidate-view (time-ruler editor))
            t))
 
