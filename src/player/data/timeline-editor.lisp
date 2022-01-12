@@ -445,6 +445,16 @@
                        (item-set-type point new-state))
                  (update-time-types-from-tpoint-list obj)))))))
 
+(defmethod toggle-selection-time ((self timeline-editor) id)
+  (when (selection self)
+    (let ((obj (editor-get-time-sequence self id)))
+      (cond ((find T (selection self))
+             (set-all-points-as-master obj))
+            (t (let ((set-time (find nil (selection self) :key #'item-get-time)))
+                 (loop for point in (selection self) do
+                       (item-set-time point (if set-time (item-get-internal-time point) nil)))
+                 (update-time-types-from-tpoint-list obj)))))))
+
 (defmethod get-selected-indices-for-view ((self om-timeline-view))
   (let ((obj (editor-get-time-sequence (editor self) (id self))))
     (get-indices-from-points obj (selection (editor self)))))
@@ -570,6 +580,16 @@
            (store-current-state-for-undo (container-editor editor))
            (mapcar #'(lambda (timeline-id)
                        (toggle-selection-as-master editor timeline-id)
+                       (om-invalidate-view (nth timeline-id (timeline-views editor))))
+                   (get-selected-timelines editor))
+           (update-to-editor (container-editor editor) editor)
+           (om-invalidate-view (time-ruler editor))
+           t))
+
+    (#\t (when (selection editor)
+           (store-current-state-for-undo (container-editor editor))
+           (mapcar #'(lambda (timeline-id)
+                       (toggle-selection-time editor timeline-id)
                        (om-invalidate-view (nth timeline-id (timeline-views editor))))
                    (get-selected-timelines editor))
            (update-to-editor (container-editor editor) editor)
