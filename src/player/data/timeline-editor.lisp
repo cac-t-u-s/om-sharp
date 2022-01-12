@@ -435,15 +435,15 @@
               (temporal-translate-points obj points dt))))
     (order-points-by-time self)))
 
-(defmethod set-selection-as-master ((self timeline-editor) id)
+(defmethod toggle-selection-as-master ((self timeline-editor) id)
   (when (selection self)
     (let ((obj (editor-get-time-sequence self id)))
       (cond ((find T (selection self))
              (set-all-points-as-master obj))
-            (t
-             (loop for point in (selection self) do
-                   (item-set-type point (if (eql :master (item-get-type point)) (item-get-time point) :master)))
-             (update-time-types-from-tpoint-list obj))))))
+            (t (let ((new-state (if (find nil (selection self) :key #'item-get-type) :master nil)))
+                 (loop for point in (selection self) do
+                       (item-set-type point new-state))
+                 (update-time-types-from-tpoint-list obj)))))))
 
 (defmethod get-selected-indices-for-view ((self om-timeline-view))
   (let ((obj (editor-get-time-sequence (editor self) (id self))))
@@ -556,6 +556,7 @@
        (notify-scheduler (object-value (container-editor editor)))
        (update-to-editor (container-editor editor) editor)
        t))
+
     (#\u
      (store-current-state-for-undo (container-editor editor))
      (mapcar #'(lambda (timeline-id)
@@ -564,16 +565,17 @@
      (notify-scheduler (object-value (container-editor editor)))
      (update-to-editor (container-editor editor) editor)
      t)
+
     (#\m (when (selection editor)
            (store-current-state-for-undo (container-editor editor))
            (mapcar #'(lambda (timeline-id)
-                       (set-selection-as-master editor timeline-id)
-                       (om-invalidate-view (nth timeline-id (timeline-views editor)))
-                       )
+                       (toggle-selection-as-master editor timeline-id)
+                       (om-invalidate-view (nth timeline-id (timeline-views editor))))
                    (get-selected-timelines editor))
            (update-to-editor (container-editor editor) editor)
            (om-invalidate-view (time-ruler editor))
            t))
+
     (otherwise nil)
     ))
 
