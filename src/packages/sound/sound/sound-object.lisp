@@ -923,12 +923,11 @@ Press 'space' to play/stop the sound file.
     (multiple-value-bind (first-index offset-samples)
         (ceiling from-sample resolution)
 
-      (let* ((sample-x-factor (/ width n-samples-to-draw))
-             (offset-x (* (- offset-samples) sample-x-factor))
+      (let* ((samples-per-pixel (/ n-samples-to-draw width))
+             (offset-x (/ (- offset-samples) samples-per-pixel))
              (array-x-factor (/ width (/ n-samples-to-draw resolution)))
-             (draw-mode (if (and from to (<= resolution 4)) :samples ; (<= nb-samples-in-array width)
-                          (if (< array-x-factor 2) :polygons
-                            :polygons))))
+             (draw-mode (if (and from to (<= samples-per-pixel 128))
+                            :samples :lines)))
 
         (om-with-fg-color (get-pref-value :appearance :waveform-color)
 

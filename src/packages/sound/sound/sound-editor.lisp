@@ -119,7 +119,7 @@
              (loop for samples-per-pixel = (* window 4) then (* samples-per-pixel 4)
                    for new-array-size = (ceiling n-samples samples-per-pixel)
                    for new-array = (resample-sample-array array new-array-size)
-                   while (>= new-array-size 512)
+                   while (>= new-array-size 1024)
                    collect
                    (make-sound-display-cache-resolution
                     :samples-per-pixel samples-per-pixel
