@@ -200,6 +200,12 @@
                                 cache))
                         (pict-factor (/ (om-pict-width pict) sound-duration)))
                    (when (and pict (not (equal :error pict)))
+                     (let* ((n-channels (n-channels sound))
+                            (channel-h (/ (h view) n-channels)))
+                       (dotimes (c n-channels)
+                         (let ((y (* channel-h (+ c .5))))
+                           (om-draw-line 0 y (w view) y
+                                         :color (get-pref-value :appearance :waveform-color)))))
                      (om-draw-picture pict
                                       :w (w view) :h (h view)
                                       :src-x (* pict-factor from)
