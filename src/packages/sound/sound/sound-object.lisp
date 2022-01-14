@@ -891,6 +891,7 @@ Press 'space' to play/stop the sound file.
       result)))
 
 
+;; resolution = number of samples per array-point
 (defun draw-waveform (array width height &optional from to (resolution 1))
 
   (let* ((n-channels (cond ((arrayp array)
@@ -898,13 +899,13 @@ Press 'space' to play/stop the sound file.
                            ((om-sound-buffer-p array)
                             (om-sound-buffer-nch array))
                            (t 0)))
-         (n-samples (cond ((arrayp array)
-                           (array-dimension array 1))
-                          ((om-sound-buffer-p array)
-                           (om-sound-buffer-size array))
-                          (t 0)))
+         (n-points (cond ((arrayp array)
+                          (array-dimension array 1))
+                         ((om-sound-buffer-p array)
+                          (om-sound-buffer-size array))
+                         (t 0)))
          (from-sample (or from 0))
-         (to-sample (or to (* resolution (1- n-samples))))
+         (to-sample (or to (* resolution (1- n-points))))
          (n-samples-to-draw (1+ (- to-sample from-sample)))
          (channel-h (round height n-channels))
          (wave-h (* .49 channel-h))
@@ -938,14 +939,14 @@ Press 'space' to play/stop the sound file.
 
               (om-draw-line 0 ch-y width ch-y)
 
-              (when (< first-index n-samples)
+              (when (< first-index n-points)
                 (loop with previous-x = (- offset-x array-x-factor)
                       with previous-y = (* wave-h (funcall access-fun array c (max (1- first-index) 0)))
                       for i = 0 then (+ i 1)
                       for x = (+ offset-x (* i array-x-factor))
                       for index = (+ first-index i)
                       while (and (< (* index resolution) (+ to-sample resolution))
-                                 (< index n-samples))
+                                 (< index n-points))
                       do
 
                       (setq y (* wave-h (funcall access-fun array c index)))
