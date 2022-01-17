@@ -105,10 +105,10 @@
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
   (let* ((driver (getCurrentDeviceType player))
          (in-n (or (position input-device-name
-                             (audio-driver-output-devices player driver)
+                             (audio-driver-input-devices player driver)
                              :test 'string-equal) 0))
          (out-n (or (position output-device-name
-                              (audio-driver-input-devices player driver)
+                              (audio-driver-output-devices player driver)
                               :test 'string-equal) 0)))
     (juce::setInputDevice player in-n)
     (juce::setOutputDevice player out-n)
