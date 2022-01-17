@@ -17,10 +17,11 @@
 
 
 (defvar *juce-player* nil)
-(defvar *audio-driver* nil)
+
 
 (add-preference-module :audio "Audio")
-(add-preference-section :audio "Devices")
+(add-preference-section :audio "Driver")
+(add-preference :audio :driver "Type" nil nil nil 'select-audio-driver) ;; will be set at player startup
 (add-preference :audio :output "Output" nil nil nil 'setup-audio-device) ;; will be set at player startup
 (add-preference-section :audio "Settings")
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
@@ -34,17 +35,43 @@
                 'apply-audio-device-config)
 
 
-(defun default-audio-input-device ()
-  (or (and *juce-player* (car (juce::audio-driver-input-devices *juce-player* *audio-driver*))) ""))
+(defun select-audio-driver ()
 
-(defun default-audio-output-device ()
-  (or (and *juce-player* (car (juce::audio-driver-output-devices *juce-player* *audio-driver*))) ""))
+  (let* ((device-types (juce::get-audio-drivers *juce-player*))
+         (default-driver (car (remove nil device-types))))
 
-;(default-audio-output-device)
+    ;;; update the preference fields
+    (add-preference :audio :driver "Type" device-types default-driver nil 'select-audio-driver)
+
+    (unless (and (get-pref-value :audio :driver)
+                 (find (get-pref-value :audio :driver) device-types :test 'string-equal))
+
+      (when (get-pref-value :audio :driver)
+        (om-beep-msg "Audio driver: ~S not found. Restoring default." (get-pref-value :audio :driver)))
+
+      (put-default-value (get-pref :audio :driver)))
+
+    (let ((selected-device-type (get-pref-value :audio :driver))
+          (current-device-type (juce::getCurrentDeviceType *juce-player*)))
+
+      (if selected-device-type
+
+          (unless (string-equal selected-device-type current-device-type)
+
+            (om-print (format nil "Selecting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
+
+            (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
+
+            (setup-audio-device))
+
+      (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
+
 
 (defun setup-audio-device ()
-  ;; scan for available devices (just in case)
-  (let ((out-devices (juce::audio-driver-output-devices *juce-player* *audio-driver*)))
+
+  (let ((out-devices (juce::audio-driver-output-devices *juce-player* (get-pref-value :audio :driver))))
+
+    ;;; update the preference fields
     (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'setup-audio-device)
 
     (unless (and (get-pref-value :audio :output)
@@ -124,20 +151,8 @@
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
-
-  (unless *audio-driver*
-    (loop for ad in (juce::get-audio-drivers *juce-player*)
-          while (not *audio-driver*)
-          do (setf *audio-driver* ad))
-    )
-
-  (if *audio-driver*
-      (progn
-        (om-print (format nil "selecting default audio driver: \"~A\"" *audio-driver*) "AUDIO")
-        (juce::setDeviceType *juce-player* *audio-driver*)
-        (setup-audio-device))
-    (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver.")))
-
+  (select-audio-driver)
+  (setup-audio-device))
 
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)
