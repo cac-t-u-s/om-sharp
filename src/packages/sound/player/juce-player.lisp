@@ -46,10 +46,13 @@
   ;; scan for available devices (just in case)
   (let ((out-devices (juce::audio-driver-output-devices *juce-player* *audio-driver*)))
     (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'setup-audio-device)
+
     (unless (and (get-pref-value :audio :output)
                  (find (get-pref-value :audio :output) out-devices :test 'string-equal))
+
       (when (get-pref-value :audio :output)
         (om-beep-msg "Audio output device: ~S not found. restoring default."  (get-pref-value :audio :output)))
+
       (put-default-value (get-pref :audio :output)))
 
     ;;; apply current params
@@ -57,7 +60,7 @@
 
     ;;; update preference choices
     ;;; update pref window
-    ;;; check for conformuity of current settings
+    ;;; check for conformity of current settings
     ;;; reset defaults if needed
     (let ((device-supported-out-channels (juce::getoutputchannelslist *juce-player*))
           (device-supported-sample-rates (juce::getsamplerates *juce-player*))
@@ -87,7 +90,6 @@
       (update-preference-window-item :audio :out-channels)
       (update-preference-window-item :audio :samplerate)
       (update-preference-window-item :audio :buffersize)
-
       )))
 
 
@@ -118,6 +120,7 @@
 
 ; (juce::getCurrentDeviceType *juce-player*)
 ; (juce::audio-driver-output-devices *juce-player* "Windows Audio")
+
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
@@ -174,34 +177,11 @@
                        (list from to (if (minusp to2) "off" to2))
                        "AUDIO")
                       to2)
-                    ))))
-         )
+                    )))))
+
     (juce::setoutputchannels *juce-player* checked-list)))
 
 
 ; INIT AND EXIT CALLS:
 (add-om-init-fun 'open-juce-player)
 (add-om-exit-action 'close-juce-player)
-
-
-#|
-(defun set-juce-devices (input-device-index output-device-index sample-rate)
-  (juce::setdevices
-   *juce-player* (nth input-device-index *juce-input-devices*)
-   *juce-player-in-channels*
-   (nth output-device-index *juce-output-devices*)
-   sample-rate))
-|#
-
-;(set-juce-devices 0 0 44100)
-;(listen *terminal-io*)
-;(defun testgetmono (a) (setq *testbp1* (bp-pointer (buffer-player a))))
-;(defun testgetstereo (a) (setq *testbp2* (bp-pointer (buffer-player a))))
-;(juce::setAudioSourceGain *testbp1* 0.2)
-;(juce::setAudioSourceGain *testbp2* 0.2)
-
-;(defun testgainmono (a n)  (juce::setAudioSourceGain *testbp1* n))
-;(defun testgainstereo (a n)  (juce::setAudioSourceGain *testbp2* n))
-
-
-
