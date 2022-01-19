@@ -25,11 +25,12 @@
 ; INTERNAL SUBVIEW CLASSES OPTIMIZED FOR DRAWING
 ;;===========================================================================
 
-;; pinboard-object-at-position
 
 (export '(om-item-view
           om-item-line
-          om-item-text om-set-text) :om-api)
+          om-item-text 
+          om-set-text) :om-api)
+
 
 (in-package :oa)
 
@@ -45,6 +46,7 @@
 
 (defmethod initialize-instance :after ((self om-item-view) &rest args)
   (om-create-callback self))
+
 (defmethod om-create-callback ((self om-item-view)) nil)
 
 
@@ -81,13 +83,13 @@
   (when (and (item-container self) (initialized-p (item-container self)))
     (update-for-subviews-changes (item-container self) nil)))
 
+
 (defmethod internal-add-subview ((self om-view) (subview om-item-view))
   (call-next-method)
   (setf (item-container subview) self)
   (setf (item-subviews self) (append (item-subviews self) (list subview)))
   (update-po-position subview)
-  (mapcar #'(lambda (sv) (po-add-subview subview sv)) (vsubviews subview))
-  )
+  (mapcar #'(lambda (sv) (po-add-subview subview sv)) (vsubviews subview)))
 
 
 (defmethod internal-add-subview ((self om-abstract-window) (subview om-item-view))
@@ -96,9 +98,11 @@
   (setf (item-subviews (capi::pane-layout self)) (append (item-subviews (capi::pane-layout self)) (list subview)))
   (mapcar #'(lambda (sv) (po-add-subview subview sv)) (vsubviews subview)))
 
+
 (defmethod internal-add-subview ((self om-item-view) (subview om-item-view))
   (call-next-method)
   (po-add-subview self subview))
+
 
 ;;; recursively set the top-level layout for pinboard-objects
 (defmethod po-add-subview ((self om-item-view) (subview om-item-view))
@@ -108,6 +112,7 @@
     (update-po-position subview))
   (mapcar #'(lambda (sv) (po-add-subview subview sv)) (vsubviews subview)))
 
+
 (defmethod internal-remove-subview ((self om-view) (subview om-item-view))
   (mapcar #'(lambda (sv) (po-remove-subview subview sv)) (vsubviews subview))
   (setf (item-container subview) nil)
@@ -115,6 +120,7 @@
   (capi::apply-in-pane-process self
                                (lambda () (capi::manipulate-pinboard self subview :delete)))
   (call-next-method))
+
 
 (defmethod internal-remove-subview ((self om-abstract-window) (subview om-item-view))
   (mapcar #'(lambda (sv) (po-remove-subview subview sv)) (vsubviews subview))
@@ -124,9 +130,11 @@
                                (lambda () (capi::manipulate-pinboard (capi::pane-layout self) subview :delete)))
   (call-next-method))
 
+
 (defmethod internal-remove-subview ((self om-item-view) (subview om-item-view))
   (po-remove-subview self subview)
   (call-next-method))
+
 
 (defmethod po-remove-subview ((self om-item-view) (subview om-item-view))
   (mapcar #'(lambda (sv) (po-remove-subview subview sv)) (vsubviews subview))
@@ -134,6 +142,7 @@
   (capi::apply-in-pane-process (item-container self)
                                (lambda () (capi::manipulate-pinboard (item-container self) subview :delete)))
   (setf (item-container subview) nil))
+
 
 (defmethod om-subviews ((self om-item-view))
   (vsubviews self))
@@ -156,19 +165,24 @@
 (defmethod om-set-view-position ((self om-item-view) pos-point)
   (setf (vx self) (om-point-x pos-point)
         (vy self) (om-point-y pos-point))
-  (update-po-position self)
-  )
+  (update-po-position self))
+
 
 (defmethod om-view-position ((self om-item-view))
   (om-make-point (vx self) (vy self)))
+
+
 (defmethod om-view-position ((self t))
   (om-make-point 0 0))
 
+
 (defmethod position-in-view ((self om-item-view)) (om-view-position self))
+
 
 (defmethod om-mouse-position ((view om-item-view))
   (om-convert-coordinates (internal-mouse-position (item-container view))
                           (item-container view) view))
+
 
 (defmacro om-with-redisplay-area ((view x y w h) &body body)
   `(let (ret-value)
@@ -189,19 +203,17 @@
        (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point)))
        (capi::set-hint-table self (list :visible-min-width (vw self) :visible-min-height (vh self)
                                         :visible-max-width t :visible-max-height t))
-       )
-   ;;    )
-   ;(when (item-container self)
-   ;  (capi:remove-capi-object-property (item-container self) 'capi::prev-width-height))
-   ))
+       )))
 
 
 (defmethod om-view-size ((self om-item-view))
   (om-make-point (vw self) (vh self)))
 
+
 (defmethod om-get-view ((self om-item-view))
   (or (capi::pinboard-object-pinboard self)
       (item-container self)))
+
 
 (defmethod om-set-bg-color ((self om-item-view) color)
   (let ((col (when color (omcolor-c color))))
@@ -213,8 +225,10 @@
          ))
     ))
 
+
 (defmethod om-get-bg-color ((self om-item-view))
   (make-omcolor :c (capi::pinboard-object-graphics-arg self :background)))
+
 
 (defmethod om-set-fg-color ((self om-item-view) color)
   (let ((col (when color (omcolor-c color))))
@@ -223,31 +237,35 @@
      #'(lambda ()
          (setf (capi::pinboard-object-graphics-arg self :foreground) col)
          (capi:redraw-pinboard-object self)
-         ))
-    ))
+         ))))
+
 
 (defmethod om-get-fg-color ((self om-item-view))
   (make-omcolor :c (capi::pinboard-object-graphics-arg self :foreground)))
+
 
 (defmethod om-get-font ((self om-item-view))
   (let ((font (capi::pinboard-object-graphics-arg self :font)))
     (when font
       (if (gp::font-description-p font) font
-        (gp::font-description font))
-      )))
+        (gp::font-description font)))))
+
 
 (defmethod om-set-font ((self capi::pinboard-object) font)
   (setf (capi::pinboard-object-graphics-arg self :font) font)
   (capi:redraw-pinboard-object self))
 
+
 (defmethod om-set-focus ((self om-item-view))
   (when (item-container self)
     (capi::set-pane-focus (item-container self))))
+
 
 (defmethod capi::draw-pinboard-object (pane (self om-item-view) &key x y w h)
   (declare (ignore x y w h))
   (call-next-method)
   (capi::apply-in-pane-process pane 'draw-item-view pane self))
+
 
 (defun draw-item-view (pane po)
   (let ((old-stream *curstream*))
@@ -273,7 +291,6 @@
           )))))
 
 
-
 (defmethod om-invalidate-view ((self om-item-view))
   (when (om-get-view self)
     (multiple-value-bind (pox poy) (capi::pinboard-pane-position self)
@@ -282,7 +299,6 @@
                                       'gp::invalidate-rectangle
                                       (om-get-view self)
                                       (- pox 3) (- poy 3) (+ (vw self) 6) (+ (vh self) 6))))))
-
 
 
 ;;;===========================
@@ -326,7 +342,6 @@
 ;                                   ))))
 
 
-
 (defmethod om-set-text ((self om-item-text) text)
   (setf (text self) text)
   (capi:redraw-pinboard-object self))
@@ -344,3 +359,4 @@
 ;  (when (or (null (om-get-bg-color view)) (equal :transparent (omcolor-c (om-get-bg-color view))))
 ;    (om-set-bg-color view (om-get-bg-color cont))
 ;    (mapc #'(lambda (v) (setf (vcontainer v) view)) (om-subviews view))))
+
