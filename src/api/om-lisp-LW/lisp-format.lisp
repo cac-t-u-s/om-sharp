@@ -65,56 +65,53 @@
       (let ((line-start 0))
 
         (loop for l = 1 then (+ l 1)
-              while (editor::character-at start line-start) do
+              while (editor::character-at start line-start) 
+              do (let* ((line-end (loop for p = line-start then (+ p 1)
+                                        for last-char = (editor::character-at start p)
+                                        while (and last-char (not (equal last-char #\Newline)))
+                                        finally return p))
+                        (line (om-buffer-substring buffer line-start line-end))
+                        (reformat nil))
 
-              (let* ((line-end (loop for p = line-start then (+ p 1)
-                                     for last-char = (editor::character-at start p)
-                                     while (and last-char (not (equal last-char #\Newline)))
-                                     finally return p))
-                     (line (om-buffer-substring buffer line-start line-end))
-                     (reformat nil))
+                   ;; (print (list "LINE:" l line-start line-end line))
 
-                ;; (print (list "LINE:" l line-start line-end line))
+                   (when (find #\Tab line)
+                     (print (format nil "--- Repacing some Tabs with Spaces (l. ~A)" l))
+                     (setq reformat t)
+                     (setq line (substitute #\Space #\Tab line)))
 
-                (when (find #\Tab line)
-                  (print (format nil "--- Repacing some Tabs with Spaces (l. ~A)" l))
-                  (setq reformat t)
-                  (setq line (substitute #\Space #\Tab line)))
+                   (let ((last-char (or (position-if
+                                         #'(lambda (c) (not (equal c '#\Space))) line :from-end t)
+                                        -1)))
+                     (when (< last-char (1- (length line)))
+                       (print (format nil "--- Removing trailing whitespaces (l. ~A)" l))
+                       (setq reformat t)
+                       (setq line (subseq line 0 (1+ last-char)))))
+                   #|
+                    ;; Too dangerous: should escape strings at least...
+                    (let ((first-char (or (position-if #'(lambda (c) (not (equal c #\Space))) line) 0)))
+                      (let ((double-space (search "  " (print (subseq line first-char)))))
+                        (when double-space
+                          (print "-- Removing multiple whitespaces (l. ~A)" l)
+                          (setq reformat t)
+                          (setq line (concatenate 'string (subseq line 0 (+ first-char double-space))
+                                                  (subseq line (+ first-char double-space 1))))
+                          (loop while double-space
+                                do (setf line (concatenate 'string (subseq line 0 (+ first-char double-space))
+                                                           (subseq line (+ first-char double-space 1)))
+                                         double-space (search "  " (subseq line first-char))))
+                          )))
+                    |#
+                   (when reformat
+                     ;; Rewrite this line
+                     ;; (print (list "===>" line))
+                     (om-buffer-delete buffer line-start line-end)
+                     (om-buffer-insert buffer line line-start)
+                     )
 
-                (let ((last-char (or (position-if
-                                      #'(lambda (c) (not (equal c '#\Space))) line :from-end t)
-                                     -1)))
-                  (when (< last-char (1- (length line)))
-                    (print (format nil "--- Removing trailing whitespaces (l. ~A)" l))
-                    (setq reformat t)
-                    (setq line (subseq line 0 (1+ last-char)))))
-
-                #|
-                     ;; Too dangerous: should escape strings at least...
-                     (let ((first-char (or (position-if #'(lambda (c) (not (equal c #\Space))) line) 0)))
-                    (let ((double-space (search "  " (print (subseq line first-char)))))
-                      (when double-space
-                        (print "-- Removing multiple whitespaces (l. ~A)" l)
-                        (setq reformat t)
-                        (setq line (concatenate 'string (subseq line 0 (+ first-char double-space))
-                                                (subseq line (+ first-char double-space 1))))
-                        (loop while double-space
-                              do (setf line (concatenate 'string (subseq line 0 (+ first-char double-space))
-                                                         (subseq line (+ first-char double-space 1)))
-                                       double-space (search "  " (subseq line first-char))))
-                        )))
-                     |#
-
-                (when reformat
-                  ;; Rewrite this line
-                  ;; (print (list "===>" line))
-                  (om-buffer-delete buffer line-start line-end)
-                  (om-buffer-insert buffer line line-start)
-                  )
-
-                ;; Go to next line
-                (setq line-start (+ line-start (length line) 1))
-                ))
+                   ;; Go to next line
+                   (setq line-start (+ line-start (length line) 1))
+                   ))
 
         ;;(print "Check for line end...")
         (unless (equal (editor::character-at start (- line-start 1)) #\Newline)
