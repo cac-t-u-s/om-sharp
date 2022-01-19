@@ -575,7 +575,7 @@ Press 'space' to play/stop the sound file.
                                          (probe-file (file-pathname snd))
                                          (n-channels snd) (n-samples snd))
                                 (make-om-sound-buffer-GC
-                                 :count 1 :nch (n-channels snd) :size (n-samples self)
+                                 :count 1 :nch (n-channels snd) :size (n-samples snd)
                                  :ptr (audio-io::om-get-audio-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
                 (,buffer-name (or tmp-buffer (buffer snd))))
            (unwind-protect
