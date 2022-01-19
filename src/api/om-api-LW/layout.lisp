@@ -42,12 +42,16 @@
 
 (defclass om-abstract-layout (om-graphic-object) ())
 
-;
+
 (defclass om-simple-layout (om-abstract-layout om-interactive-object capi::simple-pinboard-layout) ()
   (:default-initargs :background #+cocoa :transparent #-cocoa :background))
+
 (defclass om-tab-layout (om-abstract-layout capi::tab-layout) ())
+
 (defclass om-column-layout (om-abstract-layout capi::column-layout) ())
+
 (defclass om-row-layout (om-abstract-layout capi::row-layout) ())
+
 (defclass om-grid-layout (om-abstract-layout capi::grid-layout) ())
 
 
@@ -72,47 +76,49 @@
                              &key
                              subviews ratios delta dimensions align name position size bg-color scrollbars
                              (selection 0)
-                             &allow-other-keys
-                             )
-  (let ((ll
-         (cond ((subtypep class 'om-tab-layout)
+                             &allow-other-keys)
+  
+  (let ((ll (if (subtypep class 'om-tab-layout)
                 (make-instance class
                                :accepts-focus-p t
                                :items subviews :name name
                                :print-function #'(lambda (pane) (or (capi::capi-object-name pane) "Untitled Tab"))
                                :visible-child-function 'identity
-                               :selected-item (nth selection subviews)
-                               ))
-               (t (apply 'make-instance
-                         (append (list class :name name
-                                       ;;:automatic-resize '(:width-ratio 1.0 :height-ratio 1.0)
-                                       :description (mapcar 'layout-view-process subviews)
-                                       :has-title-column-p nil
-                                       :allow-other-keys t
-                                       :horizontal-scroll (or (equal scrollbars t) (equal scrollbars :h)) ;;; will work only if inside a simple-layout
-                                       :vertical-scroll (or (equal scrollbars t) (equal scrollbars :v))
-                                       )
-                                 (make-xy-args class :uniform-size-p nil)
-                                 (when ratios (make-xy-args class :ratios ratios))
-                                 (when delta (make-xy-args class :gap delta))
-                                 (when align (make-xy-args class :adjust align))  ;;; APPARENTLY ADJUST DOES NOT WORK...
-                                 (when dimensions
-                                   (list :columns (if (listp dimensions) (car dimensions) dimensions)
-                                         :rows (if (listp dimensions) (cadr dimensions) dimensions)))
-                                 (when position (list :default-x (om-point-x position) :default-y (om-point-y position)))
-                                 (when size (list :default-width (om-point-x size) :default-height (om-point-y size)))
-                                 other-args
-                                 )))
-               )
-         ))
+                               :selected-item (nth selection subviews))
+              
+              (apply 'make-instance
+                     (append (list class :name name
+                                   ;;:automatic-resize '(:width-ratio 1.0 :height-ratio 1.0)
+                                   :description (mapcar 'layout-view-process subviews)
+                                   :has-title-column-p nil
+                                   :allow-other-keys t
+                                   :horizontal-scroll (or (equal scrollbars t) (equal scrollbars :h)) ;;; will work only if inside a simple-layout
+                                   :vertical-scroll (or (equal scrollbars t) (equal scrollbars :v)))
+                                   
+                             (make-xy-args class :uniform-size-p nil)
+                             (when ratios (make-xy-args class :ratios ratios))
+                             (when delta (make-xy-args class :gap delta))
+                             (when align (make-xy-args class :adjust align))  ;;; APPARENTLY ADJUST DOES NOT WORK...
+                             (when dimensions
+                               (list :columns (if (listp dimensions) (car dimensions) dimensions)
+                                     :rows (if (listp dimensions) (cadr dimensions) dimensions)))
+                             (when position (list :default-x (om-point-x position) :default-y (om-point-y position)))
+                             (when size (list :default-width (om-point-x size) :default-height (om-point-y size)))
+                             other-args
+                             )))))
+         
     (when bg-color (om-set-bg-color ll bg-color))
     ll))
 
+
 (defmethod om-set-layout-ratios ((self om-abstract-layout) ratio-list) nil)
+
 (defmethod om-set-layout-ratios ((self om-column-layout) ratio-list)
   (setf (capi::layout-ratios self) ratio-list))
+
 (defmethod om-set-layout-ratios ((self om-row-layout) ratio-list)
   (setf (capi::layout-ratios self) ratio-list))
+
 (defmethod om-set-layout-ratios ((self om-grid-layout) ratio-list)
   (if (and (listp ratio-list) (listp (car ratio-list)))
       (setf (capi::layout-x-ratios self) (car ratio-list)
@@ -142,9 +148,14 @@
 (defmethod om-update-layout ((self om-abstract-window))
   (mapc 'om-update-layout (om-subviews self)))
 
-(defmethod om-subviews ((self om-abstract-layout)) (capi:layout-description self))
 
-(defmethod om-view-parent ((self om-abstract-layout)) (capi::element-parent self))
+(defmethod om-view-parent ((self om-abstract-layout)) 
+  (capi::element-parent self))
+
+
+(defmethod om-subviews ((self om-abstract-layout)) 
+  (capi:layout-description self))
+
 
 (defmethod om-add-subviews ((self om-abstract-layout) &rest subviews)
   (capi::apply-in-pane-process
@@ -155,8 +166,8 @@
        (when (car (last subviews))
          (capi::set-pane-focus (car (last subviews))))
        )
-   self subviews
-   ))
+   self subviews))
+
 
 (defmethod om-remove-subviews ((self om-abstract-layout) &rest subviews)
   (capi::apply-in-pane-process
@@ -166,7 +177,8 @@
               (setf (capi::layout-description self) layout-desc)))
    ))
 
-;need to remove the subviews from contained layout also.
+
+; need to remove the subviews from contained layout also.
 (defmethod om-remove-all-subviews ((self t)) nil)
 
 (defmethod om-remove-all-subviews ((self om-abstract-layout))
@@ -176,6 +188,7 @@
             (om-set-layout-ratios self nil)
             (setf (capi::layout-description self) nil))))
 
+
 (defmethod om-substitute-subviews ((self om-abstract-layout) old new)
   (capi::apply-in-pane-process
    self #'(lambda ()
@@ -183,6 +196,7 @@
             (setf (capi::layout-description self)
                   (substitute new old (capi::layout-description self) :test 'equal)))
    ))
+
 
 (defmethod om-invalidate-view ((self om-abstract-layout))
   (mapc 'om-invalidate-view (capi::layout-description self)))
