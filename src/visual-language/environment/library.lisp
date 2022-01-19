@@ -224,11 +224,18 @@
                           ))
                     files)
               )
+
             ;;; set packages
             (mapc #'(lambda (class) (addclass2pack class lib))
                   (find-values-in-prop-list symbols :classes))
+
             (mapc #'(lambda (fun) (addFun2Pack fun lib))
                   (find-values-in-prop-list symbols :functions))
+
+            (mapc #'(lambda (item)
+                      (addspecialitem2pack item lib))
+                  (find-values-in-prop-list symbols :special-items))
+
             (mapc #'(lambda (pk)
                       (let ((new-pack (omng-load pk)))
                         (addpackage2pack new-pack lib)))
