@@ -24,7 +24,7 @@
    ;;; multi-view
    (x-axis-key :accessor x-axis-key :initarg :x-axis-key :initform :x)
    (y-axis-key :accessor y-axis-key :initarg :y-axis-key :initform :y)
-   (make-point-function :accessor make-point-function :initarg :make-point-function :initform 'om-make-bpfpoint)  ;;; BPC uses om-make-tpoint
+   (make-point-function :accessor make-point-function :initarg :make-point-function :initform 'om-make-bpfpoint)
    ;;; mini-dialog
    (point-editor :initform nil :accessor point-editor)
    ;;; timeline
@@ -175,17 +175,15 @@
          (timeline (om-make-layout 'om-row-layout))
          (top-area (om-make-layout 'om-row-layout :align :center
                                    :ratios '(nil nil 0.5 0.05 0.05)
-                                   :subviews (list nil mousepos-txt ;; name-txt
+                                   :subviews (list nil mousepos-txt
                                                    nil
                                                    (make-time-monitor editor :time (if (action object) 0 nil))
-                                                   ;(om-make-layout 'om-column-layout :align :right :subviews (list
-                                                   (and t ;(action object)
-                                                        (om-make-layout
-                                                         'om-row-layout ;:size (omp 60 20)
-                                                         :subviews (list (make-play-button editor :enable t)
-                                                                         (make-repeat-button editor :enable t)
-                                                                         (make-pause-button editor :enable t)
-                                                                         (make-stop-button editor :enable t))))
+                                                   (om-make-layout
+                                                    'om-row-layout
+                                                    :subviews (list (make-play-button editor :enable t)
+                                                                    (make-repeat-button editor :enable t)
+                                                                    (make-pause-button editor :enable t)
+                                                                    (make-stop-button editor :enable t)))
                                                    )))
          (bottom-area nil)
          (font (om-def-font :gui)))
@@ -217,24 +215,6 @@
                                                    :checked-p (editor-get-edit-param editor :grid)
                                                    :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :grid (om-checked-p item))))
-
-                                       ;;; this should be only for BPC
-                                       ;;; (already set in 3DC as well)
-                                       ;(om-make-di 'om-simple-text :text "Offset:"
-                                       ;            :size (omp 38 20)
-                                       ;            :font font)
-                                       ;(om-make-graphic-object 'numbox
-                                       ;                        :value (if (eq (type-of editor) 'bpc-editor)
-                                       ;                                   (gesture-interval-time editor)
-                                       ;                                 500)
-                                       ;                        :bg-color (om-def-color :white)
-                                       ;                        :border t
-                                       ;                        :size (om-make-point 40 18)
-                                       ;                        :font font
-                                       ;                        :min-val 0
-                                       ;                        :after-fun #'(lambda (item)
-                                       ;                                       (setf (gesture-interval-time editor) (value item))
-                                       ;                                       ))
 
                                        (when timeline-editor
                                          (om-make-di 'om-check-box :text "timeline" :size (omp 120 24) :font font
