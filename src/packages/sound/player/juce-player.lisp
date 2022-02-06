@@ -22,7 +22,7 @@
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Driver")
 (add-preference :audio :driver "Type" nil nil nil 'set-audio-driver) ;; will be set at player startup
-(add-preference :audio :output "Output" nil nil nil 'setup-audio-device) ;; will be set at player startup
+(add-preference :audio :output "Output" nil nil nil 'set-audio-device) ;; will be set at player startup
 (add-preference-section :audio "Settings")
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
@@ -62,17 +62,17 @@
 
             (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
 
-            (setup-audio-device))
+            (set-audio-device))
 
       (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
 
 
-(defun setup-audio-device ()
+(defun set-audio-device ()
 
   (let ((out-devices (juce::audio-driver-output-devices *juce-player* (get-pref-value :audio :driver))))
 
     ;;; update the preference fields
-    (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'setup-audio-device)
+    (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'set-audio-device)
 
     (unless (and (get-pref-value :audio :output)
                  (find (get-pref-value :audio :output) out-devices :test 'string-equal))
@@ -152,7 +152,7 @@
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
   (set-audio-driver)
-  (setup-audio-device))
+  (set-audio-device))
 
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)
