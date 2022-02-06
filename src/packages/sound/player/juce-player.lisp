@@ -140,7 +140,7 @@
                     (get-pref-value :audio :samplerate)
                     (get-pref-value :audio :buffersize))
 
-  (configure-audio-channels (get-pref-value :audio :channels-config)))
+  (configure-audio-channels))
 
 
 ; (juce::getCurrentDeviceType *juce-player*)
@@ -161,37 +161,38 @@
 ;;; c >= 1 : play on channel c
 ;;; c = 0 : play on its original channel
 ;;; c = -1 : mute
-(defun configure-audio-channels (list)
-  (om-print (format nil "routing channels:") "AUDIO")
-  (unless list (om-print "[reset]" "AUDIO"))
-  (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
-         (checked-list
-          (loop for to in list
-                for from = 1 then (+ from 1) collect
-                (cond
+(defun configure-audio-channels ()
+  (let ((list (get-pref-value :audio :channels-config)))
+    (om-print (format nil "routing channels:") "AUDIO")
+    (unless list (om-print "[reset]" "AUDIO"))
+    (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
+           (checked-list
+            (loop for to in list
+                  for from = 1 then (+ from 1) collect
+                  (cond
 
-                 ((or (null to) (not (integerp to)))
-                  (om-print (format nil "~D => off" from) "AUDIO")
-                  -1) ;; don't play this channel
+                   ((or (null to) (not (integerp to)))
+                    (om-print (format nil "~D => off" from) "AUDIO")
+                    -1) ;; don't play this channel
 
-                 ((and (find to available-channels :test '=)
-                       (<= to (get-pref-value :audio :out-channels)))
-                  (om-print (format nil "~D => ~D" from to) "AUDIO")
-                  to) ;; ok
+                   ((and (find to available-channels :test '=)
+                         (<= to (get-pref-value :audio :out-channels)))
+                    (om-print (format nil "~D => ~D" from to) "AUDIO")
+                    to) ;; ok
 
-                 (t ;;; 'to' channel not available
-                    (let ((to2 (if (and (find from available-channels :test '=)
-                                        (<= from (get-pref-value :audio :out-channels)))
-                                   from -1) ;; keep on same channel ('from') if available or mute
-                               ))
-                      (om-print-format
-                       "~D => ERROR: channel ~D not available/enabled => ~A"
-                       (list from to (if (minusp to2) "off" to2))
-                       "AUDIO")
-                      to2)
-                    )))))
+                   (t ;;; 'to' channel not available
+                      (let ((to2 (if (and (find from available-channels :test '=)
+                                          (<= from (get-pref-value :audio :out-channels)))
+                                     from -1) ;; keep on same channel ('from') if available or mute
+                                 ))
+                        (om-print-format
+                         "~D => ERROR: channel ~D not available/enabled => ~A"
+                         (list from to (if (minusp to2) "off" to2))
+                         "AUDIO")
+                        to2)
+                      )))))
 
-    (juce::setoutputchannels *juce-player* checked-list)))
+      (juce::setoutputchannels *juce-player* checked-list))))
 
 
 ; INIT AND EXIT CALLS:
