@@ -56,12 +56,10 @@
 
       (if selected-device-type
 
-          (unless (string-equal selected-device-type current-device-type)
-
-            (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
-
-            (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
-
+          (progn 
+            (unless (string-equal selected-device-type current-device-type)
+              (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
+              (juce::setDeviceType *juce-player* (get-pref-value :audio :driver)))
             (set-audio-device))
 
       (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
@@ -151,8 +149,7 @@
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
-  (set-audio-driver)
-  (set-audio-device))
+  (set-audio-driver))
 
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)
