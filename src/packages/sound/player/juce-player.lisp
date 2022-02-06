@@ -21,7 +21,7 @@
 
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Driver")
-(add-preference :audio :driver "Type" nil nil nil 'select-audio-driver) ;; will be set at player startup
+(add-preference :audio :driver "Type" nil nil nil 'set-audio-driver) ;; will be set at player startup
 (add-preference :audio :output "Output" nil nil nil 'setup-audio-device) ;; will be set at player startup
 (add-preference-section :audio "Settings")
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
@@ -35,13 +35,13 @@
                 'apply-audio-device-config)
 
 
-(defun select-audio-driver ()
+(defun set-audio-driver ()
 
   (let* ((device-types (juce::get-audio-drivers *juce-player*))
          (default-driver (car (remove nil device-types))))
 
-    ;;; update the preference fields
-    (add-preference :audio :driver "Type" device-types default-driver nil 'select-audio-driver)
+    ;;; update the preference fields with the current drivers
+    (add-preference :audio :driver "Type" device-types default-driver nil 'set-audio-driver)
 
     (unless (and (get-pref-value :audio :driver)
                  (find (get-pref-value :audio :driver) device-types :test 'string-equal))
@@ -58,7 +58,7 @@
 
           (unless (string-equal selected-device-type current-device-type)
 
-            (om-print (format nil "Selecting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
+            (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
 
             (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
 
@@ -151,7 +151,7 @@
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
-  (select-audio-driver)
+  (set-audio-driver)
   (setup-audio-device))
 
 (defun close-juce-player ()
