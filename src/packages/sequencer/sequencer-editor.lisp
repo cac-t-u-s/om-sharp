@@ -771,7 +771,8 @@
          (call-next-method)))
 
       (#\r (unless (edit-lock editor)
-             (loop for tb in (get-visible-selected-boxes editor) do (set-reactive-mode tb))
+             (loop for tb in (or (get-visible-selected-boxes editor) (get-selected-connections editor))
+                   do (set-reactive-mode tb))
              (om-invalidate-view (window editor))))
       (otherwise
        (call-next-method)
