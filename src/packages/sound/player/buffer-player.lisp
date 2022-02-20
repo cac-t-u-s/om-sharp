@@ -60,8 +60,8 @@
 
 (defmethod start-buffer-player ((self buffer-player) &key (start-frame 0))
   (when (eq (bp-state self) :stop)
-    (setf (bp-state self) :play)
     (jump-to-frame self start-frame)
+    (setf (bp-state self) :play)
     (juce::startAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod pause-buffer-player ((self buffer-player))
