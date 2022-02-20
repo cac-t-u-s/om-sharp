@@ -21,6 +21,9 @@
 
 (in-package :juce)
 
+
+(cffi:defcfun ("versionString" versionString) :string)
+
 ;;;==============================================
 ;;  PLAYER
 ;;;==============================================
@@ -55,9 +58,6 @@
 (cffi:defcfun ("getCurrentBufferSize" getCurrentBufferSize) :int (player :pointer))
 (cffi:defcfun ("getDefaultBufferSize" getDefaultBufferSize) :int (player :pointer))
 (cffi:defcfun ("setBufferSize" setBufferSize) :int (player :pointer) (size :int))
-
-(cffi:defcfun ("setupAudioDevice" setupAudioDevice) :void
-  (player :pointer) (in-channels :int) (out-channels :int) (sr :int) (buffsize :int))
 
 
 ;;; SCAN UTILITIES (INDEPENDENT ON THE CURRENT SETUP)
@@ -100,19 +100,6 @@
 (defun getbuffersizes (player)
   (loop for i from 0 to (1- (juce::getavailablebuffersizescount player))
         collect (juce::getnthavailablebuffersize player i)))
-
-;;; !!! special characters
-(defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
-  (let* ((driver (getCurrentDeviceType player))
-         (in-n (or (position input-device-name
-                             (audio-driver-input-devices player driver)
-                             :test 'string-equal) 0))
-         (out-n (or (position output-device-name
-                              (audio-driver-output-devices player driver)
-                              :test 'string-equal) 0)))
-    (juce::setInputDevice player in-n)
-    (juce::setOutputDevice player out-n)
-    (juce::setupAudiodevice player inch outch sample-rate buffer-size)))
 
 
 ;;;==============================================
