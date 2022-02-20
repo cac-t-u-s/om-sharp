@@ -90,6 +90,12 @@
                     32)
                    (max (+ th 16) 28))))
 
+
+;;; Does the box scale if placed in a timed view (e.g. a sequencer track)
+(defmethod scale-in-x-? ((self OMValueBox)) nil)
+(defmethod scale-in-y-? ((self OMValueBox)) nil)
+
+
 (defmethod allow-text-input ((self OMValueBox))
   (values (format nil "~s" (car (value self)))
           #'(lambda (box text)
