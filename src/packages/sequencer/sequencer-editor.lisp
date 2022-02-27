@@ -896,6 +896,13 @@ CMD-click to add boxes. Play contents, etc.
 ;;; CONTROL PATCH
 ;;;========================
 
+;;; used by send/receive
+(defmethod patch-editors ((self sequencer-editor-window))
+  (let* ((main-editor (editor self))
+         (sequencer (object main-editor)))
+    (list main-editor (editor (ctrlpatch sequencer)))))
+
+
 (defmethod editor-close ((self sequencer-editor))
   (player-stop-object (player self) (metronome self))
   (editor-close (editor (ctrlpatch (object self))))

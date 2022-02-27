@@ -59,13 +59,19 @@
       (setf (value (car (inputs self))) inval)))
   (car (current-box-value self)))
 
+
+(defmethod patch-editors ((self t)) nil)
+
+(defmethod patch-editors ((self OMEditorWindow))
+  (when (subtypep (type-of (editor self)) 'patch-editor)
+    (list (editor self))))
+
 (defun find-boxes (type)
-  (loop for win in (remove-if-not
-                    #'(lambda (w) (subtypep (type-of (editor w)) 'patch-editor))
-                    (om-get-all-windows 'OMEditorWindow)) append
-        (loop for b in (boxes (object (editor win)))
-              when (equal type (reference b))
-              collect b)))
+  (loop for win in (om-get-all-windows 'OMEditorWindow) append
+        (loop for ed in (patch-editors win) append
+              (loop for b in (boxes (object ed))
+                    when (equal type (reference b))
+                    collect b))))
 
 (defun find-receive-boxes (target)
   (let ((boxes (find-boxes 'receive)))
