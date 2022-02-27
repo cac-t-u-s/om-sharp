@@ -61,7 +61,7 @@
 
 (defun find-boxes (type)
   (loop for win in (remove-if-not
-                    #'(lambda (w) (equal 'patch-editor (type-of (editor w))))
+                    #'(lambda (w) (subtypep (type-of (editor w)) 'patch-editor))
                     (om-get-all-windows 'OMEditorWindow)) append
         (loop for b in (boxes (object (editor win)))
               when (equal type (reference b))
