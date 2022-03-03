@@ -377,12 +377,12 @@
         (posy (get-frame-posy frame)))
     (case (editor-get-edit-param editor :display-mode)
       (:bubbles (values
-                 (x-to-pix panel (date frame))
+                 (x-to-pix panel (item-get-internal-time frame))
                  (- (h panel) (y-to-pix panel (+ posy (/ sizey 2))))
                  (dy-to-dpix panel sizey)
                  (dy-to-dpix panel sizey)
                  ))
-      (otherwise (values (x-to-pix panel (date frame))
+      (otherwise (values (x-to-pix panel (item-get-internal-time frame))
                          (- (h panel) (y-to-pix panel posy))
                          (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
                          (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
