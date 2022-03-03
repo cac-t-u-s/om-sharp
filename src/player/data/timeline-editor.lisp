@@ -440,7 +440,9 @@
     (let ((obj (editor-get-time-sequence self id)))
       (cond ((find T (selection self))
              (set-all-points-as-master obj))
-            (t (let ((new-state (if (find nil (selection self) :key #'item-get-type) :master nil)))
+            (t (let ((new-state (if (and (equal :master (item-get-type (car (selection self))))
+                                         (all-equal (mapcar #'item-get-type (selection self))))
+                                    nil :master)))
                  (loop for point in (selection self) do
                        (item-set-type point new-state))
                  (update-time-types-from-tpoint-list obj)))))))
