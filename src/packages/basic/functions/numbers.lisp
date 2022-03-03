@@ -512,7 +512,7 @@ Ex. (all-equal '(8 8 7 8) '=) => NIL"
   (if (loop for ll on list
             while (or (null (cdr ll)) ;; last elem
                       (funcall test (car ll) (cadr ll)))
-            finally return ll) ;; if this is nil, then all elements were equal
+            finally (return ll)) ;; if this is nil, then all elements were equal
       NIL
     (values T (car list))))
 

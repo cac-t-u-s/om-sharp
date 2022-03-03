@@ -38,9 +38,9 @@
                               maximize (cadr spk) into maxy
                               when (caddr spk) minimize (caddr spk) into minz
                               when (caddr spk) maximize (caddr spk) into maxz
-                              finally return (max (abs (- maxx minx))
-                                                  (abs (- maxy miny))
-                                                  (abs (- minz maxz)))))
+                              finally (return (max (abs (- maxx minx))
+                                                   (abs (- maxy miny))
+                                                   (abs (- minz maxz))))))
          (speaker-size (* .005 max-xy-extent)))
 
     (loop for spk in speakers collect

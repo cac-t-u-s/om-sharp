@@ -69,7 +69,7 @@
               do (let* ((line-end (loop for p = line-start then (+ p 1)
                                         for last-char = (editor::character-at start p)
                                         while (and last-char (not (equal last-char #\Newline)))
-                                        finally return p))
+                                        finally (return p)))
                         (line (om-buffer-substring buffer line-start line-end))
                         (reformat nil))
 

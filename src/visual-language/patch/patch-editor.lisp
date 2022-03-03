@@ -773,7 +773,8 @@
       (let* ((pos (loop for b in connectable-boxes
                         sum (box-x b) into sumx
                         maximize (+ (box-y b) (box-h b)) into maxy
-                        finally return (om-make-point (floor sumx (length connectable-boxes)) (+ maxy 28))))
+                        finally (return (om-make-point (floor sumx (length connectable-boxes)) 
+                                                       (+ maxy 28)))))
              (box (omNG-make-new-boxcall (fdefinition 'list) pos (make-list (length connectable-boxes)))))
 
         (setf (name box) "list")

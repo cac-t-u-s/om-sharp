@@ -128,8 +128,8 @@
                         (loop for n from 0 to (1- nch)
                               sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)
                               into sample-sum
-                              finally return (let ((mean-value (/ sample-sum nch)))
-                                               (* mean-value mean-value)))))
+                              finally (return (let ((mean-value (/ sample-sum nch)))
+                                                (* mean-value mean-value))))))
 
                  (gain (sqrt (/ (* size normalize-level normalize-level) summed-square-signal))))
 

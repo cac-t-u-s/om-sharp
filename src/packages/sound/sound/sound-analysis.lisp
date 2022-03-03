@@ -35,8 +35,8 @@
                      (loop for n from 0 to (1- nch)
                            sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)
                            into sample-sum
-                           finally return (let ((mean-value (/ sample-sum nch)))
-                                            (* mean-value mean-value))))))
+                           finally (return (let ((mean-value (/ sample-sum nch)))
+                                             (* mean-value mean-value)))))))
 
           (sqrt (/ summed-square-signal size)))
         ))))
@@ -95,8 +95,8 @@ If the value is higher that <threshold> as compared to the previous window, the 
                                        (loop for n from 0 to (1- nch)
                                              sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index (+ indx i) :type type)
                                              into sample-sum
-                                             finally return (let ((mean-value (/ sample-sum nch)))
-                                                              (* mean-value mean-value))))))
+                                             finally (return (let ((mean-value (/ sample-sum nch)))
+                                                               (* mean-value mean-value)))))))
                             (sqrt (/ summed-square-window real-size))))
 
                          ((equal method :mean)
@@ -105,7 +105,7 @@ If the value is higher that <threshold> as compared to the previous window, the 
                                  (loop for n from 0 to (1- nch)
                                        sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index (+ indx i) :type type)
                                        into sample-sum
-                                       finally return (/ sample-sum nch)))
+                                       finally (return (/ sample-sum nch))))
                            real-size))
 
                          ((equal method :peak)
@@ -113,7 +113,7 @@ If the value is higher that <threshold> as compared to the previous window, the 
                                 (loop for n from 0 to (1- nch)
                                       sum (fli:dereference (fli:dereference ptr :index n :type :pointer) :index (+ indx i) :type type)
                                       into sample-sum
-                                      finally return (/ sample-sum nch))))
+                                      finally (return (/ sample-sum nch)))))
 
                          (t (om-beep-msg "Error unknown method: ~A" method)
                             0.0))
