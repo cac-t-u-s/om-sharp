@@ -235,12 +235,18 @@
       (nth col (data self))
     (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
 
+(defmethod get-field ((self 2D-array) (col string) &key (warn-if-not-found t))
+  (let ((pos (position col (field-names self) :test 'string-equal)))
+    (if pos
+        (get-field self pos :warn-if-not-found warn-if-not-found)
+      (if warn-if-not-found (om-beep-msg "Field ~s not found in '~A'" col self)))))
+
+
 (defmethod get-cache-display-for-text ((self 2D-array) box)
   (declare (ignore box))
   (loop for field in (data self)
         for i = 0 then (1+ i)
         collect (list (format nil "[~D]" i) field)))
-
 
 
 
