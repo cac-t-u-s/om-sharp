@@ -1,13 +1,13 @@
 
 (:patch
- (:name "arrays")
+ (:name "class-array")
  (:doc "")
  (:info
   (:created "2017/09/13 12:02:23")
-  (:modified "2021/12/12 23:55:33")
+  (:modified "2022/03/06 10:36:12")
   (:by "om-sharp")
   (:version 1.05))
- (:window (:size (1314 814)) (:position (303 114)))
+ (:window (:size (1092 881)) (:position (186 88)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,10 +16,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 710)
-   (:y 34)
+   (:x 222)
+   (:y 65)
    (:w 103)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
    (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
@@ -47,8 +47,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 785)
-   (:y 66)
+   (:x 341)
+   (:y 64)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -67,7 +67,7 @@
    (:reference class-array)
    (:group-id nil)
    (:name nil)
-   (:x 655)
+   (:x 215)
    (:y 216)
    (:w 289)
    (:h 167)
@@ -130,36 +130,36 @@
           (:default nil)
           (:data
            (:list
-            -653
-            6
-            52
-            -193
-            198
-            -64
-            -297
-            331
-            -535
-            -520
-            -320
-            -696
-            498
-            -75
-            34
-            -481
-            -126
-            64
-            -614
-            -117
-            51
-            337
-            -898
-            247
-            -252
-            765
-            -784
-            -61
-            -741
-            557)))
+            724
+            300
+            -722
+            144
+            -581
+            689
+            561
+            -972
+            -701
+            -746
+            296
+            -588
+            -606
+            -189
+            317
+            797
+            179
+            -719
+            258
+            -986
+            -957
+            -757
+            -29
+            989
+            -727
+            465
+            90
+            311
+            -617
+            -791)))
          (:array-field
           (:name "dos")
           (:doc nil)
@@ -318,8 +318,8 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 551)
-   (:y 148)
+   (:x 111)
+   (:y 152)
    (:w 139)
    (:h 47)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -338,10 +338,10 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 783)
+   (:x 338)
    (:y 129)
-   (:w 55)
-   (:h 30)
+   (:w 66)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
    (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
@@ -358,7 +358,7 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 823)
+   (:x 383)
    (:y 168)
    (:w 43)
    (:h 30)
@@ -378,8 +378,8 @@
    (:reference 2d-array)
    (:group-id nil)
    (:name nil)
-   (:x 234)
-   (:y 596)
+   (:x 93)
+   (:y 536)
    (:w 205)
    (:h 176)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -576,10 +576,10 @@
    (:reference sin)
    (:group-id nil)
    (:name "sin")
-   (:x 883)
+   (:x 443)
    (:y 168)
    (:w 58)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
    (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
@@ -602,7 +602,7 @@
    (:reference bpf)
    (:group-id nil)
    (:name nil)
-   (:x 858)
+   (:x 418)
    (:y 94)
    (:w 118)
    (:h 65)
@@ -659,8 +659,8 @@
    (:reference class-array)
    (:group-id nil)
    (:name nil)
-   (:x 500)
-   (:y 552)
+   (:x 350)
+   (:y 532)
    (:w 196)
    (:h 188)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -710,14 +710,14 @@
           (:type nil)
           (:decimals 4)
           (:default nil)
-          (:data (:list -607 364 -940 742 324 -146 921 -80 -971 921)))
+          (:data (:list 724 5 -722 144 -581 689 561 -972 -701 -746)))
          (:array-field
           (:name "dos")
           (:doc nil)
           (:type nil)
           (:decimals 4)
           (:default nil)
-          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+          (:data (:list 1 6 10 1 2 10 1 2 10 1)))
          (:array-field
           (:name "tres")
           (:doc nil)
@@ -725,7 +725,7 @@
           (:decimals 4)
           (:default nil)
           (:data
-           (:list 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000)))
+           (:list 1000 7 1000 1000 1000 1000 1000 1000 1000 1000)))
          (:array-field
           (:name "cuatro")
           (:doc nil)
@@ -735,15 +735,15 @@
           (:data
            (:list
             471.0
-            -82.25165
-            -213.3494
-            -185.7041
-            -158.0588
-            -130.4135
-            -377.6365
-            -396.1073
-            -414.5781
-            450.6993)))
+            8
+            127.60239
+            -44.096436
+            -215.79523
+            -225.74211
+            -217.16254
+            -208.58296
+            -200.00339
+            -191.42382)))
          (:array-field
           (:name "cinco")
           (:doc nil)
@@ -768,8 +768,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 636)
-   (:y 517)
+   (:x 486)
+   (:y 497)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -784,26 +784,23 @@
    (:value 10)
    (:id 10))
   (:comment
-   (:x 551)
-   (:y 129)
-   (:w 82)
-   (:h 21)
+   (:x 111)
+   (:y 132)
+   (:w 98)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "FIELDS NAMES")
    (:id 11))
   (:comment
-   (:x 958)
-   (:y 345)
-   (:w 207)
-   (:h 38)
+   (:x 518)
+   (:y 347)
+   (:w 289)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -813,10 +810,10 @@
    (:text "<= function (sin) is evaluated over <elts>")
    (:id 12))
   (:comment
-   (:x 959)
-   (:y 251)
-   (:w 182)
-   (:h 38)
+   (:x 517)
+   (:y 258)
+   (:w 273)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -826,10 +823,10 @@
    (:text "<= shorter list is repeated circularly")
    (:id 13))
   (:comment
-   (:x 959)
-   (:y 312)
-   (:w 178)
-   (:h 38)
+   (:x 519)
+   (:y 319)
+   (:w 281)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -843,8 +840,8 @@
    (:reference class-array)
    (:group-id nil)
    (:name nil)
-   (:x 887)
-   (:y 558)
+   (:x 717)
+   (:y 532)
    (:w 157)
    (:h 145)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -895,14 +892,14 @@
           (:type nil)
           (:decimals 4)
           (:default nil)
-          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+          (:data (:list 5 2 10 1 2 10 1 2 10 1)))
          (:array-field
           (:name "tres")
           (:doc nil)
           (:type nil)
           (:decimals 4)
           (:default nil)
-          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+          (:data (:list 6 2 10 1 2 10 1 2 10 1)))
          (:array-field
           (:name "cinco")
           (:doc nil)
@@ -911,7 +908,7 @@
           (:default nil)
           (:data
            (:list
-            0.84147096
+            7
             0.9092974
             0.14112
             -0.7568025
@@ -927,16 +924,15 @@
           (:type nil)
           (:decimals 4)
           (:default nil)
-          (:data
-           (:list nil nil nil nil nil nil nil nil nil nil)))))))))
+          (:data (:list 8 nil nil nil nil nil nil nil nil nil)))))))))
    (:id 15))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 962)
-   (:y 516)
+   (:x 792)
+   (:y 490)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -951,10 +947,10 @@
    (:value 10)
    (:id 16))
   (:comment
-   (:x 1045)
-   (:y 558)
-   (:w 212)
-   (:h 68)
+   (:x 877)
+   (:y 534)
+   (:w 162)
+   (:h 65)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -970,9 +966,9 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 867)
-   (:y 453)
-   (:w 152)
+   (:x 677)
+   (:y 417)
+   (:w 192)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
@@ -990,9 +986,9 @@
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 984)
-   (:y 486)
-   (:w 55)
+   (:x 808)
+   (:y 460)
+   (:w 68)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
@@ -1010,10 +1006,10 @@
    (:reference get-array-data)
    (:group-id nil)
    (:name "get-array-data")
-   (:x 313)
-   (:y 552)
+   (:x 172)
+   (:y 492)
    (:w 130)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1032,10 +1028,10 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 20))
   (:comment
-   (:x 958)
-   (:y 282)
-   (:w 144)
-   (:h 38)
+   (:x 518)
+   (:y 290)
+   (:w 273)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1045,10 +1041,10 @@
    (:text "<= constant value repeated")
    (:id 21))
   (:comment
-   (:x 958)
-   (:y 216)
-   (:w 103)
-   (:h 38)
+   (:x 518)
+   (:y 228)
+   (:w 149)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1062,8 +1058,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 728)
-   (:y 170)
+   (:x 288)
+   (:y 169)
    (:w 32)
    (:h 30)
    (:color
@@ -1083,8 +1079,8 @@
    (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
-   (:x 738)
-   (:y 98)
+   (:x 294)
+   (:y 94)
    (:w 97)
    (:h 28)
    (:color
@@ -1110,53 +1106,101 @@
    (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 24))
   (:comment
-   (:x 710)
-   (:y 152)
-   (:w 59)
-   (:h 21)
+   (:x 285)
+   (:y 130)
+   (:w 38)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "NUM ELTS")
    (:id 25))
   (:comment
-   (:x 270)
-   (:y 22)
-   (:w 69)
-   (:h 30)
+   (:x 48)
+   (:y 19)
+   (:w 134)
+   (:h 29)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "ARRAYS")
+   (:text "CLASS-ARRAY")
    (:id 26))
-  (:box
-   (:type :object)
-   (:reference 2d-array)
-   (:group-id nil)
-   (:name nil)
+  (:comment
+   (:x 81)
+   (:y 218)
+   (:w 131)
+   (:h 50)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "Evaluates in field inputs acording to predefined size")
+   (:id 27))
+  (:comment
+   (:x 885)
+   (:y 461)
+   (:w 157)
+   (:h 36)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text ":tres is reinitialized with other values")
+   (:id 28))
+  (:comment
+   (:x 552)
+   (:y 538)
+   (:w 116)
+   (:h 54)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "copy-array with different number of elements")
+   (:id 29))
+  (:comment
    (:x 73)
-   (:y 217)
-   (:w 225)
-   (:h 193)
+   (:y 485)
+   (:w 92)
+   (:h 36)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "CLASS-ARRAY to 2D-ARRAY")
+   (:id 30))
+  (:box
+   (:type :function)
+   (:reference get-comp)
+   (:group-id nil)
+   (:name "get-comp")
+   (:x 529)
+   (:y 749)
+   (:w 86)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
-   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
-   (:align :center)
-   (:display :mini-view)
-   (:showname nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:reactive nil)
@@ -1168,187 +1212,25 @@
      (:reactive nil))
     (:input
      (:type :standard)
-     (:name "DATA")
-     (:value nil)
-     (:reactive nil))
-    (:input
-     (:type :key)
-     (:name "field-names")
+     (:name "N")
      (:value nil)
      (:reactive nil)))
-   (:outputs
-    (:output (:name "SELF") (:reactive nil))
-    (:output (:name "DATA") (:reactive nil))
-    (:output (:name "field-names") (:reactive nil)))
-   (:window (:size (nil nil)) (:position (nil nil)))
-   (:edition-params)
-   (:value
-    (:object
-     (:class 2d-array)
-     (:slots
-      ((:field-names (:list "a" "b" "c" "d"))
-       (:data
-        (:list
-         (:list
-          -704
-          -613
-          -150
-          261
-          525
-          -292
-          252
-          215
-          -434
-          -645
-          126
-          362
-          682
-          -737
-          610
-          183
-          -320
-          -348
-          622
-          370
-          900
-          -224
-          884
-          716
-          -311
-          734
-          -388
-          -118
-          -884
-          815)
-         (:list
-          -767
-          -608
-          -183
-          -392
-          -648
-          -782
-          -955
-          -19
-          -916
-          161
-          743
-          851
-          965
-          330
-          325
-          599
-          41
-          811
-          888
-          200
-          226
-          803
-          -58
-          81
-          -963
-          204
-          -193
-          613
-          743
-          -898)
-         (:list
-          582
-          -352
-          727
-          447
-          -675
-          326
-          11
-          588
-          208
-          573
-          840
-          889
-          -179
-          -405
-          702
-          718
-          -687
-          753
-          242
-          -460
-          574
-          974
-          568
-          396
-          -119
-          468
-          -737
-          -67
-          27
-          -422)
-         (:list
-          633
-          538
-          6
-          -651
-          -20
-          -980
-          909
-          -620
-          42
-          912
-          -858
-          52
-          777
-          -227
-          199
-          370
-          -663
-          962
-          -146
-          -184
-          740
-          989
-          670
-          84
-          119
-          654
-          425
-          776
-          -655
-          -417)))))))
-   (:id 27))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 31))
   (:box
-   (:type :value)
-   (:reference cons)
+   (:type :function)
+   (:reference comp-list)
    (:group-id nil)
-   (:name "value box")
-   (:x 244)
-   (:y 177)
-   (:w 95)
-   (:h 30)
-   (:color
-    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:name "comp-list")
+   (:x 549)
+   (:y 813)
+   (:w 92)
+   (:h 29)
+   (:color nil)
    (:border nil)
    (:roundness nil)
    (:text-font nil)
    (:align nil)
-   (:lock nil)
-   (:reactive nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value (:list "a" "b" "c" "d"))
-   (:id 28))
-  (:box
-   (:type :function)
-   (:reference om-random)
-   (:group-id nil)
-   (:name "om-random")
-   (:x 56)
-   (:y 79)
-   (:w 103)
-   (:h 30)
-   (:color (:color 0.9 0.9 0.9 1.0))
-   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
-   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
-   (:text-font nil)
-   (:align :left)
    (:icon :left)
    (:lock nil)
    (:lambda nil)
@@ -1356,107 +1238,25 @@
    (:inputs
     (:input
      (:type :standard)
-     (:name "LOW")
-     (:value -1000)
+     (:name "SELF")
+     (:value nil)
      (:reactive nil))
     (:input
-     (:type :standard)
-     (:name "HIGH")
-     (:value 1000)
+     (:type :optional)
+     (:name "val-list")
+     (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 29))
-  (:box
-   (:type :value)
-   (:reference fixnum)
-   (:group-id nil)
-   (:name "value box")
-   (:x 131)
-   (:y 111)
-   (:w 32)
-   (:h 30)
-   (:color (:color-or-nil (:color nil) (:t-or-nil nil)))
-   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
-   (:roundness (:number-or-nil (:number 2) (:t-or-nil nil)))
-   (:text-font nil)
-   (:align :left)
-   (:lock nil)
-   (:reactive nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 30)
-   (:id 30))
-  (:box
-   (:type :special)
-   (:reference repeat-n)
-   (:group-id nil)
-   (:name "repeat-n")
-   (:x 84)
-   (:y 144)
-   (:w 97)
-   (:h 28)
-   (:color
-    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :center)
-   (:icon :left)
-   (:reactive nil)
-   (:lock nil)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "self")
-     (:value nil)
-     (:reactive nil))
-    (:input
-     (:type :standard)
-     (:name "num")
-     (:value 0)
-     (:reactive nil)))
-   (:outputs (:output (:name "collected results") (:reactive nil)))
-   (:id 31))
-  (:box
-   (:type :special)
-   (:reference repeat-n)
-   (:group-id nil)
-   (:name "repeat-n")
-   (:x 137)
-   (:y 179)
-   (:w 97)
-   (:h 28)
-   (:color
-    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :center)
-   (:icon :left)
-   (:reactive nil)
-   (:lock nil)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "self")
-     (:value nil)
-     (:reactive nil))
-    (:input
-     (:type :standard)
-     (:name "num")
-     (:value 0)
-     (:reactive nil)))
-   (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 32))
   (:box
    (:type :value)
-   (:reference fixnum)
+   (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 184)
-   (:y 144)
-   (:w 32)
-   (:h 30)
+   (:x 590)
+   (:y 778)
+   (:w 72)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1467,108 +1267,29 @@
    (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 4)
+   (:value (:list 5 6 7 8))
    (:id 33))
-  (:comment
-   (:x 257)
-   (:y 140)
-   (:w 82)
-   (:h 34)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
-     (:t-or-nil t)))
-   (:align nil)
-   (:text "FIELDS NAMES (optional)")
-   (:id 34))
-  (:comment
-   (:x 308)
-   (:y 370)
-   (:w 89)
-   (:h 30)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
-   (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
-     (:t-or-nil t)))
-   (:align nil)
-   (:text "2D-ARRAY")
-   (:id 35))
-  (:comment
-   (:x 511)
-   (:y 216)
-   (:w 134)
-   (:h 30)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
-   (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
-     (:t-or-nil t)))
-   (:align nil)
-   (:text "CLASS-ARRAY")
-   (:id 36))
-  (:comment
-   (:x 505)
-   (:y 246)
-   (:w 149)
-   (:h 53)
-   (:fgcolor nil)
-   (:bgcolor nil)
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 573)
+   (:y 714)
+   (:w 36)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
    (:roundness nil)
    (:text-font nil)
    (:align nil)
-   (:text "Evaluates in field inputs acording to predefined size")
-   (:id 37))
-  (:comment
-   (:x 1045)
-   (:y 486)
-   (:w 135)
-   (:h 38)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:text ":tres values are redefined")
-   (:id 38))
-  (:comment
-   (:x 702)
-   (:y 558)
-   (:w 137)
-   (:h 53)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:text "copy-array with different number of elements")
-   (:id 39))
-  (:comment
-   (:x 211)
-   (:y 544)
-   (:w 92)
-   (:h 38)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:text "CLASS-ARRAY to 2D-ARRAY")
-   (:id 40)))
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 34)))
  (:connections
   (:connection (:from (:box 0 :out 0)) (:to (:box 24 :in 0)))
   (:connection (:from (:box 1 :out 0)) (:to (:box 24 :in 1)))
@@ -1588,6 +1309,7 @@
   (:connection (:from (:box 5 :out 0)) (:to (:box 2 :in 5)))
   (:connection (:from (:box 7 :out 0)) (:to (:box 2 :in 7)))
   (:connection (:from (:box 8 :out 0)) (:to (:box 2 :in 6)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 31 :in 0)))
   (:connection
    (:from (:box 10 :out 0))
    (:to (:box 9 :in 2))
@@ -1599,9 +1321,6 @@
   (:connection (:from (:box 20 :out 0)) (:to (:box 6 :in 1)))
   (:connection (:from (:box 23 :out 0)) (:to (:box 2 :in 2)))
   (:connection (:from (:box 24 :out 0)) (:to (:box 2 :in 3)))
-  (:connection (:from (:box 28 :out 0)) (:to (:box 27 :in 2)))
-  (:connection (:from (:box 29 :out 0)) (:to (:box 31 :in 0)))
-  (:connection (:from (:box 30 :out 0)) (:to (:box 31 :in 1)))
   (:connection (:from (:box 31 :out 0)) (:to (:box 32 :in 0)))
-  (:connection (:from (:box 32 :out 0)) (:to (:box 27 :in 1)))
-  (:connection (:from (:box 33 :out 0)) (:to (:box 32 :in 1)))))
+  (:connection (:from (:box 33 :out 0)) (:to (:box 32 :in 1)))
+  (:connection (:from (:box 34 :out 0)) (:to (:box 31 :in 1)))))
