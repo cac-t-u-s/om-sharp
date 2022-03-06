@@ -56,6 +56,7 @@
        (omNG-make-package "Arrays"
                           :doc ""
                           :classes '(2D-array)
+                          :functions '(get-field)
                           :subpackages
                           (list (omNG-make-package
                                  "Class-Array and Components"
