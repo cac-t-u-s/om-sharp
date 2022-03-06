@@ -1315,7 +1315,8 @@
     (list (list
            (om-make-menu-item "pop & connect value"
                               #'(lambda () (popup-value-as-new-box self editorview t))
-                              :enabled (not (connections io)))
+                              :enabled (and (can-popup-new-box-from-val editorview)
+                                            (not (connections io))))
            (om-make-menu-item "disconnect"
                               #'(lambda ()
                                   (mapc #'(lambda (c)
