@@ -67,7 +67,8 @@
  :subpackages  (list (omNG-make-package
                       "Score Tools"
                       :doc "Manipulation of score objects"
-                      :functions '(object-dur get-chords concat select insert merger align-chords split-voices)
+                      :functions '(object-dur get-chords concat select insert merger align-chords
+                                              split-voices true-durations)
                       :subpackages nil)
                      (omNG-make-package
                       "Rhythm"

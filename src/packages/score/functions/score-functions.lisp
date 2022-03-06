@@ -432,3 +432,29 @@ If <random> = T, voice distribution is chosen randomly. Otherwise the first avai
     ))
 
 
+(defmethod* true-durations ((self chord-seq))
+  :indoc '("a score object")
+  :initvals '(nil)
+  :doc "Returns a list of durations in milliseconds, including rests (as negative values), separating the notes or chords in a sequence.
+Overlapping events are cropped at the beginning of th enext event."
+  :icon :score
+  (let ((last-onset 0))
+    (loop for next-chords on (chords self) append
+          (let* ((c (car next-chords))
+                 (chord-onset (item-get-time c))
+                 (chord-duration (item-get-duration c))
+                 (chord-end (+ chord-onset chord-duration))
+                 (next-onset (if (cdr next-chords)
+                                 (item-get-time (cadr next-chords))
+                               chord-end))
+                 (new-duration (if (> chord-end next-onset)
+                                   (- next-onset chord-onset)
+                                 chord-duration))
+                 (silence-before (- last-onset chord-onset)))
+
+            (setq last-onset (+ chord-onset new-duration))
+
+            (if (zerop silence-before)
+                (list new-duration)
+              (list silence-before new-duration))))
+    ))
