@@ -430,12 +430,12 @@ The list on the left show all libraries found in the libraries search paths.
                                            :font (om-def-font :gui)
                                            :bg-color (om-def-color :light-gray)
                                            :item-icon #'(lambda (item) (get-icon item))
-                                           :icons (list :icon-pack 
-                                                        :icon-fun 
-                                                        :icon-genfun 
-                                                        :icon-class 
-                                                        :icon-special 
-                                                        :icon-lib-loaded 
+                                           :icons (list :icon-pack
+                                                        :icon-fun
+                                                        :icon-genfun
+                                                        :icon-class
+                                                        :icon-special
+                                                        :icon-lib-loaded
                                                         :icon-lib)
                                            ))
         (side-panel

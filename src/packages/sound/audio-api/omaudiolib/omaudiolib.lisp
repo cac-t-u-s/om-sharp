@@ -106,12 +106,12 @@
 ;;  BUFFER
 ;;;==============================================
 
-(cffi:defcfun ("makeAudioSourceFromBuffer" makeAudioSourceFromBuffer) 
-              :pointer 
-              (buffer :pointer) 
-              (channels :int) 
-              (size :int) 
-              (sr :int))
+(cffi:defcfun ("makeAudioSourceFromBuffer" makeAudioSourceFromBuffer)
+    :pointer
+  (buffer :pointer)
+  (channels :int)
+  (size :int)
+  (sr :int))
 (cffi:defcfun ("makeAudioSourceFromFile" makeAudioSourceFromFile) :pointer (file :string))
 (cffi:defcfun ("freeAudioSource" freeAudioSource) :void (source :pointer))
 (cffi:defcfun ("startAudioSource" startAudioSource) :void (player :pointer) (source :pointer))
@@ -136,12 +136,12 @@
 (cffi:defcfun ("getAudioFileFloatFormat" getAudioFileFloatFormat) :boolean (handler :pointer))
 (cffi:defcfun ("getAudioFileFormat" getAudioFileFormat) :string (handler :pointer))
 
-(cffi:defcfun ("getAudioFileSamples" getAudioFileSamples) 
-              :boolean 
-              (handler :pointer) 
-              (buffer :pointer) 
-              (startp :long-long) 
-              (nsamples :int))
+(cffi:defcfun ("getAudioFileSamples" getAudioFileSamples)
+    :boolean
+  (handler :pointer)
+  (buffer :pointer)
+  (startp :long-long)
+  (nsamples :int))
 
 (cffi:defcfun ("makeAudioFileWriter" makeAudioFileWriter) :pointer (file :string) (format :int))
 (cffi:defcfun ("freeAudioFileWriter" freeAudioFileWriter) :void (handler :pointer))

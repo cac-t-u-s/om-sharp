@@ -285,9 +285,7 @@ when :
 <self> is a poly, <start> and <end> are measure number selected in each voice (<end> excluded)
 
 if <end> is NIL, the selection runs until th end.
-
 "
-
   (unless start (setf start 0))
 
   (if (or (< start 0)
@@ -395,11 +393,9 @@ If <random> = T, voice distribution is chosen randomly. Otherwise the first avai
   :icon :score
 
   (let ((chords-lists nil))
-
     (loop for chord in (get-chords self)
           for time in (lonset self)
           for i = 0 then (1+ i) do
-
           (let ((position nil)
                 (list-indices (arithm-ser 0 (1- (length chords-lists)) 1)))
             (if random (setf list-indices (permut-random list-indices)))
@@ -414,7 +410,6 @@ If <random> = T, voice distribution is chosen randomly. Otherwise the first avai
             (unless position
               (setf chords-lists
                     (append chords-lists (list (list (list time chord))))))
-
             ))
 
     ;;; chords-list =
@@ -431,8 +426,6 @@ If <random> = T, voice distribution is chosen randomly. Otherwise the first avai
                            :ldur (mapcar 'ldur chords)
                            :lvel (mapcar 'lvel chords)
                            :lchan (mapcar 'lchan chords))))
-    )
-
-  )
+    ))
 
 

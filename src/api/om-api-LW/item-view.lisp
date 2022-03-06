@@ -28,7 +28,7 @@
 
 (export '(om-item-view
           om-item-line
-          om-item-text 
+          om-item-text
           om-set-text) :om-api)
 
 

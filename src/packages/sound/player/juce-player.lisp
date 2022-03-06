@@ -56,13 +56,13 @@
 
       (if selected-device-type
 
-          (progn 
+          (progn
             (unless (string-equal selected-device-type current-device-type)
               (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
               (juce::setDeviceType *juce-player* (get-pref-value :audio :driver)))
             (set-audio-device))
 
-      (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
+        (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
 
 
 (defun set-audio-device ()
@@ -88,7 +88,7 @@
           (unless (string-equal selected-device current-device)
 
             (om-print (format nil "Setting audio device \"~A\"" (get-pref-value :audio :output)) "AUDIO")
-            
+
             (let ((pos (position selected-device out-devices :test 'string-equal)))
               (assert pos)
               (juce::setOutputDevice *juce-player* pos))
@@ -96,7 +96,7 @@
             (set-audio-settings))
 
         (om-beep-msg "AUDIO: ERROR! Could not find any audio device.")))))
-    
+
 
 
 (defun set-audio-settings ()
@@ -116,14 +116,14 @@
     ;;; reset defaults if needed
     (unless (find (get-pref-value :audio :out-channels) device-supported-out-channels :test '=)
       (put-default-value (get-pref :audio :out-channels)))
-    
+
     (juce::initializeaudiochannels *juce-player* 0 (get-pref-value :audio :out-channels))
 
     (configure-audio-channels)
 
     (unless (find (get-pref-value :audio :samplerate) device-supported-sample-rates :test '=)
       (put-default-value (get-pref :audio :samplerate)))
-    
+
     (juce::setsamplerate *juce-player* (get-pref-value :audio :samplerate))
 
     (unless (find (get-pref-value :audio :buffersize) device-supported-buffer-sizes :test '=)

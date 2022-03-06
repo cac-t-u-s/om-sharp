@@ -65,7 +65,7 @@
       (let ((line-start 0))
 
         (loop for l = 1 then (+ l 1)
-              while (editor::character-at start line-start) 
+              while (editor::character-at start line-start)
               do (let* ((line-end (loop for p = line-start then (+ p 1)
                                         for last-char = (editor::character-at start p)
                                         while (and last-char (not (equal last-char #\Newline)))

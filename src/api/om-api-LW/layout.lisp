@@ -77,7 +77,7 @@
                              subviews ratios delta dimensions align name position size bg-color scrollbars
                              (selection 0)
                              &allow-other-keys)
-  
+
   (let ((ll (if (subtypep class 'om-tab-layout)
                 (make-instance class
                                :accepts-focus-p t
@@ -85,7 +85,7 @@
                                :print-function #'(lambda (pane) (or (capi::capi-object-name pane) "Untitled Tab"))
                                :visible-child-function 'identity
                                :selected-item (nth selection subviews))
-              
+
               (apply 'make-instance
                      (append (list class :name name
                                    ;;:automatic-resize '(:width-ratio 1.0 :height-ratio 1.0)
@@ -94,7 +94,7 @@
                                    :allow-other-keys t
                                    :horizontal-scroll (or (equal scrollbars t) (equal scrollbars :h)) ;;; will work only if inside a simple-layout
                                    :vertical-scroll (or (equal scrollbars t) (equal scrollbars :v)))
-                                   
+
                              (make-xy-args class :uniform-size-p nil)
                              (when ratios (make-xy-args class :ratios ratios))
                              (when delta (make-xy-args class :gap delta))
@@ -106,7 +106,7 @@
                              (when size (list :default-width (om-point-x size) :default-height (om-point-y size)))
                              other-args
                              )))))
-         
+
     (when bg-color (om-set-bg-color ll bg-color))
     ll))
 
@@ -149,11 +149,11 @@
   (mapc 'om-update-layout (om-subviews self)))
 
 
-(defmethod om-view-parent ((self om-abstract-layout)) 
+(defmethod om-view-parent ((self om-abstract-layout))
   (capi::element-parent self))
 
 
-(defmethod om-subviews ((self om-abstract-layout)) 
+(defmethod om-subviews ((self om-abstract-layout))
   (capi:layout-description self))
 
 

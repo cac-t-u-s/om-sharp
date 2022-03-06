@@ -327,12 +327,12 @@
   (let* ((distances (loop for i from 0 to (- (length seg) 2) collect
                           (items-distance (nth i seg) (nth (1+ i) seg))))
          (total-length (reduce '+ distances :initial-value 0))
-         (ratios (mapcar 
-                  #'(lambda (l) 
+         (ratios (mapcar
+                  #'(lambda (l)
                       (if (zerop total-length) 1 (/ l total-length)))
                   distances)))
     (om-round (om+ (om* (dx->x 0 ratios)
-                        (- (item-get-time (last-elem seg)) 
+                        (- (item-get-time (last-elem seg))
                            (item-get-time (car seg))))
                    (item-get-time (car seg))))
     ))
@@ -347,7 +347,7 @@
                                                 (duration 10000)
                                                 (modif-time nil))
   ;Create a list of times for all timed points even if they are nil.
-  ;It can do with constant time or constant speed interpolations 
+  ;It can do with constant time or constant speed interpolations
   ;(interpol-mod = :constant-speed or :constant-time)
   ;If the time of the first point is not specified, use 0.
   ;If the time of the last point is not specified, use <duration>
