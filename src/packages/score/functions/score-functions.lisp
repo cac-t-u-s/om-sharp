@@ -244,7 +244,9 @@ POLY: each voice is concatenated, regardless of the global duration.
   :initvals '(nil nil)
   :icon :score
   :indoc '("sequence" "sequence")
-  :doc "Merges to objects to a single object of the same type"
+  :doc "Merges to objects to a single object of the same type.
+
+If types are different, uses the type of <obj1>.
 "
 
   (let ((new-cs (make-instance 'chord-seq)))
@@ -253,7 +255,7 @@ POLY: each voice is concatenated, regardless of the global duration.
 
     (align-chords-in-sequence new-cs 0)
 
-    new-cs))
+    (objfromobjs new-cs (make-instance (type-of obj1)))))
 
 
 (defmethod* merger ((obj1 chord) (obj2 chord))
