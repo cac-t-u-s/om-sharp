@@ -240,27 +240,28 @@ POLY: each voice is concatenated, regardless of the global duration.
 ;--------------------
 
 
-(defmethod* merger ((s1 chord-seq) (s2 chord-seq))
+(defmethod* merger ((obj1 chord-seq) (obj2 chord-seq))
   :initvals '(nil nil)
   :icon :score
   :indoc '("sequence" "sequence")
   :doc "Merges to objects to a single object of the same type"
+"
 
   (let ((new-cs (make-instance 'chord-seq)))
 
-    (set-chords new-cs (sort (append (get-chords s1) (get-chords s2)) #'< :key #'onset))
+    (set-chords new-cs (sort (append (get-chords obj1) (get-chords obj2)) #'< :key #'onset))
 
     (align-chords-in-sequence new-cs 0)
 
     new-cs))
 
 
-(defmethod* merger ((c1 chord) (c2 chord))
+(defmethod* merger ((obj1 chord) (obj2 chord))
 
   (let ((new-chord (make-instance 'chord)))
 
     (setf (notes new-chord)
-          (sort (mapcar #'om-copy (append (notes c1) (notes c2))) #'< :key #'midic))
+          (sort (mapcar #'om-copy (append (notes obj1) (notes obj2))) #'< :key #'midic))
 
     new-chord))
 
