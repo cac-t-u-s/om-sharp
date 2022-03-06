@@ -55,6 +55,13 @@
          (objfromobjs model (make-instance (voice-type target)))))
   target)
 
+
+(defmethod objfromobjs ((model multi-seq) (target chord-seq))
+  (if (> (length (obj-list model)) 1)
+      (objfromobjs (reduce #'merger (obj-list model)) target)
+    (objfromobjs (car (obj-list model)) target)))
+
+
 (defmethod initialize-instance ((self multi-seq) &rest args)
   (call-next-method)
   (setf (obj-list self)
