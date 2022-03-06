@@ -193,7 +193,7 @@
         (setf (date c) (beat-to-time (symbolic-date c) tempo))
         (setf (ldur c) (list (- (beat-to-time (+ (symbolic-date c) (symbolic-dur c) (symbolic-dur-extent c)) tempo)
                                 (beat-to-time (symbolic-date c) tempo)
-                                1)))
+                                )))
         ))
 
 
