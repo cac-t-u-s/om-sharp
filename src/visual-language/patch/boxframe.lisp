@@ -1145,11 +1145,13 @@
 
 ;;; creates a new box with the current value of an input
 (defmethod popup-value-as-new-box ((self input-area) view &optional (connect t))
-  (let* ((new-box (omNG-make-new-boxcall 'value
-                                         (om-add-points
-                                          (om-convert-coordinates (get-position self) (frame self) view)
-                                          (om-make-point -10 -40))
-                                         (value (object self))))
+  (let* ((new-box (omNG-make-new-boxcall
+                   'value
+                   (omng-position view
+                                  (om-add-points
+                                   (om-convert-coordinates (get-position self) (frame self) view)
+                                   (om-make-point -10 -40)))
+                   (value (object self))))
          (patch (object (editor view))))
 
     (store-current-state-for-undo (editor view))
