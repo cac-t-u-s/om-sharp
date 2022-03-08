@@ -25,7 +25,7 @@
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
-(defmethod window-title-for-object ((self sound))
+(defmethod object-name-for-window-title ((self sound))
   (string+ "SOUND - "
            (if (file-pathname self)
                (namestring (file-pathname self))

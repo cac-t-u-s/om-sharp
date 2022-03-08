@@ -361,11 +361,11 @@
            return (special-box-type (class-name c)))
      'OMBoxEditCall)))
 
-(defmethod window-title-for-object ((self t))
+(defmethod object-name-for-window-title ((self t))
   (get-object-type-name self))
 
-(defmethod get-window-title ((self OMBoxEditCall))
-  (window-title-for-object (car (value self))))
+(defmethod extra-window-title-info ((self OMBoxEditCall))
+  (extra-window-title-info (car (value self))))
 
 (defmethod def-reactive ((self OMBoxEditCall) key)
   (if (find key (additional-box-attributes-names self)) T NIL))

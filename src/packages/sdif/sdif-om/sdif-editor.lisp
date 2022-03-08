@@ -22,7 +22,7 @@
 (defmethod object-has-editor ((self SDIFFile)) t)
 (defmethod get-editor-class ((self SDIFFile)) 'sdiffile-editor)
 
-(defmethod window-title-for-object ((self SDIFFile))
+(defmethod object-name-for-window-title ((self SDIFFile))
   (string+ "SDIF File - "
            (if (file-pathname self)
                (namestring (file-pathname self))

@@ -211,7 +211,7 @@
 (defmethod editor-window-init-size ((self OMEditor)) (om-make-point 500 500))
 (defmethod editor-window-init-pos ((self OMEditor)) (om-make-point 500 500))
 (defmethod get-object-type-name ((object t)) (string-upcase (type-of object)))
-(defmethod get-window-title ((object t)) (get-object-type-name object))
+(defmethod editor-name-for-window-title ((object t)) (get-object-type-name object))
 
 (defmethod update-window-name ((self OMEditor))
   (when (window self)
@@ -221,14 +221,17 @@
 (defmethod editor-window-title ((editor OMEditor))
   (if (container-editor editor)
       (editor-window-title (container-editor editor))
-    (string+ (get-name (object editor))
-             (if (get-window-title (object editor))
-                 (string+ " [" (get-window-title (object editor)) "]")
-               "")
-             )))
+    (let ((editor-name (editor-name-for-window-title (object editor)))
+          (extra-info (extra-window-title-info (object editor))))
+      (string+ (get-name (object editor))
+               (if editor-name (string+ " [" editor-name " Editor]") "")
+               (if extra-info (string+ " " extra-info) "")
+               ))))
 
 (defmethod editor-window-title ((editor OMDocumentEditor))
   (window-name-from-object (object editor)))
+
+(defmethod extra-window-title-info ((object t)) "")
 
 ;;; Opens the window for an editor
 (defmethod open-editor-window ((self OMEditor))
