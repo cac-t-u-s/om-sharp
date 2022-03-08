@@ -210,7 +210,7 @@
 
 (defmethod editor-window-init-size ((self OMEditor)) (om-make-point 500 500))
 (defmethod editor-window-init-pos ((self OMEditor)) (om-make-point 500 500))
-(defmethod get-object-type-name ((object t)) (string-upcase (type-of object)))
+(defmethod get-object-type-name ((object t)) (string-downcase (type-of object)))
 (defmethod editor-name-for-window-title ((object t)) (get-object-type-name object))
 
 (defmethod update-window-name ((self OMEditor))
