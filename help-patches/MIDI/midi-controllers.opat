@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2019/09/30 10:18:03")
-  (:modified "2021/06/13 23:37:56")
+  (:modified "2022/03/19 23:46:53")
   (:by "om-sharp")
-  (:version 1.0301))
- (:window (:size (941 633)) (:position (347 186)))
+  (:version 1.05))
+ (:window (:size (941 633)) (:position (506 122)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -29,8 +29,8 @@
        (:name nil)
        (:x 0)
        (:y 33)
-       (:w 2000)
-       (:h 40)
+       (:w 3000)
+       (:h -33)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -41,6 +41,7 @@
        (:show-markers t)
        (:lock :locked)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -61,14 +62,14 @@
         (:output (:name "SELF") (:reactive nil))
         (:output (:name "X-POINTS") (:reactive nil))
         (:output (:name "Y-POINTS") (:reactive nil)))
-       (:window (:size (nil nil)) (:position (nil nil)))
+       (:window (:size nil) (:position nil))
        (:edition-params)
        (:value
         (:object
          (:class bpf)
          (:slots
           ((:onset 0)
-           (:duration 2000)
+           (:duration 3000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:action :internal-lambda)
            (:color (:color 0.0 0.0 0.0 1.0))
@@ -76,55 +77,55 @@
            (:x-points
             (:list
              0
-             41
-             82
+             61
              122
-             163
-             204
+             184
              245
-             286
-             327
+             306
              367
-             408
-             449
+             429
              490
-             531
-             571
+             551
              612
-             653
-             694
+             673
              735
-             776
-             816
+             796
              857
-             898
-             939
+             918
              980
-             1020
-             1061
+             1041
              1102
-             1143
-             1184
+             1163
              1224
-             1265
-             1306
+             1286
              1347
-             1388
-             1429
+             1408
              1469
-             1510
-             1551
+             1531
              1592
-             1633
-             1673
+             1653
              1714
-             1755
-             1796
+             1776
              1837
-             1878
-             1918
+             1898
              1959
-             2000))
+             2020
+             2082
+             2143
+             2204
+             2265
+             2327
+             2388
+             2449
+             2510
+             2571
+             2633
+             2694
+             2755
+             2816
+             2878
+             2939
+             3000))
            (:y-points
             (:list
              64
@@ -183,7 +184,7 @@
          (:class bpf)
          (:slots
           ((:onset 0)
-           (:duration 2000)
+           (:duration 3000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:action :internal-lambda)
            (:color (:color 0.0 0.0 0.0 1.0))
@@ -191,55 +192,55 @@
            (:x-points
             (:list
              0
-             41
-             82
+             61
              122
-             163
-             204
+             184
              245
-             286
-             327
+             306
              367
-             408
-             449
+             429
              490
-             531
-             571
+             551
              612
-             653
-             694
+             673
              735
-             776
-             816
+             796
              857
-             898
-             939
+             918
              980
-             1020
-             1061
+             1041
              1102
-             1143
-             1184
+             1163
              1224
-             1265
-             1306
+             1286
              1347
-             1388
-             1429
+             1408
              1469
-             1510
-             1551
+             1531
              1592
-             1633
-             1673
+             1653
              1714
-             1755
-             1796
+             1776
              1837
-             1878
-             1918
+             1898
              1959
-             2000))
+             2020
+             2082
+             2143
+             2204
+             2265
+             2327
+             2388
+             2449
+             2510
+             2571
+             2633
+             2694
+             2755
+             2816
+             2878
+             2939
+             3000))
            (:y-points
             (:list
              64
@@ -302,7 +303,7 @@
        (:x 0)
        (:y 66)
        (:w 1000)
-       (:h 40)
+       (:h -33)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -312,6 +313,7 @@
        (:showname nil)
        (:lock :locked)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -319,7 +321,7 @@
          (:value nil)
          (:reactive nil)))
        (:outputs (:output (:name "SELF") (:reactive nil)))
-       (:window (:size (nil nil)) (:position (nil nil)))
+       (:window (:size nil) (:position nil))
        (:edition-params)
        (:value
         (:object
@@ -347,8 +349,8 @@
        (:name nil)
        (:x 0)
        (:y 99)
-       (:w 1000)
-       (:h 40)
+       (:w 11000)
+       (:h -33)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -359,6 +361,7 @@
        (:show-markers t)
        (:lock :locked)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -391,23 +394,37 @@
         (:output (:name "LONSET") (:reactive nil))
         (:output (:name "LDUR") (:reactive nil))
         (:output (:name "LVEL") (:reactive nil)))
-       (:window (:size (nil nil)) (:position (nil nil)))
+       (:window (:size nil) (:position nil))
        (:edition-params)
        (:value
         (:object
          (:class chord-seq)
          (:slots
           ((:onset 0)
-           (:duration 1000)
+           (:duration 11000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:name "CHORD-SEQ")
+           (:default-frame-type chord)
            (:symbolic-date nil)
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
            (:extras nil)
            (:group-ids nil)
            (:lmidic (:list 6000))
-           (:lonset (:list 0 1000))
+           (:lonset
+            (:list
+             0
+             1000
+             2000
+             3000
+             4000
+             5000
+             6000
+             7000
+             8000
+             9000
+             10000
+             11000))
            (:ldur (:list 1000))
            (:lvel (:list 100))
            (:loffset (:list 0))
@@ -419,16 +436,30 @@
          (:class chord-seq)
          (:slots
           ((:onset 0)
-           (:duration 1000)
+           (:duration 11000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:name "CHORD-SEQ")
+           (:default-frame-type chord)
            (:symbolic-date nil)
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
            (:extras nil)
            (:group-ids nil)
            (:lmidic (:list 6000))
-           (:lonset (:list 0 1000))
+           (:lonset
+            (:list
+             0
+             1000
+             2000
+             3000
+             4000
+             5000
+             6000
+             7000
+             8000
+             9000
+             10000
+             11000))
            (:ldur (:list 1000))
            (:lvel (:list 100))
            (:loffset (:list 0))
@@ -470,6 +501,7 @@
          (:text-font nil)
          (:align :center)
          (:icon :top)
+         (:reactive nil)
          (:inputs)
          (:outputs (:output (:name "out") (:reactive nil)))
          (:id 0))
@@ -492,6 +524,7 @@
          (:text-font nil)
          (:align :center)
          (:icon :top)
+         (:reactive nil)
          (:inputs
           (:input
            (:type :standard)
@@ -504,7 +537,7 @@
          (:x 10)
          (:y 40)
          (:w 120)
-         (:h 158)
+         (:h 162)
          (:fgcolor nil)
          (:bgcolor nil)
          (:border nil)
@@ -520,11 +553,13 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:connections
         (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0))))))
      (:loop-interval nil)
-     (:loop-on nil)))
+     (:loop-on nil)
+     (:view-mode :tracks)
+     (:control-patch-visible-p nil)))
    (:group-id nil)
    (:name "sequencer")
    (:x 328)
-   (:y 507)
+   (:y 537)
    (:w 141)
    (:h 83)
    (:color nil)
@@ -533,9 +568,11 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
+   (:pre-delay 0)
+   (:show-markers t)
    (:lock nil)
    (:lambda nil)
-   (:pre-delay 0)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :optional)
@@ -555,7 +592,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "om-sample")
    (:x 68)
-   (:y 316)
+   (:y 256)
    (:w 100)
    (:h 29)
    (:color nil)
@@ -566,6 +603,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -600,6 +638,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -607,7 +646,7 @@ Additional inputs/outputs are accesses on the sequencer box.
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "SELF") (:reactive nil)))
-   (:window (:size (1333 541)) (:position (105 92)))
+   (:window (:size (1408 541)) (:position (105 92)))
    (:edition-params)
    (:value
     (:object
@@ -621,9 +660,9 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:id 2))
   (:comment
    (:x 368)
-   (:y 258)
+   (:y 267)
    (:w 219)
-   (:h 38)
+   (:h 50)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -639,7 +678,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "list")
    (:x 397)
-   (:y 462)
+   (:y 492)
    (:w 64)
    (:h 29)
    (:color nil)
@@ -650,6 +689,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
@@ -666,7 +706,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "aux6")
    (:x 117)
-   (:y 266)
+   (:y 206)
    (:w 32)
    (:h 30)
    (:color
@@ -676,6 +716,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 50)
@@ -686,7 +727,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "aux5")
    (:x 573)
-   (:y 316)
+   (:y 336)
    (:w 33)
    (:h 32)
    (:color
@@ -696,6 +737,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 1))
@@ -706,7 +748,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "CHORD-SEQ")
    (:x 491)
-   (:y 366)
+   (:y 386)
    (:w 134)
    (:h 78)
    (:color nil)
@@ -719,6 +761,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -766,23 +809,37 @@ Additional inputs/outputs are accesses on the sequencer box.
     (:output (:name "loffset") (:reactive nil))
     (:output (:name "lchan") (:reactive nil))
     (:output (:name "llegato") (:reactive nil)))
-   (:window (:size (nil nil)) (:position (nil nil)))
+   (:window (:size (409 269)) (:position (507 489)))
    (:edition-params (:staff :g))
    (:value
     (:object
      (:class chord-seq)
      (:slots
       ((:onset 0)
-       (:duration 1000)
+       (:duration 11000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
+       (:default-frame-type chord)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
        (:extras nil)
        (:group-ids nil)
        (:lmidic (:list 6000))
-       (:lonset (:list 0 1000))
+       (:lonset
+        (:list
+         0
+         1000
+         2000
+         3000
+         4000
+         5000
+         6000
+         7000
+         8000
+         9000
+         10000
+         11000))
        (:ldur (:list 1000))
        (:lvel (:list 100))
        (:loffset (:list 0))
@@ -791,10 +848,10 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:llegato nil)))))
    (:id 7))
   (:comment
-   (:x 69)
-   (:y 495)
-   (:w 154)
-   (:h 23)
+   (:x 97)
+   (:y 422)
+   (:w 176)
+   (:h 22)
    (:fgcolor (:color 23/51 16/255 16/255 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -805,86 +862,25 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:id 8))
   (:comment
    (:x 45)
-   (:y 17)
-   (:w 221)
-   (:h 30)
+   (:y 23)
+   (:w 251)
+   (:h 27)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 16) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "MIDI Continuous Controllers")
    (:id 9))
-  (:box
-   (:type :object)
-   (:reference bpf)
-   (:group-id nil)
-   (:name 0)
-   (:x 16)
-   (:y 132)
-   (:w 168)
-   (:h 76)
-   (:color nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :center)
-   (:display :mini-view)
-   (:showname nil)
-   (:show-markers t)
-   (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "SELF")
-     (:value nil)
-     (:reactive nil))
-    (:input
-     (:type :standard)
-     (:name "X-POINTS")
-     (:value (:list 0 2000))
-     (:reactive nil))
-    (:input
-     (:type :standard)
-     (:name "Y-POINTS")
-     (:value (:list 0 100))
-     (:reactive nil))
-    (:input
-     (:type :key)
-     (:name "decimals")
-     (:value 2)
-     (:reactive nil)))
-   (:outputs
-    (:output (:name "SELF") (:reactive nil))
-    (:output (:name "X-POINTS") (:reactive nil))
-    (:output (:name "Y-POINTS") (:reactive nil))
-    (:output (:name "decimals") (:reactive nil)))
-   (:window (:size (598 400)) (:position (318 525)))
-   (:edition-params)
-   (:value
-    (:object
-     (:class bpf)
-     (:slots
-      ((:onset 0)
-       (:duration 2000)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:action nil)
-       (:color (:color 0.0 0.0 0.0 1.0))
-       (:decimals 0)
-       (:x-points (:list 0 2000))
-       (:y-points (:list 0 100))))
-     (:add-slots ((:name "BPF")))))
-   (:id 10))
   (:comment
    (:x 45)
    (:y 51)
-   (:w 735)
-   (:h 23)
+   (:w 421)
+   (:h 39)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -893,7 +889,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:align nil)
    (:text
     "MIDI continuous controllers can be manipulated as simple BPFs, setting the adequate :action to send MIDI messages.")
-   (:id 11))
+   (:id 10))
   (:box
    (:type :abstraction)
    (:reference
@@ -911,9 +907,9 @@ Additional inputs/outputs are accesses on the sequencer box.
         (:out (:type omout) (:name "output 1") (:index 1) (:doc "")))
        (:group-id nil)
        (:name "output 1")
-       (:x 91)
-       (:y 172)
-       (:w 68)
+       (:x 93)
+       (:y 162)
+       (:w 70)
        (:h 42)
        (:color
         (:color-or-nil
@@ -924,6 +920,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -938,7 +935,7 @@ Additional inputs/outputs are accesses on the sequencer box.
         (:in (:type omin) (:index 1) (:name "in") (:doc "")))
        (:group-id nil)
        (:name "in")
-       (:x 71)
+       (:x 72)
        (:y 24)
        (:w 40)
        (:h 42)
@@ -951,6 +948,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 1))
@@ -961,8 +959,8 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:name "pitchbend")
        (:x 87)
        (:y 119)
-       (:w 91)
-       (:h 30)
+       (:w 92)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -971,6 +969,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -1002,6 +1001,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 1)
@@ -1011,10 +1011,10 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:reference cadr)
        (:group-id nil)
        (:name "cadr")
-       (:x 61)
+       (:x 62)
        (:y 75)
-       (:w 61)
-       (:h 30)
+       (:w 62)
+       (:h 29)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -1023,6 +1023,7 @@ Additional inputs/outputs are accesses on the sequencer box.
        (:icon :left)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -1039,18 +1040,19 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:group-id nil)
    (:name "send-pitchbend")
    (:x 215)
-   (:y 316)
+   (:y 256)
    (:w 123)
-   (:h 53)
+   (:h 41)
    (:color nil)
    (:border nil)
    (:roundness nil)
    (:text-font nil)
    (:align :center)
    (:display :hidden)
+   (:pre-delay 0)
    (:lock nil)
    (:lambda :lambda)
-   (:pre-delay 0)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1058,14 +1060,14 @@ Additional inputs/outputs are accesses on the sequencer box.
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "output 1") (:reactive nil)))
-   (:id 12))
+   (:id 11))
   (:box
    (:type :object)
    (:reference bpf)
    (:group-id nil)
    (:name nil)
-   (:x 55)
-   (:y 381)
+   (:x 64)
+   (:y 321)
    (:w 168)
    (:h 96)
    (:color nil)
@@ -1078,6 +1080,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1223,12 +1226,12 @@ Additional inputs/outputs are accesses on the sequencer box.
          126
          127))))
      (:add-slots ((:name "BPF")))))
-   (:id 13))
+   (:id 12))
   (:comment
-   (:x 446)
-   (:y 124)
+   (:x 368)
+   (:y 123)
    (:w 232)
-   (:h 68)
+   (:h 64)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1237,7 +1240,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:align nil)
    (:text
     "One of the default actions in the BPF editor is 'midi-controller' : it allows setting the action to a MIDI continuous controller")
-   (:id 14))
+   (:id 13))
   (:box
    (:type :function)
    (:reference midi-control-change)
@@ -1245,7 +1248,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:name "midi-control-change")
    (:x 729)
    (:y 163)
-   (:w 150)
+   (:w 153)
    (:h 29)
    (:color nil)
    (:border nil)
@@ -1255,20 +1258,21 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
      (:name "CTRL")
-     (:value 11)
+     (:value 12)
      (:reactive t)))
    (:outputs (:output (:name "out") (:reactive t)))
-   (:id 15))
+   (:id 14))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 778)
+   (:x 779)
    (:y 202)
    (:w 51)
    (:h 30)
@@ -1279,16 +1283,17 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 11)
-   (:id 16))
+   (:value 12)
+   (:id 15))
   (:comment
-   (:x 689)
+   (:x 698)
    (:y 202)
-   (:w 69)
-   (:h 38)
+   (:w 74)
+   (:h 36)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
@@ -1296,14 +1301,14 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "controller number:")
-   (:id 17))
+   (:id 16))
   (:box
    (:type :function)
    (:reference bpf-scale)
    (:group-id nil)
    (:name "bpf-scale")
    (:x 162)
-   (:y 267)
+   (:y 207)
    (:w 112)
    (:h 29)
    (:color nil)
@@ -1314,6 +1319,7 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1325,14 +1331,14 @@ Additional inputs/outputs are accesses on the sequencer box.
     (:input (:type :key) (:name "x1") (:value 0) (:reactive nil))
     (:input (:type :key) (:name "x2") (:value 100) (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 18))
+   (:id 17))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 179)
-   (:y 209)
+   (:y 149)
    (:w 32)
    (:h 30)
    (:color
@@ -1342,17 +1348,18 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 64)
-   (:id 19))
+   (:id 18))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 195)
-   (:y 178)
+   (:y 118)
    (:w 36)
    (:h 30)
    (:color
@@ -1362,37 +1369,18 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 127)
-   (:id 20))
-  (:box
-   (:type :value)
-   (:reference fixnum)
-   (:group-id nil)
-   (:name "value box")
-   (:x 134)
-   (:y 100)
-   (:w 32)
-   (:h 30)
-   (:color
-    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:lock nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 0)
-   (:id 21))
+   (:id 19))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 215)
-   (:y 241)
+   (:y 181)
    (:w 32)
    (:h 30)
    (:color
@@ -1402,17 +1390,18 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
-   (:id 22))
+   (:id 20))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 229)
-   (:y 209)
+   (:y 149)
    (:w 42)
    (:h 30)
    (:color
@@ -1422,17 +1411,18 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 3000)
-   (:id 23))
+   (:id 21))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 148)
-   (:y 339)
+   (:x 157)
+   (:y 287)
    (:w 32)
    (:h 30)
    (:color
@@ -1442,26 +1432,82 @@ Additional inputs/outputs are accesses on the sequencer box.
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
-   (:id 24)))
+   (:id 22))
+  (:box
+   (:type :object)
+   (:reference bpf)
+   (:group-id nil)
+   (:name nil)
+   (:x 69)
+   (:y 120)
+   (:w 104)
+   (:h 60)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "X-POINTS")
+     (:value (:list 0 2000))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Y-POINTS")
+     (:value (:list 0 100))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "X-POINTS") (:reactive nil))
+    (:output (:name "Y-POINTS") (:reactive nil)))
+   (:window (:size (557 400)) (:position (536 518)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class bpf)
+     (:slots
+      ((:onset 0)
+       (:duration 2000.0)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:action nil)
+       (:color (:color 0.0 0.0 0.0 1.0))
+       (:decimals 2)
+       (:x-points (:list 0.0 2000.0))
+       (:y-points (:list 0.0 100.0))))
+     (:add-slots ((:name "BPF")))))
+   (:id 23)))
  (:connections
-  (:connection (:from (:box 1 :out 1)) (:to (:box 13 :in 1)))
-  (:connection (:from (:box 1 :out 2)) (:to (:box 13 :in 2)))
+  (:connection (:from (:box 1 :out 1)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 1 :out 2)) (:to (:box 12 :in 2)))
   (:connection (:from (:box 2 :out 0)) (:to (:box 4 :in 1)))
   (:connection (:from (:box 4 :out 0)) (:to (:box 0 :in 1)))
   (:connection (:from (:box 5 :out 0)) (:to (:box 1 :in 1)))
   (:connection (:from (:box 6 :out 0)) (:to (:box 7 :in 6)))
   (:connection (:from (:box 7 :out 0)) (:to (:box 4 :in 2)))
-  (:connection (:from (:box 10 :out 0)) (:to (:box 18 :in 0)))
-  (:connection (:from (:box 12 :out 0)) (:to (:box 13 :in 4)))
-  (:connection (:from (:box 13 :out 0)) (:to (:box 4 :in 0)))
-  (:connection (:from (:box 15 :out 0)) (:to (:box 16 :in 0)))
-  (:connection (:from (:box 18 :out 0)) (:to (:box 1 :in 0)))
-  (:connection (:from (:box 19 :out 0)) (:to (:box 18 :in 1)))
-  (:connection (:from (:box 20 :out 0)) (:to (:box 18 :in 2)))
-  (:connection (:from (:box 21 :out 0)) (:to (:box 10 :in 3)))
-  (:connection (:from (:box 22 :out 0)) (:to (:box 18 :in 3)))
-  (:connection (:from (:box 23 :out 0)) (:to (:box 18 :in 4)))
-  (:connection (:from (:box 24 :out 0)) (:to (:box 13 :in 3)))))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 12 :in 4)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 15 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 17 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 17 :in 2)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 17 :in 3)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 17 :in 4)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 12 :in 3)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 17 :in 0)))))
