@@ -220,6 +220,7 @@
               (and (multi-display-p editor)
                    (equal from (container-editor editor))))
     (setf (cache-display-list editor) nil))
+  (update-window-name editor)
   (call-next-method))
 
 
