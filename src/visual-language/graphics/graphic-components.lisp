@@ -411,7 +411,7 @@
   (when (enabled self)
     (let ((start-y (om-point-y where))
           (start-v (or (value self)
-                       (numberp (allow-nil self)))))
+                       (and (numberp (allow-nil self)) (allow-nil self)))))
       (when start-v
         (om-init-temp-graphics-motion self where NIL
                                       :motion #'(lambda (view position)
