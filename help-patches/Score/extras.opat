@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2019/11/21 13:13:50")
-  (:modified "2021/05/15 0:46:18")
+  (:modified "2022/03/08 20:08:25")
   (:by "om-sharp")
-  (:version 1.0301))
- (:window (:size (1169 952)) (:position (157 78)))
+  (:version 1.05))
+ (:window (:size (1169 952)) (:position (157 70)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -29,6 +29,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -65,6 +66,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -99,6 +101,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -149,6 +152,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -197,6 +201,7 @@
        (:duration 3013)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
+       (:default-frame-type chord)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
@@ -236,6 +241,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -278,6 +284,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -326,6 +333,7 @@
        (:duration 3013)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
+       (:default-frame-type chord)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
@@ -375,6 +383,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 2 5))
@@ -414,6 +423,7 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -462,6 +472,7 @@
        (:duration 3000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
+       (:default-frame-type chord)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
@@ -503,6 +514,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -523,7 +535,7 @@
    (:name "get-extras")
    (:x 835)
    (:y 814)
-   (:w 95)
+   (:w 98)
    (:h 29)
    (:color nil)
    (:border nil)
@@ -533,6 +545,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -563,6 +576,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -589,6 +603,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -624,6 +639,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list a b c))
@@ -648,7 +664,7 @@
    (:x 46)
    (:y 45)
    (:w 409)
-   (:h 38)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -676,6 +692,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -711,7 +728,7 @@
    (:x 217)
    (:y 101)
    (:w 494)
-   (:h 53)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -727,7 +744,7 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
    (:x 8)
    (:y 283)
    (:w 149)
-   (:h 83)
+   (:h 92)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -740,8 +757,8 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
   (:comment
    (:x 619)
    (:y 421)
-   (:w 152)
-   (:h 83)
+   (:w 165)
+   (:h 78)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -749,13 +766,13 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
    (:text-font nil)
    (:align nil)
    (:text
-    "VEL-EXTRA forces the display of the velocity symbol at a given position (dx dx) around the default one.")
+    "VEL-EXTRA forces the display of the velocity symbol at a given position (dx dy) around the default one.")
    (:id 19))
   (:comment
    (:x 932)
    (:y 54)
    (:w 116)
-   (:h 53)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -765,10 +782,10 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
    (:text "TEXT-EXTRA displays a text label.")
    (:id 20))
   (:comment
-   (:x 908)
-   (:y 545)
+   (:x 909)
+   (:y 540)
    (:w 101)
-   (:h 68)
+   (:h 64)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -795,6 +812,7 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -836,6 +854,7 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "text")
@@ -843,8 +862,8 @@ See: https://w3c.github.io/smufl/gitbook/tables/shape-note-noteheads.html")
   (:comment
    (:x 933)
    (:y 150)
-   (:w 179)
-   (:h 68)
+   (:w 193)
+   (:h 64)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -859,15 +878,12 @@ See: https://w3c.github.io/smufl/")
    (:x 681)
    (:y 238)
    (:w 420)
-   (:h 53)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Note: in order to get an integer char-code from the hexadecimal unicode, type \"#x0000\", where 0000 are the four digits references in the Unicode symbol tables.")
@@ -891,6 +907,7 @@ See: https://w3c.github.io/smufl/")
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -920,6 +937,7 @@ See: https://w3c.github.io/smufl/")
             (:duration 7347)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:name nil)
+            (:default-frame-type chord)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
@@ -949,6 +967,7 @@ See: https://w3c.github.io/smufl/")
             (:duration 6288)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:name nil)
+            (:default-frame-type chord)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
@@ -977,17 +996,14 @@ See: https://w3c.github.io/smufl/")
    (:id 26))
   (:comment
    (:x 28)
-   (:y 506)
+   (:y 530)
    (:w 178)
-   (:h 22)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "Also works for POLY / MULTI-SEQ:")
    (:id 27))
@@ -1008,6 +1024,7 @@ See: https://w3c.github.io/smufl/")
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1049,6 +1066,7 @@ See: https://w3c.github.io/smufl/")
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1090,6 +1108,7 @@ See: https://w3c.github.io/smufl/")
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "#xE4AE")
@@ -1113,6 +1132,7 @@ See: https://w3c.github.io/smufl/")
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1142,22 +1162,11 @@ See: https://w3c.github.io/smufl/")
             (:duration 7347)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:name nil)
+            (:default-frame-type chord)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
-            (:extras
-             (:list
-              nil
-              nil
-              (:list
-               (:object
-                (:class symb-extra)
-                (:slots ((:dx 0) (:dy 4) (:symb-char 58542)))))
-              nil
-              nil
-              nil
-              nil
-              nil))
+            (:extras nil)
             (:group-ids nil)
             (:lmidic
              (:list
@@ -1183,20 +1192,11 @@ See: https://w3c.github.io/smufl/")
             (:duration 6288)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:name nil)
+            (:default-frame-type chord)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
-            (:extras
-             (:list
-              nil
-              (:list
-               (:object
-                (:class symb-extra)
-                (:slots ((:dx 0) (:dy 4) (:symb-char 58542)))))
-              nil
-              nil
-              nil
-              nil))
+            (:extras nil)
             (:group-ids nil)
             (:lmidic
              (:list
@@ -1235,6 +1235,7 @@ See: https://w3c.github.io/smufl/")
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list (:list 0 2) (:list 1 1)))
@@ -1243,7 +1244,7 @@ See: https://w3c.github.io/smufl/")
    (:x 292)
    (:y 570)
    (:w 112)
-   (:h 53)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1256,32 +1257,26 @@ See: https://w3c.github.io/smufl/")
    (:x 698)
    (:y 725)
    (:w 143)
-   (:h 50)
+   (:h 78)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "Score-objects also have a :extra input for setting the extras at initialization")
+    "Score-objects also have an :extra input for setting the extras at initialization")
    (:id 34))
   (:comment
    (:x 841)
    (:y 851)
    (:w 200)
-   (:h 50)
+   (:h 64)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Use GET-EXTRAS / REMOVE-EXTRAS to collect / remove extras of a given type from a score object.")
@@ -1302,6 +1297,7 @@ See: https://w3c.github.io/smufl/")
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 58759)
@@ -1323,6 +1319,7 @@ See: https://w3c.github.io/smufl/")
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
@@ -1349,6 +1346,7 @@ See: https://w3c.github.io/smufl/")
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 6000 7000 8000))
@@ -1357,7 +1355,7 @@ See: https://w3c.github.io/smufl/")
    (:x 460)
    (:y 259)
    (:w 140)
-   (:h 53)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
