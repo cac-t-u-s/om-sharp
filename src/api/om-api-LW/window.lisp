@@ -120,7 +120,9 @@
   (capi::interface-title self))
 
 (defmethod om-set-window-title ((self om-abstract-window) (title string))
-  (setf (capi::interface-title self) title))
+  (capi:execute-with-interface
+   self
+   #'(lambda () (setf (capi::interface-title self) title))))
 
 (defmethod om-view-position ((self om-abstract-window))
   (if (capi::interface-visible-p self)
