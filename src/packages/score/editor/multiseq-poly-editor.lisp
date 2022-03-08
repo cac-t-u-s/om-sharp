@@ -30,6 +30,8 @@
 (defclass poly-editor (poly-editor-mixin voice-editor) ())
 (defmethod get-editor-class ((self poly)) 'poly-editor)
 
+(defmethod object-name-for-window-title ((self multi-seq)) "multi-seq")
+(defmethod object-name-for-window-title ((self poly)) "poly")
 
 (defmethod init-editor ((editor poly-editor-mixin))
   (call-next-method)
