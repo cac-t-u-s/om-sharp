@@ -83,6 +83,10 @@
 (defmethod objFromObjs ((model voice) (target chord-seq))
   (clone-object model target))
 
+;;; not fall back on the previous one (would loose extras)
+(defmethod objFromObjs ((model voice) (target voice))
+  (om-copy model))
+
 
 ;;; SOME ADDITIONAL CLASSES TO BUILD RHYTHMIC STRUCTURES:
 (defclass measure (rhythmic-object) ()
