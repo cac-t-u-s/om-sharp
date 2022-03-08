@@ -169,13 +169,6 @@
 
 (defmethod editor-window-init-size ((self sequencer-editor)) (om-make-point 800 500))
 
-;;; redefined from patch editor
-;(defmethod init-window ((win sequencer-editor-window) editor)
-;  (call-next-method)
-;  (update-window-name editor)
-;  win)
-
-
 ;;;========================
 ;;; MAQUETTE-VIEW (OM STYLE)
 ;;;========================
