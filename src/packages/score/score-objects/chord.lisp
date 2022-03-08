@@ -271,6 +271,8 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 (defmethod chords ((self chord)) (list self))
 
+(defmethod chords ((self note)) (list (make-instance 'chord :notes (list self))))
+
 (defmethod get-notes ((self chord)) (notes self))
 (defmethod get-notes ((self note)) (list self))
 (defmethod get-notes ((self list))
