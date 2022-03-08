@@ -22,11 +22,12 @@
 (defmethod object-has-editor ((self SDIFFile)) t)
 (defmethod get-editor-class ((self SDIFFile)) 'sdiffile-editor)
 
-(defmethod object-name-for-window-title ((self SDIFFile))
-  (string+ "SDIF File - "
-           (if (file-pathname self)
-               (namestring (file-pathname self))
-             "No file attached")))
+(defmethod object-name-for-window-title ((self SDIFFile)) "SDIF File")
+
+(defmethod extra-window-title-info ((self SDIFFile))
+  (if (file-pathname self)
+      (namestring (file-pathname self))
+    "No file attached"))
 
 (defmethod make-editor-window-contents ((editor sdiffile-editor))
 

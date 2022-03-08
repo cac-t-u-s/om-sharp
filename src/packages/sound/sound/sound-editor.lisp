@@ -25,11 +25,10 @@
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
-(defmethod object-name-for-window-title ((self sound))
-  (string+ "SOUND - "
-           (if (file-pathname self)
-               (namestring (file-pathname self))
-             "Temp Buffer")))
+(defmethod extra-window-title-info ((self sound))
+  (if (file-pathname self)
+      (namestring (file-pathname self))
+    "temp buffer"))
 
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
