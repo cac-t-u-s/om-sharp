@@ -79,7 +79,7 @@
       (funcall (slot-definition-name slot) object)
     (slot-value object (slot-definition-name slot))))
 
-;;; clone-object doesn't om-init the object
+;;; clone-object doesn't om-init-instance the object
 ;;; om-copy does
 (defmethod clone-object ((object standard-object) &optional clone)
   ; (om-print-format "=================== OBJECT ~A" (list object))
