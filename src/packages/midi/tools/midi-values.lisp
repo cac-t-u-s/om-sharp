@@ -64,6 +64,12 @@
 ;======================
 
 (defmethod* mc-to-pitchwheel ((midic number) &optional (pw-range 200))
+  :initvals '(0 200)
+  :indoc '("value in midicents" "variation range")
+  :doc "Outputs pitchwheel value corresponding to a variation of <midic> (midicents).
+
+<pw-range> is the maximum pitch-wheel range (can vary depending on synthesizers)."
+  :icon :midi
   (cond ((zerop midic) 8192)
         ((minusp midic) (round (+ 8192 (* (/ midic pw-range) 8192))))
         (t (floor (+ 8192 (* (/ midic pw-range) 8191))))))
