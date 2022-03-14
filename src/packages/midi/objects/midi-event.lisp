@@ -16,8 +16,7 @@
 
 (in-package :om)
 
-(defvar *midi-event-types* '(("Note" :Note)
-                             ("KeyOn " :KeyOn)
+(defvar *midi-event-types* '(("KeyOn " :KeyOn)
                              ("KeyOff" :KeyOff)
                              ("KeyPress" :KeyPress)
                              ("CtrlChange" :CtrlChange)
