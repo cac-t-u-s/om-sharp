@@ -44,7 +44,7 @@
         :functions '(import-midi get-midievents mf-info save-as-midi))
        (omNG-make-package
         "Filters"
-        :doc "Tools to filter/process"
+        :doc "Tools to filter MIDI events"
         :functions '(test-midi-type test-date test-midi-track test-midi-channel test-midi-port))
        (omNG-make-package
         "Utils"
