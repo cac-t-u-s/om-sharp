@@ -66,6 +66,8 @@ The range of pitch wheel is between 0 and 16383 (inclusive).  8192 (default) mea
 <values> and <chans> can be single numbers or lists.
 
 The range of pitch bend is between 0 and 127. 64 (default) means no bend.
+
+[COMPATIBILITY: PITCHBEND strictly equivalent to PITCHWHEEL with less precision.]
 "
   (unless port (setf port (get-pref-value :midi :out-port)))
   (setf port (list! port))

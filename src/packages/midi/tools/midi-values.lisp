@@ -66,7 +66,7 @@
 (defmethod* mc-to-pitchwheel ((midic number) &optional (pw-range 200))
   :initvals '(0 200)
   :indoc '("value in midicents" "variation range")
-  :doc "Outputs pitchwheel value corresponding to a variation of <midic> (midicents).
+  :doc "Outputs a MIDI PitchWheel value corresponding to a variation of <midic> (midicents).
 
 <pw-range> is the maximum pitch-wheel range (can vary depending on synthesizers)."
   :icon :midi
@@ -166,7 +166,7 @@
   :initvals '(nil)
   :indoc '("control name")
   :menuins `((0 ,*midi-controllers*))
-  :doc "Outputs control number corresponding to the <ctrl>."
+  :doc "Outputs the MIDI ControlChange number corresponding to <ctrl>."
   :icon :midi
   (cond ((stringp ctrl)
          (name-to-number ctrl *midi-controllers*))
@@ -366,20 +366,20 @@
 ;==================================
 ; SELECTION BOXES FOR OM
 
-(defmethod* gm-program (progName)
+(defmethod* gm-program (program-name)
   :initvals '(nil)
   :indoc '("Instrument name")
   :menuins `((0 ,*midi-gm-programs*))
-  :doc "Outputs General MIDI program number corresponding to <progName>."
+  :doc "Outputs the General MIDI program number corresponding to <program-name> (in General MIDI standard)."
   :icon :synth
-  progName)
+  program-name)
 
 
 (defmethod! GM-DrumNote (drumName &optional (midicents t))
   :initvals '(nil)
   :indoc '("Drum name")
   :menuins `((0 ,*midi-gm-drum-notes*))
-  :doc "Outputs General MIDI note number corresponding to <drumname>."
+  :doc "Outputs key value corresponding to <drumname> (in General MIDI standard)."
   :icon :drum
   (if midicents (* drumName 100) drumName)
   )
