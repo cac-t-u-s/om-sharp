@@ -130,7 +130,7 @@
 (defclass CheckBoxBox (OMInterfaceBox) ()
   (:documentation "An interface box to choose between T and NIL.
 
-Click with CMD or when the patch is locked to toggle the value.
+Click with CMD (Mac) or Shift+Ctrl (Windows/Linux) to toggle the value.
 
 Returns T or NIL."))
 
@@ -193,7 +193,7 @@ Returns T or NIL."))
 
 Use the optional inputs or box properties to set the orientation, range, and increment of the slider.
 
-Click+drag with CMD or when the patch is locked to change the selected value.
+Click+drag with CMD (Mac) or Shift+Ctrl (Windows/Linux), or when the patch is locked, to change the selected value.
 
 Returns the current value."))
 
@@ -324,7 +324,7 @@ Returns the current value."))
 
 Use the optional inputs to set a value to send through, and/or text to display on the button.
 
-Click with CMD or when the patch is locked to trigger.
+Click with CMD (Mac) or Shift+Ctrl (Windows/Linux), or when the patch is locked, to trigger.
 
 Returns the trigger value while pushed down, and NIL the rest of the time."))
 
@@ -436,7 +436,7 @@ Returns the trigger value while pushed down, and NIL the rest of the time."))
 
 Use the optional inputs to set the list of items.
 
-Click with CMD or when the patch is locked to change the selected item.
+Click with CMD (Mac) or Shift+Ctrl (Windows/Linux) to change the selected item.
 
 Returns the selected item, or the selected index depending on how this is set in the box properties.
 Can return a list of selected items if 'multiple selection' is enabled in the box properties."
@@ -590,7 +590,7 @@ Can return a list of selected items if 'multiple selection' is enabled in the bo
 
 Use the optional inputs to set the list of items.
 
-Click with CMD or when the patch is locked to change the selected item.
+Click with CMD (Mac) or Shift+Ctrl (Windows/Linux) to change the selected item.
 
 Returns the selected item, or the selected index depending on how this is set in the box properties."
    ))
@@ -711,7 +711,7 @@ Returns the selected item, or the selected index depending on how this is set in
 
 Use the optional inputs to add choices.
 
-Click with CMD or when the patch is locked to change the selected input.
+Click with CMD (Mac) or Shift+Ctrl (Windows/Linux) to change the selected input.
 
 Can evaluate and return the ouputs of several selected options if 'multiple selection' is enabled in the box properties."))
 
