@@ -111,7 +111,7 @@
   (list "MIDI EVENT" (format nil "~A (~A): ~A" (ev-type self) (ev-chan self) (ev-values self))))
 
 (defmethod evt-to-string ((self MidiEvent))
-  (format nil "MIDIEVENT:: @~D ~A chan ~D track ~D port ~D: ~D"
+  (format nil "MIDIEVENT: @~D ~A chan ~D track ~D port ~D: ~D"
           (onset self) (ev-type self) (ev-chan self) (ev-track self) (ev-port self) (ev-values self)))
 
 (defmethod evt-to-string ((self list))
