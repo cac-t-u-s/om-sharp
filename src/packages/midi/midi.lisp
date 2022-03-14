@@ -49,7 +49,7 @@
        (omNG-make-package
         "Utils"
         :doc "Other MIDI utilities"
-        :functions '(midi-type midi-control-change gm-program gm-drumnote mc-to-pitchwheel))
+        :functions '(midi-type midi-control-change gm-program gm-drumnote mc-to-pitchwheel evt-to-string))
        (omNG-make-package
         "Out"
         :doc "Send MIDI events out"
