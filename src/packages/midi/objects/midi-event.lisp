@@ -83,13 +83,17 @@
    (ev-values :accessor ev-values
               :initarg :ev-values :initarg :ev-fields
               :initform nil :documentation "value(s)")
-   (ev-track :accessor ev-track :initform 0 :documentation "Track of the MIDI evevnt")
-   ))
+   (ev-track :accessor ev-track :initform 0 :documentation "Track of the MIDI evevnt"))
+
+  (:documentation "A MIDI message represented and processed in OM# visual programs.
+
+Can be extracted from MIDI or score objets, transformed, or just created from parameters, and either played through a MIDI port, or used to reconsruct musical structures."))
+
 
 ;;; in case users initialize with a single value
 ;(defmethod om-init-instance ((self MIDIEvent) &optional initargs)
 ;  (let ((rep (call-next-method)))
-;;    (unless (listp (ev-values self))
+;    (unless (listp (ev-values self))
 ;      (setf (ev-values self) (list (ev-values self))))
 ;    rep))
 

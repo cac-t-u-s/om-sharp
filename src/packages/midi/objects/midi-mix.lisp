@@ -37,7 +37,12 @@
 (defclass* midi-mix-console (data-frame)
   ((midiport :initform nil :accessor midiport :type integer :documentation "output port number")
    (miditrack :initform 0 :accessor miditrack)
-   (channels-ctrl :initform nil :accessor channels-ctrl)))
+   (channels-ctrl :initform nil :accessor channels-ctrl))
+  (:documentation "A container for a variety of settings applying to the 16 MIDI channels.
+
+The MIDI-MIX-CONSOLE editor offers a mixing-table-like UI to set MIDI controllers and either send them in real-time, or store them for use with MIDI containers along with other MIDI or score objects.
+
+Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
 
 
 (defmethod additional-class-attributes ((self midi-mix-console)) '(midiport))

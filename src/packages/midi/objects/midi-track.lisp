@@ -32,12 +32,17 @@
    ;;; Note-specific slots
    (pitch :accessor pitch :initarg :pitch :initform 60 :documentation "pitch (MIDI)")
    (vel :accessor vel :initarg :vel :initform 100 :documentation "velocity (0-127)")
-   (dur :accessor dur :initarg :dur :initform 500 :documentation "duration(ms)")
+   (dur :accessor dur :initarg :dur :initform 500 :documentation "duration (ms)")
    ;;; these two slots are repeated from MIDIEvent:
    (ev-chan :accessor ev-chan :initarg :ev-chan :initform 1 :documentation "MIDI channel (1-16)")
    (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "MIDI port (0-...)"))
 
-  (:default-initargs :ev-type :note)) ;; <= this is how we differenciate it from a "real" event
+  (:default-initargs :ev-type :note) ;; <= this is how we differenciate it from a "real" event
+
+  (:documentation "An extension of MIDIEVENT suitable for use in a MIDI-TRACK container.
+
+Internally a MIDI-NOTE is converted into two MIDIEVENTs (KeyOn and KeyOff). MIDI-NOTE manipulates them as a single entity.")
+  )
 
 
 (defun midinote-onset (midinote) (onset midinote))
@@ -107,7 +112,13 @@
 
 (defclass* midi-track (data-stream)
   ((midi-events :initarg :midi-events :initform '() :documentation "a list of MIDI-NOTEs or MIDIEVENTs"))
-  (:default-initargs :default-frame-type 'midi-note))
+  (:default-initargs :default-frame-type 'midi-note)
+  (:documentation "A container for MIDI-NOTE and other MIDIEVENT objects.
+
+MIDI-TRACK is a special kind of DATA-STREAM with adapted visualization and editing of MIDI events.
+
+Can import MIDI files by connecting a pathname to the <self> input, or using the keyword :file to open a file chooser."))
+
 
 (defmethod midi-events ((self midi-track))
   (data-stream-get-frames self))
