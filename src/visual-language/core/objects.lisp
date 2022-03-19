@@ -20,7 +20,8 @@
   ((name :initform nil :accessor name :type string))
   (:documentation "Superclass for all objects"))
 
-(defmethod set-name ((self named-object) text)  (setf (name self) text))
+(defmethod set-name ((self named-object) (text string))  (setf (name self) text))
+(defmethod set-name ((self named-object) text) (setf (name self) (format nil "~A" text)))
 (defmethod get-name ((self named-object)) (name self))
 
 (defmethod set-name ((self t) newname) nil)
