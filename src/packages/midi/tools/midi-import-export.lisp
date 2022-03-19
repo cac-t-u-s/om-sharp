@@ -43,37 +43,34 @@
 
 (defun midievents-to-milliseconds (evtseq units/sec)
 
-  (let ((rep nil)
-        (cur-tempo *midi-init-tempo*)
+  (let ((cur-tempo *midi-init-tempo*)
         (tempo-change-abst-time 0)
         (tempo-change-log-time 0)
         (initdate (om-midi::midi-evt-date (car evtseq))))
 
-    (loop for event in evtseq do
+    (loop for event in evtseq collect
 
-          (if (equal :Tempo (om-midi::midi-evt-type event))
+          (let ((type (om-midi::midi-evt-type event))
+                (fields (om-midi:midi-evt-fields event)))
 
+            (when (equal type :Tempo)
               (let ((date (- (om-midi::midi-evt-date event) initdate)))
                 (setq tempo-change-log-time (logical-time date cur-tempo tempo-change-abst-time tempo-change-log-time units/sec))
-                (setq cur-tempo (car (om-midi:midi-evt-fields event)))
-                (setq tempo-change-abst-time date))
+                (setq cur-tempo (car fields))
+                (setq tempo-change-abst-time date)
+                (setq fields (list (mstempo2bpm(car fields))))))
 
             (let ((date-ms (logical-time (om-midi::midi-evt-date event)
                                          cur-tempo tempo-change-abst-time
                                          tempo-change-log-time units/sec)))
 
-              (push (om-midi::make-midi-evt :date date-ms
-                                            :type (om-midi::midi-evt-type event)
-                                            :chan (om-midi::midi-evt-chan event)
-                                            :ref (om-midi::midi-evt-ref event)
-                                            :port (om-midi::midi-evt-port event)
-                                            :fields (om-midi::midi-evt-fields event))
-                    rep)
-              )
-            )
-          )
-
-    (reverse rep)))
+              (om-midi::make-midi-evt :date date-ms
+                                      :type (om-midi::midi-evt-type event)
+                                      :chan (om-midi::midi-evt-chan event)
+                                      :ref (om-midi::midi-evt-ref event)
+                                      :port (om-midi::midi-evt-port event)
+                                      :fields fields)
+              )))))
 
 
 ;;; RETURNS A SORTED LIST OF CL-MIDI's MIDI-EVT structs

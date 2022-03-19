@@ -530,6 +530,8 @@
 
                      )))
 
+           (:tempo nil)
+
            (otherwise
             (list
              (list (onset evt)
