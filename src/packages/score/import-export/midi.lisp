@@ -94,10 +94,7 @@
                (let ((cseq (make-instance 'chord-seq))
                      (tempo 60)) ;;; get it from the MIDI-TRACK ??
                  (set-chords cseq (midinotes-to-chords track))
-                 (make-instance 'voice
-                                :tree (omquantify cseq tempo '(4 4) 8)
-                                :lmidic (get-chords cseq)
-                                :tempo tempo))
+                 (omquantify cseq tempo '(4 4) 8))
                )))
     (setf (obj-list target) voices)
     target))
