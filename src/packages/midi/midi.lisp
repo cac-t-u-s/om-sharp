@@ -41,7 +41,8 @@
  (list (omNG-make-package
         "Import/Export/Conversions"
         :doc "MIDI import and conversion utilities"
-        :functions '(import-midi get-midievents get-tempomap mf-info save-as-midi))
+        :functions '(import-midi get-midievents get-midi-notes get-tempomap mf-info get-mf-lyrics
+                                 save-as-midi))
        (omNG-make-package
         "Filters"
         :doc "Tools to filter MIDI events"
@@ -49,7 +50,10 @@
        (omNG-make-package
         "Utils"
         :doc "Other MIDI utilities"
-        :functions '(midi-type midi-control-change gm-program gm-drumnote mc-to-pitchwheel evt-to-string))
+        :functions '(midi-type midi-control-change gm-program gm-drumnote
+                               mc-to-pitchwheel
+                               convert-textinfo evt-to-string
+                               separate-channels))
        (omNG-make-package
         "Out"
         :doc "Send MIDI events out"
