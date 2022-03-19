@@ -111,6 +111,10 @@
 
 
 (defmethod* evt-to-string ((self MidiEvent))
+  :indoc '("MIDIEVENT(s)")
+  :doc "A MIDIEVENT or list of MIDIEVENTs to a readable string format."
+  :icon :midi-filter
+  :outdoc '("list of strings describing MIDI events.")
   (format nil "MIDIEVENT: @~D ~A chan ~D track ~D port ~D: ~D"
           (onset self) (ev-type self) (ev-chan self) (ev-track self) (ev-port self) (ev-values self)))
 
@@ -151,8 +155,8 @@
 
 (defmethod* get-midievents ((self t) &optional test)
   :indoc '("something")
-  :doc "Converts anything into a list of MIDIEVENTs"
-  :icon :midi-filter
+  :doc "Converts anything into a list of MIDIEVENTs."
+  :icon :midi
   nil)
 
 (defmethod* get-midievents ((self list) &optional test)
@@ -216,14 +220,14 @@
 (defmethod* test-midi-port ((self MidiEvent) port)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "output port number (or list)")
-  :doc "Tests is <self> ouputs to <port>."
+  :doc "Tests if <self> ouputs to <port>."
   :icon :midi-filter
   (or (not port) (member (ev-port self) (list! port))))
 
 (defmethod* test-midi-track ((self MidiEvent) track)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "a track number or list")
-  :doc "Tests <self> is on <track>."
+  :doc "Tests <self> is in track <track>."
   :icon :midi-filter
   (or (not track) (member (ev-track self) (list! track))))
 
@@ -234,7 +238,7 @@
   :menuins (list (list 1 *midi-event-types*))
   :doc "Tests if <self> is of type <type>.
 
- (see function MS-EVENT for a list of valid MIDI event types)
+See utility function MIDI-TYPE for a list and chooser of valid MIDI event type.)
 "
   :icon :midi-filter
   (or (not type)
@@ -248,10 +252,9 @@
   :indoc '("a MIDIEvent" "event type(s)" "track number(s)" "output port(s)" "MIDI channel(s)")
   :doc "Tests the attributes of <self>.
 
-Returns T if <self> matches <type> (see function MS-EVENT for a list of valid MIDI event types), <ref>, <port> and <channel>.
+Returns T if <self> matches <type>, <track>, <port> and <channel>.
 
-If a test value is NIL, the test is not performed on this attribute.
-
+If a test is NIL, the test is not performed on this attribute.
 "
   :icon :midi-filter
   (and (or (not type) (member (ev-type self) (list! type)))

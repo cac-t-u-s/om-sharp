@@ -27,13 +27,12 @@ Use 'R' to set the box reactive and activate/deactivate the server.
 
 When the MICI receiver is on, MIDI-IN waits for MIDI messages on port <port> and calls <msg-processing> with the decoded message as parameter.
 
-If <port> is NIL, default MIDI In preference applies.
+If <port> is NIL, the default MIDI In port applies.
 
-<msg-processing> (if not NIL) must be a patch in mode 'lambda' with 1 input corresponding to a MIDI message.
-This patch should handle and process the incoming messages.
+<msg-processing> (if not NIL) must be a patch in mode 'lambda' with 1 input corresponding to a MIDI message. This patch should handle and process the incoming messages.
 
 If <thru> is non-NIL, this should be a port number designating an output MIDI port to redirect incoming messages (e.g. to a MIDI synthesizers).
-Otherwise, default MIDI Thru preferences apply.
+Otherwise, the default MIDI Thru port applies.
 "
   t)
 

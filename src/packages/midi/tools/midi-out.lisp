@@ -404,6 +404,7 @@ The range of volume values is 0-127.
 (defmethod! send-midi-note (port chan pitch vel dur)
   :icon :midi-out
   :initvals '(0 1 60 100 1000)
+  :doc "Sends a MIDI note on port <port>, channel <chan>, key <pitch>, with velocity <vel>, and duration <dur>."
   (let ((note (make-midinote :port port :chan chan :pitch pitch :vel vel :dur dur)))
     (funcall (get-frame-action note))))
 

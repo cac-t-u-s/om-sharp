@@ -25,14 +25,15 @@
   :initvals '(nil nil)
   :icon :midi
   :indoc '("a MIDI-TRACK object" "a track number or nil")
-  :doc "Converts a MIDI-TRACK object into a symbolic description.
- The result of mf-info is a list of tracks. Each track is a list of notes.
- Each note is a list of parameters in the form :
+  :doc "Converts a MIDI-TRACK object into a list of note infos.
 
- (midi-number (pitch) , onset-time(ms), duration(ms), velocity, channel)
+The result is a list of tracks.
+Each track is a list of notes.
+Each note is a list of parameters in the form : (pitch, onset-time, duration, velocity, channel)
 
- optional <tracknum> (a number in 0-15) allows choosing a single track."
+- <tracknum> allows choosing a single track."
   :icon :midi
+  :outdoc '("list of list of note infos")
   (if tracknum
 
       (loop for evt in (midi-events self)
@@ -64,13 +65,15 @@
       (remove nil tracks))
     ))
 
+
 ;;; same with MIDI-NOTEs
 (defmethod* get-midi-notes ((self midi-track) &optional (tracknum nil))
   :initvals '(nil)
   :indoc '("a MIDI file or sequence")
   :icon :midi
-  :doc "Extracts and returns the MIDI-NOTEs from <self>."
+  :doc "Extracts and returns the MIDI-NOTEs from <self> (a MIDI-TRACK)."
   :icon :midi
+  :outdoc '("list of MIDI-NOTEs")
 
   (when (midi-events self)
 
@@ -157,8 +160,9 @@ Returns the MIDIEvent or list after converting to string the data (ev-field) of 
   :numouts 2
   :doc "Extracts lyrics (event type 'Lyric') from <self>.
 
-The second output returns the corresponding dates"
+The second output returns the corresponding dates."
   :icon :write
+  :outdoc '("list of lyrics texts (strings)" "list of times (ms)")
   (let ((rep
          (mat-trans (loop for evt in (midi-events self)
                           when (equal (ev-type evt) :Lyric)
@@ -178,7 +182,9 @@ The second output returns the corresponding dates"
   :initvals '(nil)
   :indoc '("a MIDI-TRACK")
   :icon :midi
-  :doc "Extracts the MIDI tempo changes from <self>."
+  :doc "Extracts the MIDI tempo changes from <self>.
+
+Returns a list of lists (time tempo)."
   :outdoc '("list of (time tempo) pairs")
   (let ((tempo-events (get-midievents self #'(lambda (x) (test-midi-type x :tempo)))))
     (loop for event in tempo-events

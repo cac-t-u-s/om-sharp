@@ -370,7 +370,7 @@
   :initvals '(nil)
   :indoc '("Instrument name")
   :menuins `((0 ,*midi-gm-programs*))
-  :doc "Outputs the General MIDI program number corresponding to <program-name> (in General MIDI standard)."
+  :doc "Outputs the General MIDI program number corresponding to <program-name>."
   :icon :synth
   program-name)
 
