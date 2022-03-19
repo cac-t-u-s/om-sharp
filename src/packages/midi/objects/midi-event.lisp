@@ -75,7 +75,7 @@
 
 (defclass* midievent (data-frame)
   ((onset :accessor onset :initform 0
-          ; :initarg :onset :initarg :date :initarg :ev-date ;;; different possible initargs (for compatibility)
+          :initarg :onset ; :initarg :date :initarg :ev-date ;;; different possible initargs (for compatibility)
           :documentation "date/time of the object")
    (ev-type :accessor ev-type :initarg :ev-type :initform :keyon :documentation "type of event")
    (ev-chan :accessor ev-chan :initarg :ev-chan :initform 1 :documentation "MIDI channel (1-16)")
