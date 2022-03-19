@@ -53,7 +53,7 @@
        (omNG-make-package
         "Out"
         :doc "Send MIDI events out"
-        :functions '(pgmout pitchbend pitchwheel ctrlchg volume midi-reset send-midi-note))
+        :functions '(pgmout pitchwheel ctrlchg volume midi-reset send-midi-note))
        (omNG-make-package
         "In"
         :doc "REceive MIDI events"
