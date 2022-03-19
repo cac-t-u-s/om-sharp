@@ -60,6 +60,6 @@
         :functions '(pgmout pitchwheel ctrlchg volume midi-reset send-midi-note))
        (omNG-make-package
         "In"
-        :doc "REceive MIDI events"
+        :doc "Receive MIDI events"
         :functions '(midi-in))
        ))
