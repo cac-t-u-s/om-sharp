@@ -66,15 +66,11 @@
   target)
 
 
-
 (defmethod objfromobjs ((model midi-track) (target voice))
   (let ((cseq (objfromobjs model (make-instance 'chord-seq)))
         (tempo (or (tempo target) 60)))  ;;; get it from the MIDI-TRACK ??
-    (make-instance 'voice
-                   :tree (omquantify cseq tempo '(4 4) 8)
-                   :lmidic (get-chords cseq)
-                   :tempo tempo)))
 
+    (omquantify cseq tempo '(4 4) 8)))
 
 
 (defmethod objfromobjs ((model midi-track) (target multi-seq))
