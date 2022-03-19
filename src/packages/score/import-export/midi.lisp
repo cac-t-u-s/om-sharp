@@ -92,7 +92,7 @@
          (loop for track in (remove nil (get-midi-notes model))
                collect
                (let ((cseq (make-instance 'chord-seq))
-                     (tempo 60)) ;;; get it from the MIDI-TRACK ??
+                     (tempo (or (cadr (car (get-tempomap model))) 60)))
                  (set-chords cseq (midinotes-to-chords track))
                  (omquantify cseq tempo '(4 4) 8))
                )))
