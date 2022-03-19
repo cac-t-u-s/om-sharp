@@ -722,7 +722,7 @@
         (conversion-factor-and-offset 96 36 (- h 20) (+ y 10))
       (om-with-line-size 2
         (loop for evt in (midi-events self) do
-              (if (equal (ev-type evt) :note)
+              (if (subtypep (type-of evt) 'midi-note)
                   (om-with-fg-color (get-midi-channel-color (midinote-channel evt))
                     (om-draw-line (round (+ ox (* fx (midinote-onset evt))))
                                   (round (+ oy (* fy (midinote-pitch evt))))
