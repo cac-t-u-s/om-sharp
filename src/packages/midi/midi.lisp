@@ -41,7 +41,7 @@
  (list (omNG-make-package
         "Import/Export/Conversions"
         :doc "MIDI import and conversion utilities"
-        :functions '(import-midi get-midievents mf-info save-as-midi))
+        :functions '(import-midi get-midievents get-tempomap mf-info save-as-midi))
        (omNG-make-package
         "Filters"
         :doc "Tools to filter MIDI events"

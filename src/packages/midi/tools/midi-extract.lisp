@@ -178,18 +178,9 @@ The second output returns the corresponding dates"
   :initvals '(nil)
   :indoc '("a MIDI-TRACK")
   :icon :midi
-  :numouts 2
-  :doc "Extracts the list of tempo and time-signature events from <self>."
-  :outdoc '("list of tempo events" "list of time-signature events")
-  (let ((tempoEvents (get-midievents self #'(lambda (x) (or (test-midi-type x :tempo) (test-midi-type x :timeSign)))))
-        (tempoList nil) (timeSignList nil))
-    (loop for event in tempoEvents do
-          (cond
-           ((equal (ev-type event) :Tempo)
-            (push (list (onset event) (first (ev-values event))) tempoList))
-           ((equal (ev-type event) :TimeSign)
-            (push (list (onset event) (ev-values event)) timeSignList))
-           (t nil)))
-    (values (reverse tempoList) (reverse timesignList))
-    ))
+  :doc "Extracts the MIDI tempo changes from <self>."
+  :outdoc '("list of (time tempo) pairs")
+  (let ((tempo-events (get-midievents self #'(lambda (x) (test-midi-type x :tempo)))))
+    (loop for event in tempo-events
+          collect (list (onset event) (first (ev-values event))))))
 
