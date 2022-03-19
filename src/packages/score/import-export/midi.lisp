@@ -68,8 +68,9 @@
 
 (defmethod objfromobjs ((model midi-track) (target voice))
   (let ((cseq (objfromobjs model (make-instance 'chord-seq)))
-        (tempo (or (tempo target) 60)))  ;;; get it from the MIDI-TRACK ??
-
+        (tempo (or
+                (cadr (car (get-tempomap model)))
+                (tempo target) 60)))
     (omquantify cseq tempo '(4 4) 8)))
 
 
