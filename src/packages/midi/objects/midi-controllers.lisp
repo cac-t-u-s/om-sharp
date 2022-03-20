@@ -81,11 +81,11 @@
 ; MIDI conversions
 ;=======================================
 
-(defmethod! get-continuous-ctrl ((self midi-track) ctrl ref port channel)
+(defmethod! get-continuous-ctrl ((self midi-track) ctrl track port channel)
   :initvals '(nil nil nil 0 1)
   :indoc '("a MIDI-TRACK" "type of controller (symbol or number)" "track" "MIDI port" "MIDI channel (1-16)")
   :doc "
-Extracts control events of type <ctrl> from a MIDI file or sequence at channel <channel>, track <ref> and port <port> anf returns a BPF object.
+Extracts control events of type <ctrl> from a MIDI file or sequence at channel <channel>, track <track> and port <port> anf returns a BPF object.
 
 <ctrl> can be a control-change number (see MIDI-CONTROL-CHANGE) or one of the special controls: :Tempo :KeyPress :ChanPress :PitchBend or :Private
 "
@@ -96,7 +96,7 @@ Extracts control events of type <ctrl> from a MIDI file or sequence at channel <
          (evtList (get-midievents self #'(lambda (e)
                                            (and
                                             (test-midi-port e port)
-                                            (test-midi-track e ref)
+                                            (test-midi-track e track)
                                             (test-midi-channel e channel)
                                             (and (equal (ev-type e) eventtype)
                                                  (if (equal (ev-type e) :CtrlChange)
