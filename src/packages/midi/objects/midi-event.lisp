@@ -79,11 +79,11 @@
           :documentation "date/time of the object")
    (ev-type :accessor ev-type :initarg :ev-type :initform :keyon :documentation "type of event")
    (ev-chan :accessor ev-chan :initarg :ev-chan :initform 1 :documentation "MIDI channel (1-16)")
-   (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "Target MIDI port")
    (ev-values :accessor ev-values
               :initarg :ev-values :initarg :ev-fields
               :initform nil :documentation "value(s)")
-   (ev-track :accessor ev-track :initform 0 :documentation "Track of the MIDI evevnt"))
+   (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "target MIDI port")
+   (ev-track :accessor ev-track :initform 0 :documentation "track of the MIDI evevnt"))
 
   (:documentation "A MIDI message represented and processed in OM# visual programs.
 
