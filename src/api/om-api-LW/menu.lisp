@@ -147,11 +147,12 @@
 
   (om-activate-callback self t)
 
-  (let ((clicked (om-find-view-containing-point self (om-make-point x y))))
+  (let* ((clicked (om-find-view-containing-point self (om-make-point x y)))
+         (menu-list (om-get-menu-context clicked)))
     ;(om-view-click-handler clicked (om-convert-coordinates (om-make-point x y) self clicked))
-    (when (om-get-menu-context clicked)
+    (when menu-list
       (setf *menu-context-open* t)
-      (om-open-pop-up-menu (capi::make-menu-for-pane self (list-to-menu (om-get-menu-context clicked))) self)
+      (om-open-pop-up-menu (capi::make-menu-for-pane self (list-to-menu menu-list)) self)
       (setf *menu-context-open* nil))
     ))
 
