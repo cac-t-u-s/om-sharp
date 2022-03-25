@@ -1306,10 +1306,10 @@
   (let* ((position (om-mouse-position self))
          (aa (active-area-at-pos self position)))
     (if aa (menu-in-area aa self)
-      (boxframe-menu-context self))))
+      (box-menu-context (object self)))))
 
 (defmethod menu-in-area ((self t) boxframe) nil)
-(defmethod boxframe-menu-context ((self OMBoxFrame)) nil)
+(defmethod box-menu-context ((self t)) nil)
 
 (defmethod menu-in-area ((self io-area) boxframe)
   (let ((io (object self))
