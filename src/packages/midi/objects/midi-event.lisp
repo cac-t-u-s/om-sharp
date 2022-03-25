@@ -213,7 +213,6 @@ Can be extracted from MIDI or score objets, transformed, or just created from pa
   (and (or (not tmin) (>= (onset self) tmin))
        (or (not tmax) (< (onset self) tmax))))
 
-
 (defmethod* test-midi-channel ((self midievent) channel)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "MIDI channel number (1-16) or channel list")
@@ -248,7 +247,6 @@ See utility function MIDI-TYPE for a list and chooser of valid MIDI event type.)
       (if (symbolp type)
           (equal (ev-type self) type)
         (member (ev-type self) (list! type)))))
-
 
 (defmethod* midi-filter ((self midievent) type track port channel)
   :initvals '(nil nil nil nil nil)

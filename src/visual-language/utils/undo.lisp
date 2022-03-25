@@ -343,10 +343,7 @@
                              (equal ref-b (box (from c))))
                     do (omng-add-element pat c))
               (when (editor pat) (update-after-state-change (editor pat)))
-              )
-            )
-          )
-
+              )))
     self))
 
 

@@ -75,8 +75,8 @@
 (defmethod omNG-make-special-box ((reference (eql 'mem)) pos &optional init-args)
   (let* ((name (car (list! init-args)))
          (memory (make-instance 'OMMemory :name (if name (string name) "mem"))))
-    (omNG-make-new-boxcall memory pos))
-  )
+    (omNG-make-new-boxcall memory pos)))
+
 
 (defmethod create-box-inputs ((self OMMemoryBox))
   (list
@@ -136,8 +136,7 @@
                     ))
 
              (t (list inval (car (value self))))))
-      )
-    )
+      ))
 
   (return-value self numout))
 
@@ -223,7 +222,6 @@
       )))
 
 
-
 ;;;------------------------------------------------------------------------------------------
 ;;; COLLECT
 ;;;------------------------------------------------------------------------------------------
@@ -302,8 +300,7 @@ Outputs:
            (setf (car (value self))
                  (if (equal initval t) NIL
                    (list! (om-copy initval))))))
-      )
-    )
+      ))
 
   (return-value self numout))
 
@@ -348,8 +345,7 @@ Outputs:
           (setf (gen-lock self) t)
           (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
           (setf (gen-lock self) nil))))
-     )
-    ))
+     )))
 
 
 ;;; COMPILED FORM
@@ -380,9 +376,7 @@ Outputs:
       (2 `(let ((init-val ,(gen-code (nth 2 (inputs self)))))
             (setf ,local-name (if (equal init-val t) nil init-val))
             init-val))
-      )
-
-    ))
+      )))
 
 
 ;;;------------------------------------------------------------------------------------------
@@ -489,11 +483,8 @@ Outputs:
                      (cadr (value self)) (list 0)
                      (first-tt (reference self)) curr-t
                      (last-tt (reference self)) curr-t)
-               )
-
-             )))
-      )
-    )
+               ))))
+      ))
 
   (return-value self numout))
 
@@ -565,11 +556,7 @@ Outputs:
 
       ;; times
       (3 `(reverse (cadr ,local-name)))
-      )
-
-    ))
-
-
+      )))
 
 
 ;;;------------------------------------------------------------------------------------------
@@ -649,8 +636,7 @@ The default value for the accumulation function substitutes the current memory w
            (setf (car (value self))
                  (if (equal initval t) NIL
                    (om-copy initval)))))
-      )
-    )
+      ))
 
   (return-value self numout))
 
@@ -693,12 +679,4 @@ The default value for the accumulation function substitutes the current memory w
       (2 `(let ((init-val ,(gen-code (nth 2 (inputs self)))))
             (setf ,local-name (if (equal init-val t) nil init-val))
             init-val))
-      )
-
-    ))
-
-
-
-
-
-
+      )))
