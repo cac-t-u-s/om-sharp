@@ -291,7 +291,9 @@
   (let ((patch (reference self)))
     (register-document patch) ;;; if needed..
     (pushnew self (references-to patch)))
-  (call-next-method))
+  (let ((rep (call-next-method)))
+    (set-name (reference rep) (name rep))
+    rep))
 
 
 ;;; PATCHES
