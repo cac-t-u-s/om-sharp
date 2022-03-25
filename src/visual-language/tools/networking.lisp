@@ -118,6 +118,15 @@
     ))
 
 
+(defmethod box-menu-context ((self OMReceiveBox))
+  (list (list (om-make-menu-item
+               (if (state self) "Stop receive" "Start receive")
+               (if (state self)
+                   #'(lambda () (stop-box self))
+                 #'(lambda () (start-box self)))
+               ))))
+
+
 ;;====================
 ;; UDP SEND / RECEIVE
 ;;====================
