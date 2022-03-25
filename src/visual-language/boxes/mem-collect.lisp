@@ -357,8 +357,6 @@ Outputs:
          (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
          (first-call (not (check-let-statement local-name :global))))
 
-    ; (print (list "gen-code" local-name first-call))
-
     (when first-call
       (let ((init-val (gen-code (nth 2 (inputs self)))))
         (push-let-statement `(,local-name ,(if (or (null init-val) (equal init-val t))
@@ -618,8 +616,6 @@ The default value for the accumulation function substitutes the current memory w
 (defmethod omNG-box-value ((self OMAccumBox) &optional (numout 0))
 
   (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
-
-    ;; (print (omng-box-value (nth 2 (inputs self))))
 
     (unless (value self) (setf (value self) (list (omng-box-value (nth 2 (inputs self))))))
 
