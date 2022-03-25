@@ -214,21 +214,21 @@ Can be extracted from MIDI or score objets, transformed, or just created from pa
        (or (not tmax) (< (onset self) tmax))))
 
 
-(defmethod* test-midi-channel ((self MidiEvent) channel)
+(defmethod* test-midi-channel ((self midievent) channel)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "MIDI channel number (1-16) or channel list")
   :doc "Tests if <self> is in channel <channel>."
   :icon :midi-filter
   (or (not channel) (member (ev-chan self) (list! channel))))
 
-(defmethod* test-midi-port ((self MidiEvent) port)
+(defmethod* test-midi-port ((self midievent) port)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "output port number (or list)")
   :doc "Tests if <self> ouputs to <port>."
   :icon :midi-filter
   (or (not port) (member (ev-port self) (list! port))))
 
-(defmethod* test-midi-track ((self MidiEvent) track)
+(defmethod* test-midi-track ((self midievent) track)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "a track number or list")
   :doc "Tests <self> is in track <track>."
@@ -236,7 +236,7 @@ Can be extracted from MIDI or score objets, transformed, or just created from pa
   (or (not track) (member (ev-track self) (list! track))))
 
 
-(defmethod* test-midi-type ((self MidiEvent) type)
+(defmethod* test-midi-type ((self midievent) type)
   :initvals '(nil nil)
   :indoc '("a MidiEvent" "a MIDI event type")
   :menuins (list (list 1 *midi-event-types*))
@@ -250,7 +250,7 @@ See utility function MIDI-TYPE for a list and chooser of valid MIDI event type.)
         (member (ev-type self) (list! type)))))
 
 
-(defmethod* midi-filter ((self MidiEvent) type track port channel)
+(defmethod* midi-filter ((self midievent) type track port channel)
   :initvals '(nil nil nil nil nil)
   :indoc '("a MIDIEvent" "event type(s)" "track number(s)" "output port(s)" "MIDI channel(s)")
   :doc "Tests the attributes of <self>.
