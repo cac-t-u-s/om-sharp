@@ -242,8 +242,7 @@ Can be extracted from MIDI or score objets, transformed, or just created from pa
   :menuins (list (list 1 *midi-event-types*))
   :doc "Tests if <self> is of type <type>.
 
-See utility function MIDI-TYPE for a list and chooser of valid MIDI event type.)
-"
+See utility function MIDI-TYPE for a list and chooser of valid MIDI event type.)"
   :icon :midi-filter
   (or (not type)
       (if (symbolp type)
