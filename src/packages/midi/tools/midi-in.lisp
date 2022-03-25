@@ -63,7 +63,8 @@ Otherwise, the default MIDI Thru port applies.
                         (declare (ignore time))
                         (let* ((me (msg-to-midievent message port))
                                (delivered (if fun (funcall fun me) me)))
-                          (set-delivered-value box delivered))
+                          (when delivered
+                            (set-delivered-value box delivered)))
                         )
                     1
                     thru)))
