@@ -24,7 +24,7 @@
 (defparameter *app-name* "om-sharp")
 
 (defparameter *version-major* 1)
-(defparameter *version-minor* 5)
+(defparameter *version-minor* 6)
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
