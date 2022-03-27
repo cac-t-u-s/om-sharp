@@ -23,7 +23,9 @@
   ((onset :accessor onset :initform 0
           :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
           :documentation "date/time of the object")
-   (messages :accessor messages :initarg :messages :initform nil :documentation "list of osc messages")))
+   (messages :accessor messages :initarg :messages :initform nil :documentation "list of osc messages"))
+  (:documentation "A data structure containing a set of OSC messages and a time-tag."))
+
 
 ;(defmethod om-init-instance ((self osc-bundle) args)
 ;  (let* ((pointer-in (find-value-in-kv-list args :bundle-pointer))
@@ -65,6 +67,11 @@
 ;;;=========================================================
 
 (defmethod* osc-msg (address data)
+
+  :doc "Formats an OSC message from <adress> (the OSC address) and <data> (arguments of the message).
+
+OSC messages are formatted as simple Lisp lists."
+
   (cons (if (stringp address) address (format nil "~A" address))
         (if (listp data) data (list data))))
 
@@ -73,6 +80,11 @@
 
 
 (defmethod* osc-set ((self osc-bundle) address value)
+
+  :doc "Returns a copy of <self> (an OSC-BUNDLE) with <address> (OSC address) set to <value> if the message identified with <address> was present, or with a new message (<address> <value>) if <address> was not found in the bundle."
+  :indoc '("OSC-BUNDLE" "OSC address" "value(s)")
+  :outdoc '("New OSC-BUNDLE")
+
   (let* ((copy (om-copy self))
          (mess (find address (messages copy) :key 'car :test 'string-equal)))
     (if mess
@@ -81,16 +93,31 @@
     copy))
 
 (defmethod* osc-delete ((self osc-bundle) address)
+
+  :doc "Returns a copy of <self> (an OSC-BUNDLE) without the message(s) identified with <address> (an OSC address)."
+  :indoc '("OSC-BUNDLE" "OSC address")
+  :outdoc '("New OSC-BUNDLE")
+
   (let ((copy (om-copy self)))
     (setf (messages copy) (remove address (messages copy) :key 'car :test 'string-equal))
     copy))
 
 (defmethod* osc-get ((self osc-bundle) address)
+
+  :doc "Returns the value of the the message(s) identified with <address> (an OSC address) in <self> (an OSC-BUNDLE), or NIL if the message is not found."
+  :indoc '("OSC-BUNDLE" "OSC address")
+  :outdoc '("Message value(s)")
+
   (let* ((mess (find address (messages self) :key 'car :test 'string-equal)))
     (when mess (cdr mess))))
 
 
 (defmethod* osc-timetag ((self osc-bundle) time)
+
+  :doc "Returns a copy of <self> (an OSC-BUNDLE) with <time> (milliseconds) set as time-tag."
+  :indoc '("OSC-BUNDLE" "time-tag (milliseconds)")
+  :outdoc '("New OSC-BUNDLE")
+
   (let ((copy (om-copy self)))
     (setf (onset copy) time)
     copy))
