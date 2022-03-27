@@ -361,6 +361,9 @@
            return (special-box-type (class-name c)))
      'OMBoxEditCall)))
 
+(defmethod editor-name-for-window-title ((self OMBoxEditCall))
+  (object-name-for-window-title (car (value self))))
+
 (defmethod object-name-for-window-title ((self t))
   (get-object-type-name self))
 
