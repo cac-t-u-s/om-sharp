@@ -389,8 +389,8 @@
   (when min
     (setf (min-val self) (round (* min (expt 10 (decimals self))))))
   (when max
-    (setf (max-val self) (round (* max (expt 10 (decimals self))))))
-  )
+    (setf (max-val self) (round (* max (expt 10 (decimals self)))))))
+
 
 (defmethod get-value ((self numbox))
   (if (zerop (decimals self))

@@ -493,7 +493,6 @@
 
     (om-midi::portmidi-in-stop (record-process self)))
 
-
   (close-recording-notes self)
 
   (setf *running-midi-recorders* (remove self *running-midi-recorders*))

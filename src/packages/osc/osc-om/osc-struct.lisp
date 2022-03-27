@@ -16,8 +16,9 @@
 (in-package :om)
 
 ;;;============================
-;;; OSC BUNDLE OBJECT
+;;; OSC BUNDLE
 ;;;============================
+
 (defclass* osc-bundle (data-frame)
   ((onset :accessor onset :initform 0
           :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
@@ -42,8 +43,7 @@
 
     (setf (messages self) (if (listp (messages self))
                               (list (messages self))
-                            nil))
-    )
+                            nil)))
 
   (loop for msg in (messages self)
         when msg
@@ -154,9 +154,7 @@
        (loop for msg in (find-value-in-kv-list display-cache 'messages)
              for yy = 20 then (+ yy 12) while (< yy h) do
              (om-draw-string 6 yy (format nil "~{~a~^ ~}" msg))
-             )
-       ))
-    ))
+             )))))
 
 
 (defun find-osc-values (osc-bundle address)
@@ -172,8 +170,6 @@
 
 (defmethod get-frame-sizey ((self osc-bundle))
   (or (car (find-osc-values self "/size")) (call-next-method)))
-
-
 
 
 ;;;=========================================================
@@ -202,8 +198,7 @@
                              collect (if (stringp arg)
                                          (format nil "~s " arg)
                                        (format nil "~a " arg)))
-                       )
-               )))
+                       ))))
 
 
 (defmethod make-editor-window-contents ((self osc-editor))
@@ -217,25 +212,26 @@
                  :text (bundle-to-text oscb)
                  :border t
                  :edit-action #'(lambda (item)
-                                  (let ((messages (remove nil
-                                                          (loop for line in (om-text-to-lines (om-dialog-item-text item))
-                                                                when (> (length (delete-spaces line)) 0)
-                                                                collect
-                                                                (multiple-value-bind (address data)
-                                                                    (string-until-char (delete-spaces line) " ")
-                                                                  (cons address
-                                                                        (when data
-                                                                          (om-read-list-from-string data))))))))
+                                  (let ((messages
+                                         (remove nil
+                                                 (loop for line in (om-text-to-lines (om-dialog-item-text item))
+                                                       when (> (length (delete-spaces line)) 0)
+                                                       collect
+                                                       (multiple-value-bind (address data)
+                                                           (string-until-char (delete-spaces line) " ")
+                                                         (cons address
+                                                               (when data
+                                                                 (om-read-list-from-string data))))))))
                                     (setf (messages oscb) messages)
                                     (report-modifications self)))
-                 )))
-    ))
+                 )))))
+
 
 (defmethod update-to-editor ((self osc-editor) from)
   (declare (ignore from))
-  (om-set-dialog-item-text (car (om-subviews (main-view self)))
-                           (bundle-to-text (object-value self))))
-
+  (om-set-dialog-item-text
+   (car (om-subviews (main-view self)))
+   (bundle-to-text (object-value self))))
 
 
 ;;;======================================

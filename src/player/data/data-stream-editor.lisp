@@ -123,8 +123,7 @@
                                                         (if on (editor-record-on editor)
                                                           (editor-record-off editor)))
                                         ))
-                     ))
-    ))
+                     ))))
 
 
 (defmethod init-editor ((editor data-stream-editor))
@@ -159,7 +158,6 @@
 
 (defmethod make-left-panel-for-object ((editor data-stream-editor) (object t))
   (om-make-view 'om-view :size (omp 28 nil)))
-
 
 
 (defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
@@ -290,8 +288,8 @@
     (loop for view in (get-g-component editor :data-panel-list) do
           (setf (y2 view) (car (y-range-for-object (object-value editor)))
                 (y1 view) (cadr (y-range-for-object (object-value editor))))
-          (set-shift-and-factor view))
-    ))
+          (set-shift-and-factor view))))
+
 
 (defmethod update-to-editor ((editor data-stream-editor) (from ombox))
   (let* ((data-stream (object-value editor)))
@@ -464,8 +462,8 @@
         (loop for frame in (data-stream-get-frames stream)
               for i = 0 then (1+ i) do
               (draw-data-frame frame editor i active)))
-      )
-    ))
+      )))
+
 
 (defmethod om-draw-contents :after ((self stream-panel))
   (when (and (multi-display-p (editor self))
@@ -478,8 +476,7 @@
 (defmethod position-display ((editor data-stream-editor) pos-pix)
   (when (active-panel editor)
     (let* ((time (round (pix-to-x (active-panel editor) (om-point-x pos-pix)))))
-      (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time))))
-  )
+      (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time)))))
 
 
 (defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
@@ -692,7 +689,10 @@
          (store-current-state-for-undo editor)
          (with-schedulable-object
           (object-value editor)
-          (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
+          (move-editor-selection
+           editor
+           :dx (- (get-units (get-g-component editor :x-ruler)
+                             (if (om-shift-key-p) 100 10))))
           (editor-sort-frames editor)
           (time-sequence-update-internal-times stream))
          (om-invalidate-view panel)
@@ -705,7 +705,10 @@
          (store-current-state-for-undo editor)
          (with-schedulable-object
           (object-value editor)
-          (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
+          (move-editor-selection
+           editor
+           :dx (get-units (get-g-component editor :x-ruler)
+                          (if (om-shift-key-p) 100 10)))
           (editor-sort-frames editor)
           (time-sequence-update-internal-times stream))
          (om-invalidate-view panel)
@@ -738,9 +741,10 @@
 
 (defmethod select-all-command ((self data-stream-editor))
   #'(lambda ()
-      (set-selection self
-                     (loop for i from 0 to (1- (length (data-stream-get-frames (object-value self))))
-                           collect i))
+      (set-selection
+       self
+       (loop for i from 0 to (1- (length (data-stream-get-frames (object-value self))))
+             collect i))
       (update-timeline-editor self)
       (editor-invalidate-views self)
       ))
@@ -781,7 +785,9 @@
               (frames (mapcar
                        #'om-copy
                        (sort
-                        (remove-if-not #'(lambda (element) (subtypep (type-of element) 'data-frame)) (get-om-clipboard))
+                        (remove-if-not #'(lambda (element)
+                                           (subtypep (type-of element) 'data-frame))
+                                       (get-om-clipboard))
                         #'< :key #'item-get-time)))
 
               (view (active-panel self)))
@@ -857,4 +863,3 @@
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
     (when (and x-ruler (ruler-zoom-? x-ruler))
       (zoom-time-ruler x-ruler dx center panel))))
-
