@@ -51,13 +51,6 @@
         do (setf (car msg) (string-downcase (format nil "~A" (car msg)))))
   )
 
-;;; DATA-STREAM METHODS
-
-(defmethod data-size ((self osc-bundle))
-  (length (flat (messages self))))
-
-(defmethod get-frame-action ((self osc-bundle))
-  #'(lambda () (osc-send self "localhost" 3000)))
 
 ;;;=========================================================
 ;;; SEND
@@ -125,6 +118,7 @@
 ;   (list (concatenate 'string tab " ] "))
 ;  )))
 
+
 ;;; simpler: just on 1 line
 (defun format-message (message &optional (indent 0))
   (declare (ignore indent))
@@ -137,10 +131,35 @@
 (defmethod format-argument ((arg list) indent)
   (loop for msg in arg collect (format-message msg indent)))
 
+
+;;; DATA-STREAM METHODS
+
 (defmethod data-frame-text-description ((self osc-bundle))
   (cons "OSC BUNDLE"
-        (flat (mapcar 'format-message (messages self))))
-  )
+        (flat (mapcar 'format-message (messages self)))))
+
+(defun find-osc-values (osc-bundle address)
+  (cdr (find address (messages osc-bundle) :test 'string-equal :key 'car)))
+
+(defmethod data-size ((self osc-bundle))
+  (length (flat (messages self))))
+
+(defmethod get-frame-action ((self osc-bundle))
+  #'(lambda () (osc-send self "localhost" 3000)))
+
+(defmethod get-frame-color ((self osc-bundle))
+  (let ((colorvals (find-osc-values self "/color")))
+    (if colorvals (apply 'om-make-color colorvals)
+      (call-next-method))))
+
+(defmethod get-frame-posy ((self osc-bundle))
+  (or (car (find-osc-values self "/y")) (call-next-method)))
+
+(defmethod get-frame-sizey ((self osc-bundle))
+  (or (car (find-osc-values self "/size")) (call-next-method)))
+
+
+;;; BOX
 
 (defmethod display-modes-for-object ((self osc-bundle))
   '(:mini-view :text :hidden))
@@ -155,22 +174,6 @@
              for yy = 20 then (+ yy 12) while (< yy h) do
              (om-draw-string 6 yy (format nil "~{~a~^ ~}" msg))
              )))))
-
-
-(defun find-osc-values (osc-bundle address)
-  (cdr (find address (messages osc-bundle) :test 'string-equal :key 'car)))
-
-(defmethod get-frame-color ((self osc-bundle))
-  (let ((colorvals (find-osc-values self "/color")))
-    (if colorvals (apply 'om-make-color colorvals)
-      (call-next-method))))
-
-(defmethod get-frame-posy ((self osc-bundle))
-  (or (car (find-osc-values self "/y")) (call-next-method)))
-
-(defmethod get-frame-sizey ((self osc-bundle))
-  (or (car (find-osc-values self "/size")) (call-next-method)))
-
 
 ;;;=========================================================
 ;;; EDITOR
