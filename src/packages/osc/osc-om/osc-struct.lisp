@@ -64,11 +64,11 @@
 ;;; UTILITIES AND R/W ACCESSORS
 ;;;=========================================================
 
-(defmethod osc-msg (address data)
+(defmethod* osc-msg (address data)
   (cons (if (stringp address) address (format nil "~A" address))
         (if (listp data) data (list data))))
 
-(defmethod osc-msg (address (data textbuffer))
+(defmethod* osc-msg (address (data textbuffer))
   (osc-msg address (textbuffer-read data :text)))
 
 
