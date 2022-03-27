@@ -59,14 +59,14 @@
   :icon 'osc
   :initvals '(("/test" 0) "127.0.0.1" 3000)
   :indoc '("OSC message" "IP address" "port number")
-  :doc "Sends the given and OSC message (<bundle>) port <port> of <host>.
+  :doc "Sends the an OSC message pf bundle (<bundle>) to the port <port> of <host>.
 
 An OSC message consists of a string (URL-style symbolic naming) followed by numerical parameters. Its is formatted as a list.
 See http://opensoundcontrol.org/introduction-osc
 
-<bundle> can also contain a list of messages (list of lists) to be sent simultaneously.
+<bundle> can also contain a list of messages (list of lists) to be sent simultaneously, or an object of type OSC-BUNDLE.
 
-Note: default host 127.0.0.1 is the 'localhost', i.e. the message is send to the local computer address.
+Note: default host 127.0.0.1 is the 'localhost', i.e. the message is sent to the local computer address.
 "
   (osc-send-bundle port host bundle))
 
@@ -75,7 +75,7 @@ Note: default host 127.0.0.1 is the 'localhost', i.e. the message is send to the
   :icon 'osc
   :indoc '("port number" "incoming message processing patch" "an IP address")
   :initvals '(3000 nil nil)
-  :doc "A local OSC server.
+  :doc "A local server receiving OSC.
 
 Use 'R' to set the box reactive and activate/deactivate the server.
 
