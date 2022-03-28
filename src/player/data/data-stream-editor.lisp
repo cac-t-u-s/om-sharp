@@ -165,13 +165,14 @@
 
 ;;; voice editor has a different ruler
 (defmethod make-time-ruler ((editor data-stream-editor) dur)
-  (om-make-view 'time-ruler
-                :related-views (get-g-component editor :data-panel-list)
-                :size (omp nil 20)
-                :bg-color (om-def-color :white)
-                :vmin (data-stream-get-x-ruler-vmin editor)
-                :x1 (data-stream-get-x-ruler-vmin editor)
-                :x2 dur))
+  (let ((vmin (data-stream-get-x-ruler-vmin editor)))
+    (om-make-view 'time-ruler
+                  :related-views (get-g-component editor :data-panel-list)
+                  :size (omp nil 20)
+                  :bg-color (om-def-color :white)
+                  :vmin vmin
+                  :x1 (or (editor-get-edit-param editor :x1) vmin)
+                  :x2 (or (editor-get-edit-param editor :x2) dur))))
 
 
 (defmethod editor-scroll-v ((self data-stream-editor)) nil)
@@ -513,6 +514,13 @@
 
 
 (defmethod resizable-frame ((self data-frame)) nil)
+
+
+(defmethod update-view-from-ruler ((self x-ruler-view) (view stream-panel))
+  (call-next-method)
+  (editor-set-edit-param (editor view) :x1 (x1 self))
+  (editor-set-edit-param (editor view) :x2 (x2 self)))
+
 
 (defmethod om-view-mouse-motion-handler ((self stream-panel) position)
   (let ((editor (editor self)))
