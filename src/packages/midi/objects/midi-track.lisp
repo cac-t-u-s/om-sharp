@@ -292,11 +292,14 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object midi-track)) '(:blocks))
 
+(defparameter *MIN-MIDI-KEY* 36)
+(defparameter *MAX-MIDI-KEY* 96)
+
 (defmethod object-default-edition-params ((self midi-track))
-  '((:display-mode :blocks)
+  `((:display-mode :blocks)
     (:grid t)
     (:x1 0) (:x2 nil)
-    (:y1 36) (:y2 96)))
+    (:y1 ,*MIN-MIDI-KEY*) (:y2 ,*MAX-MIDI-KEY*)))
 
 
 (defmethod resizable-frame ((self midi-note)) t)
@@ -310,7 +313,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 (defmethod get-frame-color ((self midi-note)) (get-midi-channel-color (ev-chan self)))
 
 
-(defmethod get-frame-posy ((self midievent)) 92) ;;; MIDIevents are just displayed at the top of the roll
+(defmethod get-frame-posy ((self midievent)) *MAX-MIDI-KEY* - 4) ;;; MIDIevents are just displayed at the top of the roll
 (defmethod get-frame-posy ((self midi-note)) (pitch self))
 
 (defmethod get-frame-sizey ((self midi-note)) 1)
@@ -337,11 +340,12 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
     (loop for frame in frames do
           (when (equal (ev-type frame) :note)
             (setf (pitch frame)
-                  (min 95 (max 36
-                               (if (equal dy :round)
-                                   (round (pitch frame))
-                                 (+ (pitch frame) dy))
-                               )))
+                  (min (1- *MAX-MIDI-KEY*)
+                       (max *MIN-MIDI-KEY*
+                            (if (equal dy :round)
+                                (round (pitch frame))
+                              (+ (pitch frame) dy)))))
+
             (when (equal dx :round)
               (item-set-time frame (round (item-get-time frame))))
             ))
@@ -433,7 +437,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
     (draw-keyboard (- (om-point-x (om-mouse-position view)) 40)
                    0
                    40 (h view)
-                   36 96
+                   *MIN-MIDI-KEY* *MAX-MIDI-KEY*
                    0.1 t nil)
     ))
 
