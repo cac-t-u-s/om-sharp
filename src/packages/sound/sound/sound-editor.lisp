@@ -32,6 +32,10 @@
 
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
+(defmethod make-left-panel-for-object ((editor sound-editor) (object t) view)
+  (declare (ignore object view))
+  (om-make-view 'om-view :size (omp 28 nil)))
+
 (defmethod make-editor-controls ((editor sound-editor))
   (let ((sound (object-value editor)))
     (om-make-layout

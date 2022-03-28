@@ -52,8 +52,6 @@
 ;;; COMMON FEATURES
 ;;;========================================================================
 
-;;; From DATA-STREAM-EDITOR...
-(defmethod y-range-for-object ((self multi-seq)) '(-100 100))   ;;; not used anyway
 (defmethod locked ((self multi-seq)) nil)
 
 ;;;=========================

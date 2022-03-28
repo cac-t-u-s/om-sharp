@@ -292,7 +292,12 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object midi-track)) '(:blocks))
 
-(defmethod y-range-for-object ((self midi-track)) '(36 96))
+(defmethod object-default-edition-params ((self midi-track))
+  '((:display-mode :blocks)
+    (:grid t)
+    (:x1 0) (:x2 nil)
+    (:y1 36) (:y2 96)))
+
 
 (defmethod resizable-frame ((self midi-note)) t)
 (defmethod resizable-frame ((self midievent)) nil)
@@ -314,10 +319,9 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 (defmethod get-frame-area ((frame midievent) editor)
   (let ((panel (active-panel editor)))
     (values (x-to-pix panel (date frame))
-            (- (h panel)
-               (y-to-pix panel (+ (get-frame-posy frame ))))
+            (y-to-pix panel (get-frame-posy frame))
             (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
-            (min -3 (dy-to-dpix panel (- (get-frame-sizey frame))))  ;; !! upwards
+            (min -3 (dy-to-dpix panel (get-frame-sizey frame)))  ;; !! upwards
             )))
 
 
@@ -383,7 +387,8 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
   ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
    (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
 
-(defmethod make-left-panel-for-object ((editor data-stream-editor) (object midi-track))
+(defmethod make-left-panel-for-object ((editor data-stream-editor) (object midi-track) view)
+  (declare (ignore view))
   (om-make-view 'keyboard-view :size (omp 20 nil)))
 
 ;;; the small view at the left of teh timeline should be sized according to the editor's layout

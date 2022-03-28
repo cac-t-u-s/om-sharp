@@ -74,7 +74,9 @@
 
 (defmethod editor-scroll-v ((self chord-seq-editor)) nil)
 
-(defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-element))
+(defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-element) view)
+  (declare (ignore view))
+
   (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t
                 :bg-color (om-def-color :white)
@@ -627,4 +629,3 @@
           ;(mapcar 'draw-b-box (inside chord))
 
           )))
-

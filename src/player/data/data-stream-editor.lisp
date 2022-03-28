@@ -25,7 +25,9 @@
 
 (defmethod object-default-edition-params ((self data-stream))
   '((:display-mode :blocks)
-    (:grid t)))
+    (:grid t)
+    (:x1 0) (:x2 nil)
+    (:y1 0) (:y2 100)))
 
 (defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view)
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)
@@ -156,8 +158,15 @@
 (defmethod make-timeline-left-item ((self data-stream-editor) id)
   (om-make-view 'om-view :size (omp 28 15)))
 
-(defmethod make-left-panel-for-object ((editor data-stream-editor) (object t))
-  (om-make-view 'om-view :size (omp 28 nil)))
+
+(defmethod make-left-panel-for-object ((editor data-stream-editor) (object t) view)
+  (let ((ruler (om-make-view 'y-ruler-view
+                             :size (omp 30 nil)
+                             :related-views (list view)
+                             :bg-color (om-def-color :white)
+                             :y1 (editor-get-edit-param editor :y1)
+                             :y2 (editor-get-edit-param editor :y2))))
+    ruler))
 
 
 (defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
@@ -192,15 +201,17 @@
     (set-g-component editor :data-panel-list
                      (loop for d-s in object-s
                            for i = 0 then (+ i 1) collect
-                           (om-make-view (editor-view-class editor) :stream-id i
-                                         :editor editor
-                                         :size (omp 50 nil)
-                                         :direct-draw t
-                                         :bg-color (om-def-color :white)
-                                         ;; internal vertical scroller
-                                         :scrollbars (editor-scroll-v editor)
-                                         :left-view (make-left-panel-for-object editor d-s)
-                                         )))
+                           (let* ((view (om-make-view (editor-view-class editor) :stream-id i
+                                                      :editor editor
+                                                      :size (omp 50 nil)
+                                                      :direct-draw t
+                                                      :bg-color (om-def-color :white)
+                                                      ;; internal vertical scroller
+                                                      :scrollbars (editor-scroll-v editor)
+                                                      ))
+                                  (ruler (make-left-panel-for-object editor d-s view)))
+                             (setf (left-view view) ruler)
+                             view)))
 
     (set-g-component editor :x-ruler (make-time-ruler editor ed-dur))
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
@@ -283,13 +294,17 @@
 
 (defmethod init-editor-window ((editor data-stream-editor))
   (call-next-method)
+
   (when (get-g-component editor :x-ruler)
     (update-views-from-ruler (get-g-component editor :x-ruler)))
-  (when (object-value editor)
-    (loop for view in (get-g-component editor :data-panel-list) do
-          (setf (y2 view) (car (y-range-for-object (object-value editor)))
-                (y1 view) (cadr (y-range-for-object (object-value editor))))
-          (set-shift-and-factor view))))
+
+  (let ((y1 (editor-get-edit-param editor :y1))
+        (y2 (editor-get-edit-param editor :y2)))
+    (when (and y1 y2) ;; some editors don't, e.g. chord-seq editor
+      (loop for view in (get-g-component editor :data-panel-list)
+            do (setf (y1 view) y1
+                     (y2 view) y2)
+            (set-shift-and-factor view)))))
 
 
 (defmethod update-to-editor ((editor data-stream-editor) (from ombox))
@@ -340,10 +355,6 @@
   (get-g-component self :x-ruler))
 
 
-;; lesser value and greater values in the ruler (bottom to top)
-(defmethod y-range-for-object ((self internal-data-stream)) '(0 100))
-
-
 ;;;===========================================
 ;;; FRAMES DRAW & SELECTION
 ;;;===========================================
@@ -358,7 +369,7 @@
       (setf (getf (attributes self) :color) (om-random-color 0.4))))
 
 ;; random !
-;; compare values to y-range-for-object
+;; compare values to y-range
 (defmethod get-frame-posy ((self data-frame))
   (or (getf (attributes self) :posy)
       (setf (getf (attributes self) :posy) (om-random 30 90))))
@@ -377,14 +388,14 @@
     (case (editor-get-edit-param editor :display-mode)
       (:bubbles (values
                  (x-to-pix panel (item-get-internal-time frame))
-                 (- (h panel) (y-to-pix panel (+ posy (/ sizey 2))))
-                 (dy-to-dpix panel sizey)
-                 (dy-to-dpix panel sizey)
+                 (y-to-pix panel (+ posy (/ sizey 2)))
+                 (- (dy-to-dpix panel sizey))
+                 (- (dy-to-dpix panel sizey))
                  ))
       (otherwise (values (x-to-pix panel (item-get-internal-time frame))
-                         (- (h panel) (y-to-pix panel posy))
+                         (y-to-pix panel posy)
                          (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
-                         (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
+                         (max 3 (- (dy-to-dpix panel sizey)))  ;; !! downwards
                          )))))
 
 (defmethod draw ((frame data-frame) x y w h selected) nil)
@@ -521,6 +532,11 @@
   (editor-set-edit-param (editor view) :x1 (x1 self))
   (editor-set-edit-param (editor view) :x2 (x2 self)))
 
+(defmethod update-view-from-ruler ((self y-ruler-view) (view stream-panel))
+  (call-next-method)
+  (editor-set-edit-param (editor view) :y1 (y1 self))
+  (editor-set-edit-param (editor view) :y2 (y2 self)))
+
 
 (defmethod om-view-mouse-motion-handler ((self stream-panel) position)
   (let ((editor (editor self)))
@@ -592,7 +608,7 @@
             (store-current-state-for-undo editor)
 
             (let ((frame (time-sequence-make-timed-item-at object (pixel-to-time self (om-point-x p0)))))
-              (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
+              (finalize-data-frame frame :posy (pix-to-y self (om-point-y p0)))
               (with-schedulable-object object
                                        (time-sequence-insert-timed-item-and-update object frame))
               (report-modifications editor)
@@ -632,7 +648,7 @@
                  :motion #'(lambda (view pos)
                              (declare (ignore view))
                              (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
-                                   (dy (dpix-to-dy self (- (om-point-y pos) (om-point-y p0)))))
+                                   (dy (- (dpix-to-dy self (- (om-point-y pos) (om-point-y p0))))))
                                (move-editor-selection editor :dx dx :dy dy)
                                (setf p0 pos)
                                (position-display editor pos)
