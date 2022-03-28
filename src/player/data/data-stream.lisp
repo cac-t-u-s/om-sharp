@@ -27,7 +27,9 @@
 
 ;;; TIME-SEQUENCE API
 (defmethod item-get-time ((self data-frame)) (date self))
-(defmethod item-set-time ((self data-frame) time) (setf (date self) time))
+(defmethod item-set-time ((self data-frame) time)
+  (setf (date self) time)
+  (item-set-internal-time self time))
 
 (defmethod data-size ((self data-frame)) 1)
 (defmethod data-frame-text-description ((self data-frame)) '("DATA FRAME"))
