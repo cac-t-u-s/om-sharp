@@ -107,4 +107,6 @@
     (14 (get-pref-value :midi :midi-ch14-color))
     (15 (get-pref-value :midi :midi-ch15-color))
     (16 (get-pref-value :midi :midi-ch16-color))
+    (otherwise (om-def-color :gray))
     ))
+
