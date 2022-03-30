@@ -104,16 +104,17 @@ By default the server listen to ANY addresses (localhost and IP address). Set <h
         (fun (cadr args))
         (host (caddr args)))
     (if (and port (numberp port))
-        (let ((process (om-start-udp-server port host
-                                            #'(lambda (msg)
-                                                (let* ((message (osc-decode msg)))
-                                                  ;(print (format nil "OSC RECEIVE [~A:~D]= ~A" host port message))
-                                                  (let ((delivered (process-osc-bundle message fun)))
-                                                    (set-delivered-value box (reverse delivered)))
-                                                  )
-                                                nil))))
+        (let ((process (om-start-udp-server
+                        port host
+                        #'(lambda (msg)
+                            (let* ((message (osc-decode msg))
+                                   (delivered (process-osc-bundle message fun)))
+                              (when delivered
+                                (set-delivered-value box (reverse delivered))))
+                            nil))))
           (when process
             (om-print (format nil "Start OSC receive server on ~A ~D" host port))
             process))
 
       (om-beep-msg (format nil "Error - bad port number for OSC-RECEIVE: ~A" port)))))
+
