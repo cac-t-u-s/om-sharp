@@ -480,9 +480,7 @@
     (om-print-format "Start recording in ~A (port ~D)"
                      (list (or (name (object self)) (type-of (get-obj-to-play self))) in-port)
                      "MIDI")
-    )
-
-  (call-next-method))
+    ))
 
 
 (defmethod editor-record-off ((self chord-seq-editor))
@@ -497,9 +495,7 @@
 
   (close-recording-notes self)
 
-  (setf *running-midi-recorders* (remove self *running-midi-recorders*))
-
-  (call-next-method))
+  (setf *running-midi-recorders* (remove self *running-midi-recorders*)))
 
 
 ; Redefined with VOICE

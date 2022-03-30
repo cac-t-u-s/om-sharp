@@ -30,6 +30,8 @@
       (namestring (file-pathname self))
     "temp buffer"))
 
+(defmethod can-record ((self sound-editor)) nil)
+
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
 (defmethod make-left-panel-for-object ((editor sound-editor) (object t) view)

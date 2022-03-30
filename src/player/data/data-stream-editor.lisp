@@ -88,21 +88,6 @@
               ))
 
 
-(defmethod can-record ((self data-stream-editor)) nil)
-
-;;; override if you can record!
-(defmethod editor-record-on ((self data-stream-editor))
-  (setf (pushed (rec-button self)) t)
-  (editor-invalidate-views self)
-  t)
-
-;;; override if you can record!
-(defmethod editor-record-off ((self data-stream-editor))
-  (setf (pushed (rec-button self)) nil)
-  (editor-invalidate-views self)
-  t)
-
-
 (defun make-control-bar (editor)
 
   (let ((mousepostext (om-make-graphic-object 'om-item-text :size (omp 60 16))))
@@ -896,3 +881,54 @@
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
     (when (and x-ruler (ruler-zoom-? x-ruler))
       (zoom-time-ruler x-ruler dx center panel))))
+
+
+;;;======================================
+;;; RECORD
+;;;======================================
+
+(defmethod can-record ((self data-stream-editor)) t)
+
+(defmethod editor-record-on ((self data-stream-editor))
+
+  (let ((object (get-obj-to-play self))
+        (port 3000)
+        (host nil))
+
+    (setf (record-process self)
+          (om-start-udp-server port host
+                               #'(lambda (msg)
+                                   (when (equal :play (editor-play-state self))
+                                     (let ((time-ms (player-get-object-time (player self) object)))
+                                       (time-sequence-insert-timed-item-and-update
+                                        object
+                                        (make-instance 'osc-bundle :onset time-ms
+                                                       :messages (process-osc-bundle (osc-decode msg) nil)))
+                                       (report-modifications self)
+                                       (update-timeline-editor self)
+                                       (editor-invalidate-views self))))
+                               ))
+
+    (when (record-process self)
+      (om-print (format nil "Start OSC receive server on ~A ~D" host port) "DATA-STREAM")
+      (record-process self))))
+
+
+(defmethod editor-record-off ((self data-stream-editor))
+  (when (record-process self)
+    (om-print (format nil "Stop ~A" (om-process-name (record-process self))) "DATA-STREAM")
+
+    (om-stop-udp-server (record-process self))))
+
+
+(defmethod editor-record-on :around ((self data-stream-editor))
+  (setf (pushed (rec-button self)) t)
+  (editor-invalidate-views self)
+  (call-next-method)
+  t)
+
+(defmethod editor-record-off :around ((self data-stream-editor))
+  (setf (pushed (rec-button self)) nil)
+  (editor-invalidate-views self)
+  (call-next-method)
+  t)
