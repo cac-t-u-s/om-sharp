@@ -530,19 +530,22 @@
         (let ((frames (data-stream-get-frames (object-value editor)))
               (fp (frame-at-pos editor position)))
           (when fp
-            (if (om-command-key-p)
-                ;;; show tooltip for the frame under the  mouse cursor
-                (om-show-tooltip self (data-frame-text-description (nth fp frames))
-                                 (omp (- (om-point-x position) 60) 20)
-                                 0)
+            (let ((frame (nth fp frames)))
+              (if (om-command-key-p)
+                  ;;; show tooltip for the frame under the  mouse cursor
+                  (om-show-tooltip self (data-frame-text-description frame)
+                                   (omp (- (om-point-x position) 60) 20)
+                                   0)
 
-              ;;; show reisize cursor if by the end of a resizable-frame
-              (let ((mouse-x (om-point-x position))
-                    (frame-end-time-x (time-to-pixel self (item-end-time (nth fp frames)))))
-                (if (and (<= mouse-x frame-end-time-x) (>= mouse-x (- frame-end-time-x 5)))
-                    (om-set-view-cursor self (om-get-cursor :h-size))
-                  (om-set-view-cursor self nil)))
-              ))
+                ;;; show reisize cursor if by the end of a resizable-frame
+
+                (when (resizable-frame frame)
+                  (let ((mouse-x (om-point-x position))
+                        (frame-end-time-x (time-to-pixel self (item-end-time frame))))
+                    (if (and (<= mouse-x frame-end-time-x) (>= mouse-x (- frame-end-time-x 5)))
+                        (om-set-view-cursor self (om-get-cursor :h-size))
+                      (om-set-view-cursor self nil)))
+                  ))))
           )))))
 
 
