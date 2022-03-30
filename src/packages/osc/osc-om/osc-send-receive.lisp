@@ -34,7 +34,7 @@
 (defun osc-send-bundle (port host bundle &optional time-tag)
   (om-send-udp port host (osc::encode-bundle bundle (or time-tag :now))))
 
-(defun process-osc-bundle (bundle patch)
+(defun process-osc-bundle (bundle msg-processing-fun)
   (let ((tt nil))
     (if (or (and (arrayp (car bundle)) (not (stringp (car bundle))))
             (consp (car bundle)))
@@ -43,11 +43,11 @@
               unless (and (arrayp item) (not (stringp item)) (setf tt item)) ;;; THIS IS THE TIME TAG
               collect
               (if (and (consp item) (consp (car item))) ;;; THE FIRST ELEMENT OF THE MESSAGE IS ANOTHER MESSAGE
-                  (process-osc-bundle (if tt (cons tt (car item)) (car item)) patch)
-                (process-message item patch))
+                  (process-osc-bundle (if tt (cons tt (car item)) (car item)) msg-processing-fun)
+                (process-message item msg-processing-fun))
               )
       ;;; NOT OSC
-      (list (process-message bundle patch)))))
+      (list (process-message bundle msg-processing-fun)))))
 
 
 
