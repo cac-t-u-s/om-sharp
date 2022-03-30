@@ -26,7 +26,7 @@
     message))
 
 ;; ((host port server) (host port server) ...)
-(defvar *running-udp-servers* nil)
+(defparameter *running-udp-servers* nil)
 
 
 (defun om-start-udp-server (port host function &optional name)
