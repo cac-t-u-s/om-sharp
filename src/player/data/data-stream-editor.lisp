@@ -169,6 +169,12 @@
     ruler))
 
 
+(defmethod reinit-y-ranges-from-ruler ((editor data-stream-editor) ruler)
+  (set-ruler-range ruler
+                   (get-default-edit-param (object editor) :y1)
+                   (get-default-edit-param (object editor) :y2)))
+
+
 (defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
 
 
