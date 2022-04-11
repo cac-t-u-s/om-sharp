@@ -57,7 +57,7 @@
 
 (defmethod* osc-send (bundle host port)
   :icon 'osc
-  :initvals '(("/test" 0) "127.0.0.1" 3000)
+  :initvals '(("/test" 0) nil nil)
   :indoc '("OSC message" "IP address" "port number")
   :doc "Sends the an OSC message pf bundle (<bundle>) to the port <port> of <host>.
 
@@ -66,15 +66,20 @@ See http://opensoundcontrol.org/introduction-osc
 
 <bundle> can also contain a list of messages (list of lists) to be sent simultaneously, or an object of type OSC-BUNDLE.
 
-Note: default host 127.0.0.1 is the 'localhost', i.e. the message is sent to the local computer address.
+Notes:
+- If NIL, <host> and <port> values are taken from the OSC preferences.
+- 127.0.0.1 is the 'localhost', i.e. the message is sent to the local computer.
 "
-  (osc-send-bundle port host bundle))
+  (osc-send-bundle
+   (or port (get-pref-value :osc :out-port))
+   (or host (get-pref-value :osc :out-host))
+   bundle))
 
 
 (defmethod* osc-receive (port msg-processing &optional host)
   :icon 'osc
   :indoc '("port number" "incoming message processing patch" "an IP address")
-  :initvals '(3000 nil nil)
+  :initvals '(nil nil nil)
   :doc "A local server receiving OSC.
 
 Use 'R' to set the box reactive and activate/deactivate the server.
@@ -83,6 +88,8 @@ When the server is on, OSC-RECEIVE waits for OSC messages on port <port> and cal
 
 <msg-processing> must be a patch in mode 'lambda' with 1 input corresponding to an OSC message.
 This patch should handle and process the incoming messages.
+
+- If NIL <port> value is taken from the OSC preferences.
 
 By default the server listen to ANY addresses (localhost and IP address). Set <host> to listen only to the messages sent from the network to the speficic address.
 "
@@ -100,7 +107,7 @@ By default the server listen to ANY addresses (localhost and IP address). Set <h
 ;;; OSC-RECEIVE PROCESSES ALL THE MESSAGES IN THE BUNDLE ONE BY ONE
 
 (defun osc-start-receive (box args)
-  (let ((port (car args))
+  (let ((port (or (car args) (get-pref-value :osc :in-port)))
         (fun (cadr args))
         (host (caddr args)))
     (if (and port (numberp port))
