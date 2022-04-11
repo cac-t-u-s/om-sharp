@@ -24,6 +24,14 @@
 
 (defmethod* osc-route ((message list) &rest osc-paths)
   :icon 'osc
+  :doc"OSC-ROUTE sets its outputs' values to <input> when <input> matches he OSC address of the corresponding inputs, or to NIL otherwise.
+
+If the box output connections are reactive, reactive notifications will be send for matching/non-NIL outputs.
+
+The input(s) left with :default will output value only if no addres matches.
+
+The first output always outputs <input>."
+
   (values-list
    (copy-list (cons
                message
