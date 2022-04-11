@@ -892,7 +892,7 @@
 (defmethod editor-record-on ((self data-stream-editor))
 
   (let ((object (get-obj-to-play self))
-        (port 3000)
+        (port (get-pref-value :osc :in-port))
         (host nil))
 
     (setf (record-process self)
