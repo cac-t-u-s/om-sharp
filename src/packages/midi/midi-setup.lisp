@@ -46,7 +46,7 @@
 
 (add-preference-module :midi "MIDI")
 
-(add-preference-section :midi "In/Out Ports")
+(add-preference-section :midi "MIDI In/Out")
 
 (add-preference :midi :ports "Configuration" :action 'midi-setup)
 
@@ -64,7 +64,7 @@
                 "Redirect incoming MIDI events to the 'thru' port")
 
 
-(add-preference-section :midi "Channel colors")
+(add-preference-section :midi "MIDI Channel colors")
 
 
 (let ((colors (loop for h from 0 to 1 by (/ 1 32) collect (om-make-color-hsv h .8 .78))))
