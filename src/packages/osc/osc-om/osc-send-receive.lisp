@@ -118,7 +118,8 @@ By default the server listen to ANY addresses (localhost and IP address). Set <h
                                    (delivered (process-osc-bundle message fun)))
                               (when delivered
                                 (set-delivered-value box (reverse delivered))))
-                            nil))))
+                            nil)
+                        nil box)))
           (when process
             (om-print (format nil "Start OSC receive server on ~A ~D" host port))
             process))

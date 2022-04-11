@@ -28,19 +28,21 @@
 ;; ((host port server) (host port server) ...)
 (defparameter *running-udp-servers* nil)
 
+(defmethod notify-udp-server-stopped ((self t) server) nil)
 
-(defun om-start-udp-server (port host function &optional name)
+(defun om-start-udp-server (port host function &optional name owner)
   (let ((srv (find (list host port) *running-udp-servers*
                    :test #'(lambda (h-p s) (and (string-equal (car h-p) (car s))
                                                 (= (cadr h-p) (cadr s)))))))
     (when (and srv (om-y-or-n-dialog (format NIL "Another UDP server is running on port ~D.~%Stop this server ?" port)))
+      (notify-udp-server-stopped (fourth srv) (third srv))
       (om-stop-udp-server (third srv))
       (setf srv nil))
     (unless srv
       (let ((server (comm+:start-udp-server :address host :service port :function function
                                             :process-name (or name (format nil "UDP receive server on ~S ~S" host port)))))
         (when server
-          (push (list host port server) *running-udp-servers*)
+          (push (list host port server owner) *running-udp-servers*)
           server)))))
 
 (defun om-stop-udp-server (server)
@@ -74,6 +76,10 @@
 
   (when (frame self)
     (om-invalidate-view (frame self))))
+
+
+(defmethod notify-udp-server-stopped ((self OMReceiveBox) server)
+  (stop-box self))
 
 
 (defmethod start-box ((self OMReceiveBox))
@@ -179,7 +185,8 @@ By default the server is only local. Set <host> to your current IP address to al
                                    (let ((delivered (process-message msg fun)))
                                      (set-delivered-value box delivered))
                                    nil
-                                   )))
+                                   )
+                               nil box))
       (om-beep-msg (format nil "Error - bad port number for UDP-RECEIVE: ~A" port))
       )))
 

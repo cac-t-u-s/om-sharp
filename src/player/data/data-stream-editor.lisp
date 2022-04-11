@@ -907,7 +907,7 @@
                                        (report-modifications self)
                                        (update-timeline-editor self)
                                        (editor-invalidate-views self))))
-                               ))
+                               nil self))
 
     (when (record-process self)
       (om-print (format nil "Start OSC receive server on ~A ~D" host port) "DATA-STREAM")
@@ -919,6 +919,10 @@
     (om-print (format nil "Stop ~A" (om-process-name (record-process self))) "DATA-STREAM")
 
     (om-stop-udp-server (record-process self))))
+
+
+(defmethod notify-udp-server-stopped ((self data-stream-editor) server)
+  (editor-record-off self))
 
 
 (defmethod editor-record-on :around ((self data-stream-editor))
