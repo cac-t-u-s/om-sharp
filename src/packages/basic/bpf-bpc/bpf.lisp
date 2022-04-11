@@ -111,9 +111,9 @@
   (osc-send (cons address bpf-point) host port))
 
 (defmethod arguments-for-action ((fun (eql 'send-as-osc)))
-  '((:string address "/bpf-point")
-    (:string host "localhost")
-    (:int port 3000)))
+  `((:string address "/bpf-point")
+    (:string host ,(get-pref-value :osc :out-host))
+    (:int port ,(get-pref-value :osc :out-port))))
 
 (defmethod get-def-action-list ((object BPF))
   '(print send-as-osc midi-controller))

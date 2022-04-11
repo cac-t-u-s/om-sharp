@@ -341,9 +341,9 @@ The values in <x-point> are not necesarily increasing (contrary to BPF objects).
 ;;;=========================================
 
 (defmethod arguments-for-action ((fun (eql 'send-xy-as-osc)))
-  '((:string address "/point/xy")
-    (:string host "localhost")
-    (:int port 3000)))
+  `((:string address "/point/xy")
+    (:string host ,(get-pref-value :osc :out-host))
+    (:int port ,(get-pref-value :osc :out-port))))
 
 (defun send-xy-as-osc (point &optional (address "/point/xy") (host "localhost") (port 3000))
   (osc-send (list address (om-point-x point) (om-point-y point)) host port))

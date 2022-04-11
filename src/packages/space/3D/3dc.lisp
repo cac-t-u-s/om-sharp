@@ -437,9 +437,9 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 ;;;============================
 
 (defmethod arguments-for-action ((fun (eql 'send-xyz-as-osc)))
-  '((:string address "/point/xyz")
-    (:string host "localhost")
-    (:int port 3000)
+  `((:string address "/point/xyz")
+    (:string host ,(get-pref-value :osc :out-host))
+    (:int port ,(get-pref-value :osc :out-port))
     (:int id 1)
     ))
 
