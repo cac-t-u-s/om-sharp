@@ -172,7 +172,11 @@ OSC messages are formatted as simple Lisp lists."
   (length (flat (messages self))))
 
 (defmethod get-frame-action ((self osc-bundle))
-  #'(lambda () (osc-send self "localhost" 3000)))
+  #'(lambda ()
+      (osc-send
+       self
+       (get-pref-value :osc :out-host)
+       (get-pref-value :osc :out-port))))
 
 (defmethod get-frame-color ((self osc-bundle))
   (let ((colorvals (find-osc-values self "/color")))
