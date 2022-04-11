@@ -26,6 +26,8 @@
 (compile&load (decode-local-path "osc-om/osc-struct"))
 (compile&load (decode-local-path "osc-om/osc-send-receive"))
 (compile&load (decode-local-path "osc-om/osc-route"))
+(compile&load (decode-local-path "osc-om/osc-preferences"))
+
 
 (omNG-make-package
  "OSC"
