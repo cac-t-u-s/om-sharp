@@ -22,6 +22,14 @@
    (action-fun :initform nil :accessor action-fun)  ;; actual (hidden lambda fun)
    ))
 
+
+; ((:type name def-val) ...)
+(defmethod arguments-for-action ((fun t)) nil)
+
+(defmethod argument-values-for-action ((fun t))
+  (loop for arg in (arguments-for-action fun)
+        collect (nth 2 arg)))
+
 (defmethod set-action ((self object-with-action) action)
   (cond ((functionp action)
          (setf (action-fun self) action)
@@ -34,8 +42,7 @@
          (setf (action-fun self) #'(lambda (x) (apply (car action) (cons x (cdr action))))
                (action self) action))
         ((and (symbolp action) (fboundp action))
-         (setf (action-fun self) action
-               (action self) action))
+         (set-action self (cons action (argument-values-for-action action))))
         ((equal action :internal-lambda)
          (setf (action self) action)
          ;;; here we can do nothing more but hope there is a good lambda in action-fun

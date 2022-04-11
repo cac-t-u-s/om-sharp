@@ -615,7 +615,6 @@
 ;;;====================================
 
 (defmethod get-def-action-list ((object t)) nil)
-(defmethod arguments-for-action ((fun t)) nil)
 
 (defun get-arguments-dialog (arglist &optional (vals nil vals-supplied-p))
 
