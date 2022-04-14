@@ -95,7 +95,6 @@
     ))
 
 
-
 ;;;========================
 ;;; BEAMING / GROUPS
 ;;;========================
@@ -145,6 +144,7 @@
      (note-strict-beams (/ 1 bef))
      (denominator (/ bef den)))))
 
+
 (defun note-strict-beams (val)
   (cond
    ((or (= val 1/4) (= val 1/2) (>= val 1)) 0)
@@ -157,6 +157,7 @@
    ((= val 1/512) 7)
    ((is-binaire? val) (round (- (log (denominator val) 2) 2)))
    (t (find-group-symbol val))))
+
 
 ;;; gives number of beams for a given division
 ;;; might return a list if the denominator is not a power of two
@@ -190,6 +191,7 @@
 (defmethod beam-num ((self score-element) dur)
   (get-number-of-beams dur))
 
+
 ;;; gets the minimum number of beams in a group
 (defmethod beam-num ((self group) dur)
 
@@ -205,10 +207,12 @@
 
 ;;; Get the depth of num/dem line in a group
 (defmethod calcule-chiff-level ((self t)) 0)
+
 (defmethod calcule-chiff-level ((self group))
   (+ (if (numdenom self) 1 0)
      (loop for item in (inside self)
            maximize (calcule-chiff-level item))))
+
 
 ;;; just for debug
 (defmethod draw-group-rect ((object group) view tempo level)
@@ -219,9 +223,7 @@
                    (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
                 (- (h view) (* level 10))
                 :color (om-random-color .5)
-                :fill t)
-  )
-
+                :fill t))
 
 
 (defun get-mean-pitch (group)
@@ -230,17 +232,16 @@
          (/ (apply #'+ pitches) (length pitches)))
     ))
 
+
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-rhytmic-element ((object group) tempo param-obj view
                                  &key font-size (x-shift 0) (y-shift 0) (level 1)
                                  position beam-info beat-unit rest-line
                                  selection time-function)
-
   (declare (ignore position))
 
   ;(print (list "=========="))
   ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
-
 
   (let* ((staff (get-edit-param param-obj :staff))
          (unit (font-size-to-unit font-size))
@@ -267,18 +268,15 @@
                      ))
 
          (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
-         (group-beams (arithm-ser 1 n-beams 1))
-
-         )
+         (group-beams (arithm-ser 1 n-beams 1)))
 
     (om-with-fg-color (if (find object selection) *score-selection-color* nil)
-
 
     ;(print (list group-beams beams-from-parent))
     ;(draw-group-rect object view tempo level)
       (when (list-subtypep (inside object) 'group)
         ;;; here we allow subgroups to get grouped individiually
-        ;;; ..but is that always correct ?
+        ;;; (is that always correct?)
         (setf group-beams (list (car group-beams))))
 
       ;;; local variables for the loop
@@ -300,12 +298,9 @@
                         (n-beams-in-previous (and prev (beam-num prev (* (symbolic-dur prev) group-ratio beat-unit))))
                         (n-beams-in-next (and next (beam-num next (* (symbolic-dur next) group-ratio beat-unit)))))
 
-                ;(print (list element n-beams-in-current n-beams-in-previous n-beams-in-next n-beams))
-
                   (when  (> n-beams-in-current sub-group-beams)
                     ;;; first of a new "sub-group" (same number of sub-beams)
                     ;;; will draw additional single-beams on the right if any
-
                     (setq sub-group-beams n-beams-in-current)
 
                     ;;; if there's more beams on the right than on the left, individual beam will be towards right
@@ -315,7 +310,6 @@
                                (> n-beams-in-next n-beams-in-previous))
                       (setq i 0))
                     )
-
 
                   (when (> n-beams-in-current n-beams) ;;; more beams than the current "real" container group
 
@@ -340,8 +334,7 @@
                                     (beam-info-direction beam-pos-and-dir) ;; the beam direction
                                     beams-drawn-in-sub-group  ;; the beam numbers
                                     y-shift staff font-size)
-                        ))
-                    )
+                        )))
                   ))
 
               (draw-rhytmic-element element tempo param-obj view
@@ -356,7 +349,6 @@
                                                  (setf (beam-info-beams beam-pos-and-dir)
                                                        (append (or group-beams '(0)) beams-drawn-in-sub-group))
                                                  beam-pos-and-dir)
-
                                     :position i
                                     :beat-unit (* beat-unit group-ratio)
                                     :rest-line (or rest-line (let ((mean-pitch (get-mean-pitch object)))
@@ -366,7 +358,6 @@
                                     :time-function time-function
                                     )
               ))
-
 
       ;;; sub-groups or chords wont have to draw these beams
       (draw-beams pix-beg pix-end
@@ -401,8 +392,7 @@
 
         ; (draw-b-box object)
         )
-      )
-    ))
+      )))
 
 
 #|
@@ -509,8 +499,6 @@
       bbox?)))
 
 
-
-
 ;;;===================
 ;;; CONTINUATION-CHORD
 ;;;===================
@@ -612,8 +600,7 @@
       (when create-bboxes
         (setf (b-box object) bbox?))
 
-      )
-    ))
+      )))
 
 
 
