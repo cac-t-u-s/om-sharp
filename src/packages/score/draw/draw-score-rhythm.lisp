@@ -274,7 +274,7 @@
 
     ;(print (list group-beams beams-from-parent))
     ;(draw-group-rect object view tempo level)
-      (when (list-subtypep (inside object) 'group)
+      (when (and group-beams (list-subtypep (inside object) 'group))
         ;;; here we allow subgroups to get grouped individiually
         ;;; (is that always correct?)
         (setf group-beams (list (car group-beams))))
