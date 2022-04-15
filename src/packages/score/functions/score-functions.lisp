@@ -247,6 +247,8 @@ POLY: each voice is concatenated, regardless of the global duration.
   :doc "Merges to objects to a single object of the same type.
 
 If types are different, uses the type of <obj1>.
+
+With VOICE objects, uses the tempo and metrics of <obj1>.
 "
 
   (let ((new-cs (make-instance 'chord-seq)))
@@ -256,6 +258,17 @@ If types are different, uses the type of <obj1>.
     (align-chords-in-sequence new-cs 0)
 
     (objfromobjs new-cs (make-instance (type-of obj1)))))
+
+
+(defmethod* merger ((obj1 voice) (obj2 chord-seq))
+
+  (let ((new-cs (make-instance 'chord-seq)))
+
+    (set-chords new-cs (sort (append (get-chords obj1) (get-chords obj2)) #'< :key #'onset))
+
+    (align-chords-in-sequence new-cs 0)
+
+    (omquantify new-cs (tempo obj1) (get-metrics obj1) 16)))
 
 
 (defmethod* merger ((obj1 chord) (obj2 chord))
@@ -268,7 +281,6 @@ If types are different, uses the type of <obj1>.
     new-chord))
 
 
-;;; TODO: VERSION FOR VOICE
 
 
 ;--------------------
