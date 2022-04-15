@@ -107,6 +107,10 @@
 "))
 
 
+;;; For backward-compatibility (patches)
+(defclass* data-stream (data-track) ())
+(defmethod update-reference ((ref (eql 'data-stream))) 'data-track)
+
 ;;; called after initialize-instance in OM-context
 (defmethod om-init-instance ((self data-track) &optional initargs)
 
