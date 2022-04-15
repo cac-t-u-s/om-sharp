@@ -29,13 +29,13 @@
     (:x1 0) (:x2 nil)
     (:y1 0) (:y2 100)))
 
-(defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view)
+(defclass data-track-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view)
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)
    (left-view :accessor left-view :initform nil :initarg :left-view))
   (:default-initargs
    :input-model (om-input-model :touch-pan t)))
 
-(defmethod editor-view-class ((self data-track-editor)) 'stream-panel)
+(defmethod editor-view-class ((self data-track-editor)) 'data-track-panel)
 (defmethod object-has-editor ((self internal-data-track)) t)
 (defmethod get-editor-class ((self internal-data-track)) 'data-track-editor)
 (defmethod get-obj-to-play ((self data-track-editor)) (object-value self))
@@ -253,7 +253,7 @@
     ))
 
 
-(defmethod om-view-scrolled ((self stream-panel) pos)
+(defmethod om-view-scrolled ((self data-track-panel) pos)
   (om-set-scroll-position (left-view self) (omp 0 (cadr pos))))
 
 
@@ -442,9 +442,9 @@
 ;;; EDITOR FUNCTIONS
 ;;;=======================
 
-(defmethod draw-background ((editor data-track-editor) (view stream-panel)) nil)
+(defmethod draw-background ((editor data-track-editor) (view data-track-panel)) nil)
 
-(defmethod om-draw-contents ((self stream-panel))
+(defmethod om-draw-contents ((self data-track-panel))
   (let* ((editor (editor self))
          (stream (if (multi-display-p editor)
                      (nth (stream-id self) (multi-obj-list editor))
@@ -468,7 +468,7 @@
       )))
 
 
-(defmethod om-draw-contents :after ((self stream-panel))
+(defmethod om-draw-contents :after ((self data-track-panel))
   (when (and (multi-display-p (editor self))
              (equal self (active-panel (editor self))))
     (om-draw-rect 0 0 (w self) (h self) :fill nil
@@ -518,18 +518,18 @@
 (defmethod resizable-frame ((self data-frame)) nil)
 
 
-(defmethod update-view-from-ruler ((self x-ruler-view) (view stream-panel))
+(defmethod update-view-from-ruler ((self x-ruler-view) (view data-track-panel))
   (call-next-method)
   (editor-set-edit-param (editor view) :x1 (x1 self))
   (editor-set-edit-param (editor view) :x2 (x2 self)))
 
-(defmethod update-view-from-ruler ((self y-ruler-view) (view stream-panel))
+(defmethod update-view-from-ruler ((self y-ruler-view) (view data-track-panel))
   (call-next-method)
   (editor-set-edit-param (editor view) :y1 (y1 self))
   (editor-set-edit-param (editor view) :y2 (y2 self)))
 
 
-(defmethod om-view-mouse-motion-handler ((self stream-panel) position)
+(defmethod om-view-mouse-motion-handler ((self data-track-panel) position)
   (let ((editor (editor self)))
 
     (when (object-value editor)
@@ -564,7 +564,7 @@
           )))))
 
 
-(defmethod om-view-click-handler :around ((self stream-panel) position)
+(defmethod om-view-click-handler :around ((self data-track-panel) position)
   (let ((editor (editor self)))
     (when (and (container-editor editor)
                (not (equal self (active-panel editor))))
@@ -573,7 +573,7 @@
     ))
 
 
-(defmethod om-view-click-handler ((self stream-panel) position)
+(defmethod om-view-click-handler ((self data-track-panel) position)
 
   (let* ((editor (editor self))
          (object (object-value editor)))
@@ -862,21 +862,21 @@
 ;;; TOUCH GESTURES
 ;;;=========================
 
-(defmethod om-view-pan-handler ((self stream-panel) position dx dy)
+(defmethod om-view-pan-handler ((self data-track-panel) position dx dy)
   (let ((fact 10))
     (move-rulers self :dx (* fact dx) :dy (* fact dy))))
 
 
-(defmethod om-view-zoom-handler ((self stream-panel) position zoom)
+(defmethod om-view-zoom-handler ((self data-track-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
 
 
-(defmethod move-rulers ((self stream-panel) &key (dx 0) (dy 0))
+(defmethod move-rulers ((self data-track-panel) &key (dx 0) (dy 0))
   (declare (ignore dy)) ;; no y-ruler
   (shift-time-ruler (get-g-component (editor self) :x-ruler) dx))
 
 ;;; no y-ruler : zoom just in x
-(defmethod zoom-rulers ((panel stream-panel) &key (dx 0.1) (dy 0.1) center)
+(defmethod zoom-rulers ((panel data-track-panel) &key (dx 0.1) (dy 0.1) center)
   (declare (ignore dy)) ;; no y-ruler
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
     (when (and x-ruler (ruler-zoom-? x-ruler))

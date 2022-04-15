@@ -25,7 +25,7 @@
 
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
-(defclass chord-seq-panel (score-view stream-panel) ()
+(defclass chord-seq-panel (score-view data-track-panel) ()
   (:default-initargs :keys nil :margin-l nil :margin-r 1))
 
 (defmethod editor-view-class ((self chord-seq-editor)) 'chord-seq-panel)
@@ -142,7 +142,7 @@
   (om-invalidate-view (left-view view)))
 
 
-;;; just like stream-panel (not like score-view)
+;;; just like data-track-panel (not like score-view)
 (defmethod om-view-zoom-handler ((self chord-seq-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
 

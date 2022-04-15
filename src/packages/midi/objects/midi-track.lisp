@@ -432,7 +432,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
                  1 nil t))
 
 
-(defmethod draw-background ((editor midi-track-editor) (view stream-panel))
+(defmethod draw-background ((editor midi-track-editor) (view data-track-panel))
   (when (om-add-key-down)
     (draw-keyboard (- (om-point-x (om-mouse-position view)) 40)
                    0

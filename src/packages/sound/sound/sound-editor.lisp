@@ -21,7 +21,7 @@
 (defclass sound-editor (data-track-editor)
   ((cache-display-list :accessor cache-display-list :initform nil)))
 
-(defclass sound-panel (stream-panel) ())
+(defclass sound-panel (data-track-panel) ())
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
