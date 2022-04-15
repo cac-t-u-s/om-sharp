@@ -156,21 +156,22 @@
 
 (defmethod om-load-from-id ((id (eql :object)) data)
   (let* ((class-name (omng-load (find-value-in-kv-list data :class)))
-         (class (find-class class-name nil)))
+         (ref-class (or (update-reference class-name) class-name))
+         (class (find-class ref-class nil)))
     (if class
         (let ((slots (remove nil
                              (mapcar #'(lambda (slot)
                                          (if (find (car slot) (class-slots class)
                                                    :key #'(lambda (slotdef) (car (slot-definition-initargs slotdef))))
                                              (list (car slot) (omng-load (cadr slot)))
-                                           (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase class-name))))
+                                           (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase ref-class))))
                                      (find-value-in-kv-list data :slots))))
               (more-slots (mapcar #'(lambda (slot)
                                       (car slot)
                                       (list (car slot) (omng-load (cadr slot))))
                                   (find-value-in-kv-list data :add-slots))))
 
-          (let ((object (apply 'make-instance (cons class-name (reduce 'append slots)))))
+          (let ((object (apply 'make-instance (cons ref-class (reduce 'append slots)))))
 
             (loop for slot in more-slots
                   ;; when (slot-exists-p object (car slot))
@@ -180,7 +181,7 @@
 
             (om-init-instance object nil)
             ))
-      (om-beep-msg "LOAD: Class ~A not found !!" class-name)
+      (om-beep-msg "LOAD: Class ~A not found !!" ref-class)
       )))
 
 ; (omng-save (make-instance 'bpf))
@@ -755,7 +756,8 @@
 (defmethod om-load-from-id ((id (eql :box)) data)
   ; (print (list "load BOX" (find-value-in-kv-list data :type)))
   (let* ((type (find-value-in-kv-list data :type))
-         (reference (omng-load (find-value-in-kv-list data :reference)))
+         (loaded-reference (omng-load (find-value-in-kv-list data :reference)))
+         (reference (or (update-reference loaded-reference) loaded-reference))
          (x (find-value-in-kv-list data :x))
          (y (find-value-in-kv-list data :y))
          (w (find-value-in-kv-list data :w))
