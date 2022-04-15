@@ -255,7 +255,7 @@ OSC messages are formatted as simple Lisp lists."
                                                            (string-until-char (delete-spaces line) " ")
                                                          (cons address
                                                                (when data
-                                                                 (om-read-list-from-string data))))))))
+                                                                 (om-read-list-from-string data 0 t))))))))
                                     (setf (messages oscb) messages)
                                     (report-modifications self)))
                  )))))

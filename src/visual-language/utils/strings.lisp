@@ -22,11 +22,13 @@
 
 (defun string+ (&rest strings) (eval `(concatenate 'string ,.strings)))
 
-(defun om-read-list-from-string (string &optional (pos 0))
+(defun om-read-list-from-string (string &optional (pos 0) (ignore-errors nil))
   (let ((str2 (delete-lisp-comments string)))
 
     (block nil
-      (handler-bind ((error #'(lambda (e) (om-beep-msg "read error: ~A in ~s" (type-of e) str2)
+      (handler-bind ((error #'(lambda (e)
+                                (unless ignore-errors
+                                  (om-beep-msg "read error: ~A in ~s" (type-of e) str2))
                                 (return nil))))
 
         (multiple-value-bind (val pos)
@@ -34,7 +36,7 @@
 
           (if (eql val :eof)
               nil
-            (cons val (om-read-list-from-string str2 pos))))
+            (cons val (om-read-list-from-string str2 pos ignore-errors))))
         ))))
 
 
