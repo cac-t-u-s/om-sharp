@@ -104,7 +104,7 @@
           (dotimes (smp (n-samples self))
             (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
                   (cffi::mem-aref (cffi::mem-aref self-ptr :pointer ch) :float smp))))
-        (setf (buffer snd) (make-om-sound-buffer-gc :ptr new-ptr :nch (n-channels self)))
+        (setf (buffer snd) (make-om-sound-buffer-gc :ptr new-ptr :nch (n-channels self) :size (n-samples self)))
         ))
 
     snd))
