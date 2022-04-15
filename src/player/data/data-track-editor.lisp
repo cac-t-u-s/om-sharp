@@ -23,6 +23,9 @@
   ((timeline-editor :accessor timeline-editor :initform nil)
    (record-process :accessor record-process :initform nil)))
 
+;;; compatibility (editors in libraries inheriting from data-stream-editor)
+(defclass* data-stream-editor (data-track-editor) ())
+
 (defmethod object-default-edition-params ((self data-track))
   '((:display-mode :blocks)
     (:grid t)
