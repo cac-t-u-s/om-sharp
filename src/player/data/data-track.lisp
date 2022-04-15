@@ -43,7 +43,7 @@
 (defclass* action-bundle (data-frame)
   ((onset :accessor onset :initarg :onset :initform 0 :documentation "date/time of the object")
    (actions :accessor actions :initarg :actions :initform nil :documentation "list of functions or lambdas"))
-  (:documentation "A container for a set of actions to be performed at a given time in a DATA-STREAM."))
+  (:documentation "A container for a set of actions to be performed at a given time in a DATA-TRACK."))
 
 (defmethod get-frame-action ((self action-bundle))
   #'(lambda () (mapcar 'funcall (list! (actions self)))))
@@ -56,7 +56,7 @@
 ;;;======================================
 ;;; INTERNAL CLASS
 ;;;======================================
-(defclass internal-data-stream (named-object time-sequence schedulable-object)
+(defclass internal-data-track (named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'action-bundle)
    (frames :initform nil :documentation "a list of timed data chunks")
    (locked :initform nil :accessor locked)
@@ -64,32 +64,32 @@
 
 
 ;; redefine for other slots
-(defmethod data-stream-frames-slot ((self internal-data-stream)) 'frames)
+(defmethod data-track-frames-slot ((self internal-data-track)) 'frames)
 
-(defmethod frames ((self internal-data-stream)) (slot-value self (data-stream-frames-slot self)))
-(defmethod (setf frames) (frames (self internal-data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
+(defmethod frames ((self internal-data-track)) (slot-value self (data-track-frames-slot self)))
+(defmethod (setf frames) (frames (self internal-data-track)) (setf (slot-value self (data-track-frames-slot self)) frames))
 
-(defmethod data-stream-get-frames ((self internal-data-stream)) (frames self))
-(defmethod data-stream-set-frames ((self internal-data-stream) frames)
+(defmethod data-track-get-frames ((self internal-data-track)) (frames self))
+(defmethod data-track-set-frames ((self internal-data-track) frames)
   (setf (frames self) frames)
   (time-sequence-update-internal-times self)
   (time-sequence-update-obj-dur self))
 
 ;;; TIME-SEQUENCE API (called by timeline editor etc.)
-(defmethod time-sequence-get-timed-item-list ((self internal-data-stream))
-  (data-stream-get-frames self))
+(defmethod time-sequence-get-timed-item-list ((self internal-data-track))
+  (data-track-get-frames self))
 
-(defmethod time-sequence-set-timed-item-list ((self internal-data-stream) list)
-  (data-stream-set-frames self list))
+(defmethod time-sequence-set-timed-item-list ((self internal-data-track) list)
+  (data-track-set-frames self list))
 
-(defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
+(defmethod time-sequence-make-timed-item-at ((self internal-data-track) at)
   (make-instance (default-frame-type self) :onset at))
 
 
-(defmethod lock-edit ((self internal-data-stream))
+(defmethod lock-edit ((self internal-data-track))
   (setf (locked self) t))
 
-(defmethod unlock-edit ((self internal-data-stream))
+(defmethod unlock-edit ((self internal-data-track))
   (setf (locked self) nil))
 
 ;;;======================================
@@ -97,18 +97,18 @@
 ;;;======================================
 
 ;;; redefines the slots as :initargs
-(defclass* data-stream (internal-data-stream named-object time-sequence schedulable-object)
+(defclass* data-track (internal-data-track named-object time-sequence schedulable-object)
   ((frames :initarg :frames :initform nil :documentation "a list of timed data chunks"))
   (:documentation "A container and editor to organize and play data in time.
 
 <frames> can be a list of any sub-type of DATA-FRAME, such as: ACTION-BUNDLE, OSC-BUNDLE, SDIFFRAME, MIDIEVENT/MIDI-NOTE.
 
-<self> can be a symbol designating one of these types to create an empty DATA-STREAM of this type.
+<self> can be a symbol designating one of these types to create an empty DATA-TRACK of this type.
 "))
 
 
 ;;; called after initialize-instance in OM-context
-(defmethod om-init-instance ((self data-stream) &optional initargs)
+(defmethod om-init-instance ((self data-track) &optional initargs)
 
   (let ((frames (find-value-in-kv-list initargs :frames)))
 
@@ -123,24 +123,24 @@
   (call-next-method))
 
 
-(defmethod objFromObjs ((model symbol) (target data-stream))
+(defmethod objFromObjs ((model symbol) (target data-track))
   (if (subtypep model 'data-frame)
       (make-instance (type-of target) :default-frame-type model)
     (om-beep-msg "Unrecognized DATA-FRAME type: ~A" model)))
 
 
-(defmethod display-modes-for-object ((self data-stream))
+(defmethod display-modes-for-object ((self data-track))
   '(:mini-view :text :hidden))
 
 
-(defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
+(defmethod draw-mini-view ((self data-track) (box t) x y w h &optional time)
 
   (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
 
     (multiple-value-bind (fx ox)
         (conversion-factor-and-offset 0 (get-obj-dur self) w x)
 
-      (loop for frame in (data-stream-get-frames self) do
+      (loop for frame in (data-track-get-frames self) do
             (om-draw-rect (+ ox (* fx (or (date frame) 0)))
                           y 4 h
                           :fill t)
@@ -151,15 +151,15 @@
 ;;; OBJECT PROPERTIES
 ;;;======================================
 
-(defmethod play-obj? ((self internal-data-stream)) t)
+(defmethod play-obj? ((self internal-data-track)) t)
 
-(defmethod get-action-list-for-play ((object internal-data-stream) interval &optional parent)
+(defmethod get-action-list-for-play ((object internal-data-track) interval &optional parent)
   (mapcar
    #'(lambda (frame)
        (list (date frame)
              #'(lambda () (funcall (get-frame-action frame)))))
    (remove-if #'(lambda (date) (not (in-interval date interval :exclude-high-bound t)))
-              (data-stream-get-frames object)
+              (data-track-get-frames object)
               :key #'onset)))
 
 
@@ -167,26 +167,26 @@
 ;;; OMMETHOD FOR PATCHES
 ;;;======================================
 
-(defmethod* add-frame-in-data-stream ((self internal-data-stream) frame)
+(defmethod* add-frame-in-data-track ((self internal-data-track) frame)
   (time-sequence-insert-timed-item-and-update self frame)
   frame)
 
-(defmethod* add-frame-in-data-stream ((self t) frame)
-  (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
+(defmethod* add-frame-in-data-track ((self t) frame)
+  (om-beep-msg "ERROR: ~A is not a valid DATA-TRACK" self))
 
 ;;; when editing in mode "box" => allows updating editor
-(defmethod* add-frame-in-data-stream ((self omboxeditcall) frame)
+(defmethod* add-frame-in-data-track ((self omboxeditcall) frame)
   (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
   (update-after-eval self)
   frame)
 
-(defmethod* clear-data-stream ((self internal-data-stream))
-  (data-stream-set-frames self nil))
+(defmethod* clear-data-track ((self internal-data-track))
+  (data-track-set-frames self nil))
 
-(defmethod* clear-data-stream ((self t))
-  (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
+(defmethod* clear-data-track ((self t))
+  (om-beep-msg "ERROR: ~A is not a valid DATA-TRACK" self))
 
 ;;; when editing in mode "box" => allows updating editor
-(defmethod* clear-data-stream ((self omboxeditcall))
-  (clear-data-stream (get-box-value self))
+(defmethod* clear-data-track ((self omboxeditcall))
+  (clear-data-track (get-box-value self))
   (update-after-eval self))

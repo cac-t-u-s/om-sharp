@@ -20,7 +20,7 @@
 ;;; Specific actions for score-objects playback
 ;;;===================================
 
-;;; chord-seq/voice already play (from data-stream)
+;;; chord-seq/voice already play (from data-track)
 
 (defmethod play-obj? ((self multi-seq)) t)
 (defmethod play-obj? ((self chord)) t)

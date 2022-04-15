@@ -202,7 +202,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
     (reverse newframes)))
 
 
-;;; use in a DATA-STREAM
+;;; use in a DATA-TRACK
 (defmethod data-frame-text-description ((self SDIFFrame))
   (cons (string+ "SDIF " (frametype self))
         (flat (mapcar #'(lambda (m)

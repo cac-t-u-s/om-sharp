@@ -130,7 +130,7 @@
   (buffer self))
 
 
-(defclass* sound (om-internal-sound data-stream named-object)
+(defclass* sound (om-internal-sound data-track named-object)
   ((markers :initform nil :documentation "a list of markers (ms)")  ;; :accessor markers ;; => accessor is redefined below
    (file-pathname  :initform nil :documentation "a pathname")      ;; :accessor file-pathname ;; => accessor is redefined below
    (gain :accessor gain :initform 1.0 :documentation "gain controller [0.0-1.0]")
@@ -341,7 +341,7 @@ Press 'space' to play/stop the sound file.
 
 
 (defmethod markers-time ((self sound))
-  (loop for frame in (data-stream-get-frames self)
+  (loop for frame in (data-track-get-frames self)
         collect (date frame)))
 
 (defmethod get-time-markers ((self sound)) (markers-time self))
@@ -352,7 +352,7 @@ Press 'space' to play/stop the sound file.
 ;;; for the user markers are just numbers
 ;;; (in fact they are data-frames)
 (defmethod markers ((self sound))
-  (loop for frame in (data-stream-get-frames self)
+  (loop for frame in (data-track-get-frames self)
         collect (if (label frame)
                     (list (date frame) (label frame))
                   (date frame))
@@ -365,7 +365,7 @@ Press 'space' to play/stop the sound file.
     (om-print "Warning: float-formatted markers will be converted to milliseconds" "SOUND-BOX")
     (setf markers (sec->ms markers)))
 
-  (data-stream-set-frames
+  (data-track-set-frames
    self
    (loop for m in markers collect
          (cond ((numberp m)

@@ -148,7 +148,7 @@
 (defclass voice-ruler (time-ruler) ())
 
 ;;; a "fake" negative duration to allow for teh first time-signature to show
-(defmethod data-stream-get-x-ruler-vmin ((self voice-editor)) -1400)
+(defmethod data-track-get-x-ruler-vmin ((self voice-editor)) -1400)
 
 (defmethod set-ruler-range ((self voice-ruler) v1 v2)
   (let* ((panel (car (related-views self))))
@@ -173,8 +173,8 @@
                 :related-views (get-g-component editor :data-panel-list)
                 :size (omp nil 20)
                 :bg-color (om-def-color :light-gray)
-                :vmin (data-stream-get-x-ruler-vmin editor)
-                :x1 (data-stream-get-x-ruler-vmin editor)
+                :vmin (data-track-get-x-ruler-vmin editor)
+                :x1 (data-track-get-x-ruler-vmin editor)
                 :x2 dur))
 
 
@@ -435,9 +435,3 @@
                )
           ))
   )
-
-
-
-
-
-

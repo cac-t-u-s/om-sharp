@@ -20,7 +20,7 @@
 ;;; SDIFFILE is a pointer to a file on the disk
 ;;; It loads a filemap for quick inspect
 ;;; It can be edited to the extend of this map (streams, frames etc.)
-;;; Frames can be extracted to a data-stream for further manipulations
+;;; Frames can be extracted to a data-track for further manipulations
 ;;;================================================================================
 (defclass* SDIFFile (sdif-object)
   ((file-pathname :initform nil :accessor file-pathname)
@@ -908,5 +908,3 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 (defmethod* SDIF->text ((self SDIFFile) &optional out-filename)
   (SDIF->text (file-pathname self) out-filename))
-
-

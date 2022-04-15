@@ -69,7 +69,7 @@
   evt)
 
 ;;;============================
-;;; MIDI-EVENT AS A DATA-FRAME (see data-stream container)
+;;; MIDI-EVENT AS A DATA-FRAME (see data-track container)
 ;;; A high-lev / graphical class, representing a MIDI event from the MIDI-API
 ;;;============================
 
@@ -137,7 +137,7 @@ Can be extracted from MIDI or score objets, transformed, or just created from pa
               (ev-values self))
     )))
 
-;;; play in a DATA-STREAM
+;;; play in a DATA-TRACK
 (defmethod get-frame-action ((self midievent))
   #'(lambda () (send-midievent self)))
 

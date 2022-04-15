@@ -31,12 +31,12 @@
         "data/object-with-action"
         "data/time-sequence"
         "data/timeline-editor"
-        "data/data-stream"
-        "data/data-stream-editor"
+        "data/data-track"
+        "data/data-track-editor"
         ))
 
 
 (omNG-make-package
  "Data"
  :container-pack (get-subpackage *om-package-tree* "Visual Language")
- :classes '(data-stream))
+ :classes '(data-track))

@@ -23,7 +23,7 @@
 
 (defclass poly-editor-mixin () ())
 
-;;; !! The editor will inherit from data-stream-editor, although MULTI-SEQ in not a data-stream...
+;;; !! The editor will inherit from data-track-editor, although MULTI-SEQ in not a data-track...
 (defclass multi-seq-editor (poly-editor-mixin chord-seq-editor) ())
 (defmethod get-editor-class ((self multi-seq)) 'multi-seq-editor)
 
@@ -307,7 +307,7 @@
 
 (defmethod remove-from-obj ((self multi-seq) (item chord))
   (let ((cseq (find-if #'(lambda (cseq)
-                           (find item (data-stream-get-frames cseq)))
+                           (find item (data-track-get-frames cseq)))
                        (obj-list self)
                        )))
     (when cseq

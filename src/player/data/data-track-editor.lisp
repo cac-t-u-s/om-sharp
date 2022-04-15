@@ -19,11 +19,11 @@
 ;;; EDITOR
 ;;;======================================
 
-(defclass data-stream-editor (OMEditor play-editor-mixin undoable-editor-mixin multi-display-editor-mixin)
+(defclass data-track-editor (OMEditor play-editor-mixin undoable-editor-mixin multi-display-editor-mixin)
   ((timeline-editor :accessor timeline-editor :initform nil)
    (record-process :accessor record-process :initform nil)))
 
-(defmethod object-default-edition-params ((self data-stream))
+(defmethod object-default-edition-params ((self data-track))
   '((:display-mode :blocks)
     (:grid t)
     (:x1 0) (:x2 nil)
@@ -35,34 +35,34 @@
   (:default-initargs
    :input-model (om-input-model :touch-pan t)))
 
-(defmethod editor-view-class ((self data-stream-editor)) 'stream-panel)
-(defmethod object-has-editor ((self internal-data-stream)) t)
-(defmethod get-editor-class ((self internal-data-stream)) 'data-stream-editor)
-(defmethod get-obj-to-play ((self data-stream-editor)) (object-value self))
+(defmethod editor-view-class ((self data-track-editor)) 'stream-panel)
+(defmethod object-has-editor ((self internal-data-track)) t)
+(defmethod get-editor-class ((self internal-data-track)) 'data-track-editor)
+(defmethod get-obj-to-play ((self data-track-editor)) (object-value self))
 
-(defmethod get-object-slots-for-undo ((self internal-data-stream)) '(frames))
+(defmethod get-object-slots-for-undo ((self internal-data-track)) '(frames))
 
-(defmethod alllow-insert-point-from-timeline ((self data-stream-editor)) nil)
+(defmethod alllow-insert-point-from-timeline ((self data-track-editor)) nil)
 
 
 ;;; from play-editor-mixin
-(defmethod cursor-panes ((self data-stream-editor))
+(defmethod cursor-panes ((self data-track-editor))
   ;(append (get-g-component self :data-panel-list)
   (cons (active-panel self)
         (and (timeline-editor self)
              (cursor-panes (timeline-editor self)))))
 
-(defmethod active-panel ((editor data-stream-editor))
+(defmethod active-panel ((editor data-track-editor))
   (let ((n (or (and (multi-display-p editor)
                     (position (object-value editor) (multi-obj-list editor)))
                0)))
     (nth n (get-g-component editor :data-panel-list))))
 
-(defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 650 200))
+(defmethod editor-window-init-size ((self data-track-editor)) (om-make-point 650 200))
 
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
+(defmethod frame-display-modes-for-object ((self data-track-editor) (object t)) '(:blocks :bubbles))
 
-(defmethod make-editor-controls ((editor data-stream-editor))
+(defmethod make-editor-controls ((editor data-track-editor))
   (let ((object (object-value editor)))
     (when (> (length (frame-display-modes-for-object editor object)) 1)
       (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :gui)
@@ -73,7 +73,7 @@
                   :value (editor-get-edit-param editor :display-mode)
                   ))))
 
-(defmethod editor-with-timeline ((self data-stream-editor)) t)
+(defmethod editor-with-timeline ((self data-track-editor)) t)
 
 (defun make-timeline-check-box (editor)
   (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :gui)
@@ -113,7 +113,7 @@
                      ))))
 
 
-(defmethod init-editor ((editor data-stream-editor))
+(defmethod init-editor ((editor data-track-editor))
   (call-next-method)
   (when (editor-with-timeline editor)
     (setf (timeline-editor editor)
@@ -123,14 +123,14 @@
     ))
 
 
-(defmethod editor-close ((editor data-stream-editor))
+(defmethod editor-close ((editor data-track-editor))
   (when (can-record editor)
     (editor-record-off editor))
   (call-next-method))
 
 
 ;;; stop record after box eval
-(defmethod editor-update-play-state ((editor data-stream-editor) object)
+(defmethod editor-update-play-state ((editor data-track-editor) object)
   (call-next-method)
   (when (can-record editor)
     (editor-record-off editor)))
@@ -140,11 +140,11 @@
 (defmethod editor-view-after-init-space ((self t)) 1000)
 
 ;;; the small view at the left of the timeline should be sized according to the editor's layout
-(defmethod make-timeline-left-item ((self data-stream-editor) id)
+(defmethod make-timeline-left-item ((self data-track-editor) id)
   (om-make-view 'om-view :size (omp 28 15)))
 
 
-(defmethod make-left-panel-for-object ((editor data-stream-editor) (object t) view)
+(defmethod make-left-panel-for-object ((editor data-track-editor) (object t) view)
   (let ((ruler (om-make-view 'y-ruler-view
                              :size (omp 30 nil)
                              :related-views (list view)
@@ -154,18 +154,18 @@
     ruler))
 
 
-(defmethod reinit-y-ranges-from-ruler ((editor data-stream-editor) ruler)
+(defmethod reinit-y-ranges-from-ruler ((editor data-track-editor) ruler)
   (set-ruler-range ruler
                    (get-default-edit-param (object editor) :y1)
                    (get-default-edit-param (object editor) :y2)))
 
 
-(defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
+(defmethod data-track-get-x-ruler-vmin ((self data-track-editor)) 0)
 
 
 ;;; voice editor has a different ruler
-(defmethod make-time-ruler ((editor data-stream-editor) dur)
-  (let ((vmin (data-stream-get-x-ruler-vmin editor)))
+(defmethod make-time-ruler ((editor data-track-editor) dur)
+  (let ((vmin (data-track-get-x-ruler-vmin editor)))
     (om-make-view 'time-ruler
                   :related-views (get-g-component editor :data-panel-list)
                   :size (omp nil 20)
@@ -175,19 +175,19 @@
                   :x2 (or (editor-get-edit-param editor :x2) dur))))
 
 
-(defmethod editor-scroll-v ((self data-stream-editor)) nil)
+(defmethod editor-scroll-v ((self data-track-editor)) nil)
 
-(defmethod make-editor-window-contents ((editor data-stream-editor))
+(defmethod make-editor-window-contents ((editor data-track-editor))
 
-  (let* ((data-stream (object-value editor))
+  (let* ((data-track (object-value editor))
          (object-s (if (multi-display-p editor)
                        (multi-obj-list editor)
-                     (list data-stream)))
+                     (list data-track)))
          (n-objs (length object-s))
          (max-dur (loop for obj in object-s maximize (or (get-obj-dur obj) 0)))
          (ed-dur (if (zerop max-dur)
                      10000
-                   (+ max-dur (editor-view-after-init-space data-stream)))))
+                   (+ max-dur (editor-view-after-init-space data-track)))))
 
     (set-g-component editor :data-panel-list
                      (loop for d-s in object-s
@@ -259,7 +259,7 @@
 
 ;===== MultiDisplay API
 
-(defmethod enable-multi-display ((editor data-stream-editor) obj-list)
+(defmethod enable-multi-display ((editor data-track-editor) obj-list)
   (call-next-method)
   (when (container-editor editor)
     (om-substitute-subviews
@@ -270,7 +270,7 @@
     (init-editor-window editor)
     ))
 
-(defmethod disable-multi-display ((editor data-stream-editor))
+(defmethod disable-multi-display ((editor data-track-editor))
   (call-next-method)
   (when (container-editor editor)
     (om-substitute-subviews
@@ -283,7 +283,7 @@
 
 ;======================
 
-(defmethod init-editor-window ((editor data-stream-editor))
+(defmethod init-editor-window ((editor data-track-editor))
   (call-next-method)
 
   (when (get-g-component editor :x-ruler)
@@ -298,12 +298,12 @@
             (set-shift-and-factor view)))))
 
 
-(defmethod update-to-editor ((editor data-stream-editor) (from ombox))
-  (let* ((data-stream (object-value editor)))
-    (when data-stream
-      (let ((new-max-dur (if (zerop (get-obj-dur data-stream))
+(defmethod update-to-editor ((editor data-track-editor) (from ombox))
+  (let* ((data-track (object-value editor)))
+    (when data-track
+      (let ((new-max-dur (if (zerop (get-obj-dur data-track))
                              10000
-                           (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
+                           (+ (get-obj-dur data-track) (editor-view-after-init-space data-track)))))
 
         (when (get-g-component editor :x-ruler)
           (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
@@ -320,12 +320,12 @@
         (call-next-method)
         ))))
 
-(defmethod update-to-editor ((editor data-stream-editor) (from t))
+(defmethod update-to-editor ((editor data-track-editor) (from t))
   (call-next-method)
   (mapc 'om-invalidate-view (get-g-component editor :data-panel-list)))
 
 
-(defmethod editor-invalidate-views ((self data-stream-editor))
+(defmethod editor-invalidate-views ((self data-track-editor))
   (call-next-method)
   (mapc 'om-invalidate-view (get-g-component self :data-panel-list))
   (when (timeline-editor self)
@@ -333,16 +333,16 @@
 
 
 ;;; todo : factorize this in different editors..
-(defmethod editor-delete-contents-from-timeline ((self data-stream-editor) timeline-id sel)
-  (let ((data-stream (object-value self)))
-    (mapcar #'(lambda (point) (time-sequence-remove-timed-item data-stream point)) sel)
-    (time-sequence-update-internal-times data-stream))
+(defmethod editor-delete-contents-from-timeline ((self data-track-editor) timeline-id sel)
+  (let ((data-track (object-value self)))
+    (mapcar #'(lambda (point) (time-sequence-remove-timed-item data-track point)) sel)
+    (time-sequence-update-internal-times data-track))
   (editor-invalidate-views self)
   (report-modifications self))
 
 
 ;;; called when resetting the x-rulers
-(defmethod play-editor-get-ruler-views ((self data-stream-editor))
+(defmethod play-editor-get-ruler-views ((self data-track-editor))
   (get-g-component self :x-ruler))
 
 
@@ -417,8 +417,8 @@
             ))
       )))
 
-(defmethod frame-at-pos ((editor data-stream-editor) position)
-  (let ((frames (data-stream-get-frames (object-value editor))))
+(defmethod frame-at-pos ((editor data-track-editor) position)
+  (let ((frames (data-track-get-frames (object-value editor))))
     (when frames
       (position-if #'(lambda (f)
                        (multiple-value-bind (x y w h)
@@ -427,8 +427,8 @@
                    frames))))
 
 
-(defmethod frames-in-area ((editor data-stream-editor) p1 p2)
-  (loop for f in (data-stream-get-frames (object-value editor))
+(defmethod frames-in-area ((editor data-track-editor) p1 p2)
+  (loop for f in (data-track-get-frames (object-value editor))
         for i = 0 then (1+ i)
         when (multiple-value-bind (x y w h)
                  (get-frame-area f editor)
@@ -442,7 +442,7 @@
 ;;; EDITOR FUNCTIONS
 ;;;=======================
 
-(defmethod draw-background ((editor data-stream-editor) (view stream-panel)) nil)
+(defmethod draw-background ((editor data-track-editor) (view stream-panel)) nil)
 
 (defmethod om-draw-contents ((self stream-panel))
   (let* ((editor (editor self))
@@ -462,7 +462,7 @@
 
     (when stream
       (om-with-fg-color (om-def-color :dark-gray)
-        (loop for frame in (data-stream-get-frames stream)
+        (loop for frame in (data-track-get-frames stream)
               for i = 0 then (1+ i) do
               (draw-data-frame frame editor i active)))
       )))
@@ -476,43 +476,43 @@
     ))
 
 
-(defmethod position-display ((editor data-stream-editor) pos-pix)
+(defmethod position-display ((editor data-track-editor) pos-pix)
   (when (active-panel editor)
     (let* ((time (round (pix-to-x (active-panel editor) (om-point-x pos-pix)))))
       (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time)))))
 
 
-(defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
+(defmethod move-editor-selection ((self data-track-editor) &key (dx 0) (dy 0))
   (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do
-        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+        (let ((frame (nth fp (data-track-get-frames (object-value self)))))
           (item-set-time frame (max 0 (round (+ (item-get-time frame) dx))))
           )))
 
-(defmethod resize-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
+(defmethod resize-editor-selection ((self data-track-editor) &key (dx 0) (dy 0))
   (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do
-        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+        (let ((frame (nth fp (data-track-get-frames (object-value self)))))
           (item-set-duration frame (max 0 (round (+ (item-get-duration frame) dx))))
           ))
   (time-sequence-update-obj-dur (object-value self)))
 
-(defmethod delete-editor-selection ((self data-stream-editor))
+(defmethod delete-editor-selection ((self data-track-editor))
   (loop for pos in (sort (selection self) '>) do
         (time-sequence-remove-nth-timed-item (object-value self) pos)))
 
 
 ;;; sort the frames and reset the selection indices correctly
-(defmethod editor-sort-frames ((self data-stream-editor))
+(defmethod editor-sort-frames ((self data-track-editor))
   (let* ((stream (object-value self))
          (selected-objects (loop for pos in (selection self) collect
-                                 (nth pos (data-stream-get-frames stream)))))
+                                 (nth pos (data-track-get-frames stream)))))
 
     (time-sequence-reorder-timed-item-list stream)
 
     (setf (selection self)
           (loop for selected in selected-objects
-                collect (position selected (data-stream-get-frames stream))))))
+                collect (position selected (data-track-get-frames stream))))))
 
 
 (defmethod resizable-frame ((self data-frame)) nil)
@@ -542,7 +542,7 @@
 
         (om-hide-tooltip self)
 
-        (let ((frames (data-stream-get-frames (object-value editor)))
+        (let ((frames (data-track-get-frames (object-value editor)))
               (fp (frame-at-pos editor position)))
           (when fp
             (let ((frame (nth fp frames)))
@@ -608,7 +608,7 @@
 
            ((and selection (not (locked object)))
 
-            (let* ((selected-frame (nth selection (data-stream-get-frames object)))
+            (let* ((selected-frame (nth selection (data-track-get-frames object)))
                    (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
 
               (store-current-state-for-undo editor)
@@ -648,7 +648,7 @@
                                ))
                  :release #'(lambda (view pos)
                               (declare (ignore view pos))
-                              (let ((selected-frames (posn-match (data-stream-get-frames object) (selection editor))))
+                              (let ((selected-frames (posn-match (data-track-get-frames object) (selection editor))))
                                 (with-schedulable-object (object-value editor)
                                                          (editor-sort-frames editor)
                                                          (move-editor-selection editor :dy :round)
@@ -657,7 +657,7 @@
                                 ;;; reset the selection:
                                 (set-selection editor
                                                (loop for f in selected-frames collect
-                                                     (position f (data-stream-get-frames object))))
+                                                     (position f (data-track-get-frames object))))
                                 )
                               (report-modifications editor)
                               (om-invalidate-view self))
@@ -680,7 +680,7 @@
           )))))
 
 
-(defmethod editor-key-action ((editor data-stream-editor) key)
+(defmethod editor-key-action ((editor data-track-editor) key)
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
 
@@ -746,42 +746,42 @@
 
 ;;; in data-strea-editor the selection is an index to elements in the frame sequence
 ;;; this is not necessarilythe case of editor subclasses
-(defmethod first-element-in-editor ((editor data-stream-editor))
-  (and (data-stream-get-frames (object-value editor)) 0))
+(defmethod first-element-in-editor ((editor data-track-editor))
+  (and (data-track-get-frames (object-value editor)) 0))
 
-(defmethod next-element-in-editor ((editor data-stream-editor) (element number))
+(defmethod next-element-in-editor ((editor data-track-editor) (element number))
   (let ((seq (object-value editor)))
-    (and (data-stream-get-frames seq)
-         (mod (1+ element) (length (data-stream-get-frames seq))))))
+    (and (data-track-get-frames seq)
+         (mod (1+ element) (length (data-track-get-frames seq))))))
 
-(defmethod next-element-in-editor ((editor data-stream-editor) (element t)) nil)
+(defmethod next-element-in-editor ((editor data-track-editor) (element t)) nil)
 
 
-(defmethod select-all-command ((self data-stream-editor))
+(defmethod select-all-command ((self data-track-editor))
   #'(lambda ()
       (set-selection
        self
-       (loop for i from 0 to (1- (length (data-stream-get-frames (object-value self))))
+       (loop for i from 0 to (1- (length (data-track-get-frames (object-value self))))
              collect i))
       (update-timeline-editor self)
       (editor-invalidate-views self)
       ))
 
 
-(defmethod copy-command ((self data-stream-editor))
+(defmethod copy-command ((self data-track-editor))
   (when (selection self)
     #'(lambda ()
         (set-om-clipboard
          (mapcar #'om-copy
-                 (posn-match (data-stream-get-frames (object-value self)) (selection self)))))))
+                 (posn-match (data-track-get-frames (object-value self)) (selection self)))))))
 
 
-(defmethod cut-command ((self data-stream-editor))
+(defmethod cut-command ((self data-track-editor))
   (when (and (selection self) (not (locked (object-value self))))
     #'(lambda ()
         (set-om-clipboard
          (mapcar #'om-copy
-                 (posn-match (data-stream-get-frames (object-value self)) (selection self))))
+                 (posn-match (data-track-get-frames (object-value self)) (selection self))))
 
         (store-current-state-for-undo self)
         (with-schedulable-object (object-value self)
@@ -793,13 +793,13 @@
     ))
 
 
-(defmethod paste-command ((self data-stream-editor))
+(defmethod paste-command ((self data-track-editor))
 
   (when (get-om-clipboard)
 
     #'(lambda ()
 
-        (let ((data-stream (object-value self))
+        (let ((data-track (object-value self))
               (frames (mapcar
                        #'om-copy
                        (sort
@@ -828,9 +828,9 @@
                 (store-current-state-for-undo self)
 
                 (with-schedulable-object
-                 data-stream
+                 data-track
                  (loop for f in frames do
-                       (time-sequence-insert-timed-item-and-update data-stream f)))
+                       (time-sequence-insert-timed-item-and-update data-track f)))
 
                 (report-modifications self)
                 (editor-invalidate-views self)
@@ -842,7 +842,7 @@
 ;;; TURN PAGES / FOLLOW PLAY POSITION
 ;;;==================================
 
-(defmethod play-editor-callback ((editor data-stream-editor) time)
+(defmethod play-editor-callback ((editor data-track-editor) time)
   (call-next-method)
   (let ((panel (get-g-component editor :main-panel))
         (x-ruler (get-g-component editor :x-ruler)))
@@ -887,9 +887,9 @@
 ;;; RECORD
 ;;;======================================
 
-(defmethod can-record ((self data-stream-editor)) t)
+(defmethod can-record ((self data-track-editor)) t)
 
-(defmethod editor-record-on ((self data-stream-editor))
+(defmethod editor-record-on ((self data-track-editor))
 
   (let ((object (get-obj-to-play self))
         (port (get-pref-value :osc :in-port))
@@ -910,28 +910,28 @@
                                nil self))
 
     (when (record-process self)
-      (om-print (format nil "Start OSC receive server on ~A ~D" host port) "DATA-STREAM")
+      (om-print (format nil "Start OSC receive server on ~A ~D" host port) "DATA-TRACK")
       (record-process self))))
 
 
-(defmethod editor-record-off ((self data-stream-editor))
+(defmethod editor-record-off ((self data-track-editor))
   (when (record-process self)
-    (om-print (format nil "Stop ~A" (om-process-name (record-process self))) "DATA-STREAM")
+    (om-print (format nil "Stop ~A" (om-process-name (record-process self))) "DATA-TRACK")
 
     (om-stop-udp-server (record-process self))))
 
 
-(defmethod notify-udp-server-stopped ((self data-stream-editor) server)
+(defmethod notify-udp-server-stopped ((self data-track-editor) server)
   (editor-record-off self))
 
 
-(defmethod editor-record-on :around ((self data-stream-editor))
+(defmethod editor-record-on :around ((self data-track-editor))
   (setf (pushed (rec-button self)) t)
   (editor-invalidate-views self)
   (call-next-method)
   t)
 
-(defmethod editor-record-off :around ((self data-stream-editor))
+(defmethod editor-record-off :around ((self data-track-editor))
   (setf (pushed (rec-button self)) nil)
   (editor-invalidate-views self)
   (call-next-method)

@@ -159,7 +159,7 @@ OSC messages are formatted as simple Lisp lists."
   (loop for msg in arg collect (format-message msg indent)))
 
 
-;;; DATA-STREAM METHODS
+;;; DATA-TRACK METHODS
 
 (defmethod data-frame-text-description ((self osc-bundle))
   (cons "OSC BUNDLE"
@@ -286,5 +286,3 @@ OSC messages are formatted as simple Lisp lists."
                                                          )))
                              ))
         '< :key #'date)))
-
-

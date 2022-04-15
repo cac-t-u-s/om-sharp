@@ -300,7 +300,7 @@ if <end> is NIL, the selection runs until th end.
 
       (set-chords
        rep
-       (loop for chord in (data-stream-get-frames self)
+       (loop for chord in (data-track-get-frames self)
              when (and (>= (item-get-time chord) start)
                        (or (null end) (< (item-get-time chord) end)))
              collect (let ((c (om-copy chord)))

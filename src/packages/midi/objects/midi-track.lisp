@@ -76,7 +76,7 @@ Internally a MIDI-NOTE is converted into two MIDIEVENTs (KeyOn and KeyOff). MIDI
   (list (format nil "MIDI NOTE (channel ~A)" (ev-chan self))
         (format nil "~A - ~A" (pitch self) (vel self))))
 
-;;; when midi-note is in a data-stream (= not good in principle)
+;;; when midi-note is in a data-track (= not good in principle)
 ;;; otherwise see get-action-list-for-play (midi-track)
 (defmethod get-frame-action ((note midi-note))
   #'(lambda ()
@@ -107,25 +107,25 @@ Internally a MIDI-NOTE is converted into two MIDIEVENTs (KeyOn and KeyOff). MIDI
 
 
 ;;;===================================================
-;;; MIDI-TRACK IS JUST A SPECIAL KIND OF DATA-STREAM
+;;; MIDI-TRACK IS JUST A SPECIAL KIND OF DATA-TRACK
 ;;;===================================================
 
-(defclass* midi-track (data-stream)
+(defclass* midi-track (data-track)
   ((midi-events :initarg :midi-events :initform '() :documentation "a list of MIDI-NOTEs or MIDIEVENTs"))
   (:default-initargs :default-frame-type 'midi-note)
   (:documentation "A container for MIDI-NOTE and other MIDIEVENT objects.
 
-MIDI-TRACK is a special kind of DATA-STREAM with adapted visualization and editing of MIDI events.
+MIDI-TRACK is a special kind of DATA-TRACK with adapted visualization and editing of MIDI events.
 
 Can import MIDI files by connecting a pathname to the <self> input, or using the keyword :file to open a file chooser."))
 
 
 (defmethod midi-events ((self midi-track))
-  (data-stream-get-frames self))
+  (data-track-get-frames self))
 
 (defmethod initialize-instance ((self midi-track) &rest initargs)
   (call-next-method)
-  (data-stream-set-frames self (midievents-to-midinotes (slot-value self 'midi-events) :collect-other-events t))
+  (data-track-set-frames self (midievents-to-midinotes (slot-value self 'midi-events) :collect-other-events t))
   (setf (slot-value self 'midi-events) nil)
   self)
 
@@ -212,7 +212,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 
 
 (defmethod objFromObjs ((model pathname) (target midi-track))
-  (data-stream-set-frames target (import-midi-notes model))
+  (data-track-set-frames target (import-midi-notes model))
   target)
 
 
@@ -227,11 +227,11 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
       (abort-eval))))
 
 
-;;; DATA-STREAM=>MIDI-TRACK
+;;; DATA-TRACK=>MIDI-TRACK
 ;;; Converts KeyOn/KeyOff events to MIDI-NOTEs
 
-(defmethod objfromobjs ((model data-stream) (target midi-track))
-  (data-stream-set-frames
+(defmethod objfromobjs ((model data-track) (target midi-track))
+  (data-track-set-frames
    target
    (midievents-to-midinotes (frames model) :collect-other-events t))
   target)
@@ -285,12 +285,12 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 ;;;======================================
 ;;; EDITOR
 ;;;======================================
-(defclass midi-track-editor (data-stream-editor)
+(defclass midi-track-editor (data-track-editor)
   ((recording-notes :accessor recording-notes :initform nil)))
 
 (defmethod get-editor-class ((self midi-track)) 'midi-track-editor)
 
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object midi-track)) '(:blocks))
+(defmethod frame-display-modes-for-object ((self data-track-editor) (object midi-track)) '(:blocks))
 
 (defparameter *MIN-MIDI-KEY* 36)
 (defparameter *MAX-MIDI-KEY* 96)
@@ -332,7 +332,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
 
   (let* ((midi-track (object-value self))
          (frames (loop for fp in (selection self)
-                       collect (nth fp (data-stream-get-frames midi-track)))))
+                       collect (nth fp (data-track-get-frames midi-track)))))
 
     (unless (equal (editor-play-state self) :stop)
       (close-open-midinotes-at-time frames (get-obj-time midi-track)))
@@ -359,7 +359,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
   (unless (or (equal (editor-play-state self) :stop) (zerop dx))
     (let* ((midi-track (object-value self))
            (frames (loop for fp in (selection self)
-                         collect (nth fp (data-stream-get-frames midi-track)))))
+                         collect (nth fp (data-track-get-frames midi-track)))))
       (close-open-midinotes-at-time frames (get-obj-time midi-track))))
 
   (call-next-method))
@@ -370,7 +370,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
   (unless (equal (editor-play-state self) :stop)
     (let* ((midi-track (object-value self))
            (frames (loop for fp in (selection self)
-                         collect (nth fp (data-stream-get-frames midi-track)))))
+                         collect (nth fp (data-track-get-frames midi-track)))))
       (close-open-midinotes-at-time frames (get-obj-time midi-track))))
 
   (call-next-method))
@@ -391,7 +391,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
   ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
    (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
 
-(defmethod make-left-panel-for-object ((editor data-stream-editor) (object midi-track) view)
+(defmethod make-left-panel-for-object ((editor data-track-editor) (object midi-track) view)
   (declare (ignore view))
   (om-make-view 'keyboard-view :size (omp 20 nil)))
 
@@ -492,10 +492,10 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
        (report-modifications editor))
       (#\c
        (when (selection editor)
-         (let ((c (select-channel-dialog :default (chan (nth (car (selection editor)) (data-stream-get-frames pr))))))
+         (let ((c (select-channel-dialog :default (chan (nth (car (selection editor)) (data-track-get-frames pr))))))
            (when c
              (loop for notep in (selection editor) do
-                   (let ((note (nth notep (data-stream-get-frames pr))))
+                   (let ((note (nth notep (data-track-get-frames pr))))
                      (setf (chan note) c)
                      )))
            ))
@@ -581,7 +581,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
   (close-open-midinotes-at-time
    (remove-if-not
     #'(lambda (n) (typep n 'midi-note))
-    (data-stream-get-frames self))
+    (data-track-get-frames self))
    (get-obj-time self)))
 
 

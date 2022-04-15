@@ -20,7 +20,7 @@
 ;;; CHORD-SEQ EDITOR / GENERAL SCORE EDITOR
 ;;;========================================================================
 
-(defclass chord-seq-editor (score-editor data-stream-editor)
+(defclass chord-seq-editor (score-editor data-track-editor)
   ((recording-notes :accessor recording-notes :initform nil)))
 
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
@@ -35,7 +35,7 @@
 (defmethod editor-window-init-size ((self chord-seq-editor)) (om-make-point 650 300))
 
 ;;; this will just disable the display-mode menu
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-element)) '(:chords))
+(defmethod frame-display-modes-for-object ((self data-track-editor) (object score-element)) '(:chords))
 
 ;;; offset can be :shift, :grace-notes, or :hidden
 (defmethod object-default-edition-params ((self chord-seq))
@@ -183,7 +183,7 @@
       (call-next-method))) ;;; => score-view
 
 
-;;; in data-stream-editor the selection is an index to elements in the frame sequence
+;;; in data-track-editor the selection is an index to elements in the frame sequence
 ;;; here in chord-seq editor the selection s a score-element
 (defmethod first-element-in-editor ((editor chord-seq-editor))
   (car (chords (object-value editor))))
@@ -288,7 +288,7 @@
      )))
 
 
-;;; redefines from data-stream-editor
+;;; redefines from data-track-editor
 (defmethod move-editor-selection ((self chord-seq-editor) &key (dx 0) (dy 0))
 
   (unless (equal (editor-play-state self) :stop)
@@ -553,7 +553,7 @@
 ;;; DISPLAY
 ;;;=========================
 
-(defmethod data-stream-get-x-ruler-vmin ((self chord-seq-editor)) -200)
+(defmethod data-track-get-x-ruler-vmin ((self chord-seq-editor)) -200)
 
 (defmethod draw-score-object-in-editor-view ((editor chord-seq-editor) view unit)
   (let ((obj (if (multi-display-p editor)

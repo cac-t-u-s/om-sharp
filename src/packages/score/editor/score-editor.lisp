@@ -241,7 +241,7 @@
   (time-sequence-update-obj-dur self))
 
 
-;;; overrides data-stream-panel in chord-seq-editor
+;;; overrides data-track-panel in chord-seq-editor
 (defmethod om-view-mouse-motion-handler ((self score-view) position)
   (position-display (editor self) position))
 
@@ -469,7 +469,7 @@
            (report-modifications editor))
        (call-next-method)))
 
-    ;;; if not with "option", left/right for chord-seq are handled in data-stream-editor only
+    ;;; if not with "option", left/right for chord-seq are handled in data-track-editor only
 
     (:om-key-up
      (store-current-state-for-undo editor)

@@ -18,7 +18,7 @@
 (in-package :om)
 
 
-(defclass sound-editor (data-stream-editor)
+(defclass sound-editor (data-track-editor)
   ((cache-display-list :accessor cache-display-list :initform nil)))
 
 (defclass sound-panel (stream-panel) ())

@@ -201,7 +201,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
 ; PLAY
 ;=================================
 
-;;; play in a DATA-STREAM
+;;; play in a DATA-TRACK
 (defmethod get-frame-action ((self midi-mix-console))
   #'(lambda ()
       (loop for e in (get-midievents self) do

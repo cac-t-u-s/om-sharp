@@ -18,7 +18,7 @@
 (in-package :om)
 
 ;;;===================================================
-;;; CHORD-SEQ IS JUST A SPECIAL KIND OF DATA-STREAM
+;;; CHORD-SEQ IS JUST A SPECIAL KIND OF DATA-TRACK
 ;;;===================================================
 
 ;;; some of the slots :initargs of INTERNAL-CHORD-SEQ are hidden in the graphical interface
@@ -26,7 +26,7 @@
 ;;; (almost) all slot accessors are redefined below in this file
 
 
-(defclass internal-chord-seq (score-element internal-data-stream)
+(defclass internal-chord-seq (score-element internal-data-track)
   ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
@@ -78,7 +78,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
 "))
 
 (defmethod chords ((self chord-seq))
-  (data-stream-get-frames self))
+  (data-track-get-frames self))
 
 ;;; redefined for voices and rhythmic objects
 (defmethod get-all-chords ((self chord-seq))
@@ -86,14 +86,14 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 
 (defmethod set-chords ((self chord-seq) (chords list))
-  (data-stream-set-frames self chords))
+  (data-track-set-frames self chords))
 
 (defmethod inside ((self chord-seq)) (chords self))
 
 
 (defmethod additional-class-attributes ((self chord-seq)) '(Loffset Lchan Lport Llegato extras))
 
-;; (defmethod data-stream-frames-slot ((self chord-seq)) 'inside)
+;; (defmethod data-track-frames-slot ((self chord-seq)) 'inside)
 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self chord-seq)) 1000)
@@ -356,4 +356,3 @@ Internally most of these values are just used to build a list of CHORD objects, 
                (remove-from-obj self c))
              (return t))
         ))
-
