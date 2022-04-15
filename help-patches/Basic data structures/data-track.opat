@@ -1,21 +1,21 @@
 
 (:patch
- (:name "data-stream")
+ (:name "data-track")
  (:doc "")
  (:info
   (:created "2017/02/05 14:08:32")
-  (:modified "2021/12/13 22:36:22")
+  (:modified "2022/04/15 10:14:12")
   (:by "om-sharp")
-  (:version 1.05))
+  (:version 1.06))
  (:window (:size (796 679)) (:position (729 201)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
    (:type :object)
-   (:reference data-stream)
+   (:reference data-track)
    (:group-id nil)
-   (:name "DATA-STREAM")
+   (:name "DATA-TRACK")
    (:x 447)
    (:y 506)
    (:w 269)
@@ -49,7 +49,7 @@
    (:edition-params (:display-mode :bubbles) (:show-timeline t))
    (:value
     (:object
-     (:class data-stream)
+     (:class data-track)
      (:slots
       ((:onset 0)
        (:duration 4679)
@@ -1033,18 +1033,17 @@
    (:x 41)
    (:y 34)
    (:w 259)
-   (:h 42)
+   (:h 65)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Lucida Grande") (:size 14) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 16) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text
-    "DATA-STREAM is a general container to organize data in time")
+   (:text "DATA-TRACK is a general container to organize data in time")
    (:id 10))
   (:box
    (:type :function)
@@ -1106,9 +1105,9 @@
    (:id 12))
   (:box
    (:type :object)
-   (:reference data-stream)
+   (:reference data-track)
    (:group-id nil)
-   (:name "DATA-STREAM")
+   (:name "DATA-TRACK")
    (:x 45)
    (:y 452)
    (:w 269)
@@ -1142,7 +1141,7 @@
    (:edition-params (:display-mode :bubbles) (:show-timeline t))
    (:value
     (:object
-     (:class data-stream)
+     (:class data-track)
      (:slots
       ((:onset 0)
        (:duration 4938)
@@ -1645,7 +1644,7 @@
        (:name "print")
        (:x 85)
        (:y 94)
-       (:w 64)
+       (:w 68)
        (:h 29)
        (:color nil)
        (:border nil)
@@ -1713,7 +1712,7 @@
    (:x 154)
    (:y 208)
    (:w 38)
-   (:h 23)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1725,8 +1724,8 @@
   (:comment
    (:x 167)
    (:y 319)
-   (:w 44)
-   (:h 23)
+   (:w 48)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1739,7 +1738,7 @@
    (:x 45)
    (:y 146)
    (:w 200)
-   (:h 23)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1752,7 +1751,7 @@
    (:x 493)
    (:y 76)
    (:w 136)
-   (:h 23)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -1765,7 +1764,7 @@
    (:x 491)
    (:y 585)
    (:w 197)
-   (:h 38)
+   (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)

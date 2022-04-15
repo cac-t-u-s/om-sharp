@@ -514,7 +514,7 @@ or connect a MIDI file pathname to import MIDI events")
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "MIDI-TRACK is a DATA-STREAM containing MIDI-NOTEs (and possibly other MIDIEVENTs).
+    "MIDI-TRACK is a DATA-TRACK containing MIDI-NOTEs (and possibly other MIDIEVENTs).
 It corresponds to (and extends) the MIDIFile object in OpenMusic")
    (:id 7))
   (:comment

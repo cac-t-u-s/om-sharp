@@ -1,10 +1,10 @@
 
 (:patch
- (:name "osc-bundle-data-stream")
+ (:name "osc-bundle-data-track")
  (:doc "")
  (:info
   (:created "2019/09/15 10:06:59")
-  (:modified "2022/03/27 23:40:15")
+  (:modified "2022/04/15 10:15:16")
   (:by "om-sharp")
   (:version 1.06))
  (:window (:size (637 564)) (:position (525 188)))
@@ -12,8 +12,8 @@
  (:lock nil)
  (:boxes
   (:comment
-   (:x 91)
-   (:y 17)
+   (:x 90)
+   (:y 20)
    (:w 266)
    (:h 29)
    (:fgcolor nil)
@@ -25,7 +25,7 @@
      (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "OSC-BUNDLEs in DATA-STREAM")
+   (:text "OSC-BUNDLEs in DATA-TRACK")
    (:id 0))
   (:box
    (:type :object)
@@ -237,7 +237,7 @@
          5.75))
        (:y-points
         (:list
-         0.94000006
+         0.94
          1.29
          1.79
          2.19
@@ -740,9 +740,9 @@
    (:id 3))
   (:box
    (:type :object)
-   (:reference data-stream)
+   (:reference data-track)
    (:group-id 0)
-   (:name "DATA-STREAM")
+   (:name "DATA-TRACK")
    (:x 113)
    (:y 312)
    (:w 312)
@@ -776,7 +776,7 @@
    (:edition-params (:show-timeline t) (:display-mode :bubbles))
    (:value
     (:object
-     (:class data-stream)
+     (:class data-track)
      (:slots
       ((:onset 0)
        (:duration 1852)
@@ -1667,9 +1667,9 @@
    (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "OSC-BUNDLEs can be sequenced in a DATA-STREAM object.
+    "OSC-BUNDLEs can be sequenced in a DATA-TRACK object.
 
-The default action (when the DATA-STREAM is played) is to OSC-SEND the bundles.")
+The default action (when the DATA-TRACK is played) is to OSC-SEND the bundles.")
    (:id 6)))
  (:connections
   (:connection
