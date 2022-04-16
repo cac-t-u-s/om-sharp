@@ -576,6 +576,30 @@ Can return a list of selected items if 'multiple selection' is enabled in the bo
         ))))
 
 
+(defmethod box-key-action ((box ListSelectionBox) key)
+  (case key
+    (:om-key-up
+     (when (items box)
+       (let* ((ref-selection (or (car (selection box)) 0))
+              (new-selection (max 0 (1- ref-selection))))
+         (setf (selection box) (list new-selection))
+         (update-value-from-selection box)
+
+         (when (reactive (car (outputs box))) (self-notify box))
+         (om-invalidate-view (frame box)))))
+
+    (:om-key-down
+     (when (items box)
+       (let* ((ref-selection (or (car (selection box)) 0))
+              (new-selection (min (1- (length (items box))) (1+ ref-selection))))
+         (setf (selection box) (list new-selection))
+         (update-value-from-selection box)
+
+         (when (reactive (car (outputs box))) (self-notify box))
+         (om-invalidate-view (frame box)))))
+
+    (otherwise (call-next-method))))
+
 
 ;;;===============================================================
 ;;; MENU
