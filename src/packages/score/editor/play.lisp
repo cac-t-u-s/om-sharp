@@ -182,8 +182,8 @@
 
 
 ;;; Use during score edits:
-(defun close-open-chords-at-time (chords time parent)
-  (let* ((approx (pitch-approx parent))
+(defun close-open-chords-at-time (chords time playing-object)
+  (let* ((approx (pitch-approx playing-object))
          (chan-shift (and (not (equal :off (get-pref-value :score :microtone-bend)))
                           (micro-channel-on approx))))
     (loop for chord in chords do
