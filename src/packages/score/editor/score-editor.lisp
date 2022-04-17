@@ -961,7 +961,9 @@
          (notes (loop for elt in object append (get-tpl-elements-of-type elt 'note)))
          (measures (loop for elt in object append (get-tpl-elements-of-type elt 'measure)))
          (voices (loop for elt in object append (get-tpl-elements-of-type elt 'voice)))
-         (numbox-h 16) (text-h 16)
+         (numbox-h 16)
+         (text-h 16)
+         (control-h 22)
 
          (close-button
           ;;; "close" button at the top-right...
@@ -1329,7 +1331,7 @@
                           :size (omp display-params-text-w text-h))
 
               (om-make-di 'om-popup-list :items '(:hidden :shift :grace-note)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
+                          :size (omp display-params-menu-w control-h) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :offsets (om-get-selected-item list)))
@@ -1345,7 +1347,7 @@
                           :size (omp display-params-text-w text-h)
                           :font (om-def-font :gui))
               (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
+                          :size (omp display-params-menu-w control-h) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :velocity-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
@@ -1360,7 +1362,7 @@
                           :size (omp display-params-text-w text-h)
                           :font (om-def-font :gui))
               (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number)
-                          :size (omp display-params-menu-w 22) :font (om-def-font :gui)
+                          :size (omp display-params-menu-w control-h) :font (om-def-font :gui)
                           :value (editor-get-edit-param editor :channel-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
