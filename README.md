@@ -13,7 +13,7 @@
 
 ### Download
 
-OM# is available for macOS, Windows, and Linux: See [Releases page](https://github.com/cac-t-u-s/om-sharp/releases/tag/v1.2)
+OM# is available for macOS, Windows, and Linux: See [Releases page](https://github.com/cac-t-u-s/om-sharp/releases/latest)
 
 
 ------
