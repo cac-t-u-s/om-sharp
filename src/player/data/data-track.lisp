@@ -138,17 +138,39 @@
 
 
 (defmethod draw-mini-view ((self data-track) (box t) x y w h &optional time)
+  (let* ((mid-y (+ y (/ h 2)))
+         (range 3)
+         (h 8)
+         (base (- mid-y (* h (round range 2))))
+         pos-y-list max-y min-y)
 
-  (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
+    (setf pos-y-list (loop for frame in (data-track-get-frames self)
+                           for posy = (- (get-frame-posy frame))
+                           when (or (not max-y) (> posy max-y)) do (setf max-y posy)
+                           when (or (not min-y) (< posy min-y)) do (setf min-y posy)
+                           collect posy))
 
-    (multiple-value-bind (fx ox)
-        (conversion-factor-and-offset 0 (get-obj-dur self) w x)
+    (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
 
-      (loop for frame in (data-track-get-frames self) do
-            (om-draw-rect (+ ox (* fx (or (date frame) 0)))
-                          y 4 h
-                          :fill t)
-            ))))
+      (om-draw-line x mid-y (+ x w) mid-y :style '(1 3))
+
+      (when pos-y-list
+        (let ((y-range (- max-y min-y)))
+
+          (multiple-value-bind (fx ox)
+              (conversion-factor-and-offset 0 (get-obj-dur self) (- w h) x)
+
+            (loop for frame in (data-track-get-frames self)
+                  for posy in pos-y-list
+                  do
+                  (om-draw-rect (+ ox (* fx (or (date frame) 0)))
+                                (if (zerop y-range)
+                                    (- mid-y h)
+                                  (+ base (* h (round (* range (/ (- posy min-y) y-range))))))
+                                h h
+                                :fill t)
+                  )
+            ))))))
 
 
 ;;;======================================
