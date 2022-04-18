@@ -1405,6 +1405,21 @@
 
          (analysis-layout (editor-analysis-controls editor))
 
+         (player-layout
+          (om-make-layout
+           'om-row-layout
+           :align :center
+           :subviews (list
+                      (om-make-di 'om-simple-text :text "Player"
+                                  :size (omp 40 text-h)
+                                  :font (om-def-font :gui-b))
+                      (om-make-di 'om-popup-list :items '(:midi :osc)
+                                  :size (omp 100 control-h) :font (om-def-font :gui)
+                                  :value (editor-get-edit-param editor :player)
+                                  :di-action #'(lambda (list)
+                                                 (editor-set-edit-param editor :player (om-get-selected-item list))
+                                                 (report-modifications editor) ;; update the box display
+                                                 )))))
          ) ;;; end LET
 
     (om-add-subviews self
@@ -1425,6 +1440,7 @@
                                     display-params-layout
                                     groups-layout
                                     analysis-layout
+                                    player-layout
                                     ))))))
 
     (when editor (om-update-layout (window editor)))
