@@ -30,16 +30,16 @@
 ;;; PREFERENCE
 ;;;===================================================
 
-(add-preference  :score :microtone-bend "Microtone pitch bend"
-                 '(:off :auto-bend :permanent-bend :no-bend)
-                 :auto-bend
-                 '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
-                   "and shift MIDI channels of micro-tonal notes when scale is 1/4 or 1/8th tone."
-                   "- 'auto-bend': applies when score objects start playing, and resets when they stop."
-                   "- 'permanent-bend': sets and keeps MIDI channels bended permamnently."
-                   "- 'no-bend': only shifts to MIDI channels 1-4 (and lets you set MIDI pitch bend)."
-                   )
-                 'update-global-pitch-bend)
+(add-preference :score :microtone-bend "Microtone pitch bend"
+                '(:off :auto-bend :permanent-bend :no-bend)
+                :auto-bend
+                '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
+                  "and shift MIDI channels of micro-tonal notes when scale is 1/4 or 1/8th tone."
+                  "- 'auto-bend': applies when score objects start playing, and resets when they stop."
+                  "- 'permanent-bend': sets and keeps MIDI channels bended permamnently."
+                  "- 'no-bend': only shifts to MIDI channels 1-4 (and lets you set MIDI pitch bend)."
+                  )
+                'update-global-pitch-bend)
 
 ;;; split note on channels in case of microtonal setup (4 or 8)
 ;;; tone = 0, 1/8 = 1, 1/4 = 2, 3/8 = 3
