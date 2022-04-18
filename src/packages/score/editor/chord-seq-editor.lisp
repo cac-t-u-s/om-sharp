@@ -292,7 +292,7 @@
 (defmethod move-editor-selection ((self chord-seq-editor) &key (dx 0) (dy 0))
 
   (unless (equal (editor-play-state self) :stop)
-    (close-open-chords-at-time (get-selected-chords self)
+    (close-open-chords-at-time (get-chords-of-selection self)
                                (get-obj-time (object-value self))
                                (object-value self)))
 

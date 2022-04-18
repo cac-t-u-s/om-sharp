@@ -265,6 +265,14 @@
    (remove-if-not #'(lambda (elt) (typep elt 'chord))
                   (selection editor))))
 
+(defmethod get-chords-of-selection ((editor score-editor))
+  (remove-duplicates
+   (loop for item in (selection editor) append
+         (if (typep item 'note)
+             (collect-note-chords item (object-value editor))
+           (collect-chords item)))))
+
+
 ;;; redefined with objects of several voices...
 (defmethod get-total-y-shift ((editor score-editor) voice-num)
   (editor-get-edit-param editor :y-shift))
@@ -391,7 +399,10 @@
                                            (setf modif t)
                                            ;;; remove-duplicates: continuation chords refer to existing notes !
                                            (loop for n in (remove-duplicates (get-notes (selection editor)))
-                                                 do (setf (midic n) (+ (midic n) diff)))
+                                                 do
+                                                 (unless (equal (editor-play-state editor) :stop)
+                                                   (close-open-chords-at-time (get-chords-of-selection editor) (get-obj-time obj) obj))
+                                                 (setf (midic n) (+ (midic n) diff)))
                                            (setf clicked-pitch new-pitch)
                                            ))
 
@@ -404,7 +415,7 @@
                                     (when modif
                                       (score-object-update voice)
                                       (unless (equal (editor-play-state editor) :stop)
-                                        (close-open-chords-at-time (get-selected-chords editor) (get-obj-time obj) obj))
+                                        (close-open-chords-at-time (get-chords-of-selection editor) (get-obj-time obj) obj))
                                       (notify-scheduler obj)
                                       (reset-undoable-editor-action editor)
                                       (report-modifications editor)))
