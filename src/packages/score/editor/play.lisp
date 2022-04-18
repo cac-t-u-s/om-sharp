@@ -334,7 +334,8 @@
 
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
-    (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
+    (when (and (equal :midi (editor-get-edit-param caller :player))
+               (equal :auto-bend (get-pref-value :score :microtone-bend))
                (micro-channel-on approx))
       (loop for p in (collec-ports-from-object object) do (micro-bend p))))
 
@@ -349,7 +350,8 @@
 
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
-    (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
+    (when (and (equal :midi (get-edit-param caller :player))
+               (equal :auto-bend (get-pref-value :score :microtone-bend))
                (micro-channel-on approx))
       (loop for p in (collec-ports-from-object object) do (micro-bend p))
       ))
@@ -364,6 +366,7 @@
   (let ((micro-play-ports nil))
 
     (loop for box in (get-boxes-of-type object 'ScoreBoxEditCall)
+          when (equal :midi (get-edit-param box :player))
           do
           (let ((approx (/ 200 (step-from-scale (get-edit-param box :scale))))
                 (object (car (value box))))
@@ -386,7 +389,8 @@
 
 (defmethod player-stop-object ((self scheduler) (object score-element))
   (send-current-midi-key-offs object)
-  (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
+  (when (and (equal (player-info object) :midi)
+             (equal :auto-bend (get-pref-value :score :microtone-bend))
              *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
   (call-next-method))
