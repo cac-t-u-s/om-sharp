@@ -36,7 +36,8 @@
     (:h-stretch 1)
     (:groups nil)
     (:group-names t)
-    (:selected-group :all)))
+    (:selected-group :all)
+    (:player :midi)))
 
 
 ;;; Note: y-shift is a value or a list containing the space (in units) above the staff. (see get-total-y-shift)
