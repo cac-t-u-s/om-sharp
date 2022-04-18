@@ -54,7 +54,7 @@
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
-(defmethod get-action-list-of-chord (notes offset interval pitch-approx)
+(defmethod get-action-list-of-chord ((player (eql :midi)) notes offset interval pitch-approx)
   (loop for n in notes append
         (let ((date (+ offset (offset n)))
               (channel (+ (or (chan n) 1)
@@ -92,7 +92,7 @@
                                  (micro-channel-on (pitch-approx c)))
                         (pitch-approx c))))
     (let ((negative-offset (max 0 (- (loop for n in (notes c) minimize (offset n))))))
-      (get-action-list-of-chord (notes c) negative-offset interval pitch-approx)
+      (get-action-list-of-chord (player-info c) (notes c) negative-offset interval pitch-approx)
       )))
 
 
@@ -100,10 +100,10 @@
   (let ((pitch-approx (when (and (not (equal :off (get-pref-value :score :microtone-bend)))
                                  (micro-channel-on (pitch-approx n)))
                         (pitch-approx n))))
-    (get-action-list-of-chord (list n) 0 interval pitch-approx)))
+    (get-action-list-of-chord (player-info n) (list n) 0 interval pitch-approx)))
 
 
-(defmethod get-action-list-of-voice (object interval pitch-approx)
+(defmethod get-action-list-of-voice (object player interval pitch-approx)
   (sort
    (loop for c in (remove-if #'(lambda (chord)
                                  (let ((t1 (+ (date chord) (list-min (loffset chord))))
@@ -113,7 +113,7 @@
                                    ))
                              (chords object))
          append
-         (get-action-list-of-chord (notes c) (date c) interval pitch-approx))
+         (get-action-list-of-chord player (notes c) (date c) interval pitch-approx))
    '< :key 'car))
 
 
@@ -121,7 +121,7 @@
   (let ((pitch-approx (when (and (not (equal :off (get-pref-value :score :microtone-bend)))
                                  (micro-channel-on (pitch-approx object)))
                         (pitch-approx object))))
-    (get-action-list-of-voice object interval pitch-approx)))
+    (get-action-list-of-voice object (player-info object) interval pitch-approx)))
 
 
 (defmethod get-action-list-for-play ((object multi-seq) interval &optional parent)
@@ -129,7 +129,7 @@
                                  (micro-channel-on (pitch-approx object)))
                         (pitch-approx object))))
     (loop for voice in (obj-list object)
-          append (get-action-list-of-voice voice interval pitch-approx))))
+          append (get-action-list-of-voice voice (player-info object) interval pitch-approx))))
 
 
 ;;; Use during score edits:
