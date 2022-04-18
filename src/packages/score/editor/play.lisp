@@ -50,6 +50,18 @@
       (micro-bend)
     (micro-reset)))
 
+
+(add-preference :score :osc-play-format "OSC player format"
+                '(:note-msg :note-on-off-msg :note-bundle :chord-bundle)
+                :note-msg
+                '("Format of OSC messages for score objects using the :OSC player"
+                  "- 'note-msg': Simple OSC message: (\"/om#/note\" pitch velocity duration channel)."
+                  "- 'note-on-off-msg': Another message (\"/om#/note-off\" pitch channel) is sent when the note ends."
+                  "- 'note-bundle': OSC bundle with separate messages for \"/pitch\", \"/velocity\", \"/duration\", \"/channel\"."
+                  "- 'chord-bundle':OSC bundle per chord with one message for each note, and additional message(s) for extras."
+                  ))
+
+
 ;;;===================================================
 ;;; PLAY-ACTIONS
 ;;;===================================================
