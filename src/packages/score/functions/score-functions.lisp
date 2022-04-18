@@ -58,6 +58,21 @@ Returned chords are copies of original internal chords. Time information (onset)
   (loop for elt in (inside self) append (get-chords elt)))
 
 
+;----------------------
+; Internal version without copy
+;----------------------
+
+(defmethod collect-chords ((self t)) nil)
+(defmethod collect-chords ((self chord)) (list self))
+(defmethod collect-chords ((self chord-seq)) (chords self))
+(defmethod collect-chords ((self rhythmic-object))
+  (loop for elt in (inside self) append (collect-chords elt)))
+(defmethod collect-chords ((self multi-seq))
+  (loop for voice in (obj-list self) append (collect-chords voice)))
+
+(defmethod collect-note-chords ((self note) parent)
+  (list (find-if #'(lambda (c) (find self (notes c)))
+                 (collect-chords parent))))
 
 ;--------------------
 ;  ALIGN-CHORDS
