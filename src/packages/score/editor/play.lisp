@@ -228,16 +228,27 @@
                             (and (<= (+ onset (offset note)) time)
                                  (>= (+ onset (offset note) (dur note)) time)))
 
-                    (let ((channel (+ (or (chan note) 1)
-                                      (if pitch-approx (micro-channel (midic note) pitch-approx) 0))))
-                      (om-midi:midi-send-evt
-                       (om-midi:make-midi-evt
-                        :type :keyoff
-                        :chan channel
-                        :port (or (port note) (get-pref-value :midi :out-port))
-                        :fields (list (truncate (midic note) 100) 0)))
-                      ))))
-          )))
+                    (case (player-info playing-object)
+                      (:midi
+                       (let ((channel (+ (or (chan note) 1)
+                                         (if pitch-approx (micro-channel (midic note) pitch-approx) 0))))
+                         (om-midi:midi-send-evt
+                          (om-midi:make-midi-evt
+                           :type :keyoff
+                           :chan channel
+                           :port (or (port note) (get-pref-value :midi :out-port))
+                           :fields (list (truncate (midic note) 100) 0)))
+                         ))
+
+                      (:osc
+                       (when (equal (get-pref-value :score :osc-play-format) :note-on-off-msg)
+                         (osc-send `("/om#/note-off" ,(midic note) ,(or (chan note) 1))
+                                   (get-pref-value :osc :out-host)
+                                   (get-pref-value :osc :out-port))
+                         ))
+
+                      (otherwise nil))
+                    ))))))
 
 
 (defmethod send-current-midi-key-offs ((self score-element))
