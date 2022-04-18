@@ -29,6 +29,9 @@
   (when (stringp (head-char self))
     (setf (head-char self) (read-from-string (head-char self)))))
 
+(defmethod format-as-osc ((self head-extra))
+  `("/head" ,(head-char self)))
+
 
 (defclass* vel-extra (score-extra)
   ((dx :initarg :dx :accessor dx :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
@@ -43,6 +46,9 @@
    (font :initarg :font :accessor font :initform nil :documentation "the text font"))
   (:documentation "A score extra attaching a text label"))
 
+(defmethod format-as-osc ((self text-extra))
+  `("/text" ,(text self)))
+
 
 (defclass* symb-extra (score-extra)
   ((dx :initarg :dx :accessor dx :initform 0 :documentation "horizontal shift in score units wrt. default position")
@@ -55,10 +61,16 @@
   (when (stringp (symb-char self))
     (setf (symb-char self) (read-from-string (symb-char self)))))
 
+(defmethod format-as-osc ((self symb-extra))
+  `("/symbol" ,(symb-char self)))
+
 
 (defclass* score-marker (score-extra)
   ((data :initarg :data :accessor data :initform nil :type t :documentation "some data or label attached to the marker"))
   (:documentation "A score extra marking a segment or cue point in the score"))
+
+(defmethod format-as-osc ((self score-marker))
+  `("/marker" ,.(when (atom (data self)) (list (data self)))))
 
 
 ;;;=================================

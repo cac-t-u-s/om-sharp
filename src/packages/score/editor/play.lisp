@@ -66,7 +66,7 @@
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
-(defmethod get-action-list-of-chord ((player (eql :midi)) notes offset interval pitch-approx)
+(defmethod get-action-list-of-chord ((player (eql :midi)) notes offset interval pitch-approx &optional extras)
   (loop for n in notes append
         (let ((date (+ offset (offset n)))
               (channel (+ (or (chan n) 1)
@@ -97,7 +97,9 @@
           )))
 
 
-(defmethod get-action-list-of-chord ((player (eql :osc)) notes offset interval pitch-approx)
+(defmethod format-as-osc ((self t)) nil)
+
+(defmethod get-action-list-of-chord ((player (eql :osc)) notes offset interval pitch-approx &optional extras)
 
   (case (get-pref-value :score :osc-play-format)
 
@@ -158,8 +160,12 @@
                        (osc-send (make-instance
                                   'osc-bundle
                                   :messages
-                                  (loop for n in notes
-                                        collect `("/note" ,(midic n) ,(vel n) ,(dur n) ,(or (chan n) 1))))
+                                  (append
+                                   (loop for n in notes
+                                         collect `("/note" ,(midic n) ,(vel n) ,(dur n) ,(or (chan n) 1)))
+                                   (remove nil (loop for e in extras
+                                                     collect (format-as-osc e)))
+                                   ))
                                  (get-pref-value :osc :out-host)
                                  (get-pref-value :osc :out-port)))
                    ))))
@@ -175,7 +181,8 @@
                                  (micro-channel-on (pitch-approx c)))
                         (pitch-approx c))))
     (let ((negative-offset (max 0 (- (loop for n in (notes c) minimize (offset n))))))
-      (get-action-list-of-chord (player-info c) (notes c) negative-offset interval pitch-approx)
+      (get-action-list-of-chord (player-info c) (notes c) negative-offset interval pitch-approx
+                                (extras c))
       )))
 
 
@@ -196,7 +203,8 @@
                                    ))
                              (chords object))
          append
-         (get-action-list-of-chord player (notes c) (date c) interval pitch-approx))
+         (get-action-list-of-chord player (notes c) (date c) interval pitch-approx
+                                   (extras c)))
    '< :key 'car))
 
 
