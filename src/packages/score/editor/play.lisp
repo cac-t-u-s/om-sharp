@@ -103,26 +103,33 @@
     (get-action-list-of-chord (list n) 0 interval pitch-approx)))
 
 
+(defmethod get-action-list-of-voice (object interval pitch-approx)
+  (sort
+   (loop for c in (remove-if #'(lambda (chord)
+                                 (let ((t1 (+ (date chord) (list-min (loffset chord))))
+                                       (t2 (+ (date chord) (loop for n in (notes chord) maximize (+ (offset n) (dur n))))))
+                                   (or (< t2 (car interval))
+                                       (>= t1 (cadr interval)))
+                                   ))
+                             (chords object))
+         append
+         (get-action-list-of-chord (notes c) (date c) interval pitch-approx))
+   '< :key 'car))
+
+
 (defmethod get-action-list-for-play ((object chord-seq) interval &optional parent)
   (let ((pitch-approx (when (and (not (equal :off (get-pref-value :score :microtone-bend)))
                                  (micro-channel-on (pitch-approx object)))
                         (pitch-approx object))))
-    (sort
-     (loop for c in (remove-if #'(lambda (chord)
-                                   (let ((t1 (+ (date chord) (list-min (loffset chord))))
-                                         (t2 (+ (date chord) (loop for n in (notes chord) maximize (+ (offset n) (dur n))))))
-                                     (or (< t2 (car interval))
-                                         (>= t1 (cadr interval)))
-                                     ))
-                               (chords object))
-           append
-           (get-action-list-of-chord (notes c) (date c) interval pitch-approx))
-     '< :key 'car)))
+    (get-action-list-of-voice object interval pitch-approx)))
 
 
 (defmethod get-action-list-for-play ((object multi-seq) interval &optional parent)
-  (loop for voice in (obj-list object)
-        append (get-action-list-for-play voice interval (or parent object))))
+  (let ((pitch-approx (when (and (not (equal :off (get-pref-value :score :microtone-bend)))
+                                 (micro-channel-on (pitch-approx object)))
+                        (pitch-approx object))))
+    (loop for voice in (obj-list object)
+          append (get-action-list-of-voice voice interval pitch-approx))))
 
 
 ;;; Use during score edits:
