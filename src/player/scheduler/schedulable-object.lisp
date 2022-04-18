@@ -30,7 +30,8 @@
 (defclass schedulable-object ()
   ((scheduler-settings :initform (list :autostop t) :accessor scheduler-settings :type (or null cons))
    (scheduler-info :initform (list :state :stop :loop-count 0) :accessor scheduler-info :type (or null cons))
-   (scheduler-data :initform (list :plan-lock (mp:make-lock) :task-plan-lock (mp:make-lock)) :accessor scheduler-data :type (or null cons)))
+   (scheduler-data :initform (list :plan-lock (mp:make-lock) :task-plan-lock (mp:make-lock)) :accessor scheduler-data :type (or null cons))
+   (player-info :initform nil :accessor player-info))
   (:documentation "
 SCHEDULABLE OBJECT: an object to be played through a SCHEDULER.
 =======================================================================
