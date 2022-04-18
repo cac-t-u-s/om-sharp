@@ -285,6 +285,8 @@
 
   (declare (ignore parent interval))
 
+  (setf (player-info object) (editor-get-edit-param caller :player))
+
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
     (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
@@ -297,6 +299,8 @@
 (defmethod player-play-object ((self scheduler) (object score-element) (caller ScoreBoxEditCall) &key parent interval)
 
   (declare (ignore parent interval))
+
+  (setf (player-info object) (get-edit-param caller :player))
 
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
