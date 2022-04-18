@@ -97,6 +97,77 @@
           )))
 
 
+(defmethod get-action-list-of-chord ((player (eql :osc)) notes offset interval pitch-approx)
+
+  (case (get-pref-value :score :osc-play-format)
+
+    (:note-msg
+     (loop for n in notes
+           for date = (+ offset (offset n))
+           when (in-interval date interval :exclude-high-bound t)
+           collect (list date
+                         #'(lambda (note)
+                             (osc-send `("/om#/note" ,(midic note) ,(vel note) ,(dur note) ,(or (chan note) 1))
+                                       (get-pref-value :osc :out-host)
+                                       (get-pref-value :osc :out-port)))
+                         (list n))))
+
+    (:note-on-off-msg
+     (loop for n in notes
+           for date = (+ offset (offset n))
+           append (remove
+                   nil
+                   (list
+                    (when (in-interval date interval :exclude-high-bound t)
+                      (list date
+                            #'(lambda (note)
+                                (osc-send `("/om#/note-on" ,(midic note) ,(vel note) ,(dur note) ,(or (chan note) 1))
+                                          (get-pref-value :osc :out-host)
+                                          (get-pref-value :osc :out-port)))
+                            (list n)))
+
+                    (when (in-interval (+ date (dur n)) interval :exclude-high-bound t)
+                      (list (+ date (dur n))
+                            #'(lambda (note)
+                                (osc-send `("/om#/note-off" ,(midic note) ,(or (chan note) 1))
+                                          (get-pref-value :osc :out-host)
+                                          (get-pref-value :osc :out-port)))
+                            (list n)))
+                    ))))
+
+    (:note-bundle
+     (loop for n in notes
+           for date = (+ offset (offset n))
+           when (in-interval date interval :exclude-high-bound t)
+           collect (list date
+                         #'(lambda (note)
+                             (osc-send (make-instance
+                                        'osc-bundle
+                                        :messages `(("/pitch" ,(midic note))
+                                                    ("/velocity" ,(vel note))
+                                                    ("/duration" ,(dur note))
+                                                    ("/channel" ,(or (chan note) 1))))
+                                       (get-pref-value :osc :out-host)
+                                       (get-pref-value :osc :out-port)))
+                         (list n))))
+
+    (:chord-bundle
+     (when (in-interval offset interval :exclude-high-bound t)
+       (list (list offset
+                   #'(lambda ()
+                       (osc-send (make-instance
+                                  'osc-bundle
+                                  :messages
+                                  (loop for n in notes
+                                        collect `("/note" ,(midic n) ,(vel n) ,(dur n) ,(or (chan n) 1))))
+                                 (get-pref-value :osc :out-host)
+                                 (get-pref-value :osc :out-port)))
+                   ))))
+
+    (otherwise (om-beep-msg "Unknow OSC formatting option: ~a" (get-pref-value :score :osc-play-format)))
+    ))
+
+
 ;;; from a chord-editor (or a sequencer...)
 ;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
