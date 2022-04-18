@@ -46,6 +46,12 @@
 ;;; only chord-seq-editor allows editing time
 (defmethod edit-time-? ((self score-editor)) nil)
 
+#|
+(defmethod stop-editor-callback ((self score-editor))
+  (om-midi::midi-all-keys-off)
+  (call-next-method))
+|#
+
 ;;;============
 ;;; SCORE VIEW
 ;;;============
