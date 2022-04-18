@@ -183,17 +183,19 @@
 
 ;;; Use during score edits:
 (defun close-open-chords-at-time (chords time playing-object)
-  (let* ((approx (pitch-approx playing-object))
-         (chan-shift (and (not (equal :off (get-pref-value :score :microtone-bend)))
-                          (micro-channel-on approx))))
+  (let* ((pitch-approx (when (and (not (equal :off (get-pref-value :score :microtone-bend)))
+                                  (micro-channel-on (pitch-approx playing-object)))
+                         (pitch-approx playing-object))))
+
     (loop for chord in chords do
           (let ((onset (onset chord)))
             (loop for note in (notes chord) do
                   (when (or (zerop time)
                             (and (<= (+ onset (offset note)) time)
                                  (>= (+ onset (offset note) (dur note)) time)))
+
                     (let ((channel (+ (or (chan note) 1)
-                                      (if chan-shift (micro-channel (midic note) approx) 0))))
+                                      (if pitch-approx (micro-channel (midic note) pitch-approx) 0))))
                       (om-midi:midi-send-evt
                        (om-midi:make-midi-evt
                         :type :keyoff
