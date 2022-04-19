@@ -42,16 +42,18 @@ If this is done, this type is used to initialize or convert the input list of ob
 
 (defmethod om-init-instance ((self collection) &optional initargs)
 
-  (setf (obj-list self)
-        (if (obj-type self)
+  (let ((initial-list (loop for item in (list! (obj-list self))
+                            collect (om-init-instance item))))
+    (setf (obj-list self)
+          (if (obj-type self)
+              ;;; coerce all object to the specified type
+              (remove nil
+                      (mapcar
+                       #'(lambda (obj)
+                           (om-init-instance (objfromobjs obj (make-instance (obj-type self)))))
+                       initial-list))
 
-            ;;; coerce all object to the specified type
-            (remove nil
-                    (mapcar
-                     #'(lambda  (obj) (objfromobjs obj (make-instance (obj-type self))))
-                     (list! (obj-list self))))
-
-          (om-copy (list! (obj-list self)))))
+            (om-copy initial-list))))
 
   (when (obj-list self)
     ;;; check if all items are of the same type
