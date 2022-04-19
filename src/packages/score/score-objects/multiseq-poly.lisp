@@ -25,7 +25,7 @@
   ((obj-list :initarg :obj-list :initarg :chord-seqs
              :accessor obj-list :initform nil)))
 
-(defclass* poly  (multi-seq)
+(defclass* poly (multi-seq)
   ((obj-list :initarg :obj-list :initarg :voices
              :accessor obj-list :initform nil)))
 
