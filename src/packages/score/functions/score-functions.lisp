@@ -272,7 +272,7 @@ With VOICE objects, uses the tempo and metrics of <obj1>.
 
     (align-chords-in-sequence new-cs 0)
 
-    (objfromobjs new-cs (make-instance (type-of obj1)))))
+    new-cs))
 
 
 (defmethod* merger ((obj1 voice) (obj2 chord-seq))
