@@ -17,7 +17,7 @@
 (in-package :om)
 
 
-(defmethod* sound-rms ((s om-internal-sound))
+(defmethod* sound-rms ((s internal-sound))
   :icon 'sound-normalize
   :indoc '("a sound")
   :doc "Returns the linear Root-Mean-Square (RMS) value of <s>."
@@ -42,7 +42,7 @@
         ))))
 
 
-(defmethod* sound-transients ((s om-internal-sound)
+(defmethod* sound-transients ((s internal-sound)
                               &key (method :rms) (threshold 0.2)
                               (window-size 512) (step 256)
                               (time-threshold 0.0) (output :ms))

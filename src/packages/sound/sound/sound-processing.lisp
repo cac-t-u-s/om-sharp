@@ -23,7 +23,7 @@
 ;======================================================
 
 
-(defmethod* sound-resample ((s om-internal-sound) sample-rate &optional (resample-method 0))
+(defmethod* sound-resample ((s internal-sound) sample-rate &optional (resample-method 0))
   :icon 'sound-resample
   :initvals '(nil 44100 0)
   :menuins '((2 (("Best Quality" 0)
@@ -79,7 +79,7 @@
         s))))
 
 
-(defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
+(defmethod* sound-normalize ((s internal-sound) &key (level 0) (method :peak))
   :icon 'sound-normalize
   :initvals '(nil 0 :peak)
   :menuins '((2 (("Peak" :peak)
@@ -194,7 +194,7 @@
   (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
          (nsmpl (round (* dur sr)))
          (ch (if (< channels 1) 1 channels)))
-    (make-instance 'om-internal-sound
+    (make-instance 'internal-sound
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
@@ -206,7 +206,7 @@
          (nsmpl (round (* dur (/ sr 1000.0))))
          (ch (if (< channels 1) 1 channels)))
 
-    (make-instance 'om-internal-sound
+    (make-instance 'internal-sound
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
@@ -214,10 +214,10 @@
                    :smpl-type :float)))
 
 
-(defmethod* sound-fade ((s om-internal-sound) (in float) (out float))
+(defmethod* sound-fade ((s internal-sound) (in float) (out float))
   :icon 'sound-fade
   :initvals '(nil 0.1 0.1)
-  :indoc '("a om-internal-sound" "fade in duration" "fade out duration")
+  :indoc '("a internal-sound" "fade in duration" "fade out duration")
   :doc "Generates a fade-in and/or fade-out effect on <s>.
 
 <in> and <out> can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
@@ -257,11 +257,11 @@
       s2)))
 
 
-(defmethod* sound-fade ((s om-internal-sound) (in integer) (out integer))
+(defmethod* sound-fade ((s internal-sound) (in integer) (out integer))
   (sound-fade s (ms->sec in) (ms->sec out)))
 
 
-(defmethod* sound-loop ((s om-internal-sound) n)
+(defmethod* sound-loop ((s internal-sound) n)
   :icon 'sound-loop
   :initvals '(nil 3)
   :indoc '("a sound" "a number")
@@ -286,7 +286,7 @@
                      :smpl-type (smpl-type s)))))
 
 
-(defmethod* sound-cut ((s om-internal-sound) (beg float) (end float))
+(defmethod* sound-cut ((s internal-sound) (beg float) (end float))
   :icon 'sound-cut
   :initvals '(nil 0.0 1.0)
   :indoc '("a sound" "begin time" "end time")
@@ -317,11 +317,11 @@
                      :smpl-type type))))
 
 
-(defmethod* sound-cut ((s om-internal-sound) (beg integer) (end integer))
+(defmethod* sound-cut ((s internal-sound) (beg integer) (end integer))
   (sound-cut s (ms->sec beg) (ms->sec end)))
 
 
-(defmethod* sound-gain ((s om-internal-sound) gain &optional (in 1) (out 1))
+(defmethod* sound-gain ((s internal-sound) gain &optional (in 1) (out 1))
   :icon 'sound-normalize
   :initvals '(nil 1.0 1 1)
   :indoc '("a sound" "a gain value" "fade in duration" "fade out duration")
@@ -364,11 +364,11 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
 
 
 ; compatibility
-(defmethod sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
+(defmethod sound-vol ((s internal-sound) gain &optional (in 1) (out 1))
   (sound-gain s gain in out))
 
 
-(defmethod* sound-mono-to-stereo ((s om-internal-sound) &optional (pan 0))
+(defmethod* sound-mono-to-stereo ((s internal-sound) &optional (pan 0))
   :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
   :indoc '("a sound" "a panoramic value between -100 and 100")
@@ -409,7 +409,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
     ))
 
 
-(defmethod* sound-to-mono ((s om-internal-sound))
+(defmethod* sound-to-mono ((s internal-sound))
   :icon 'sound-to-mono
   :initvals '(nil)
   :indoc '("a sound")
@@ -440,7 +440,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
     ))
 
 
-(defmethod* sound-stereo-pan ((s om-internal-sound) left right)
+(defmethod* sound-stereo-pan ((s internal-sound) left right)
   :icon 'sound-stereo-pan
   :initvals '(nil -100 100)
   :indoc '("a sound" "a left channel pan value" "a right channel pan value")
@@ -484,13 +484,13 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
     ))
 
 
-(defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &key (s1-offset 0) (s2-offset 0) (method 0))
+(defmethod* sound-mix ((s1 internal-sound) (s2 internal-sound) &key (s1-offset 0) (s2-offset 0) (method 0))
   :icon 'sound-mix
   :initvals '(nil nil 0)
   :menuins '((4 (("Sum" 0)
                  ("Sum / Average" 1)
                  ("Sum / Hard Limiting" 2))))
-  :indoc '("an om-internal-sound" "an om-internal-sound" "a mixing method")
+  :indoc '("an internal-sound" "an internal-sound" "a mixing method")
   :doc "Generates a mix of <s1> and <s2>.
 
 <s1-offset> and <s2-offset> are temporal offsets in seconds (float) or milliseconds (int)."
@@ -609,7 +609,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
       )))
 
 
-(defmethod* sound-split ((s om-internal-sound))
+(defmethod* sound-split ((s internal-sound))
   :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a (multichannel) sounds")
@@ -635,7 +635,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
         ))))
 
 
-(defmethod* sound-seq ((s1 om-internal-sound) (s2 om-internal-sound) &optional (crossfade 0))
+(defmethod* sound-seq ((s1 internal-sound) (s2 internal-sound) &optional (crossfade 0))
   :icon 'sound-seq
   :initvals '(nil nil 0)
   :indoc '("a sound" "a sound" "cross-fading duration (ms)")
@@ -689,7 +689,7 @@ They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
         s1))))
 
 
-(defmethod* sound-reverse ((s om-internal-sound))
+(defmethod* sound-reverse ((s internal-sound))
   :icon 'sound-reverse
   :indoc '("a sound")
   :doc "Reverses the sound."

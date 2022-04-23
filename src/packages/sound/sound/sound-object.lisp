@@ -69,7 +69,7 @@
 ;;==============================
 
 ;; schedulable-object
-(defclass om-internal-sound (om-cleanup-mixin schedulable-object timed-object)
+(defclass internal-sound (om-cleanup-mixin schedulable-object timed-object)
   ((buffer :accessor buffer :initform nil :initarg :buffer :documentation "the buffer of audio samples")
    (n-samples :accessor n-samples :initform nil :initarg :n-samples :type integer)
    (n-channels :accessor n-channels :initform nil :initarg :n-channels :type integer)
@@ -79,20 +79,20 @@
    (mute :accessor mute :initform nil)
    (buffer-player :accessor buffer-player :initform nil :documentation "pointer to a buffer player")))
 
-;; om-internal-sound never explicitly frees its buffer but just releases it.
+;; internal-sound never explicitly frees its buffer but just releases it.
 ;; => buffer must be created 'with-GC'
-(defmethod om-cleanup ((self om-internal-sound))
+(defmethod om-cleanup ((self internal-sound))
   (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)))
   (when (buffer self) (oa::om-release (buffer self))))
 
-(defmethod additional-slots-to-copy ((from om-internal-sound))
+(defmethod additional-slots-to-copy ((from internal-sound))
   (append (call-next-method) '(mute)))
 
-(defmethod excluded-slots-from-copy ((from om-internal-sound))  '(buffer))
+(defmethod excluded-slots-from-copy ((from internal-sound))  '(buffer))
 
 
 ;;; CLONE A SOUND
-(defmethod clone-object ((self om-internal-sound) &optional clone)
+(defmethod clone-object ((self internal-sound) &optional clone)
 
   (let ((snd (call-next-method)))
 
@@ -110,27 +110,27 @@
     snd))
 
 
-(defmethod release-sound-buffer ((self om-internal-sound))
+(defmethod release-sound-buffer ((self internal-sound))
   (when (buffer self)
     (oa::om-release (buffer self))
     (setf (buffer self) nil)))
 
 ;;; called by the box at eval
-(defmethod release-previous-value ((self om-internal-sound))
+(defmethod release-previous-value ((self internal-sound))
   (release-sound-buffer self))
 
 
-(defmethod check-valid-sound-buffer ((self om-internal-sound))
+(defmethod check-valid-sound-buffer ((self internal-sound))
   (or (and (buffer self) (oa::om-pointer-ptr (buffer self)))
       (om-beep-msg "Error: Invalid/null sound buffer")))
 
 
 ;;; mostly for compatibility...
-(defmethod get-om-sound-data ((self om-internal-sound))
+(defmethod get-om-sound-data ((self internal-sound))
   (buffer self))
 
 
-(defclass* sound (om-internal-sound data-track named-object)
+(defclass* sound (internal-sound data-track named-object)
   ((markers :initform nil :documentation "a list of markers (ms)")  ;; :accessor markers ;; => accessor is redefined below
    (file-pathname  :initform nil :documentation "a pathname")      ;; :accessor file-pathname ;; => accessor is redefined below
    (gain :accessor gain :initform 1.0 :documentation "gain controller [0.0-1.0]")
@@ -213,7 +213,7 @@ Press 'space' to play/stop the sound file.
 (defmethod get-sound ((self sound)) self)
 (defmethod get-sound ((self t)) nil)
 
-(defmethod get-sound ((self om-internal-sound))
+(defmethod get-sound ((self internal-sound))
   (om-init-instance (clone-object self (make-instance 'sound)) nil))
 
 
@@ -396,7 +396,7 @@ Press 'space' to play/stop the sound file.
            nil))))
 |#
 
-(defmethod objFromObjs ((model om-internal-sound) (target sound))
+(defmethod objFromObjs ((model internal-sound) (target sound))
   (clone-object model target))
 
 (defmethod objFromObjs ((model sound) (target sound))
@@ -726,13 +726,13 @@ Press 'space' to play/stop the sound file.
   (round (* 1000 (sound-dur sound))))
 
 
-(defmethod* save-sound ((self om-internal-sound) filename &key format resolution)
+(defmethod* save-sound ((self internal-sound) filename &key format resolution)
   :icon 'save-sound
   :initvals '(nil nil :aiff)
-  :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
+  :indoc '("a sound or internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
   :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg)))
              (3 ((16 16) (24 24) (32 32))))
-  :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
+  :doc "Saves a <self> (internal-sound buffer) as an audio file."
 
   (when (check-valid-sound-buffer self)
 
@@ -808,7 +808,7 @@ Press 'space' to play/stop the sound file.
 
 
 ;;; UTIL FUNCTION FOR JUST PLAYING A SOUND (NOW) E.G. IN A PATCH
-(defmethod play-sound ((sound om-internal-sound))
+(defmethod play-sound ((sound internal-sound))
   (player-play-object *general-player* sound nil))
 
 
