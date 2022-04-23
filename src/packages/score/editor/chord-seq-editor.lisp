@@ -528,6 +528,7 @@
    ))
 
 
+;;; missing om-init-instance ?
 (defmethod editor-import-midi ((self chord-seq-editor))
   (objfromobjs
    (import-midi) ;; => MIDI-TRACK
