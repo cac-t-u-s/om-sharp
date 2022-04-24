@@ -807,8 +807,8 @@ Use SDIFINFO for information about the Frame and Matrix types contained in <self
 
 (defmethod* GetSDIFFrames ((self t) &key sID frameType tmin tmax)
 
-  :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream number"  "min time (s)" "max time (s)")
-  :initvals '(nil nil nil 0 nil nil)
+  :indoc '("SDIF file" "stream number" "frame type (string)" "min time (s)" "max time (s)")
+  :initvals '(nil nil nil nil nil)
   :icon :sdif
   :doc "Creates and returns an SDIFStream instance from SDIF data in stream <sid> of <self>.
 
