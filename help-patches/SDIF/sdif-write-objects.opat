@@ -1,13 +1,13 @@
 
 (:patch
- (:name "07-sdif-write-objects")
+ (:name "sdif-write-objects")
  (:doc "")
  (:info
   (:created "2019/09/23 15:05:09")
-  (:modified "2020/01/02 8:48:15")
+  (:modified "2022/05/15 18:06:18")
   (:by "om-sharp")
-  (:version 1.0))
- (:window (:size (779 780)) (:position (544 158)))
+  (:version 1.06))
+ (:window (:size (793 751)) (:position (544 158)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,8 +16,8 @@
    (:reference sdiffile)
    (:group-id nil)
    (:name "")
-   (:x 516)
-   (:y 627)
+   (:x 557)
+   (:y 586)
    (:w 125)
    (:h 64)
    (:color nil)
@@ -29,6 +29,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -54,21 +55,21 @@
            (:list
             (:mstream-desc
              (:msig "1BEG")
-             (:fields ("Id"))
+             (:fields ("??????x1"))
              (:rmax 1)
              (:tmin 0.0D0)
              (:tmax 7.0D0)
              (:nf 14))
             (:mstream-desc
              (:msig "1TRC")
-             (:fields ("Index" "Frequency" "Amplitude" "Phase"))
+             (:fields ("??????x1" "??????x2" "??????x3" "??????x4"))
              (:rmax 1)
              (:tmin 0.0D0)
              (:tmax 7.0D0)
              (:nf 14))
             (:mstream-desc
              (:msig "1END")
-             (:fields ("Id"))
+             (:fields ("??????x1"))
              (:rmax 1)
              (:tmin 1.0D0)
              (:tmax 8.0D0)
@@ -76,7 +77,15 @@
        (:file-pathname
         (:pathname
          (:directory
-          (:relative :up :up :up :up :up :up "OM" "out-files"))
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "Documents"
+           "OM#"
+           "out-files"))
          (:device :unspecific)
          (:host :unspecific)
          (:name "cseq")
@@ -87,8 +96,8 @@
    (:reference chord-seq)
    (:group-id nil)
    (:name "CHORD-SEQ")
-   (:x 475)
-   (:y 447)
+   (:x 509)
+   (:y 419)
    (:w 202)
    (:h 85)
    (:color nil)
@@ -101,6 +110,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -157,10 +167,12 @@
        (:duration 8000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
+       (:default-frame-type chord)
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
        (:extras nil)
+       (:group-ids nil)
        (:lmidic
         (:list
          (:list 6000)
@@ -206,7 +218,7 @@
    (:reference sdiffile)
    (:group-id nil)
    (:name "")
-   (:x 505)
+   (:x 511)
    (:y 244)
    (:w 113)
    (:h 55)
@@ -219,6 +231,7 @@
    (:showname t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -244,7 +257,15 @@
        (:file-pathname
         (:pathname
          (:directory
-          (:relative :up :up :up :up :up :up "OM" "out-files"))
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "Documents"
+           "OM#"
+           "out-files"))
          (:device :unspecific)
          (:host :unspecific)
          (:name "markers")
@@ -255,10 +276,10 @@
    (:reference cons)
    (:group-id nil)
    (:name "aux 3")
-   (:x 479)
+   (:x 476)
    (:y 148)
-   (:w 119)
-   (:h 30)
+   (:w 133)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -266,6 +287,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value (:list 0 1.2 3.3 4.4 6.0))
@@ -275,10 +297,10 @@
    (:reference list)
    (:group-id nil)
    (:name "list")
-   (:x 254)
-   (:y 496)
-   (:w 52)
-   (:h 30)
+   (:x 247)
+   (:y 516)
+   (:w 62)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -287,6 +309,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value x) (:reactive nil))
     (:input (:type :optional) (:name "x") (:value x) (:reactive nil)))
@@ -298,7 +321,7 @@
    (:group-id nil)
    (:name "SDIFTYPE")
    (:x 263)
-   (:y 376)
+   (:y 368)
    (:w 126)
    (:h 53)
    (:color nil)
@@ -310,6 +333,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -352,7 +376,7 @@
    (:group-id nil)
    (:name "SDIFTYPE")
    (:x 180)
-   (:y 427)
+   (:y 446)
    (:w 89)
    (:h 52)
    (:color nil)
@@ -364,6 +388,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -402,11 +427,11 @@
    (:id 6))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux 2")
    (:x 85)
-   (:y 525)
+   (:y 528)
    (:w 56)
    (:h 30)
    (:color
@@ -416,13 +441,14 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "XBBB")
    (:id 7))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux 2")
    (:x 55)
@@ -436,6 +462,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "XAAA")
@@ -448,7 +475,7 @@
    (:x 34)
    (:y 561)
    (:w 197)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -457,6 +484,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -491,10 +519,10 @@
    (:reference outfile)
    (:group-id nil)
    (:name "outfile")
-   (:x 330)
+   (:x 325)
    (:y 516)
-   (:w 70)
-   (:h 30)
+   (:w 80)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -503,6 +531,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -513,13 +542,13 @@
    (:id 10))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux")
-   (:x 332)
-   (:y 468)
-   (:w 66)
-   (:h 30)
+   (:x 323)
+   (:y 469)
+   (:w 85)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -527,6 +556,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "bpf2.sdif")
@@ -549,6 +579,7 @@
    (:showname t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -582,41 +613,43 @@
        (:file-pathname
         (:pathname
          (:directory
-          (:relative :up :up :up :up :up :up "OM" "out-files"))
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "Documents"
+           "OM#"
+           "out-files"))
          (:device :unspecific)
          (:host :unspecific)
          (:name "bpf2")
          (:type "sdif")))))))
    (:id 12))
   (:comment
-   (:x 110)
-   (:y 396)
-   (:w 131)
-   (:h 32)
-   (:fgcolor (:color 61/255 20/51 74/255 1.0))
+   (:x 133)
+   (:y 399)
+   (:w 112)
+   (:h 36)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
-   (:text "... or define your own")
+   (:text "...or define your own types")
    (:id 13))
   (:comment
-   (:x 220)
-   (:y 243)
-   (:w 144)
-   (:h 25)
-   (:fgcolor (:color 61/255 20/51 74/255 1.0))
+   (:x 217)
+   (:y 242)
+   (:w 112)
+   (:h 36)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "Use predefined types...")
    (:id 14))
@@ -625,9 +658,9 @@
    (:reference sdiffile)
    (:group-id nil)
    (:name "")
-   (:x 106)
+   (:x 82)
    (:y 290)
-   (:w 96)
+   (:w 144)
    (:h 71)
    (:color nil)
    (:border nil)
@@ -638,6 +671,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -663,7 +697,7 @@
            (:list
             (:mstream-desc
              (:msig "1FQ0")
-             (:fields ("Frequency"))
+             (:fields ("??????x1"))
              (:rmax 1)
              (:tmin 42.53499984741211D0)
              (:tmax 4237.46484375D0)
@@ -671,21 +705,29 @@
        (:file-pathname
         (:pathname
          (:directory
-          (:relative :up :up :up :up :up :up "OM" "out-files"))
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "Documents"
+           "OM#"
+           "out-files"))
          (:device :unspecific)
          (:host :unspecific)
-         (:name "mybpf")
+         (:name "bpf")
          (:type "sdif")))))))
    (:id 15))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux")
-   (:x 222)
-   (:y 157)
-   (:w 66)
-   (:h 30)
+   (:x 221)
+   (:y 158)
+   (:w 78)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -693,6 +735,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "bpf.sdif")
@@ -704,8 +747,8 @@
    (:name "outfile")
    (:x 220)
    (:y 198)
-   (:w 70)
-   (:h 30)
+   (:w 80)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -714,6 +757,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -741,6 +785,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1042,10 +1087,10 @@
    (:reference chord-seq->sdif)
    (:group-id nil)
    (:name "chord-seq->sdif")
-   (:x 521)
-   (:y 577)
-   (:w 114)
-   (:h 30)
+   (:x 555)
+   (:y 536)
+   (:w 129)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1054,6 +1099,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1069,8 +1115,8 @@
    (:name "markers->sdif")
    (:x 513)
    (:y 195)
-   (:w 105)
-   (:h 30)
+   (:w 117)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1079,6 +1125,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1097,10 +1144,10 @@
    (:reference bpf->sdif)
    (:group-id nil)
    (:name "bpf->sdif")
-   (:x 118)
+   (:x 113)
    (:y 238)
-   (:w 81)
-   (:h 30)
+   (:w 92)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1109,6 +1156,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1134,41 +1182,24 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 21))
   (:comment
-   (:x 63)
-   (:y 38)
-   (:w 323)
-   (:h 50)
-   (:fgcolor (:color 61/255 20/51 74/255 1.0))
-   (:bgcolor nil)
-   (:border 0)
-   (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
-   (:align nil)
-   (:text
-    "A few functions exist that allow writing directly the contents of some OM objects into an SDIF file...")
-   (:id 22))
-  (:comment
-   (:x 64)
-   (:y 2)
-   (:w 341)
-   (:h 42)
+   (:x 35)
+   (:y 35)
+   (:w 355)
+   (:h 29)
    (:fgcolor (:color 0.19215687 0.2627451 0.42352942 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "Write an SDIF File from OM Objects")
-   (:id 23))
+   (:text "Write an SDIF file from OM# objects")
+   (:id 22))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "value box")
    (:x 128)
@@ -1182,10 +1213,11 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "1FQ0")
-   (:id 24)))
+   (:id 23)))
  (:connections
   (:connection (:from (:box 1 :out 0)) (:to (:box 19 :in 0)))
   (:connection (:from (:box 3 :out 0)) (:to (:box 20 :in 0)))
@@ -1204,5 +1236,5 @@
   (:connection (:from (:box 19 :out 0)) (:to (:box 0 :in 0)))
   (:connection (:from (:box 20 :out 0)) (:to (:box 2 :in 0)))
   (:connection (:from (:box 21 :out 0)) (:to (:box 15 :in 0)))
-  (:connection (:from (:box 24 :out 0)) (:to (:box 21 :in 1)))
-  (:connection (:from (:box 24 :out 0)) (:to (:box 21 :in 2)))))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 21 :in 1)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 21 :in 2)))))

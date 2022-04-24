@@ -1,0 +1,520 @@
+
+(:patch
+ (:name "sdif-read-metadata")
+ (:doc "")
+ (:info
+  (:created "2019/09/23 11:21:48")
+  (:modified "2022/04/24 23:01:24")
+  (:by "om-sharp")
+  (:version 1.06))
+ (:window (:size (985 574)) (:position (97 125)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:type :object)
+   (:reference sdifnvt)
+   (:group-id nil)
+   (:name "SDIFNVT")
+   (:x 186)
+   (:y 457)
+   (:w 273)
+   (:h 68)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "NV-PAIRS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TABLENAME")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "ID") (:value 0) (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "NV-PAIRS") (:reactive nil))
+    (:output (:name "TABLENAME") (:reactive nil))
+    (:output (:name "ID") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdifnvt)
+     (:slots
+      ((:nv-pairs
+        (:list
+         (:list "BufferSize" "512")
+         (:list "NumberOfChannels" "1")
+         (:list "EndTime" "5")
+         (:list "SdifTypesVersion" "1.00.ppc")
+         (:list "ChantLibraryVersion" "1.00.ppc")
+         (:list "Author" "CHANT")
+         (:list "SamplingRate" "44100.000")
+         (:list "ChantMaxNbSubObjs" "16")))
+       (:tablename nil)
+       (:id -3)))))
+   (:id 0))
+  (:box
+   (:type :function)
+   (:reference first)
+   (:group-id nil)
+   (:name "first")
+   (:x 190)
+   (:y 396)
+   (:w 68)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 1))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux 2")
+   (:x 353)
+   (:y 319)
+   (:w 103)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "SamplingRate")
+   (:id 2))
+  (:box
+   (:type :function)
+   (:reference find-in-nvtlist)
+   (:group-id nil)
+   (:name "find-in-nvtlist")
+   (:x 318)
+   (:y 376)
+   (:w 129)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NVTLIST")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ENTRY")
+     (:value "")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 3))
+  (:box
+   (:type :function)
+   (:reference getnvtlist)
+   (:group-id nil)
+   (:name "getnvtlist")
+   (:x 175)
+   (:y 329)
+   (:w 98)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:comment
+   (:x 475)
+   (:y 370)
+   (:w 198)
+   (:h 50)
+   (:fgcolor (:color 61/255 20/51 74/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "SDIF Name/Value Tables (NVT) are textuql meta-data stored in the header of SDIF files")
+   (:id 5))
+  (:comment
+   (:x 767)
+   (:y 150)
+   (:w 162)
+   (:h 36)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "Returns matrix or frame type description info")
+   (:id 6))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux")
+   (:x 652)
+   (:y 118)
+   (:w 54)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "1FOB")
+   (:id 7))
+  (:box
+   (:type :function)
+   (:reference sdiftypedescription)
+   (:group-id nil)
+   (:name "sdiftypedescription")
+   (:x 607)
+   (:y 155)
+   (:w 153)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value "1TYP")
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "type")
+     (:value f)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 8))
+  (:comment
+   (:x 12)
+   (:y 227)
+   (:w 162)
+   (:h 64)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "List SDIF streams (frames, matrices).
+Also prints a detailed info in the Listener.")
+   (:id 9))
+  (:box
+   (:type :function)
+   (:reference sdifinfo)
+   (:group-id nil)
+   (:name "sdifinfo")
+   (:x 145)
+   (:y 155)
+   (:w 86)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 10))
+  (:comment
+   (:x 65)
+   (:y 25)
+   (:w 256)
+   (:h 29)
+   (:fgcolor (:color 6/85 14/85 106/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "Extracting SDIF meta-data")
+   (:id 11))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 489)
+   (:y 189)
+   (:w 380)
+   (:h 61)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :optional)
+     (:name "in")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value
+    (:list
+     (:list
+      "1FQ0"
+      (:list "Frequency" "Confidence" "Score" "RealAmplitude"))
+     (:list
+      "1FOF"
+      (:list
+       "Frequency"
+       "Amplitude"
+       "BandWidth"
+       "Tex"
+       "DebAtt"
+       "Atten"
+       "Phase"))
+     (:list "1CHA" (:list "Channel1" "Channel2"))))
+   (:id 12))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 10)
+   (:y 193)
+   (:w 355)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :optional)
+     (:name "in")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value
+    (:list
+     (:list 0 "1FOB" "1FQ0")
+     (:list 0 "1FOB" "1FOF")
+     (:list 0 "1FOB" "1CHA")))
+   (:id 13))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name "SDIFFILE")
+   (:x 326)
+   (:y 83)
+   (:w 145)
+   (:h 53)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots
+      ((:file-map
+        (:list
+         (:fstream-desc
+          (:id 0)
+          (:fsig "1FOB")
+          (:tmin 0.0D0)
+          (:tmax 5.0D0)
+          (:nf 67)
+          (:matrices
+           (:list
+            (:mstream-desc
+             (:msig "1FQ0")
+             (:fields ("??????x1"))
+             (:rmax 1)
+             (:tmin 0.0D0)
+             (:tmax 5.0D0)
+             (:nf 67))
+            (:mstream-desc
+             (:msig "1FOF")
+             (:fields
+              ("??????x1"
+               "??????x2"
+               "??????x3"
+               "??????x4"
+               "??????x5"
+               "??????x6"
+               "??????x7"))
+             (:rmax 1)
+             (:tmin 0.0D0)
+             (:tmax 5.0D0)
+             (:nf 67))
+            (:mstream-desc
+             (:msig "1CHA")
+             (:fields ("??????x1"))
+             (:rmax 1)
+             (:tmin 0.0D0)
+             (:tmax 5.0D0)
+             (:nf 67)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           "imtr-libs"
+           "trunk"
+           "SDIF"
+           "SDIF"
+           "test"
+           "files"
+           "sdifref"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "1fof")
+         (:type "sdif")))))))
+   (:id 14))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "value box")
+   (:x 336)
+   (:y 414)
+   (:w 85)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :optional)
+     (:name "in")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "44100.000")
+   (:id 15)))
+ (:connections
+  (:connection (:from (:box 1 :out 0)) (:to (:box 0 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 1)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 15 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 0)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 8 :in 1)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 13 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 10 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 8 :in 0)))
+  (:connection
+   (:from (:box 14 :out 0))
+   (:to (:box 4 :in 0))
+   (:attributes (:color nil :style nil :modif (0 40/189))))))

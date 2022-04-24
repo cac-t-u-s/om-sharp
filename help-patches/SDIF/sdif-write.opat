@@ -1,0 +1,4151 @@
+
+(:patch
+ (:name "sdif-write")
+ (:doc "")
+ (:info
+  (:created "2019/09/23 12:15:29")
+  (:modified "2022/04/29 0:01:17")
+  (:by "om-sharp")
+  (:version 1.06))
+ (:window (:size (922 850)) (:position (380 72)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "aux 2")
+   (:x 475)
+   (:y 81)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.0)
+   (:id 0))
+  (:box
+   (:type :function)
+   (:reference om-random)
+   (:group-id nil)
+   (:name "om-random")
+   (:x 463)
+   (:y 129)
+   (:w 103)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LOW")
+     (:value 0.0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "HIGH")
+     (:value 10.0)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 1))
+  (:comment
+   (:x 291)
+   (:y 345)
+   (:w 134)
+   (:h 22)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "Create SDIF frame")
+   (:id 2))
+  (:comment
+   (:x 312)
+   (:y 172)
+   (:w 108)
+   (:h 22)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "2 SDIF Matrices")
+   (:id 3))
+  (:comment
+   (:x 510)
+   (:y 379)
+   (:w 104)
+   (:h 36)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "Declare 3 new SDIF types")
+   (:id 4))
+  (:comment
+   (:x 62)
+   (:y 30)
+   (:w 200)
+   (:h 29)
+   (:fgcolor (:color 0.19215687 0.2627451 0.42352942 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "Write an SDIF File")
+   (:id 5))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux3")
+   (:x 688)
+   (:y 560)
+   (:w 91)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "test.sdif")
+   (:id 6))
+  (:box
+   (:type :function)
+   (:reference outfile)
+   (:group-id nil)
+   (:name "outfile")
+   (:x 694)
+   (:y 596)
+   (:w 80)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NAME")
+     (:value "")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 7))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name "SDIFFILE")
+   (:x 434)
+   (:y 672)
+   (:w 130)
+   (:h 66)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (1071 257)) (:position (232 184)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots
+      ((:file-map
+        (:list
+         (:fstream-desc
+          (:id 0)
+          (:fsig "XFRA")
+          (:tmin 0.0D0)
+          (:tmax 4.999997615814209D0)
+          (:nf 51)
+          (:matrices
+           (:list
+            (:mstream-desc
+             (:msig "XNFO")
+             (:fields ("Info"))
+             (:rmax 1)
+             (:tmin 0.0D0)
+             (:tmax 4.999997615814209D0)
+             (:nf 51))
+            (:mstream-desc
+             (:msig "XMAT")
+             (:fields ("par1" "par2" "par3"))
+             (:rmax 10)
+             (:tmin 0.0D0)
+             (:tmax 4.999997615814209D0)
+             (:nf 51)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "Documents"
+           "OM#"
+           "out-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "test")
+         (:type "sdif")))))))
+   (:id 8))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 493)
+   (:y 575)
+   (:w 62)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 9))
+  (:box
+   (:type :object)
+   (:reference sdiftype)
+   (:group-id nil)
+   (:name "SDIFTYPE")
+   (:x 585)
+   (:y 514)
+   (:w 85)
+   (:h 49)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "STRUCT")
+     (:value m)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value "XMAT")
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DESCRIPTION")
+     (:value (:list "par1" "par2" "par3"))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "STRUCT") (:reactive nil))
+    (:output (:name "SIGNATURE") (:reactive nil))
+    (:output (:name "DESCRIPTION") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiftype)
+     (:slots
+      ((:struct m)
+       (:signature "XMAT")
+       (:description (:list "par1" "par2" "par3"))))))
+   (:id 10))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux2")
+   (:x 439)
+   (:y 179)
+   (:w 56)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XMAT")
+   (:id 11))
+  (:box
+   (:type :object)
+   (:reference sdiftype)
+   (:group-id nil)
+   (:name "SDIFTYPE")
+   (:x 507)
+   (:y 514)
+   (:w 70)
+   (:h 50)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "STRUCT")
+     (:value m)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value "XNFO")
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DESCRIPTION")
+     (:value (:list "Info"))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "STRUCT") (:reactive nil))
+    (:output (:name "SIGNATURE") (:reactive nil))
+    (:output (:name "DESCRIPTION") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiftype)
+     (:slots
+      ((:struct m)
+       (:signature "XNFO")
+       (:description (:list "Info"))))))
+   (:id 12))
+  (:box
+   (:type :object)
+   (:reference sdiftype)
+   (:group-id nil)
+   (:name "SDIFTYPE")
+   (:x 397)
+   (:y 481)
+   (:w 105)
+   (:h 53)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "STRUCT")
+     (:value f)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value "XFRA")
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DESCRIPTION")
+     (:value (:list (:list "XNFO" "InfoMat") (:list "XMAT" "datamat")))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "STRUCT") (:reactive nil))
+    (:output (:name "SIGNATURE") (:reactive nil))
+    (:output (:name "DESCRIPTION") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiftype)
+     (:slots
+      ((:struct f)
+       (:signature "XFRA")
+       (:description
+        (:list (:list "XNFO" "InfoMat") (:list "XMAT" "datamat")))))))
+   (:id 13))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 240)
+   (:y 287)
+   (:w 62)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 14))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux1")
+   (:x 205)
+   (:y 138)
+   (:w 55)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XNFO")
+   (:id 15))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux")
+   (:x 240)
+   (:y 104)
+   (:w 62)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list (:list 4)))
+   (:id 16))
+  (:box
+   (:type :object)
+   (:reference sdifmatrix)
+   (:group-id nil)
+   (:name "SDIFMATRIX")
+   (:x 199)
+   (:y 171)
+   (:w 100)
+   (:h 62)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "MATRIXTYPE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "MATRIXTYPE") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdifmatrix)
+     (:slots
+      ((:field-names nil)
+       (:data (:list (:list 4)))
+       (:matrixtype "XNFO")))))
+   (:id 17))
+  (:box
+   (:type :object)
+   (:reference sdifframe)
+   (:group-id nil)
+   (:name "SDIFFRAME")
+   (:x 146)
+   (:y 342)
+   (:w 138)
+   (:h 63)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FRAMETYPE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FTIME")
+     (:value 0.0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "STREAMID")
+     (:value 0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LMATRIX")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FRAMETYPE") (:reactive nil))
+    (:output (:name "FTIME") (:reactive nil))
+    (:output (:name "STREAMID") (:reactive nil))
+    (:output (:name "LMATRIX") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdifframe)
+     (:slots
+      ((:onset 5000)
+       (:item-internal-time nil)
+       (:item-type nil)
+       (:attributes nil)
+       (:frametype "XFRA")
+       (:ftime 4.9999976)
+       (:streamid 0)
+       (:lmatrix
+        (:list
+         (:object
+          (:class sdifmatrix)
+          (:slots
+           ((:field-names nil)
+            (:data (:list (:list 4)))
+            (:matrixtype "XNFO"))))
+         (:object
+          (:class sdifmatrix)
+          (:slots
+           ((:field-names nil)
+            (:data
+             (:list
+              (:list
+               7.225971
+               9.91487
+               8.911056
+               2.2225964
+               4.4296575
+               4.4743657
+               2.8660405
+               9.972551
+               4.589758
+               6.714933)
+              (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+              (:list
+               0
+               37.037037
+               58.190476
+               46.66667
+               40.96889
+               27.191115
+               13.413336
+               38.47473
+               41.72222
+               100.0)))
+            (:matrixtype "XMAT"))))))))))
+   (:id 18))
+  (:box
+   (:type :object)
+   (:reference sdifmatrix)
+   (:group-id nil)
+   (:name "SDIFMATRIX1")
+   (:x 391)
+   (:y 226)
+   (:w 163)
+   (:h 92)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "MATRIXTYPE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "MATRIXTYPE") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdifmatrix)
+     (:slots
+      ((:field-names nil)
+       (:data
+        (:list
+         (:list
+          4.316988
+          6.6494823
+          8.311566
+          3.4619034
+          2.893169
+          8.960696
+          7.291193
+          0.020333529
+          8.347545
+          2.2277463)
+         (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+         (:list
+          0
+          37.037037
+          58.190476
+          46.66667
+          40.96889
+          27.191115
+          13.413336
+          38.47473
+          41.72222
+          100.0)))
+       (:matrixtype "XMAT")))))
+   (:id 19))
+  (:box
+   (:type :object)
+   (:reference bpf)
+   (:group-id nil)
+   (:name "BPF")
+   (:x 775)
+   (:y 41)
+   (:w 94)
+   (:h 65)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "X-POINTS")
+     (:value (:list 0 10))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Y-POINTS")
+     (:value (:list 0 100))
+     (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "decimals")
+     (:value 0)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "X-POINTS") (:reactive nil))
+    (:output (:name "Y-POINTS") (:reactive nil))
+    (:output (:name "decimals") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class bpf)
+     (:slots
+      ((:onset 0)
+       (:duration 100)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:action nil)
+       (:color (:color 0 0 0 1.0))
+       (:decimals 0)
+       (:x-points (:list 0 18 32 40 42 67 78 94 100))
+       (:y-points (:list 0 60 54 10 44 13 39 43 100))))
+     (:add-slots ((:name "BPF")))))
+   (:id 20))
+  (:box
+   (:type :special)
+   (:reference repeat-n)
+   (:group-id nil)
+   (:name "repeat-n")
+   (:x 522)
+   (:y 164)
+   (:w 92)
+   (:h 28)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :left)
+   (:reactive nil)
+   (:lock nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "self")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "num")
+     (:value 0)
+     (:reactive nil)))
+   (:outputs (:output (:name "collected results") (:reactive nil)))
+   (:id 21))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 624)
+   (:y 57)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 10)
+   (:id 22))
+  (:box
+   (:type :function)
+   (:reference make-list)
+   (:group-id nil)
+   (:name "make-list")
+   (:x 651)
+   (:y 164)
+   (:w 92)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SIZE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "initial-element")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 23))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 694)
+   (:y 129)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1.0)
+   (:id 24))
+  (:box
+   (:type :function)
+   (:reference om-sample)
+   (:group-id nil)
+   (:name "om-sample")
+   (:x 764)
+   (:y 164)
+   (:w 100)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "NBS-SR")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "out0") (:reactive nil))
+    (:output (:name "out1") (:reactive nil))
+    (:output (:name "out2") (:reactive nil)))
+   (:id 25))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 666)
+   (:y 207)
+   (:w 62)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 26))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 518)
+   (:y 81)
+   (:w 39)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 10.0)
+   (:id 27))
+  (:box
+   (:type :function)
+   (:reference write-sdif-file)
+   (:group-id nil)
+   (:name "write-sdif-file")
+   (:x 439)
+   (:y 635)
+   (:w 129)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "FRAMES")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "types") (:value nil) (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "outpath")
+     (:value "out.sdif")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 28))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "value box")
+   (:x 425)
+   (:y 450)
+   (:w 53)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XFRA")
+   (:id 29))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "value box")
+   (:x 521)
+   (:y 449)
+   (:w 55)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XNFO")
+   (:id 30))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "value box")
+   (:x 609)
+   (:y 479)
+   (:w 57)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XMAT")
+   (:id 31))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "value box")
+   (:x 150)
+   (:y 310)
+   (:w 53)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "XFRA")
+   (:id 32))
+  (:box
+   (:type :object)
+   (:reference data-track)
+   (:group-id nil)
+   (:name nil)
+   (:x 258)
+   (:y 532)
+   (:w 105)
+   (:h 58)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FRAMES")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FRAMES") (:reactive nil)))
+   (:window (:size (650 200)) (:position (73 54)))
+   (:edition-params (:x2 6000) (:x1 0))
+   (:value
+    (:object
+     (:class data-track)
+     (:slots
+      ((:onset 0)
+       (:duration 5000)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:default-frame-type sdifframe)
+       (:frames
+        (:list
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 0)
+            (:item-internal-time 0)
+            (:item-type :master)
+            (:attributes
+             (:list
+              :color
+              (:color 0.036322832 8.4865094E-4 0.867617 0.4)
+              :posy
+              47))
+            (:frametype "XFRA")
+            (:ftime 0)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    6.1660967
+                    4.875152
+                    3.8041616
+                    4.281126
+                    3.8177765
+                    0.7968223
+                    7.6262665
+                    5.48149
+                    2.19522
+                    0.7421577)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 100)
+            (:item-internal-time 100)
+            (:item-type 100)
+            (:attributes
+             (:list
+              :color
+              (:color 0.80917395 0.94990516 0.07785261 0.4)
+              :posy
+              64))
+            (:frametype "XFRA")
+            (:ftime 0.1)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.193124
+                    3.9768005
+                    0.11363745
+                    8.189634
+                    2.7635193
+                    3.089769
+                    4.5582523
+                    0.9460592
+                    4.2326307
+                    8.879835)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 200)
+            (:item-internal-time 200)
+            (:item-type 200)
+            (:attributes
+             (:list
+              :color
+              (:color 0.06567478 0.9970596 0.392828 0.4)
+              :posy
+              90))
+            (:frametype "XFRA")
+            (:ftime 0.2)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    0.52923084
+                    1.2717486
+                    2.8695154
+                    2.6385713
+                    6.3992796
+                    9.014755
+                    2.073388
+                    5.6129336
+                    0.15451908
+                    7.47772)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 300)
+            (:item-internal-time 300)
+            (:item-type 300)
+            (:attributes
+             (:list
+              :color
+              (:color 0.17985738 0.6341827 0.9325751 0.4)
+              :posy
+              59))
+            (:frametype "XFRA")
+            (:ftime 0.3)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.3712244
+                    3.2833946
+                    3.0773413
+                    4.127722
+                    8.6215515
+                    7.1042514
+                    9.282971
+                    5.7073317
+                    9.190869
+                    8.368855)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 400)
+            (:item-internal-time 400)
+            (:item-type 400)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9774461 0.15742195 0.3798417 0.4)
+              :posy
+              76))
+            (:frametype "XFRA")
+            (:ftime 0.4)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.8666973
+                    6.6966066
+                    5.0973606
+                    7.2626066
+                    6.9697704
+                    0.68901897
+                    9.951345
+                    7.688415
+                    6.073444
+                    6.1234474)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 500)
+            (:item-internal-time 500)
+            (:item-type 500)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9870399 0.10073006 0.08069754 0.4)
+              :posy
+              61))
+            (:frametype "XFRA")
+            (:ftime 0.5)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.5373278
+                    5.000392
+                    0.5274701
+                    8.461725
+                    9.449493
+                    7.9524937
+                    7.9318833
+                    2.9026807
+                    0.9220302
+                    0.07979393)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 600)
+            (:item-internal-time 600)
+            (:item-type 600)
+            (:attributes
+             (:list
+              :color
+              (:color 0.39549387 0.30962014 0.06267893 0.4)
+              :posy
+              89))
+            (:frametype "XFRA")
+            (:ftime 0.6)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.3335984
+                    4.6723595
+                    0.5640781
+                    8.608857
+                    7.8897333
+                    9.074162
+                    7.3762465
+                    5.1594043
+                    3.4525407
+                    3.0411148)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 700)
+            (:item-internal-time 700)
+            (:item-type 700)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6942848 0.8739613 0.44666696 0.4)
+              :posy
+              39))
+            (:frametype "XFRA")
+            (:ftime 0.70000005)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.2466672
+                    7.0195055
+                    0.35608053
+                    0.41716337
+                    5.529623
+                    1.799221
+                    1.3312411
+                    2.0880652
+                    4.3517733
+                    6.946641)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 800)
+            (:item-internal-time 800)
+            (:item-type 800)
+            (:attributes
+             (:list
+              :color
+              (:color 0.58861387 0.4857664 0.28741467 0.4)
+              :posy
+              86))
+            (:frametype "XFRA")
+            (:ftime 0.8000001)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    4.9760685
+                    6.5349636
+                    0.2343154
+                    0.81131816
+                    8.043584
+                    3.8474727
+                    1.6861987
+                    2.017455
+                    7.695713
+                    4.480498)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 900)
+            (:item-internal-time 900)
+            (:item-type 900)
+            (:attributes
+             (:list
+              :color
+              (:color 0.65633166 0.66641367 0.17501462 0.4)
+              :posy
+              46))
+            (:frametype "XFRA")
+            (:ftime 0.9000001)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    4.442378
+                    9.159872
+                    2.2319866
+                    0.61552525
+                    4.886205
+                    7.0526877
+                    5.514524
+                    2.792232
+                    8.768991
+                    2.0202625)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1000)
+            (:item-internal-time 1000)
+            (:item-type 1000)
+            (:attributes
+             (:list
+              :color
+              (:color 0.40939248 0.42711747 0.34595156 0.4)
+              :posy
+              57))
+            (:frametype "XFRA")
+            (:ftime 1.0000001)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.0394135
+                    2.0401907
+                    3.0200875
+                    1.0995185
+                    8.072291
+                    5.234708
+                    1.3387907
+                    6.505312
+                    3.296969
+                    9.638695)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1100)
+            (:item-internal-time 1100)
+            (:item-type 1100)
+            (:attributes
+             (:list
+              :color
+              (:color 0.27902532 0.8811306 0.94873655 0.4)
+              :posy
+              49))
+            (:frametype "XFRA")
+            (:ftime 1.1000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.949341
+                    0.59839607
+                    5.402528
+                    4.522175
+                    2.4934733
+                    6.9043484
+                    1.1796033
+                    3.4950626
+                    4.942423
+                    4.5886874)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1200)
+            (:item-internal-time 1200)
+            (:item-type 1200)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8374847 0.75767875 0.40838933 0.4)
+              :posy
+              52))
+            (:frametype "XFRA")
+            (:ftime 1.2000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    0.16847849
+                    3.928398
+                    5.4728055
+                    5.0805307
+                    4.2868605
+                    0.039595366
+                    1.4555991
+                    8.489455
+                    0.764333
+                    3.1380117)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1300)
+            (:item-internal-time 1300)
+            (:item-type 1300)
+            (:attributes
+             (:list
+              :color
+              (:color 0.27295554 0.6519145 0.39091146 0.4)
+              :posy
+              51))
+            (:frametype "XFRA")
+            (:ftime 1.3000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.8365526
+                    5.3850365
+                    3.9904678
+                    6.8959847
+                    5.574465
+                    1.9374919
+                    4.7564898
+                    3.3047915
+                    4.947934
+                    5.0270786)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1400)
+            (:item-internal-time 1400)
+            (:item-type 1400)
+            (:attributes
+             (:list
+              :color
+              (:color 0.39844513 0.92650974 0.06955576 0.4)
+              :posy
+              37))
+            (:frametype "XFRA")
+            (:ftime 1.4000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    5.181264
+                    6.959881
+                    2.2844005
+                    4.6489787
+                    8.370779
+                    4.6326804
+                    7.312517
+                    4.9023857
+                    4.9258003
+                    8.508286)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1500)
+            (:item-internal-time 1500)
+            (:item-type 1500)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9098108 0.052650094 0.6080781 0.4)
+              :posy
+              90))
+            (:frametype "XFRA")
+            (:ftime 1.5000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    4.0039816
+                    3.5565675
+                    1.9070053
+                    9.856817
+                    7.42445
+                    6.0306606
+                    9.916072
+                    6.6739836
+                    0.009783506
+                    9.991198)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1600)
+            (:item-internal-time 1600)
+            (:item-type 1600)
+            (:attributes
+             (:list
+              :color
+              (:color 0.76886404 0.596812 0.70894874 0.4)
+              :posy
+              45))
+            (:frametype "XFRA")
+            (:ftime 1.6000003)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    4.6435843
+                    1.4532459
+                    8.32405
+                    4.819958
+                    6.9092217
+                    2.8827966
+                    0.051506758
+                    2.8929532
+                    7.126154
+                    4.2168675)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1700)
+            (:item-internal-time 1700)
+            (:item-type 1700)
+            (:attributes
+             (:list
+              :color
+              (:color 0.5442921 0.18042386 0.5508449 0.4)
+              :posy
+              54))
+            (:frametype "XFRA")
+            (:ftime 1.7000003)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    6.081991
+                    8.420863
+                    3.450712
+                    8.592669
+                    3.725046
+                    5.8354054
+                    5.3296256
+                    2.504983
+                    0.3175211
+                    9.9556675)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1800)
+            (:item-internal-time 1800)
+            (:item-type 1800)
+            (:attributes
+             (:list
+              :color
+              (:color 0.46344054 0.34680045 0.14664257 0.4)
+              :posy
+              30))
+            (:frametype "XFRA")
+            (:ftime 1.8000003)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    8.129582
+                    8.499241
+                    0.755533
+                    7.7815986
+                    9.289801
+                    3.7090862
+                    8.810426
+                    3.8052082
+                    8.457264
+                    1.989001)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 1900)
+            (:item-internal-time 1900)
+            (:item-type 1900)
+            (:attributes
+             (:list
+              :color
+              (:color 0.69030476 0.8986417 0.9153373 0.4)
+              :posy
+              66))
+            (:frametype "XFRA")
+            (:ftime 1.9000003)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.649443
+                    0.43094754
+                    9.164802
+                    1.1090696
+                    3.6021293
+                    0.41059256
+                    0.8770716
+                    8.374027
+                    4.2061844
+                    9.962306)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2000)
+            (:item-internal-time 2000)
+            (:item-type 2000)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8233535 0.40544915 0.66578377 0.4)
+              :posy
+              83))
+            (:frametype "XFRA")
+            (:ftime 2.0000003)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.8175
+                    5.2199087
+                    4.88147
+                    6.6378713
+                    2.5032223
+                    4.3121004
+                    9.688606
+                    9.146622
+                    1.1335361
+                    4.8410893)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2100)
+            (:item-internal-time 2100)
+            (:item-type 2100)
+            (:attributes
+             (:list
+              :color
+              (:color 0.83177186 0.02509439 0.33102024 0.4)
+              :posy
+              64))
+            (:frametype "XFRA")
+            (:ftime 2.1000002)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.72128
+                    5.1312494
+                    1.9987869
+                    7.640643
+                    5.074532
+                    0.6180501
+                    9.433119
+                    8.422088
+                    7.3198166
+                    3.7598706)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2200)
+            (:item-internal-time 2200)
+            (:item-type 2200)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9039558 0.22697795 0.28965247 0.4)
+              :posy
+              64))
+            (:frametype "XFRA")
+            (:ftime 2.2)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    8.425536
+                    7.0991397
+                    7.08846
+                    4.0343704
+                    1.3019002
+                    3.3023358
+                    0.08858323
+                    1.0958934
+                    8.037148
+                    5.5240145)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2300)
+            (:item-internal-time 2300)
+            (:item-type 2300)
+            (:attributes
+             (:list
+              :color
+              (:color 0.039690018 0.7088084 0.8495618 0.4)
+              :posy
+              37))
+            (:frametype "XFRA")
+            (:ftime 2.3)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    4.476247
+                    3.638519
+                    5.1586104
+                    3.6769498
+                    3.2608342
+                    0.4980278
+                    8.396176
+                    2.856133
+                    9.907854
+                    3.1422079)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2400)
+            (:item-internal-time 2400)
+            (:item-type 2400)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9923061 0.018568874 0.606971 0.4)
+              :posy
+              48))
+            (:frametype "XFRA")
+            (:ftime 2.3999999)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.232516
+                    1.1250246
+                    2.2171343
+                    0.4145372
+                    4.748583
+                    7.5194097
+                    3.1991744
+                    2.410972
+                    6.9044647
+                    0.49917817)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2500)
+            (:item-internal-time 2500)
+            (:item-type 2500)
+            (:attributes
+             (:list
+              :color
+              (:color 0.8747089 0.42480648 0.9101075 0.4)
+              :posy
+              59))
+            (:frametype "XFRA")
+            (:ftime 2.4999998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.972965
+                    6.4111757
+                    9.730198
+                    4.438553
+                    3.4560216
+                    0.37852168
+                    8.55842
+                    9.898708
+                    3.0012524
+                    2.708279)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2600)
+            (:item-internal-time 2600)
+            (:item-type 2600)
+            (:attributes
+             (:list
+              :color
+              (:color 0.93541456 0.632409 0.9777194 0.4)
+              :posy
+              70))
+            (:frametype "XFRA")
+            (:ftime 2.5999997)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.5447393
+                    9.054475
+                    4.2757464
+                    2.073605
+                    4.846305
+                    7.348386
+                    2.4133265
+                    2.3892284
+                    2.593944
+                    3.8172245)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2700)
+            (:item-internal-time 2700)
+            (:item-type 2700)
+            (:attributes
+             (:list
+              :color
+              (:color 0.5549736 0.5817512 0.99836815 0.4)
+              :posy
+              76))
+            (:frametype "XFRA")
+            (:ftime 2.6999996)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.8440938
+                    5.3265524
+                    7.8189945
+                    5.732836
+                    4.836712
+                    6.8293405
+                    1.527015
+                    7.490394
+                    1.6804242
+                    1.8607557)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2800)
+            (:item-internal-time 2800)
+            (:item-type 2800)
+            (:attributes
+             (:list
+              :color
+              (:color 0.81484187 0.09290147 0.17772365 0.4)
+              :posy
+              66))
+            (:frametype "XFRA")
+            (:ftime 2.7999995)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.987293
+                    4.097146
+                    0.7454276
+                    8.068753
+                    3.5307217
+                    7.9142656
+                    7.232218
+                    8.523254
+                    0.60922266
+                    2.9113543)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 2900)
+            (:item-internal-time 2900)
+            (:item-type 2900)
+            (:attributes
+             (:list
+              :color
+              (:color 0.3041197 0.21215105 0.85269237 0.4)
+              :posy
+              44))
+            (:frametype "XFRA")
+            (:ftime 2.8999994)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    0.7854068
+                    5.450077
+                    3.725078
+                    4.9863043
+                    2.5590682
+                    8.944019
+                    7.949972
+                    5.251251
+                    1.5779233
+                    9.046425)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3000)
+            (:item-internal-time 3000)
+            (:item-type 3000)
+            (:attributes
+             (:list
+              :color
+              (:color 0.0644629 0.047331214 0.44807935 0.4)
+              :posy
+              41))
+            (:frametype "XFRA")
+            (:ftime 2.9999993)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    0.6895685
+                    4.0913987
+                    8.765221
+                    0.48647165
+                    6.070113
+                    7.1566057
+                    7.798954
+                    7.969277
+                    1.3702893
+                    7.6107397)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3100)
+            (:item-internal-time 3100)
+            (:item-type 3100)
+            (:attributes
+             (:list
+              :color
+              (:color 0.9817642 0.5014763 0.38321757 0.4)
+              :posy
+              65))
+            (:frametype "XFRA")
+            (:ftime 3.0999992)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.0816765
+                    0.5079329
+                    5.912609
+                    3.4936858
+                    7.9948187
+                    2.7795554
+                    9.262051
+                    4.6326733
+                    3.7903238
+                    5.298358)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3200)
+            (:item-internal-time 3200)
+            (:item-type 3200)
+            (:attributes
+             (:list
+              :color
+              (:color 0.41701424 0.53348077 0.9442649 0.4)
+              :posy
+              85))
+            (:frametype "XFRA")
+            (:ftime 3.199999)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.664578
+                    3.967154
+                    1.6403687
+                    4.5067954
+                    5.9354925
+                    4.091773
+                    8.305466
+                    1.8029487
+                    1.99332
+                    4.628295)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3300)
+            (:item-internal-time 3300)
+            (:item-type 3300)
+            (:attributes
+             (:list
+              :color
+              (:color 0.33461726 0.9627576 0.5434929 0.4)
+              :posy
+              35))
+            (:frametype "XFRA")
+            (:ftime 3.299999)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.496292
+                    8.860683
+                    9.291166
+                    8.942432
+                    0.49522638
+                    0.00975728
+                    4.2391133
+                    6.063572
+                    6.310277
+                    7.176316)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3400)
+            (:item-internal-time 3400)
+            (:item-type 3400)
+            (:attributes
+             (:list
+              :color
+              (:color 0.40127325 0.5745317 0.26392257 0.4)
+              :posy
+              54))
+            (:frametype "XFRA")
+            (:ftime 3.399999)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.8648934
+                    2.3135805
+                    5.907583
+                    0.57593465
+                    4.7525606
+                    7.0904484
+                    8.231876
+                    0.92179895
+                    6.6508436
+                    7.249485)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3500)
+            (:item-internal-time 3500)
+            (:item-type 3500)
+            (:attributes
+             (:list
+              :color
+              (:color 0.12604332 0.17879224 0.365687 0.4)
+              :posy
+              72))
+            (:frametype "XFRA")
+            (:ftime 3.4999988)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.752921
+                    7.2445717
+                    6.2062206
+                    8.542719
+                    9.550255
+                    3.3825648
+                    7.7076554
+                    0.9817004
+                    6.07987
+                    1.3957214)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3600)
+            (:item-internal-time 3600)
+            (:item-type 3600)
+            (:attributes
+             (:list
+              :color
+              (:color 0.556342 0.5245241 0.4507625 0.4)
+              :posy
+              47))
+            (:frametype "XFRA")
+            (:ftime 3.5999987)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.8625288
+                    4.2795563
+                    8.546608
+                    9.475636
+                    9.395257
+                    6.415516
+                    6.4885464
+                    8.246249
+                    5.085267
+                    1.0114312)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3700)
+            (:item-internal-time 3700)
+            (:item-type 3700)
+            (:attributes
+             (:list
+              :color
+              (:color 0.90245605 0.7513343 0.97980047 0.4)
+              :posy
+              40))
+            (:frametype "XFRA")
+            (:ftime 3.6999986)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    0.18384934
+                    1.2835169
+                    1.0398114
+                    5.0512815
+                    4.909152
+                    0.1733768
+                    0.18308997
+                    4.057052
+                    9.31806
+                    1.7994309)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3800)
+            (:item-internal-time 3800)
+            (:item-type 3800)
+            (:attributes
+             (:list
+              :color
+              (:color 0.870685 0.85352874 0.64754797 0.4)
+              :posy
+              78))
+            (:frametype "XFRA")
+            (:ftime 3.7999986)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    9.287167
+                    7.882819
+                    3.3890415
+                    8.490826
+                    3.7758482
+                    7.4072933
+                    8.766802
+                    8.337692
+                    6.9107447
+                    6.4983034)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 3900)
+            (:item-internal-time 3900)
+            (:item-type 3900)
+            (:attributes
+             (:list
+              :color
+              (:color 0.33324838 0.40831196 0.7480347 0.4)
+              :posy
+              72))
+            (:frametype "XFRA")
+            (:ftime 3.8999985)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.4853647
+                    1.1488414
+                    7.3217106
+                    7.360165
+                    3.1484127
+                    3.3533943
+                    0.9588647
+                    5.4850865
+                    4.9259377
+                    7.273538)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4000)
+            (:item-internal-time 4000)
+            (:item-type 4000)
+            (:attributes
+             (:list
+              :color
+              (:color 0.43743682 0.17124284 0.6242697 0.4)
+              :posy
+              35))
+            (:frametype "XFRA")
+            (:ftime 3.9999984)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.288928
+                    0.23985863
+                    8.450274
+                    6.5366545
+                    7.635742
+                    0.6336129
+                    4.6970487
+                    2.3185695
+                    6.95755
+                    2.1493662)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4100)
+            (:item-internal-time 4100)
+            (:item-type 4100)
+            (:attributes
+             (:list
+              :color
+              (:color 0.0024478436 0.25230134 0.25083506 0.4)
+              :posy
+              44))
+            (:frametype "XFRA")
+            (:ftime 4.0999985)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    6.04535
+                    7.8924456
+                    2.5781763
+                    3.881086
+                    5.0113726
+                    1.6012669
+                    5.906775
+                    2.624048
+                    2.748654
+                    7.374383)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4200)
+            (:item-internal-time 4200)
+            (:item-type 4200)
+            (:attributes
+             (:list
+              :color
+              (:color 0.566838 0.28249168 0.73301435 0.4)
+              :posy
+              34))
+            (:frametype "XFRA")
+            (:ftime 4.1999984)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.973635
+                    3.1721866
+                    2.3588074
+                    3.3003617
+                    0.42370796
+                    9.733793
+                    7.5764656
+                    2.6870239
+                    5.542767
+                    4.870425)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4300)
+            (:item-internal-time 4300)
+            (:item-type 4300)
+            (:attributes
+             (:list
+              :color
+              (:color 0.053501368 0.7904935 0.46644974 0.4)
+              :posy
+              79))
+            (:frametype "XFRA")
+            (:ftime 4.2999983)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    2.5016594
+                    1.0146022
+                    1.4674258
+                    7.844781
+                    7.179612
+                    0.46099782
+                    7.2701273
+                    3.5021985
+                    5.377117
+                    3.3140707)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4400)
+            (:item-internal-time 4400)
+            (:item-type 4400)
+            (:attributes
+             (:list
+              :color
+              (:color 0.45993865 0.08317149 0.8801757 0.4)
+              :posy
+              82))
+            (:frametype "XFRA")
+            (:ftime 4.399998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.3908494
+                    1.0863459
+                    4.285128
+                    8.471938
+                    5.6575513
+                    3.5076487
+                    0.6220746
+                    7.7838755
+                    2.8822065
+                    0.9298599)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4500)
+            (:item-internal-time 4500)
+            (:item-type 4500)
+            (:attributes
+             (:list
+              :color
+              (:color 0.30630815 0.5615517 0.86905337 0.4)
+              :posy
+              74))
+            (:frametype "XFRA")
+            (:ftime 4.499998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.645891
+                    1.0278559
+                    9.796366
+                    9.7752
+                    3.3035326
+                    1.7072868
+                    6.2950554
+                    3.7162686
+                    8.096741
+                    7.903743)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4600)
+            (:item-internal-time 4600)
+            (:item-type 4600)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6683706 0.74044967 0.510972 0.4)
+              :posy
+              65))
+            (:frametype "XFRA")
+            (:ftime 4.599998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    8.199249
+                    7.695689
+                    0.27162075
+                    3.5402155
+                    7.1316958
+                    2.1775735
+                    1.050117
+                    9.538637
+                    8.519021
+                    2.2233439)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4700)
+            (:item-internal-time 4700)
+            (:item-type 4700)
+            (:attributes
+             (:list
+              :color
+              (:color 0.7124319 0.960186 0.29012942 0.4)
+              :posy
+              79))
+            (:frametype "XFRA")
+            (:ftime 4.699998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    3.6906505
+                    5.506254
+                    3.6785138
+                    1.0202742
+                    3.0014909
+                    2.968552
+                    2.1340072
+                    6.6038966
+                    2.1309948
+                    6.0288487)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4800)
+            (:item-internal-time 4800)
+            (:item-type 4800)
+            (:attributes
+             (:list
+              :color
+              (:color 0.23570597 0.6716012 0.45052743 0.4)
+              :posy
+              82))
+            (:frametype "XFRA")
+            (:ftime 4.799998)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    1.2927342
+                    0.7837665
+                    3.4465099
+                    3.069675
+                    0.1973486
+                    1.2862253
+                    5.0076437
+                    4.9764767
+                    9.357187
+                    1.5111148)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 4900)
+            (:item-internal-time 4900)
+            (:item-type 4900)
+            (:attributes
+             (:list
+              :color
+              (:color 0.23406554 0.7523116 0.95005584 0.4)
+              :posy
+              61))
+            (:frametype "XFRA")
+            (:ftime 4.8999977)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    6.8087673
+                    2.021222
+                    7.600464
+                    7.0047236
+                    6.897104
+                    4.764862
+                    5.3054023
+                    1.4734316
+                    8.626106
+                    5.641656)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))
+         (:object
+          (:class sdifframe)
+          (:slots
+           ((:onset 5000)
+            (:item-internal-time 5000)
+            (:item-type :master)
+            (:attributes
+             (:list
+              :color
+              (:color 0.6995059 0.26649535 0.99776626 0.4)
+              :posy
+              57))
+            (:frametype "XFRA")
+            (:ftime 4.9999976)
+            (:streamid 0)
+            (:lmatrix
+             (:list
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data (:list (:list 4)))
+                 (:matrixtype "XNFO"))))
+              (:object
+               (:class sdifmatrix)
+               (:slots
+                ((:field-names nil)
+                 (:data
+                  (:list
+                   (:list
+                    7.225971
+                    9.91487
+                    8.911056
+                    2.2225964
+                    4.4296575
+                    4.4743657
+                    2.8660405
+                    9.972551
+                    4.589758
+                    6.714933)
+                   (:list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+                   (:list
+                    0
+                    37.037037
+                    58.190476
+                    46.66667
+                    40.96889
+                    27.191115
+                    13.413336
+                    38.47473
+                    41.72222
+                    100.0)))
+                 (:matrixtype "XMAT")))))))))))))))
+   (:id 33))
+  (:box
+   (:type :special)
+   (:reference loop-for)
+   (:group-id nil)
+   (:name "loop-for")
+   (:x 87)
+   (:y 231)
+   (:w 70)
+   (:h 42)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :top)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "from")
+     (:value 0)
+     (:reactive nil))
+    (:input (:type :standard) (:name "to") (:value 5) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "by")
+     (:value 0.1)
+     (:reactive nil)))
+   (:outputs (:output (:name "i") (:reactive nil)))
+   (:id 34))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 101)
+   (:y 196)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 5)
+   (:id 35))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 64)
+   (:y 196)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0)
+   (:id 36))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 146)
+   (:y 196)
+   (:w 36)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.1)
+   (:id 37))
+  (:box
+   (:type :special)
+   (:reference iterate)
+   (:group-id nil)
+   (:name "iterate")
+   (:x 29)
+   (:y 532)
+   (:w 64)
+   (:h 42)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :top)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "action")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs)
+   (:id 38))
+  (:box
+   (:type :special)
+   (:reference collect)
+   (:group-id nil)
+   (:name "collect")
+   (:x 150)
+   (:y 421)
+   (:w 64)
+   (:h 42)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.7 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :top)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "data-in")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "push")
+     (:value t)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "init")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "collect") (:reactive nil))
+    (:output (:name "data-out") (:reactive nil))
+    (:output (:name "init") (:reactive nil)))
+   (:id 39))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 358)
+   (:y 416)
+   (:w 254)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list (:list "XNFO" "InfoMat") (:list "XMAT" "datamat")))
+   (:id 40))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 640)
+   (:y 447)
+   (:w 151)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list "par1" "par2" "par3"))
+   (:id 41))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 532)
+   (:y 479)
+   (:w 66)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list "Info"))
+   (:id 42))
+  (:comment
+   (:x 46)
+   (:y 577)
+   (:w 108)
+   (:h 36)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "^ collect the frames here...")
+   (:id 43))
+  (:comment
+   (:x 492)
+   (:y 749)
+   (:w 247)
+   (:h 22)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text "^ ...then eval here to save the file")
+   (:id 44)))
+ (:connections
+  (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 21 :in 0)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 7 :in 0)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 28 :in 2)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 28 :in 1)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 9 :in 2)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 19 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 9 :in 1)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 18 :in 4)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 17 :in 1)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 17 :in 2)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 14 :in 0)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 39 :in 0)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 14 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 25 :in 0)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 26 :in 0)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 21 :in 1)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 23 :in 0)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 25 :in 1)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 26 :in 1)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 23 :in 1)))
+  (:connection (:from (:box 25 :out 2)) (:to (:box 26 :in 2)))
+  (:connection (:from (:box 26 :out 0)) (:to (:box 19 :in 2)))
+  (:connection (:from (:box 27 :out 0)) (:to (:box 1 :in 1)))
+  (:connection (:from (:box 28 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 29 :out 0)) (:to (:box 13 :in 2)))
+  (:connection (:from (:box 30 :out 0)) (:to (:box 12 :in 2)))
+  (:connection (:from (:box 31 :out 0)) (:to (:box 10 :in 2)))
+  (:connection (:from (:box 32 :out 0)) (:to (:box 18 :in 1)))
+  (:connection (:from (:box 33 :out 1)) (:to (:box 28 :in 0)))
+  (:connection (:from (:box 34 :out 0)) (:to (:box 18 :in 2)))
+  (:connection (:from (:box 35 :out 0)) (:to (:box 34 :in 1)))
+  (:connection (:from (:box 36 :out 0)) (:to (:box 34 :in 0)))
+  (:connection (:from (:box 37 :out 0)) (:to (:box 34 :in 2)))
+  (:connection (:from (:box 39 :out 0)) (:to (:box 38 :in 0)))
+  (:connection (:from (:box 39 :out 1)) (:to (:box 33 :in 1)))
+  (:connection (:from (:box 40 :out 0)) (:to (:box 13 :in 3)))
+  (:connection (:from (:box 41 :out 0)) (:to (:box 10 :in 3)))
+  (:connection (:from (:box 42 :out 0)) (:to (:box 12 :in 3)))))

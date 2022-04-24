@@ -1,0 +1,465 @@
+
+(:patch
+ (:name "sdiffile")
+ (:doc "")
+ (:info
+  (:created "2019/09/23 11:18:05")
+  (:modified "2022/04/24 21:36:02")
+  (:by "om-sharp")
+  (:version 1.06))
+ (:window (:size (1024 475)) (:position (144 148)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:comment
+   (:x 37)
+   (:y 280)
+   (:w 416)
+   (:h 50)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "- Eval the box (v) to load a file
+- Lock the box (b) if you want to store this file in the box
+- Double-click to open and visualize the file contents")
+   (:id 0))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name "SDIFFILE")
+   (:x 181)
+   (:y 189)
+   (:w 78)
+   (:h 72)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :hidden)
+   (:showname t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (425 216)) (:position (102 83)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
+   (:id 1))
+  (:comment
+   (:x 162)
+   (:y 108)
+   (:w 415)
+   (:h 50)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "Load a file using a (valid) pathname connected to the box.
+If the <self> input defaults to :choose-file, a file chooser dialog opens to select an SDIF file")
+   (:id 2))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "aux")
+   (:x 44)
+   (:y 108)
+   (:w 89)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "file01.sdif")
+   (:id 3))
+  (:box
+   (:type :function)
+   (:reference infile)
+   (:group-id nil)
+   (:name "infile")
+   (:x 51)
+   (:y 148)
+   (:w 74)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NAME")
+     (:value "")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name nil)
+   (:x 49)
+   (:y 187)
+   (:w 78)
+   (:h 72)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :hidden)
+   (:showname t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (367 186)) (:position (73 54)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
+   (:id 5))
+  (:comment
+   (:x 30)
+   (:y 55)
+   (:w 490)
+   (:h 36)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "The SDIFFILE object is a pointer to an SDIF file (Sound Description Interchange Format) in the patch.")
+   (:id 6))
+  (:comment
+   (:x 33)
+   (:y 23)
+   (:w 87)
+   (:h 29)
+   (:fgcolor (:color 6/85 14/85 106/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "SDIFFile")
+   (:id 7))
+  (:comment
+   (:x 544)
+   (:y 392)
+   (:w 161)
+   (:h 22)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Consolas") (:size 12) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "SDIF to text conversion")
+   (:id 8))
+  (:box
+   (:type :object)
+   (:reference textbuffer)
+   (:group-id nil)
+   (:name "TEXTFILE")
+   (:x 562)
+   (:y 328)
+   (:w 132)
+   (:h 58)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params (:output-mode :list))
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         "SDIF"
+         ""
+         "1NVT"
+         "{"
+         "BufferSize	512;"
+         "NumberOfChannels	1;"
+         "EndTime	1.696;"
+         "SdifTypesVersion	1.01.ppc;"
+         "ChantLibraryVersion	1.01.ppc;"
+         "Author	DIPHONE;"
+         "SamplingRate	44100.000;"
+         "}"
+         ""
+         "1IDS"
+         "{"
+         "  0 Chant:Patch0/1/FOB/1/35/0.000000/1.696054;"
+         "}"
+         ""
+         ""
+         "SDFC"
+         ""
+         "1FOB	3	0	0"
+         "  1FQ0	0x0004	1	1"
+         "	0.294802"
+         "  1FOF	0x0004	35	7"
+         "	49.3655	0.000111216	0.719891	0.002	1.52645	0.169605	0"
+         "	161.284	0.000339959	0.139965	0.002	1.52645	0.169605	0"
+         "	266.654	0.000283425	1.11932	0.002	1.52645	0.169605	0"
+         "	271.768	0.000272263	2.09772	0.002	1.15697	0.539089	0"
+         "	299.709	0.00118343	0.455665	0.002	1.52645	0.169605	0"
+         "	315.145	0.0146066	0.00257313	0.002	1.52645	0.169605	0"
+         "	320.654	0.00326005	0.150761	0.002	1.52645	0.169605	0"
+         "	323.794	0.00468206	1.55356	0.002	1.56222	0.133839	0"
+         "	329.453	0.0085899	0.311545	0.002	1.52645	0.169605	0"
+         "	347.735	0.00103451	0.464687	0.002	1.52645	0.169605	0"
+         "	363.867	0.00294196	3.85345	0.002	0.629823	1.06623	0"
+         "	367.941	0.000208699	0.259842	0.002	1.52645	0.169605	0"
+         "	369.3	0.000345811	1.13904	0.002	1.52645	0.169605	0"
+         "	374.09	0.000308146	0.810446	0.002	1.52645	0.169605	0"
+         "	389.36	0.025583	3.63404	0.002	0.66785	1.0282	0"
+         "	391.661	0.0184221	0.252235	0.002	1.52645	0.169605	0"
+         "	413.85	0.000235326	1.32729	0.002	1.52645	0.169605	0"
+         "	429.582	0.000163539	0.188297	0.002	1.52645	0.169605	0"
+         "	453.096	0.000536226	0.961745	0.002	1.52645	0.169605	0"
+         "	462.459	0.000853075	0.246895	0.002	1.52645	0.169605	0"
+         "	469.57	0.000524189	0.955544	0.002	1.52645	0.169605	0"
+         "	485.581	0.00308735	0.457775	0.002	1.52645	0.169605	0"
+         "	490.499	0.00421743	6.86256	0.002	0.353657	1.3424	0"
+         "	503.753	0.000322173	0.822604	0.002	1.52645	0.169605	0"
+         "	507.611	0.000320495	2.17116	0.002	1.11783	0.578224	0"
+         "	515.898	0.000273332	1.40095	0.002	1.52645	0.169605	0"
+         "	630.436	0.00636245	1.63731	0.002	1.4823	0.213753	0"
+         "	783.106	0.00101509	2.04645	0.002	1.18595	0.510101	0"
+         "	943.987	0.000244713	1.01127	0.002	1.52645	0.169605	0"
+         "	1160.82	0.00016276	0.832355	0.002	1.52645	0.169605	0"
+         "	1172.88	0.000551225	0.395935	0.002	1.52645	0.169605	0"
+         "	1177.02	0.0013944	0.66034	0.002	1.52645	0.169605	0"
+         "	1576.43	0.000240996	0.509589	0.002	1.52645	0.169605	0"
+         "	1577.8	0.000196247	1.23795	0.002	1.52645	0.169605	0"
+         "	1889.7	0.000336046	1.12846	0.002	1.52645	0.169605	0"
+         "  1CHA	0x0004	35	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         "	1"
+         ""
+         "ENDC"
+         "ENDF"))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 9))
+  (:box
+   (:type :function)
+   (:reference sdif->text)
+   (:group-id nil)
+   (:name "sdif->text")
+   (:x 546)
+   (:y 288)
+   (:w 98)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 10))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name nil)
+   (:x 525)
+   (:y 220)
+   (:w 141)
+   (:h 51)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (500 500)) (:position (247 228)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots
+      ((:file-map
+        (:list
+         (:fstream-desc
+          (:id 0)
+          (:fsig "1FOB")
+          (:tmin 0.0D0)
+          (:tmax 0.0D0)
+          (:nf 1)
+          (:matrices
+           (:list
+            (:mstream-desc
+             (:msig "1FQ0")
+             (:fields ("??????x1"))
+             (:rmax 1)
+             (:tmin 0.0D0)
+             (:tmax 0.0D0)
+             (:nf 1))
+            (:mstream-desc
+             (:msig "1FOF")
+             (:fields
+              ("??????x1"
+               "??????x2"
+               "??????x3"
+               "??????x4"
+               "??????x5"
+               "??????x6"
+               "??????x7"))
+             (:rmax 35)
+             (:tmin 0.0D0)
+             (:tmax 0.0D0)
+             (:nf 1))
+            (:mstream-desc
+             (:msig "1CHA")
+             (:fields ("??????x1"))
+             (:rmax 35)
+             (:tmin 0.0D0)
+             (:tmax 0.0D0)
+             (:nf 1)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           "OM"
+           "OM6"
+           "OPENMUSIC"
+           "resources"
+           "online"
+           "in-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "tenor.FOF")
+         (:type "sdif")))))))
+   (:id 11)))
+ (:connections
+  (:connection (:from (:box 3 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 10 :in 0)))))

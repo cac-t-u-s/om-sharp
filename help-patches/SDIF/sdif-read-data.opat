@@ -1,58 +1,55 @@
 
 (:patch
- (:name "02-sdif-read")
+ (:name "sdif-read-data")
  (:doc "")
  (:info
   (:created "2019/09/23 11:38:06")
-  (:modified "2020/01/02 8:48:15")
+  (:modified "2022/04/24 23:51:10")
   (:by "om-sharp")
-  (:version 1.0))
- (:window (:size (951 573)) (:position (403 181)))
+  (:version 1.06))
+ (:window (:size (1123 624)) (:position (294 181)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:comment
-   (:x 32)
-   (:y 76)
-   (:w 282)
-   (:h 61)
+   (:x 19)
+   (:y 72)
+   (:w 307)
+   (:h 50)
    (:fgcolor (:color 61/255 20/51 74/255 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Use these functions if you know which type of data you want to extract (open the editor for an overview of the file contents)")
    (:id 0))
   (:comment
-   (:x 32)
-   (:y 11)
-   (:w 435)
-   (:h 37)
+   (:x 19)
+   (:y 33)
+   (:w 289)
+   (:h 29)
    (:fgcolor (:color 0.19215687 0.2627451 0.42352942 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 24) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "Accessing data from SDIF files")
+   (:text "Reading data from SDIF files")
    (:id 1))
   (:box
    (:type :function)
    (:reference getsdiftimes)
    (:group-id nil)
    (:name "getsdiftimes")
-   (:x 692)
-   (:y 337)
-   (:w 98)
-   (:h 30)
+   (:x 502)
+   (:y 511)
+   (:w 111)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -61,6 +58,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -91,34 +89,31 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 2))
   (:comment
-   (:x 640)
-   (:y 132)
+   (:x 310)
+   (:y 433)
    (:w 114)
-   (:h 24)
+   (:h 22)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :bold)))
+     (:font (:font (:face "Consolas") (:size 12) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "Temporal info")
+   (:text "Time info")
    (:id 3))
   (:comment
-   (:x 640)
-   (:y 160)
-   (:w 166)
-   (:h 92)
+   (:x 310)
+   (:y 452)
+   (:w 179)
+   (:h 78)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Select data by choosing 
@@ -128,18 +123,15 @@
 - optional temporal range")
    (:id 4))
   (:comment
-   (:x 642)
-   (:y 387)
-   (:w 164)
-   (:h 29)
+   (:x 475)
+   (:y 544)
+   (:w 178)
+   (:h 22)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "Returns every frame times")
    (:id 5))
@@ -148,8 +140,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "aux2")
-   (:x 689)
-   (:y 295)
+   (:x 516)
+   (:y 472)
    (:w 32)
    (:h 30)
    (:color
@@ -159,17 +151,18 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
    (:id 6))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux5")
-   (:x 721)
-   (:y 264)
+   (:x 539)
+   (:y 438)
    (:w 54)
    (:h 30)
    (:color
@@ -179,58 +172,50 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "1TRC")
    (:id 7))
   (:comment
-   (:x 0)
-   (:y 362)
-   (:w 138)
-   (:h 45)
+   (:x 234)
+   (:y 363)
+   (:w 160)
+   (:h 36)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
-   (:text "This loop collects the data in a BPF-Lib")
+   (:text "This loop collects the data as a list of BPFs")
    (:id 8))
   (:comment
-   (:x 243)
-   (:y 295)
-   (:w 326)
-   (:h 68)
+   (:x 246)
+   (:y 278)
+   (:w 374)
+   (:h 50)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Returns:
-1) List of data selected in each frames (i.e. list of lists)
-2) List of the corresponding time stamps")
+1) List of data selected in each frames (list of lists)
+2) List of the corresponding times")
    (:id 9))
   (:comment
    (:x 344)
-   (:y 76)
-   (:w 225)
-   (:h 120)
+   (:y 68)
+   (:w 253)
+   (:h 106)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "Select data by choosing 
@@ -247,9 +232,9 @@
    (:group-id nil)
    (:name "SDIFFILE")
    (:x 69)
-   (:y 160)
-   (:w 78)
-   (:h 72)
+   (:y 159)
+   (:w 81)
+   (:h 61)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -259,6 +244,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -277,7 +263,7 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:name "OMLOOP")
+     (:name "make-BPFs")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (389 399)) (:position (295 276)))
@@ -296,7 +282,7 @@
        (:name "input0")
        (:x 125)
        (:y 0)
-       (:w 56)
+       (:w 58)
        (:h 42)
        (:color
         (:color-or-nil
@@ -307,6 +293,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 0))
@@ -318,7 +305,7 @@
        (:name "output 1")
        (:x 204)
        (:y 291)
-       (:w 68)
+       (:w 70)
        (:h 42)
        (:color
         (:color-or-nil
@@ -329,6 +316,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -355,6 +343,7 @@
        (:text-font nil)
        (:align nil)
        (:lock nil)
+       (:reactive nil)
        (:inputs)
        (:outputs (:output (:name "value") (:reactive nil)))
        (:value 4)
@@ -366,7 +355,7 @@
        (:name "collect")
        (:x 185)
        (:y 226)
-       (:w 57)
+       (:w 64)
        (:h 42)
        (:color
         (:color-or-nil
@@ -377,6 +366,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -417,6 +407,7 @@
        (:show-markers t)
        (:lock nil)
        (:lambda nil)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -466,7 +457,7 @@
        (:name "iterate")
        (:x 129)
        (:y 294)
-       (:w 57)
+       (:w 64)
        (:h 42)
        (:color
         (:color-or-nil
@@ -477,6 +468,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -492,7 +484,7 @@
        (:name "list-loop")
        (:x 147)
        (:y 82)
-       (:w 65)
+       (:w 76)
        (:h 42)
        (:color
         (:color-or-nil
@@ -503,6 +495,7 @@
        (:text-font nil)
        (:align :center)
        (:icon :top)
+       (:reactive nil)
        (:inputs
         (:input
          (:type :standard)
@@ -519,10 +512,10 @@
       (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 0)))
       (:connection (:from (:box 6 :out 0)) (:to (:box 4 :in 2))))))
    (:group-id nil)
-   (:name "OMLOOP")
-   (:x 140)
+   (:name "make-BPFs")
+   (:x 136)
    (:y 359)
-   (:w 83)
+   (:w 92)
    (:h 48)
    (:color nil)
    (:border nil)
@@ -530,9 +523,10 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
+   (:pre-delay 0)
    (:lock nil)
    (:lambda nil)
-   (:pre-delay 0)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -559,6 +553,7 @@
    (:showname nil)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1171,8 +1166,8 @@
    (:name "aux1")
    (:x 344)
    (:y 214)
-   (:w 32)
-   (:h 30)
+   (:w 36)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1180,6 +1175,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.2)
@@ -1189,10 +1185,10 @@
    (:reference single-float)
    (:group-id nil)
    (:name "aux")
-   (:x 300)
+   (:x 298)
    (:y 214)
-   (:w 32)
-   (:h 30)
+   (:w 36)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1200,6 +1196,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0.1)
@@ -1212,7 +1209,7 @@
    (:x 176)
    (:y 246)
    (:w 172)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1221,6 +1218,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -1273,13 +1271,13 @@
    (:id 16))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "aux5")
-   (:x 206)
-   (:y 166)
-   (:w 39)
-   (:h 30)
+   (:x 199)
+   (:y 145)
+   (:w 54)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1287,6 +1285,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "1TRC")
@@ -1299,7 +1298,7 @@
    (:x 192)
    (:y 202)
    (:w 32)
-   (:h 30)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1307,6 +1306,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 0)
@@ -1319,7 +1319,7 @@
    (:x 246)
    (:y 166)
    (:w 32)
-   (:h 30)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1327,6 +1327,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 2)
@@ -1339,7 +1340,7 @@
    (:x 264)
    (:y 202)
    (:w 32)
-   (:h 30)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1347,6 +1348,7 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 3)
@@ -1359,7 +1361,7 @@
    (:x 282)
    (:y 166)
    (:w 32)
-   (:h 30)
+   (:h 29)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1367,10 +1369,189 @@
    (:text-font nil)
    (:align nil)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 50)
-   (:id 21)))
+   (:id 21))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name "SDIFFILE")
+   (:x 785)
+   (:y 204)
+   (:w 102)
+   (:h 61)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:add-slots
+      ((:file-map
+        (:list
+         (:fstream-desc
+          (:id 0)
+          (:fsig "1TRC")
+          (:tmin 0.02320861630141735D0)
+          (:tmax 5.207063674926758D0)
+          (:nf 834)
+          (:matrices
+           (:list
+            (:mstream-desc
+             (:msig "1TRC")
+             (:fields ("??????x1" "??????x2" "??????x3" "??????x4"))
+             (:rmax 6)
+             (:tmin 0.02320861630141735D0)
+             (:tmax 5.207063674926758D0)
+             (:nf 834)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           "_SHARED-FILES"
+           "OM"
+           "OM-VERSIONS"
+           "OM-5.2.1-Linux"
+           "workspaces"
+           "OMWorkspace"
+           "in-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "africa.trc")
+         (:type "sdif")))))))
+   (:id 22))
+  (:box
+   (:type :function)
+   (:reference getsdifframes)
+   (:group-id nil)
+   (:name "getsdifframes")
+   (:x 807)
+   (:y 290)
+   (:w 117)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "sid") (:value nil) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 23))
+  (:box
+   (:type :object)
+   (:reference data-track)
+   (:group-id nil)
+   (:name nil)
+   (:x 764)
+   (:y 351)
+   (:w 250)
+   (:h 80)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FRAMES")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FRAMES") (:reactive nil)))
+   (:window (:size (1244 263)) (:position (131 112)))
+   (:edition-params
+    (:y2 117.79153)
+    (:y1 11.3977585)
+    (:display-mode :blocks)
+    (:x2 6207)
+    (:x1 0))
+   (:value
+    (:object
+     (:class data-track)
+     (:slots
+      ((:onset 0)
+       (:duration 0)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:default-frame-type action-bundle)
+       (:frames nil)))))
+   (:id 24))
+  (:comment
+   (:x 781)
+   (:y 176)
+   (:w 174)
+   (:h 22)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Consolas") (:size 12) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "Collect SDIFFRAME objects")
+   (:id 25))
+  (:comment
+   (:x 765)
+   (:y 443)
+   (:w 251)
+   (:h 50)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
+   (:align nil)
+   (:text
+    "SDIFFRAME is a compatible structure to use, visualize and process in a DATA-TRACK container.")
+   (:id 26)))
  (:connections
   (:connection (:from (:box 6 :out 0)) (:to (:box 2 :in 1)))
   (:connection (:from (:box 7 :out 0)) (:to (:box 2 :in 2)))
@@ -1385,4 +1566,6 @@
   (:connection (:from (:box 18 :out 0)) (:to (:box 16 :in 1)))
   (:connection (:from (:box 19 :out 0)) (:to (:box 16 :in 4)))
   (:connection (:from (:box 20 :out 0)) (:to (:box 16 :in 5)))
-  (:connection (:from (:box 21 :out 0)) (:to (:box 16 :in 6)))))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 16 :in 6)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 23 :in 0)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 24 :in 1)))))
