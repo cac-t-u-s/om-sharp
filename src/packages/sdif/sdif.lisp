@@ -33,14 +33,25 @@
 (omNG-make-package
  "SDIF"
  :container-pack *om-package-tree*
- :doc "Tools for manipulating data in the Standard Description Interchange Format"
- :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
- :functions '(
-              GetSDIFData GetSDIFTimes GetSDIFFrames
-              GetSDIFPartials GetSDIFChords
-              SDIFTypeDescription GetNVTList SDIFInfo
-              SDIF->text SDIF->chord-seq SDIF->bpf SDIF->markers
-              bpf->sdif markers->sdif
-              open-sdif-stream sdif-write-frame sdif-write-header)
- )
+ :doc "Tools for manipulating data in the Standard Description Interchange Format (SDIF)"
+ :classes '(sdiffile)
+ :subpackages
+ (list (omNG-make-package
+        "SDIF Structures"
+        :classes '(sdifframe sdifmatrix sdiftype sdifnvt)
+        :functions '(find-in-nvt find-in-nvtlist))
+       (omNG-make-package
+        "Read and Convert"
+        :functions '(SDIFInfo
+                     SDIFTypeDescription GetNVTList
+                     GetSDIFData GetSDIFTimes GetSDIFFrames
+                     GetSDIFPartials GetSDIFChords
+                     SDIF->chord-seq SDIF->bpf SDIF->markers
+                     SDIF->text))
+       (omNG-make-package
+        "Write"
+        :functions '(write-sdif-file
+                     bpf->sdif markers->sdif chord-seq->sdif
+                     open-sdif-stream sdif-write-frame sdif-write-header))
+       ))
 
