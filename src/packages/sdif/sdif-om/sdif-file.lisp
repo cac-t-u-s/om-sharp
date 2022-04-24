@@ -376,24 +376,20 @@ When <print> (default), also prints a detailed description in the Listener.
   :icon :sdif
   (let ((rep-list nil))
     (when print
-      (om-print-format "----------------------------------------------------------~%")
-      (om-print-format  "SDIF file description for ~D~%" (list (namestring (file-pathname self))))
-      (om-print-format "----------------------------------------------------------~%")
-      (om-print-format  "NUMBER OF SDIF STREAMS: ~D~%"  (list (length (file-map self)))))
+      (om-print-format "~%----------------------------------------------------------")
+      (om-print-format  "SDIF file description for:~%~D" (list (namestring (file-pathname self))))
+      (om-print-format  "- NUMBER OF SDIF STREAMS: ~D"  (list (length (file-map self)))))
     (loop for st in (file-map self) do
           (when print
-            (om-print-format "   STREAM ID ~D - ~D Frames type = ~A ~%"  (list (fstream-desc-id st) (fstream-desc-nf st) (fstream-desc-fsig st)))
-            (om-print-format "      Tmin= ~D   -   Tmax= ~D~%" (list (fstream-desc-tmin st) (fstream-desc-tmax st)))
-            (om-print-format "      Matrices :  "))
+            (om-print-format "- STREAM ID ~D - ~D Frames type = ~A"  (list (fstream-desc-id st) (fstream-desc-nf st) (fstream-desc-fsig st)))
+            (om-print-format "  Tmin= ~D - Tmax= ~D" (list (fstream-desc-tmin st) (fstream-desc-tmax st)))
+            (om-print-format "  Matrices:"))
           (loop for ma in (fstream-desc-matrices st) do
                 (pushr (list (fstream-desc-id st) (fstream-desc-fsig st) (mstream-desc-msig ma)) rep-list)
-                (when print (om-print-format " ~D" (list (mstream-desc-msig ma))))
-                )
-          (when print (om-print-format "~%"))
-          )
+                (when print (om-print-format "    ~D" (list (mstream-desc-msig ma))))
+                ))
     (when print
-      (om-print-format "----------------------------------------------------------~%")
-      (om-print-format "End file description~%")
+      (om-print-format "(End of file description)")
       (om-print-format "----------------------------------------------------------~%"))
     rep-list
     ))
