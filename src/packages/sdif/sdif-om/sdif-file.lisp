@@ -525,8 +525,6 @@ Name/Value tables are formatted as SDIFNVT objects.
 "
   (get-nvt-list self))
 
-(defmethod* GetNVTList ((self sdiffile)) (call-next-method))
-
 
 (defmethod* find-in-nvtlist ((nvtlist list) (entry string) &optional table-num)
 
