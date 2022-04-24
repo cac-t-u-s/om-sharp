@@ -39,9 +39,9 @@
 (defmethod* GetSDIFPartials ((self t) &optional (stream nil))
   :indoc '("an SDIF file")
   :icon :sdif
-  :doc "Return a list of partial structures from an sdif file (using 1TRC or 1MRK frames)
+  :doc "Return a list of partial structures from an SDIF file (using 1TRC or 1MRK frames)
 
-<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
+<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files).
 "
   (let ((frames (GetSDIFFrames self :sid stream))
         (mrk-partials (make-hash-table))
@@ -138,11 +138,11 @@
 (defmethod* GetSDIFChords ((self t) &optional (stream nil))
   :indoc '("an SDIF file")
   :icon :sdif
-  :doc "Returns a list of chords data from an sdif file (using 1MRK / 1TRC frames).
+  :doc "Returns a list of chords data from an SDIF file (using 1MRK / 1TRC frames).
 
 Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
 
-<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
+<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files).
 "
   (mapcar #'(lambda (p)
               (let ((t1 (list-min (partial-t-list p)))
@@ -156,11 +156,11 @@ Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
 (defmethod* SDIF->chord-seq ((self t) &optional (stream nil))
   :indoc '("an SDIF file")
   :icon :sdif
-  :doc "Generates a CHORD-SEQ instance from the 1TRC or 1MRK frame data in <self>.
+  :doc "Generates a CHORD-SEQ instance from the 1TRC or 1MRK frame data in <self> (SDIFFILE).
 
 Internally calls and formats data from GetSDIFChords.
 
-<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
+<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files).
 "
   (let* ((chord-data (sort (GetSDIFChords self stream) '< :key 'cadr))
          (chords nil) (cseqdata nil))
@@ -292,7 +292,7 @@ Internally calls and formats data from GetSDIFChords.
 
 Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
 
-SDIF partials are resampled in synchronous frames at <frame-rate>
+SDIF partials are resampled in synchronous frames at <frame-rate>.
 "
   (let ((out-path (handle-new-file-exists
                    (cond ((pathnamep outpath) outpath)

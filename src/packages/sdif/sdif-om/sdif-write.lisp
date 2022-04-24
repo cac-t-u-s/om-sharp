@@ -143,7 +143,13 @@
   :outdoc '("pathname of written SDIF file")
   :initvals '(nil "out.sdif" nil nil)
   :icon 'sdif
-  :doc "Writes a list of SDIFFrame objects as a new SDIF file."
+  :doc "Writes <frames> (list of SDIFFrame objects) as a new SDIF file (as sepecified by <outpath>).
+
+- All non-standard SDIF frame and matrix types must be declared as SDIFTYPE objects and passed in a list to <types>.
+- Additional meta-data can be passed as a list of SDIFNVT objects in <nvts>.
+
+If no path, or just a file name is given with <outpath> file will be written in the OM# \"output files\" folder specified in the preferences.
+"
 
   (let ((out-path (cond ((pathnamep outpath) outpath)
                         ((stringp outpath) (outfile outpath))
@@ -193,7 +199,7 @@
   :icon :file
   :doc "Opens an SDIF file stream where other functions can read and write.
 
-Open FILE-STREAMs are automatically closed when they are not used anymore by the Common Lisp garbage collection system, however, it is recommended to close them explicitely with CLOSE-FILE-STREAM as soon as they are not needed in order to limit the number of streams open
+Open FILE-STREAMs are automatically closed by the garbage collection system when they are not used anymore, however, it is recommended to close them explicitely with CLOSE-FILE-STREAM as soon as they are not needed in order to limit the number of streams open.
 "
   (let ((SDIFF (sdif::sdif-open-file path
                                      (case direction
@@ -217,10 +223,13 @@ Open FILE-STREAMs are automatically closed when they are not used anymore by the
   :indoc '("an SDIF file pointer" "list of SDIFType" "list of SDIFNVT" "list of stream ID list")
   :doc "Writes the header of the SDIF file in <fstream>.
 
-This is a compulsory operation before to start writing SDIF frames in the file.
+This is a mandatory operation before to start writing SDIF frames in the file.
 <fstream> is a file pointer created by open-SDIF-stream.
 
-<types>, <nvts> and <sids> are SDIF types, name/value tables to declare and write in the file header.
+<types>, <nvts> and <sids> are SDIF types, name/value tables, stream ID descriptors to declare and write in the file header.
+- <types> must be a list of SDIFTYPE objects.
+- <nvts> must be a list of SDIFNVT objects.
+- <sids> must be a list of stream descriptors of the form (ID name description); e.g. (0 "my-stream" "x/y/z").
 "
   (if (fs fstream)
       (progn

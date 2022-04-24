@@ -138,7 +138,7 @@ Other type of data can be extracted by setting the <stream>, <frame>, <matrix> a
   :doc "Saves the contents of <self> (a BPF) as an SDIF file in <outfile>.
 
 <ftype> and <mtype> determine the SDIF type to enclose the data in (default = 1FQ0, i.e. fundamental frequency).
-If these types are not standard, they must be declared and given as a list of SDIFType objects in <typedefs>
+If these types are not standard, they must be declared and given as a list of SDIFType objects in <typedefs>.
 
 If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.
 
@@ -227,7 +227,7 @@ Other more specific type of data can be extracted by setting the <stream>, <fram
   :doc "Saves <self> (a list of onsets) as an SDIF file in <outfile>.
 
 <ftype> determines the SDIF frame type to use (default = 1MRK, the standard SDIF type for time markers).
-If this type is not standard, it must be declared and given as an SDIFType object in <typedefs>
+If this type is not standard, it must be declared and given as an SDIFType object in <typedefs>.
 
 If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.
 

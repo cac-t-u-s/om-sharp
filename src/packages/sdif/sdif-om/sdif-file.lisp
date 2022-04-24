@@ -26,15 +26,15 @@
   ((file-pathname :initform nil :accessor file-pathname)
    (file-map :initform nil :accessor file-map))
   (:documentation "
-SDIFFILE represents an SDIF file stored somewhere in your hard drive.
+SDIFFILE represents an SDIF file stored in your hard drive.
 
 SDIF is a generic format for the storage and transfer of sound description data between applications.
-It is used in particular by softwares like SuperVP, pm2, AudioSculpt, Spear, etc. to store and export sound analyses.
+It is used in particular by software like SuperVP, pm2, AudioSculpt, Spear, etc. to store and export sound analyses.
 
 See http://www.ircam.fr/sdif for more inforamtion about SDIF
 
 Connect a pathname to an SDIF file, or the output of a function returning such a pathname, to initialize the SDIFFILE.
-If not connected, the evaluation of the SDIFFILE box will open a file chooser dialog.
+If <self> = :choose-file (default when not connected), the evaluation of the SDIFFILE box will open a file chooser dialog.
 
 Lock the box ('b') to keep the current file.
 "))
@@ -367,8 +367,9 @@ Lock the box ('b') to keep the current file.
 ;;;===================================
 
 (defmethod* SDIFInfo ((self sdifFile) &optional (print t))
-  :doc "Prints/returns information about the SDIF data in <self>.
-Returns an advanced stream description with every FrameType-MatrixType pair in the file.
+  :doc "Returns a list with all matrix-streams in <self> (tuples StreamID-FrameType-MatrixType).
+
+When <print> (default), also prints a detailed description in the Listener.
 "
   :indoc '("SDIF file")
   :initvals '(nil t)
@@ -685,16 +686,13 @@ Unspecified arguments mean all SDIF data (i.e. for instance any time, all rows, 
 
 <frameType> and <matType> MUST be specified (4-character SDIF signatures for frame and matrix types)
 
-Use SDIFINFO for information about the Frame and Matrix types contained in a <self>.
+Use SDIFINFO or the SDIF file editor for information about the Frame and Matrix types contained in <self>.
 
 Ex. (GETSDIFDATA <SDIFFile> 0 \"1MRK\" \"1TRC\" (0 1) nil nil 0.0 2.0)
 means : Get all data from Stream number 1, frames of type 1MRK, matrices of type 1TRC, columns (i.e. fields) 0 and 1, all matrox rows, between 0.0s and 2.0s.
 
-The second oulet returns all corresponding frame TIMES.
+The second oulet returns all corresponding frame TIMES."
 
-See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
-
-"
   :numouts 2
   (get-sdif-data self sID frameType matType Cnum rmin rmax tmin tmax :with-data t))
 
@@ -800,11 +798,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 Unspecified arguments mean respectively that all streamms (for <sID>), frames (<frameType>), matrices (<matType>) and no time boundaries (<tmin> and <tmax>) are considered.
 
-Use SDIFINFO for information about the Frame and Matrix types contained in a <self>.
+Use SDIFINFO for information about the Frame and Matrix types contained in <self>."
 
-See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
-
-"
   (get-sdif-times self sID frameType matType tmin tmax))
 
 
@@ -819,13 +814,11 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 <self> can be an SDIFFile object or a pathname to a valid SDIF file.
 
-<sid> can be a list of IDs (intergers)
+<sid> can be a list of IDs (intergers).
 
 <tmin> and <tmax> determine a time window in the stream(s).
-<frameType> and <matType> select frames and/or matrices of a specific type.
+<frameType> and <matType> select frames and/or matrices of a specific type."
 
-See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
-"
   (get-sdif-frames self sID frameType tmin tmax))
 
 (defmethod get-sdif-frames ((self sdifFile) streamNum frameT tmin tmax &key apply-fun)
@@ -890,7 +883,9 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
   :indoc '("SDIF file" "text file pathname")
   :icon :sdif
-  :doc "Converts <self> to text-SDIF in <out-filename>."
+  :doc "Converts <self> to text-SDIF in <out-filename>.
+
+If no pathname is given with <out-filename>, the SDIF file name will be used with the extension \".txt\"."
   (let ((outfile (if out-filename
                      (or (handle-new-file-exists out-filename)
                          (om-choose-new-file-dialog :types (list (format nil (om-str :file-format) "Text") "*.txt" )))
