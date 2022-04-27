@@ -18,14 +18,20 @@ omroot		= $(datadir)/$(APPNAME)
 ICONDIR		= $(datadir)/icons/hicolor/64x64/apps
 
 
-path_to_omroot	= ../../
+OMROOT		= ../../
 thisfile	= $(lastword $(MAKEFILE_LIST))
 thisdir		= $(dir $(thisfile))
-builddir	= $(shell cd $(dir $(thisfile)) && cd $(path_to_omroot) && pwd)
+builddir	= $(shell cd $(dir $(thisfile)) && cd $(OMROOT) && pwd)
 
 BUILDROOT	= $(builddir)
 APPNAME		= om-sharp
 INSTALLRES	= $(BUILDROOT)/build/linux
+
+OM_VERSION	= $(shell cat $(OMROOT)/VERSION)
+OM_RELEASE	= 1
+TARBALL		= $(shell cd $(OMROOT)/.. && pwd)/om-sharp-Linux-$(OM_VERSION)-$(OM_RELEASE).tar.bz2
+RPMDIR		= $(HOME)/rpmbuild/SOURCES
+
 
 app_name_version = om-sharp
 
@@ -108,8 +114,9 @@ clean:
 # everything inside slime directory (including fasls):
 
 tardist:
+	$(echo bygger $(TARBALL) i $(BUILDROOT)../)
 	cd $(BUILDROOT)/../ && \
-	tar cvjf om-sharp.tar.bz2 \
+	tar cvjf $(TARBALL) \
 	   ./om-sharp/$(dspec_database) \
 	   $(slime_dir) \
 	   --exclude=.git* \
@@ -117,9 +124,8 @@ tardist:
 	   $(exclude_mac) \
 	   $(exclude_win) \
 	   ./om-sharp
+	@echo tarball:	$(shell ls $(TARBALL))
 
 
-# tardist: $(BUILDROOT)/../om-sharp.tar.bz2
-
-preparerpm: tardist
-	cp -v $(BUILDROOT)/../om-sharp.tar.bz2 ~/rpmbuild/SOURCES
+preparerpm: $(TARBALL)
+	cp -v $(TARBALL) $(RPMDIR)
