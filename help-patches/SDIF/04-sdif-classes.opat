@@ -101,7 +101,6 @@
      (:class sdifframe)
      (:slots
       ((:onset 0)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
