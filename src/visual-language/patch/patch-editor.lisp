@@ -1294,7 +1294,7 @@
                                          (om-set-view-size item (om-make-point (list :character (+ 2 textsize)) 20))
                                          ))
                       :completion completion-fun
-                      :font (om-def-font :font1)
+                      :font (om-def-font :normal)
                       :size (om-make-point 100 30)
                       :position position
                       :border t

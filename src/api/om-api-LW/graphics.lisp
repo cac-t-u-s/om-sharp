@@ -111,7 +111,7 @@
         (t nil)))
 
 (defun om-correct-font (font)
-  (if (om-font-p font) font (om-def-font :font1)))
+  (if (om-font-p font) font (om-def-font :normal)))
 
 ;;;=========================
 ;;;POINTS
@@ -327,8 +327,8 @@
         (values (round (- right left)) (- bottom top)))
     (values 0 0)))
 
-; (om-string-size "--" (om-def-font :font2))
-; (om-string-wrap "azertyuiop qsdfghjklm wxcvbn" 10 (om-def-font :font2))
+; (om-string-size "--" (om-def-font :large))
+; (om-string-wrap "azertyuiop qsdfghjklm wxcvbn" 10 (om-def-font :large))
 
 (defun om-string-wrap (str width font)
   (declare (special *curstream* *dummy-view*))
@@ -366,10 +366,10 @@
 (defparameter *fonts-table*
   (let ((def-face (car *def-font*))
         (sizes (cadr *def-font*)))
-    `((:font1 ,(om-make-font def-face (nth 0 sizes)))
-      (:font2 ,(om-make-font def-face (nth 1 sizes)))
-      (:font1b ,(om-make-font def-face (nth 0 sizes) :style '(:bold)))
-      (:font2b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
+    `((:normal ,(om-make-font def-face (nth 0 sizes)))
+      (:large ,(om-make-font def-face (nth 1 sizes)))
+      (:normal-b ,(om-make-font def-face (nth 0 sizes) :style '(:bold)))
+      (:large-b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
       (:gui ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*))))
       (:gui-b ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*)) :style '(:bold)))
       (:gui-title ,(om-make-font (car *gui-font*) (nth 1 (cadr *gui-font*)) :style '(:bold)))

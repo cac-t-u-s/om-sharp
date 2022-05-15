@@ -321,7 +321,7 @@
 
       (otherwise
        (let ((label (string-upcase (get-object-type-name (reference self))))
-             (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
+             (font (om-def-font :normal :face "arial" :size 18 :style '(:bold))))
          (om-with-font font
                        (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                          (om-draw-string (- (/ (w frame) 2) (/ (om-string-size label font) 2))
@@ -359,7 +359,7 @@
                       (+ ax b) (+ ay h))
                      :fill nil))
 
-  (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :font1b) :color (om-make-color .5 .5 .5)))
+  (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :normal-b) :color (om-make-color .5 .5 .5)))
 
 
 ;;; display reference instead of value
@@ -372,7 +372,7 @@
 
 (defmethod draw-values-as-text ((self OMBox) &optional (offset-x 0) (offset-y 0))
   (om-with-fg-color (om-def-color :gray)
-    (om-with-font (om-def-font :font1b)
+    (om-with-font (om-def-font :normal-b)
                          ;(om-draw-string 40 18 "values:")
                   (loop for v in (or (value self) (make-list (length (outputs self))))
                         for y = (+ offset-y 18) then (+ y 16)
@@ -399,4 +399,3 @@
                    (round (max th (if (is-persistant (reference self)) 36 28))))))
 
 (defmethod maximum-size ((self OMBoxAbstraction)) (omp 200 200))
-

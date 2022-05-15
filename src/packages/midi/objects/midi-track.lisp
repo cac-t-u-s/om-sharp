@@ -414,7 +414,7 @@ Can import MIDI files by connecting a pathname to the <self> input, or using the
             (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t :color (om-make-color 0 0 0 alpha)))
       (when octaves
         (om-with-font
-         (om-def-font :font1 :size 7)
+         (om-def-font :normal :size 7)
          (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i))))
       )))
 

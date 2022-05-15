@@ -369,7 +369,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
   (let ((obj (object-value editor)))
 
     (set-g-component editor :center-x-numbox
-                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :normal)
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (car (center obj))
@@ -382,7 +382,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                             )))
 
     (set-g-component editor :center-y-numbox
-                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :normal)
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (cadr (center obj))
@@ -395,19 +395,19 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                             )))
 
     (set-g-component editor :rotation-x-numbox
-                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :normal)
                                              :fg-color (om-def-color :gray)
                                              :border nil :enabled nil
                                              :value (rotation-x obj)
                                              :decimals 0))
     (set-g-component editor :rotation-y-numbox
-                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :normal)
                                              :fg-color (om-def-color :gray)
                                              :border nil :enabled nil
                                              :value (rotation-y obj)
                                              :decimals 0))
     (set-g-component editor :rotation-z-numbox
-                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :normal)
                                              :fg-color (om-def-color :gray)
                                              :border nil :enabled nil
                                              :value (rotation-z obj)
@@ -445,7 +445,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                            ))))
 
     (set-g-component editor :x-grid-min-numbox
-                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :normal)
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (car (x-grid editor))
@@ -457,7 +457,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                             )))
 
     (set-g-component editor :x-grid-max-numbox
-                     (om-make-graphic-object'numbox :size (omp 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object'numbox :size (omp 55 18) :font (om-def-font :normal)
                                             :bg-color (om-def-color :white) :border t
                                             :decimals 1
                                             :value (cadr (x-grid editor))
@@ -468,7 +468,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
 
     (set-g-component editor :y-grid-min-numbox
-                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :normal)
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (car (y-grid editor))
@@ -479,7 +479,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
                                                             (om-invalidate-view (get-g-component editor :3d-view)))))
 
     (set-g-component editor :y-grid-max-numbox
-                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :normal)
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (cadr (y-grid editor))
@@ -735,7 +735,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
             ;;; Y ranges are reversed !!
             (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
 
-          (let ((font (om-def-font :font1 :size 8)))
+          (let ((font (om-def-font :normal :size 8)))
             (om-with-font
              font
              (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
@@ -977,6 +977,3 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
       (gl-user::opengl-redisplay-canvas self))
 
     (setf (gl-user::lastxy self) (cons x y))))
-
-
-

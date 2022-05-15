@@ -139,7 +139,7 @@
          (y (and position (om-point-y position)))
          (w (and size (om-point-x size)))
          (h (and size (om-point-y size)))
-         (initargs-list (list :name name :font (or font (om-def-font :font1))
+         (initargs-list (list :name name :font (or font (om-def-font :normal))
                               :vcontainer owner
                               ;:automatic-resize '(:width-ratio 0.5 :aspect-ratio 0.6)
                               :accepts-focus-p enabled
@@ -225,4 +225,3 @@
 
 (defmethod om-view-enabled ((self om-view))
   (capi::simple-pane-enabled self))
-

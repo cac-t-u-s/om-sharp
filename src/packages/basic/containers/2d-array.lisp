@@ -91,7 +91,7 @@
                (om-draw-line x (- y 1) x (+ y 1) :color (om-def-color :light-gray))))
 
         (om-with-font
-         (om-def-font :font1 :size 8)
+         (om-def-font :normal :size 8)
 
          (cond
 
@@ -710,5 +710,3 @@ then the modifications are immediately stored in the original array.
 
 (defmethod* comp-field ((self component) (LineId string) &optional val)
   (comp-field self (get-field-id self LineId) val))
-
-

@@ -554,7 +554,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
     (om-draw-string (+ x-pix unit) y-pix
                     (format nil "= ~D"  (tempo object))
-                    :font (om-def-font :font1 :size (round font-size 2.2)))
+                    :font (om-def-font :normal :size (round font-size 2.2)))
     ))
 
 
@@ -682,7 +682,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
          (div-str (if (power-of-two-p (cadr num-den))
                       (format nil "~A" (car num-den))
                     (format nil "~A:~A" (car num-den) (cadr num-den))))
-         (font (om-def-font :font1 :size (round fontsize 2.2)))
+         (font (om-def-font :normal :size (round fontsize 2.2)))
          (mid-space (* (1+ (length div-str)) unit)))
 
     ;; (om-draw-string begin-pix 20 (format nil "~A" level))
@@ -909,15 +909,15 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                  (when (and (member draw-chans '(:number :color-and-number))
                             unique-channel) ;;; if there's just one channel in the chord we'll display it here
                    (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min (* unit .5)) (format nil "~D" unique-channel)
-                                   :font (om-def-font :font1 :size (round fontsize 2))))
+                                   :font (om-def-font :normal :size (round fontsize 2))))
 
                  ;;; GLOBAL MIDI PORT
                  (when (and draw-ports unique-port) ;;; if there's just one port in the chord we'll display it here
                    (if (member draw-chans '(:number :color-and-number))
                        (om-draw-string (+ x-pix (* head-w-pix 3)) (+ y-min (* unit 1.5)) (format nil "(~D)" unique-port)
-                                       :font (om-def-font :font1 :size (round fontsize 2.5)))
+                                       :font (om-def-font :normal :size (round fontsize 2.5)))
                      (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min unit) (format nil "(~D)" unique-port)
-                                     :font (om-def-font :font1 :size (round fontsize 2)))
+                                     :font (om-def-font :normal :size (round fontsize 2)))
                      ))
 
                  ;;; GLOBAL VELOCITY VALUE OR SYMBOL
@@ -931,7 +931,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                               (om-draw-char vel-x-pix vel-y-pix (velocity-char unique-vel)))
                              ((equal :value draw-vels)
                               (om-draw-string vel-x-pix vel-y-pix (format nil "~D" unique-vel)
-                                              :font (om-def-font :font1 :size (round fontsize 2.5))))
+                                              :font (om-def-font :normal :size (round fontsize 2.5))))
                              ))))
 
 
@@ -944,12 +944,12 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                    end-pix (- h 46))
                      (om-draw-string (+ end-pix -20) (- h 55)
                                      (format nil "~D ms" dur-max)
-                                     :font (om-def-font :font1))))
+                                     :font (om-def-font :normal))))
 
              ; draw symbolic dur (for debug)
-             ;(om-draw-string x-pix (- h 55) (format nil "~D" (symbolic-dur chord)) :font (om-def-font :font1))
+             ;(om-draw-string x-pix (- h 55) (format nil "~D" (symbolic-dur chord)) :font (om-def-font :normal))
              ; draw absolute dur (for debug)
-             ;(om-draw-string x-pix (- h 35) (format nil "~D" (ldur chord)) :font (om-def-font :font1))
+             ;(om-draw-string x-pix (- h 35) (format nil "~D" (ldur chord)) :font (om-def-font :normal))
 
                  ;;; for the note-heads loop
                  (let* ((accidental-columns nil)
@@ -960,7 +960,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
                    ;; number for big durations
                    (when head-extra-number
-                     (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
+                     (let ((font (om-def-font :normal :size (round fontsize 2.2))))
                        (om-draw-string (+ x-pix (* head-w-pix .1))
                                        (+ y-min (* unit 2)) (number-to-string head-extra-number)
                                        :font font)
@@ -1097,7 +1097,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                  (when (and (member draw-chans '(:number :color-and-number))
                                             (not unique-channel))
                                    (om-draw-string (+ x-pix (* head-w-pix 2)) (+ line-y (* unit .5)) (format nil "~D" (chan n))
-                                                   :font (om-def-font :font1 :size (round fontsize 2)))
+                                                   :font (om-def-font :normal :size (round fontsize 2)))
                                    )
 
                                  ;;; MIDI port (maybe)
@@ -1106,7 +1106,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                    (om-draw-string (+ x-pix
                                                       (if (member draw-chans '(:number :color-and-number)) (* head-w-pix 3.5) (* head-w-pix 2.5)))
                                                    (+ line-y unit) (format nil "(~D)" (port n))
-                                                   :font (om-def-font :font1 :size (round fontsize 2.5)))
+                                                   :font (om-def-font :normal :size (round fontsize 2.5)))
                                    )
 
                                  ;;; VELOCITY (maybe)
@@ -1115,7 +1115,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                    (case draw-vels
                                      (:value
                                       (om-draw-string x-pix (+ line-y (* unit 2)) (format nil "~D" (vel n))
-                                                      :font (om-def-font :font1 :size (round fontsize 2.5))))
+                                                      :font (om-def-font :normal :size (round fontsize 2.5))))
                                      (:symbol
                                       (om-draw-char x-pix (+ line-y (* unit 2)) (velocity-char (vel n))))
                                      ))
@@ -1148,7 +1148,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
                    (loop for e in (get-extras chord 'text-extra)
                          do (om-with-font
-                             (om-def-font :font1 :face (font e) :size (/ fontsize 2))
+                             (om-def-font :normal :face (font e) :size (/ fontsize 2))
                              (om-draw-string (+ x-pix (* (or (dx e) 0) unit))
                                              (+ y-min (* unit (+ 4 (or (dy e) 0))))
                                              (text e)))
@@ -1168,7 +1168,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                 (om-draw-string (+ x-pix unit)
                                                 (- h 20)
                                                 (format nil "~A" (data e))
-                                                :font (om-def-font :font1 :size (/ fontsize 2))))
+                                                :font (om-def-font :normal :size (/ fontsize 2))))
                               ))
                    )
 
@@ -1250,7 +1250,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
                  (when head-extra-number
                    (setf head-x (+ head-x (* unit 1)))
-                   (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
+                   (let ((font (om-def-font :normal :size (round fontsize 2.2))))
                      (om-draw-string (+ head-x (* head-w unit .3))
                                      (- line-y (* unit 1)) (number-to-string head-extra-number)
                                      :font font)
@@ -1330,9 +1330,3 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
         ))
     )
   )
-
-
-
-
-
-

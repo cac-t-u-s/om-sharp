@@ -32,11 +32,11 @@
 (defmethod make-editor-window-contents ((editor sdiffile-editor))
 
   (set-g-component editor :filemap-layout (om-make-layout 'om-column-layout))
-  (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :font1b)))
+  (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :normal-b)))
   (set-g-component editor :field-plot (om-make-view 'field-plot-view :editor editor :bg-color (om-def-color :white)))
 
   (set-g-component editor :matrix-field-menu (om-make-di
-                                              'om-popup-list :size (omp nil 22) :font (om-def-font :font1)
+                                              'om-popup-list :size (omp nil 22) :font (om-def-font :normal)
                                               :di-action #'(lambda (item)
                                                              (when (selection editor)
                                                                (update-plot-data (get-g-component editor :field-plot)
@@ -85,7 +85,7 @@
                            (om-def-color :light-gray)))
 
     (om-with-fg-color (if selected (om-def-color :white) (om-def-color :dark-gray))
-      (om-with-font (om-def-font :font1)
+      (om-with-font (om-def-font :normal)
                     (om-draw-string 6 12 (format nil "Matrix: ~A" (mstream-desc-msig (m-desc self))))
                     (om-draw-string 6 24 (format nil "  Matrix Fields: ~A" (mstream-desc-fields (m-desc self))))
                     (om-draw-string 6 36 (format nil "  Max. Elts.: ~D" (mstream-desc-rmax (m-desc self))))
@@ -129,7 +129,7 @@
            (cons map-layout
                  (cons (om-make-di
                         'om-simple-text :size (omp nil 16)
-                        :font (om-def-font :font1) :fg-color (om-def-color :dark-gray)
+                        :font (om-def-font :normal) :fg-color (om-def-color :dark-gray)
                         :text (format nil "File: ~A" (file-pathname sdiffile)))
                        (loop for stream-desc in (file-map sdiffile) collect
                              (om-make-layout
@@ -141,7 +141,7 @@
                                           (cons
                                            (om-make-di
                                             'om-simple-text :size (omp nil 16)
-                                            :font (om-def-font :font1) :fg-color (om-def-color :white)
+                                            :font (om-def-font :normal) :fg-color (om-def-color :white)
                                             :text (format nil "Stream ~D: ~A [~D frames from ~f to ~fs]"
                                                           (fstream-desc-id stream-desc) (fstream-desc-fsig stream-desc)
                                                           (fstream-desc-nf stream-desc) (fstream-desc-tmin stream-desc) (fstream-desc-tmax stream-desc)))
@@ -154,7 +154,7 @@
                                              (list
                                               (om-make-di
                                                'om-simple-text :size (omp nil nil)
-                                               :font (om-def-font :font1) :fg-color (om-def-color :white)
+                                               :font (om-def-font :normal) :fg-color (om-def-color :white)
                                                :text "[no matrices inside]"))
                                              )
                                            )))
@@ -244,21 +244,3 @@
          (om-invalidate-view self)
          ))
    ))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -89,7 +89,7 @@
                 (om-make-graphic-object 'numbox
                                         :value (port self) :size (omp 40 18)
                                         :bg-color (om-def-color :white)
-                                        :font (om-def-font :font1)
+                                        :font (om-def-font :normal)
                                         :db-click t
                                         :min-val 0
                                         :after-fun #'(lambda (numbox)
@@ -119,7 +119,7 @@
                 (om-make-graphic-object 'numbox
                                         :value (dist-threshold self)
                                         :min-val 0.0 :size (omp 40 18)
-                                        :font (om-def-font :font1)
+                                        :font (om-def-font :normal)
                                         :db-click 1
                                         :bg-color (om-def-color :white)
                                         :after-fun #'(lambda (numbox)

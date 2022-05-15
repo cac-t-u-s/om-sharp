@@ -468,7 +468,7 @@
                                      :time (and foreground? (time-to-draw bpf editor pt i)))
 
                      (om-draw-string (1+ x) (- origin-y 4) (format nil "~D" (om-point-y pt))
-                                     :font (om-def-font :font1 :size 9)
+                                     :font (om-def-font :normal :size 9)
                                      :color (om-def-color :white))
                      ))
              ))
@@ -529,7 +529,7 @@
     (when obj
 
       (om-with-font
-       (om-def-font :font1)
+       (om-def-font :normal)
 
        ;;; GRID
        (when (editor-get-edit-param editor :grid)
@@ -1301,5 +1301,3 @@
 
 (defmethod get-color ((self bpf))
   (or (color self) (om-def-color :dark-gray)))
-
-

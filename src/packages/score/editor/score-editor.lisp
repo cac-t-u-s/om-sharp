@@ -635,7 +635,7 @@
            :db-click t
            :decimals 0
            :size (om-make-point 40 text-h)
-           :font (om-def-font :font1)
+           :font (om-def-font :normal)
            :min-val 10
            :max-val 10000
            :after-fun #'(lambda (item)
@@ -1018,7 +1018,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "midic"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1026,7 +1026,7 @@
                               (om-make-graphic-object
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :bg-color (om-def-color :white)
                                :fg-color (if (all-equal (mapcar #'midic notes)) (om-def-color :black) (om-def-color :gray))
                                :db-click t
@@ -1042,7 +1042,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "vel"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1050,7 +1050,7 @@
                               (om-make-graphic-object
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :bg-color (om-def-color :white)
                                :fg-color (if (all-equal (mapcar #'vel notes)) (om-def-color :black) (om-def-color :gray))
                                :db-click t
@@ -1066,7 +1066,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "dur"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1074,7 +1074,7 @@
                               (om-make-graphic-object
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :bg-color (om-def-color :white)
                                :db-click t
                                :enabled (note-dur-edit-allowed editor)
@@ -1093,7 +1093,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "offset"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1102,7 +1102,7 @@
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
                                :bg-color (om-def-color :white)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :enabled (note-dur-edit-allowed editor)
                                :fg-color (if (and (all-equal (mapcar #'dur notes))
                                                   (note-dur-edit-allowed editor))
@@ -1121,7 +1121,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "chan"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1129,7 +1129,7 @@
                               (om-make-graphic-object
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :bg-color (om-def-color :white)
                                :fg-color (if (all-equal (mapcar #'chan notes)) (om-def-color :black) (om-def-color :gray))
                                :db-click t
@@ -1145,7 +1145,7 @@
 
                   (om-make-di 'om-simple-text :size (om-make-point 50 text-h)
                               :text "port"
-                              :font (om-def-font :font1))
+                              :font (om-def-font :normal))
 
                   (om-make-view
                    'om-view :size (omp 40 numbox-h)
@@ -1154,7 +1154,7 @@
                                'numbox
                                :size (omp 40 numbox-h) :position (omp 0 0)
                                :bg-color (om-def-color :white)
-                               :font (om-def-font :font1)
+                               :font (om-def-font :normal)
                                :fg-color (if (all-equal (mapcar #'port notes)) (om-def-color :black) (om-def-color :gray))
                                :db-click t
                                :allow-nil -1
@@ -1174,7 +1174,7 @@
                           :text "--"
                           :fg-color (om-def-color :dark-gray)
                           :focus t  ;; prevents focus on other items :)
-                          :font (om-def-font :font2)))
+                          :font (om-def-font :large)))
             ))
           )
 
@@ -1201,7 +1201,7 @@
                  :subviews (list
                             (om-make-graphic-object
                              'numbox
-                             :font (om-def-font :font1)
+                             :font (om-def-font :normal)
                              :size (omp 25 numbox-h)
                              :bg-color (om-def-color :white)
                              :fg-color (if (all-equal (mapcar #'(lambda (m) (car (car (tree m)))) measures))
@@ -1244,7 +1244,7 @@
                             (om-make-graphic-object
                              'numbox
                              :size (omp 25 numbox-h)
-                             :font (om-def-font :font1)
+                             :font (om-def-font :normal)
                              :bg-color (om-def-color :white)
                              :fg-color (if (all-equal (mapcar #'(lambda (m) (cadr (car (tree m)))) measures))
                                            (om-def-color :black) (om-def-color :gray))
@@ -1307,7 +1307,7 @@
                             (om-make-graphic-object
                              'numbox
                              :size (omp 30 numbox-h)
-                             :font (om-def-font :font1)
+                             :font (om-def-font :normal)
                              :bg-color (om-def-color :white)
                              :fg-color (if (all-equal (mapcar #'tempo voices))
                                            (om-def-color :black) (om-def-color :gray))

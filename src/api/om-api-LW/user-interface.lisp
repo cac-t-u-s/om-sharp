@@ -59,7 +59,7 @@
 
 (defun om-get-user-string (prompt &key (initial-string ""))
   (capi::prompt-for-string prompt :initial-value initial-string
-                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (om-def-font :font2))))
+                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (om-def-font :large))))
                            :accept-null-string t))
 
 
@@ -216,9 +216,6 @@
 (defun om-beep ()
   (capi::beep-pane nil))
 
-(defun om-choose-font-dialog (&key (font (om-def-font :font2)))
+(defun om-choose-font-dialog (&key (font (om-def-font :large)))
   (let ((font (capi::prompt-for-font "Choose a font" :font font :owner nil)))
     (and font (gp::font-description font))))
-
-
-

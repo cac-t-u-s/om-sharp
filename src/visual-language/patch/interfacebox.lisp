@@ -358,7 +358,7 @@ Returns the trigger value while pushed down, and NIL the rest of the time."))
     (when (pushed self)
       (om-draw-rounded-rect x y w h :fill t :round (box-draw-roundness self) :color (om-def-color :gray)))
     (when (text self)
-      (let ((font (om-def-font :font1b)))
+      (let ((font (om-def-font :normal-b)))
         (multiple-value-bind (sw sh) (om-string-size (text self) font)
           (om-with-fg-color textcolor
             (om-with-font
@@ -430,7 +430,7 @@ Returns the trigger value while pushed down, and NIL the rest of the time."))
    (selection :accessor selection :initarg :selection :initform nil)
    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)
    (cell-height :accessor cell-height :initarg :cell-height :initform 12)
-   (cell-font :accessor cell-font :initarg :cell-font :initform (om-def-font :font1))
+   (cell-font :accessor cell-font :initarg :cell-font :initform (om-def-font :normal))
    (output-mode :accessor output-mode :initarg :output-mode :initform :value))
   (:documentation "An interface box to graphically select among different items in a list.
 
@@ -609,7 +609,7 @@ Can return a list of selected items if 'multiple selection' is enabled in the bo
   ((items :accessor items :initarg :items :initform nil)
    (selection :accessor selection :initarg :selection :initform 0)
    (output-mode :accessor output-mode :initarg :output-mode :initform :value)
-   (font :accessor font :initarg :font :initform (om-def-font :font1b)))
+   (font :accessor font :initarg :font :initform (om-def-font :normal-b)))
   (:documentation "An interface box to graphically select among different items in a list, using a drop-down menu.
 
 Use the optional inputs to set the list of items.
@@ -686,7 +686,7 @@ Returns the selected item, or the selected index depending on how this is set in
                         :round (box-draw-roundness self)
                         :color (om-def-color :gray) :fill t)
 
-  (let* ((font (or (font self) (om-def-font :font1b)))
+  (let* ((font (or (font self) (om-def-font :normal-b)))
          (text-h (cadr (multiple-value-list (om-string-size "A" font))))
          (text-y-pos (if (>= text-h h) h (* .5 (+ h text-h 1)))))
 
@@ -862,7 +862,3 @@ Can evaluate and return the ouputs of several selected options if 'multiple sele
     (if (multiple-selection self)
         `(list .,vals)
       (car vals))))
-
-
-
-

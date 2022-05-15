@@ -61,7 +61,7 @@
                                              :db-click t
                                              :decimals 0
                                              :size (om-make-point 40 18)
-                                             :font (om-def-font :font2)
+                                             :font (om-def-font :large)
                                              :min-val 1 :max-val 120
                                              :after-fun #'(lambda (item)
                                                             (setf (n (object-value self)) (get-value item))
@@ -140,7 +140,7 @@
                       (if (> (length (puntos obj)) 1)
                           (format nil "~D/~D: ~A" (1+ (front ed)) (length (puntos obj)) (nth (front ed) (puntos obj)))
                         (format nil "~A" (nth (front ed) (puntos obj))))
-                      :font (om-def-font :font2b)
+                      :font (om-def-font :large-b)
                       :color (om-def-color :dark-gray))
 
       )))
@@ -232,7 +232,3 @@
 (defmethod om-view-click-handler ((self cercleview) position)
   (when (om-add-key-down)
     (add-remove-point-at self position)))
-
-
-
-

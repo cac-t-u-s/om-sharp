@@ -402,7 +402,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
 
 (defmethod make-channel-track-view ((self channel-controls) editor)
 
-  (let ((font (om-def-font :font1))
+  (let ((font (om-def-font :normal))
         (w 80)
         (panel (om-make-layout
                 'channel-panel
@@ -413,7 +413,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
      panel
      (om-make-di 'om-simple-text
                  :size (omp 16 20)
-                 :font (om-def-font :font2b)
+                 :font (om-def-font :large-b)
                  :text (format nil "~D" (midichannel self))
                  )
 
@@ -492,7 +492,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
 
      (om-make-di 'om-simple-text
                  :size (omp w 20)
-                 :font (om-def-font :font1)
+                 :font (om-def-font :normal)
                  :text "Ctrl Changes"
                  )
 
@@ -590,7 +590,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
                     (om-make-graphic-object 'numbox
                                             :size (omp 40 20)
                                             :position (omp 0 0)
-                                            :font (om-def-font :font1)
+                                            :font (om-def-font :normal)
                                             :bg-color (om-def-color :white)
                                             :value (or (midiport obj)
                                                        (get-pref-value :midi :out-port))
@@ -613,7 +613,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
                    :subviews (list
                               (om-make-di 'om-check-box
                                           :size (omp 100 20)
-                                          :font (om-def-font :font1)
+                                          :font (om-def-font :normal)
                                           :text "Out MIDI port:"
                                           :checked-p (midiport obj)
                                           :di-action #'(lambda (item)
@@ -635,7 +635,7 @@ Applies to port <port>, or to the default MIDI out port is <port> is NIL."))
 
                               (om-make-di 'om-check-box
                                           :size (omp 120 20)
-                                          :font (om-def-font :font1)
+                                          :font (om-def-font :normal)
                                           :text "send on edit"
                                           :checked-p (editor-get-edit-param editor :auto-send)
                                           :di-action #'(lambda (item)

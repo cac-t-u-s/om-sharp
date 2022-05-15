@@ -124,9 +124,9 @@ Lock the box ('b') to keep the current file.
   (let* ((n-streams (length (file-map self)))
          (stream-h (round h (max n-streams 1)))
          (max-t (list-max (mapcar 'fstream-desc-tmax (file-map self))))
-         (font (om-def-font :font1 :size 10)))
+         (font (om-def-font :normal :size 10)))
     (om-with-font
-     (om-def-font :font1 :face "arial" :size 36 :style '(:bold))
+     (om-def-font :normal :face "arial" :size 36 :style '(:bold))
      (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
        (om-draw-string (- (round w 2) 50) (+ y (max 30 (+ 14 (/ h 2)))) "SDIF")))
     (om-with-font

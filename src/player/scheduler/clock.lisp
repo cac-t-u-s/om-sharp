@@ -79,9 +79,8 @@
       (conversion-factor-and-offset 0 (get-obj-dur self) w x)
     (multiple-value-bind (fy oy)
         (conversion-factor-and-offset h 0 (- h 20) (+ y 10))
-      (om-with-font (om-def-font :font2b)
+      (om-with-font (om-def-font :large-b)
                     (om-draw-string (+ ox (* fx 10))
                                     (+ oy (* fy (+ (/ h 2) 10))) (format nil "~A ms Loop" (period self))))
       (om-draw-dashed-line (+ ox (* fx x)) (+ oy (* fy (/ h 2)))
                            (+ ox (* fx (+ x 10000))) (+ oy (* fy (/ h 2)))))))
-

@@ -620,7 +620,7 @@
                                    h time)
          (draw-mini-arrow (+ x 24) (+ y 9) 3 10 7 1)
          )))
-    (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
+    (:hidden  (om-with-font (om-def-font :normal :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                               (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2))) "PATCH")))))
 
@@ -643,7 +643,7 @@
   (case (display self)
     (:mini-view (draw-sequencer-mini-view (get-box-value self) self x y w h time))
     (:text (draw-mini-text (get-box-value self) self x y w h nil))
-    (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
+    (:hidden  (om-with-font (om-def-font :normal :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                               (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2)))
                                               (string-upcase (type-of (get-box-value self))))))))
@@ -1000,7 +1000,7 @@ CMD-click to add boxes. Play contents, etc.
     :position (om-make-point 13 5)
     :size (om-make-point 40 10)
     :fg-color (om-def-color :black)
-    :font (om-def-font :font1 :size 9)
+    :font (om-def-font :normal :size 9)
     :min-val 20 :max-val 400
     :change-fun #'(lambda (item)
                     (set-tempo (metronome self) (value item))))))

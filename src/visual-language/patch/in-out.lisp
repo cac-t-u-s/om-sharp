@@ -124,7 +124,7 @@
       )
 
     (om-with-fg-color (om-def-color :white)
-      (om-with-font (om-def-font :font1b)
+      (om-with-font (om-def-font :normal-b)
                     (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4)
                                     (if (equal (box-draw-icon-pos self) :left) 14 18)
                                     (number-to-string (index (reference self))))

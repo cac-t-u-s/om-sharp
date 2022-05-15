@@ -27,7 +27,7 @@
 ;;; general case = text box
 (defmethod make-preference-item (type pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font1)))
+         (font (om-def-font :normal)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~A" curr-value)
                   :resizable :w
@@ -44,7 +44,7 @@
 
 (defmethod make-preference-item ((type (eql :list)) pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font1)))
+         (font (om-def-font :normal)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
@@ -79,7 +79,7 @@
                              )))
 
 (defmethod make-preference-item ((type (eql :folder)) pref-item)
-  (let* ((font (om-def-font :font1))
+  (let* ((font (om-def-font :normal))
          (curr-value (maybe-eval-pref-item-value pref-item))
          (str (if curr-value (format nil "~A" curr-value) ""))
          (textview (om-make-view 'click-and-edit-text
@@ -121,7 +121,7 @@
 
 (defmethod make-preference-item ((type (eql :file)) pref-item)
   (let* ((curr-value (maybe-eval-pref-item-value pref-item))
-         (font (om-def-font :font1))
+         (font (om-def-font :normal))
          (textview (om-make-view 'click-and-edit-text
                                  :text (format nil "~A" curr-value)
                                  :resizable :w
@@ -199,7 +199,7 @@
                  :bg-color (om-def-color :white)
                  :border t
                  :size (om-make-point 40 y)
-                 :font (om-def-font :font1)
+                 :font (om-def-font :normal)
                  :decimals (or (number-in-range-decimals type) 0)
                  :min-val (or (number-in-range-min type) 0)
                  :max-val (or (number-in-range-max type) 10000)
@@ -456,4 +456,3 @@
 
 
 ; (add-preference :libraries :auto-load "Auto load" :bool nil "Silently loads required libraries")
-

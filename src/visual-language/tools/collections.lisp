@@ -280,7 +280,7 @@ If this is done, this type is used to initialize or convert the input list of ob
 
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
-         (current-text (let ((font (om-def-font :font2b)))
+         (current-text (let ((font (om-def-font :large-b)))
                          (om-make-graphic-object
                           'om-item-text
                           :size (omp (om-string-size text font) 16)
@@ -530,4 +530,3 @@ If this is done, this type is used to initialize or convert the input list of ob
   #'(lambda ()
       (when (and (internal-editor self) (select-all-command (internal-editor self)))
         (funcall (select-all-command (internal-editor self))))))
-

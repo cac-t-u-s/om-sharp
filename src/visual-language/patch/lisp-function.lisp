@@ -222,7 +222,7 @@
 (defmethod draw-mini-view ((self OMLispFunction) box x y w h &optional time)
   (let ((di 12))
     (om-with-font
-     (om-def-font :font1 :size 10)
+     (om-def-font :normal :size 10)
      (loop for line in (text self)
            for i = (+ y 18) then (+ i di)
            while (< i (- h 18)) do
@@ -337,6 +337,3 @@
 
 (defmethod font-command ((self lisp-function-editor))
   #'(lambda () (om-lisp::change-text-edit-font (window self))))
-
-
-

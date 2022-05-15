@@ -58,7 +58,7 @@
                        (help-string po)
                        (not (string-equal (help-string po) ""))
                      ;(reduce #'(lambda (val segment) (concatenate 'string val segment (string #\Newline)))
-                     ;        (oa::text-wrap-pix (help-string po) (om-def-font :font1) 200)
+                     ;        (oa::text-wrap-pix (help-string po) (om-def-font :normal) 200)
                      ;        :initial-value "")
                        (help-string po)
                        )))
@@ -82,7 +82,7 @@
        (not (string-equal (help-string self) ""))
        t)
       (let ((text (reduce #'(lambda (val segment) (concatenate 'string val segment (string #\Newline)))
-                          (oa::text-wrap-pix (help-string self) (om-def-font :font1) 200)
+                          (oa::text-wrap-pix (help-string self) (om-def-font :normal) 200)
                           :initial-value "")))
         (if short
             (setf text (string-downcase (read-from-string text)))
@@ -131,7 +131,7 @@
 ;;;================================================
 
 (defvar *tt-process* nil)
-(defparameter *tt-font* (om-def-font :font1b :size 10)) ; :face "Calibri")))
+(defparameter *tt-font* (om-def-font :normal-b :size 10)) ; :face "Calibri")))
 
 ;;; call by OM-API motion handler
 (defmethod handle-tooltips-in-motion ((self t) position) nil)
@@ -205,8 +205,3 @@
   (when *tt-process*
     (om-kill-process *tt-process*)
     (setf *tt-process* nil)))
-
-
-
-
-

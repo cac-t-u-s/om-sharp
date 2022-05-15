@@ -72,7 +72,7 @@
                                        attributes))))
     (when fg-color (om-set-fg-color view fg-color))
     (when bg-color (om-set-bg-color view bg-color))
-    (om-set-font view (or font (om-def-font :font1)))
+    (om-set-font view (or font (om-def-font :normal)))
     view))
 
 (defmethod om-item-view-p ((self t)) nil)
@@ -359,4 +359,3 @@
 ;  (when (or (null (om-get-bg-color view)) (equal :transparent (omcolor-c (om-get-bg-color view))))
 ;    (om-set-bg-color view (om-get-bg-color cont))
 ;    (mapc #'(lambda (v) (setf (vcontainer v) view)) (om-subviews view))))
-

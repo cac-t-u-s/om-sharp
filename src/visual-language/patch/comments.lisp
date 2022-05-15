@@ -28,7 +28,7 @@
 (add-preference :appearance :comment-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 0)
 
 ;;; for comments we specify directly a font size: the platform-specifics apply at drawing
-(add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :size 12))
+(add-preference :appearance :comment-font "Font" :font (om-def-font :normal :size 12))
 
 (add-preference :appearance :comment-align "Text align" '(:left :center :right) :left)
 
@@ -260,7 +260,7 @@
                      :begin-edit-action #'(lambda (item) (om-set-fg-color item (om-def-color :dark-gray)))
                      ;:edit-action #'(lambda (item) (print "edit"))
                      :border t
-                     :font (om-def-font :font1)
+                     :font (om-def-font :normal)
                      :size (om-make-point 140 60)
                      :position position
                      )))

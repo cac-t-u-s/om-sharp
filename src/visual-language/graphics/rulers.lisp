@@ -197,7 +197,7 @@
   (ruler-draw self))
 
 
-(defparameter *ruler-font* (om-def-font :font1 :size 9))
+(defparameter *ruler-font* (om-def-font :normal :size 9))
 
 (defmethod ruler-draw ((self ruler-view))
   (let ((min-unit-size 40))
@@ -312,4 +312,3 @@
 (defmethod om-view-doubleclick-handler ((self y-ruler-view) pos)
   (let ((ed (and (related-views self) (editor (car (related-views self))))))
     (when ed (reinit-y-ranges-from-ruler ed self))))
-

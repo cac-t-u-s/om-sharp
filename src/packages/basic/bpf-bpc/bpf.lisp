@@ -524,7 +524,7 @@
          (x-range (list (nth 0 ranges) (nth 1 ranges)))
          (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
                         (or (get-edit-param box :display-max) (nth 3 ranges))))
-         (font (om-def-font :font1 :size 8)))
+         (font (om-def-font :normal :size 8)))
 
     (draw-bpf-points-in-rect (cadr display-cache)
                              (color self)
@@ -559,7 +559,7 @@
                              (get-edit-param box :draw-style))
 
     (om-with-fg-color (om-def-color :gray)
-      (om-with-font (om-def-font :font1 :size 8)
+      (om-with-font (om-def-font :normal :size 8)
                     (om-draw-string x (+ y (- h 14)) (number-to-string (nth 0 y-range)))
                     (om-draw-string x (+ y 10) (number-to-string (nth 1 y-range)))
                     ))
@@ -643,7 +643,7 @@
                                   :fill t :color (om-def-color :gray))
 
                     (om-draw-string (- x 4) (- oy 4) (format nil "~D" (py p))
-                                    :font (om-def-font :font1 :size 9)
+                                    :font (om-def-font :normal :size 9)
                                     :color (om-def-color :white))
                     ))
             )
@@ -714,7 +714,7 @@
                     :lines)
                 ))
 
-        (let ((font (om-def-font :font1 :size 8)))
+        (let ((font (om-def-font :normal :size 8)))
           (om-with-font font
                         (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
                         (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) font) 4))

@@ -359,7 +359,7 @@
         (om-draw-circle (+ 7 (om-point-x p)) (om-point-y p) 6 :fill nil))
       (om-with-fg-color (om-def-color :white)
         (om-with-font
-         (om-def-font :font2b)
+         (om-def-font :large-b)
          (om-draw-string (+ (om-point-x p) 5) (+ (om-point-y p) 4) "i"))))))
 
 (defmethod info-area ((self OMBoxFrame))
@@ -824,7 +824,7 @@
                                                    (let ((textsize (length (om-dialog-item-text item))))
                                                      (om-set-view-size item (om-make-point (list :character (+ 1 textsize)) (h item)))
                                                      )))
-                                :font (om-def-font :font1)
+                                :font (om-def-font :normal)
                                 :border t
                                 ;;; probably need to adjust these x/y values for different platforms... :
                                 :size (if multi-line
@@ -1243,7 +1243,7 @@
                                       (let ((textsize (length (om-dialog-item-text item))))
                                         (om-set-view-size item (om-make-point (list :character (1+ textsize)) 20))
                                         ))
-                     :font (om-def-font :font1)
+                     :font (om-def-font :normal)
                      :size (om-make-point 60 30)
                      :position (om-add-points
                                 (om-convert-coordinates (get-position self) (frame self) view)
@@ -1337,6 +1337,3 @@
 
 
 ;       (om-new-leafmenu "Picture" #'(lambda ()  (make-bg-pict self posi)))
-
-
-

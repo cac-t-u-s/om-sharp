@@ -200,7 +200,7 @@ OSC messages are formatted as simple Lisp lists."
     (om-draw-rect x y w h :fill t :color (om-gray-color 0.48))
     (om-with-fg-color (om-def-color :white)
       (om-with-font
-       (om-def-font :font1)
+       (om-def-font :normal)
        (loop for msg in (find-value-in-kv-list display-cache 'messages)
              for yy = 20 then (+ yy 12) while (< yy h) do
              (om-draw-string 6 yy (format nil "~a ~{~s~^ ~}" (car msg) (cdr msg)))

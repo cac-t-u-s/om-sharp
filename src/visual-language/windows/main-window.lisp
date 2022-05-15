@@ -348,7 +348,7 @@ Double click on one of these items and then add it by clicking in a patch window
                                            ))
         (side-panel (om-make-di 'om-multi-text
                                 :size (om-make-point nil nil)
-                                :font (om-def-font :font1)
+                                :font (om-def-font :normal)
                                 :fg-color (om-def-color :dark-gray)
                                 :text *packages-tab-text*)))
     (om-make-layout
@@ -442,7 +442,7 @@ The list on the left show all libraries found in the libraries search paths.
          (om-make-di
           'om-multi-text
           :size (om-make-point nil nil)
-          :font (om-def-font :font1)
+          :font (om-def-font :normal)
           :fg-color (om-def-color :dark-gray)
           :text *libs-tab-text*)))
 
@@ -611,4 +611,3 @@ The list on the left show all libraries found in the libraries search paths.
     (let ((listener-pane (car (om-subviews (listener-view *main-window*)))))
       (when listener-pane
         (om-lisp::om-prompt-on-echo-area listener-pane message)))))
-

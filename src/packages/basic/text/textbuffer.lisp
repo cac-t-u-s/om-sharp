@@ -148,7 +148,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 (defmethod draw-mini-view ((self textbuffer) (box TextBufferBox) x y w h &optional time)
   (let (; (display-cache (get-display-draw box))
-        (font (om-def-font :font1 :size 11)))
+        (font (om-def-font :normal :size 11)))
     (om-with-font
      font
      (loop for line in (list! (contents self))
@@ -280,6 +280,3 @@ Evaluation allows defining functions or data in Lisp and running commands or pro
 (defmethod om-lisp::om-text-editor-moved ((win textbuffer-editor-window) x y)
   (when (editor win)
     (setf (window-pos (object (editor win))) (omp x y))))
-
-
-

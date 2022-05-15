@@ -146,7 +146,7 @@
 
   (declare (ignore default))
 
-  (let ((font (om-def-font :font1)))
+  (let ((font (om-def-font :normal)))
 
     (om-make-view 'click-and-edit-text
                   :enabled (not (equal 'read-only (nth 3 (get-property-spec object prop-id))))
@@ -180,7 +180,7 @@
                 :bg-color (om-def-color :window)
                 :border nil ;(om-def-color :gray)
                 :size (om-make-point 80 20)
-                :font (om-def-font :font1)
+                :font (om-def-font :normal)
                 :after-fun #'(lambda (item)
                                (maybe-store-undo-state update nil nil)
                                (set-property object prop-id
@@ -208,7 +208,7 @@
                             :db-click t
                             :decimals (or (caddr def) 0)
                             :size (om-make-point 60 16)
-                            :font (om-def-font :font1)
+                            :font (om-def-font :normal)
                             :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
                             :after-fun #'(lambda (item)
                                            (maybe-store-undo-state update nil nil)
@@ -250,7 +250,7 @@
                                   :decimals (or (number-or-nil-decimals type) 0)
                                   :size (om-make-point 60 16)
                                   :resizable nil
-                                  :font (om-def-font :font1)
+                                  :font (om-def-font :normal)
                                   :min-val (or (number-or-nil-min type) 0)
                                   :max-val (or (number-or-nil-max type) 10000)
                                   :after-fun #'(lambda (item)
@@ -494,7 +494,7 @@
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
 
-  (let* ((def (or default (om-def-font :font1)))
+  (let* ((def (or default (om-def-font :normal)))
 
          (font-chooser
           (om-make-view 'font-chooser-view
@@ -549,7 +549,7 @@
   (declare (ignore default))
 
   (let* ((path (get-property object prop-id))
-         (font (om-def-font :font1))
+         (font (om-def-font :normal))
          (textview (om-make-view 'click-and-edit-text
                                  :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
                                  :text (if (get-property object prop-id)
@@ -651,7 +651,7 @@
                                               'om-row-layout :align :center
                                               :subviews (let ((val (if vals-supplied-p (nth n vals) defval)))
                                                           (list (om-make-di 'om-simple-text
-                                                                            :font (om-def-font :font1b)
+                                                                            :font (om-def-font :normal-b)
                                                                             :text (string-downcase name)
                                                                             :size (omp namefied-w 18))
                                                                 (let ((edt (om-make-di 'om-editable-text
@@ -659,7 +659,7 @@
                                                                                        :text (if (stringp val) (format nil "~s" val) (format nil "~A" val))
                                                                                        :border t
                                                                                        :size (omp 120 26)
-                                                                                       :font (om-def-font :font1))))
+                                                                                       :font (om-def-font :normal))))
                                                                   (push edt fields)
                                                                   edt)))))
                                        (list (om-make-view 'om-view :size (omp nil 20))
@@ -806,7 +806,3 @@
 (defmethod set-property ((self virtual-object-selection) prop-id val)
   (loop for o in (objects self) do
         (set-property o prop-id val)))
-
-
-
-

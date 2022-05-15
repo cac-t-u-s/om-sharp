@@ -64,7 +64,7 @@
 (add-preference :appearance :box-color "Color" :color-a (om-make-color .9 .9 .9))
 (add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1.5)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 4)
-(add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
+(add-preference :appearance :box-font "Text font" :font (om-def-font :normal))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :center)
 (add-preference :appearance :box-icon "Icon position" '(:left :top :noicon) :left)
 
@@ -522,9 +522,3 @@
       (setf (cache-display box)
             (make-cache-display :draw (get-cache-display-for-draw object box)))
       (cache-display-draw (cache-display box)))))
-
-
-
-
-
-

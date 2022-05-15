@@ -146,7 +146,7 @@
                   (icon self))))
     (om-draw-picture icn :w (w self) :h (h self)))
   (when (text self)
-    (let* ((ff (or (font self) (om-def-font :font1)))
+    (let* ((ff (or (font self) (om-def-font :normal)))
            (cc (or (fg-color self) (om-def-color :black)))
            (wh (values-list (om-string-size (text self) ff)))
            (yy (round (+ (- (cadr wh) (if (pushed self) 5 6)) (h self)) 2))
@@ -481,7 +481,7 @@
 
 (defun open-mini-edit (position value action)
   (let ((text (format nil "~A" value))
-        (font (om-def-font :font1)))
+        (font (om-def-font :normal)))
     (multiple-value-bind (w h)
         (om-string-size text font)
       (let* ((tf (om-make-di 'om-editable-text :text text :font font

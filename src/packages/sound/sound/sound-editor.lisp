@@ -57,7 +57,7 @@
                                      :border t
                                      :decimals 2
                                      :size (om-make-point 36 18)
-                                     :font (om-def-font :font1)
+                                     :font (om-def-font :normal)
                                      :min-val 0.0 :max-val 10.0
                                      :change-fun #'(lambda (item)
                                                      (set-gain sound (get-value item)))

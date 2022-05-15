@@ -1024,10 +1024,10 @@ Press 'space' to play/stop the sound file.
     (cond
      ((equal pict :error)
       (om-with-fg-color (om-make-color .8 .4 .4)
-        (om-with-font (om-def-font :font1b)
+        (om-with-font (om-def-font :normal-b)
                       (om-draw-string (+ x 6) (+ y 12) "File not loaded:" :wrap (- w 20)))
         (when (file-pathname self)
-          (om-with-font (om-def-font :font1 :size 10)
+          (om-with-font (om-def-font :normal :size 10)
                         (om-draw-string (+ x 6) (+ y 24) (namestring (file-pathname self)) :wrap (- w 20))))
         ))
 
@@ -1035,7 +1035,7 @@ Press 'space' to play/stop the sound file.
       (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
 
      (t
-      (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b))))
+      (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :normal-b))))
 
     (let ((marker-times (markers-time self)))
       (when marker-times

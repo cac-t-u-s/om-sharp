@@ -235,7 +235,7 @@
                                                  :bg-color (om-def-color :white)
                                                  :border t
                                                  :size (om-make-point 28 18)
-                                                 :font (om-def-font :font1)
+                                                 :font (om-def-font :normal)
                                                  :min-val 1 :max-val 10
                                                  :after-fun #'(lambda (item)
                                                                 (editor-set-edit-param editor :line-width (value item))

@@ -56,7 +56,7 @@
       (unless (= position 1)
         (draw-measure-bar bar-x-pix y-shift font-size staff)
         (om-draw-string bar-x-pix (* (+ 2 y-shift) unit) (number-to-string position)
-                        :font (om-def-font :font1 :size (/ font-size 3))))
+                        :font (om-def-font :normal :size (/ font-size 3))))
 
       (when with-signature
         (draw-time-signature (car (tree object))
@@ -601,9 +601,3 @@
         (setf (b-box object) bbox?))
 
       )))
-
-
-
-
-
-
