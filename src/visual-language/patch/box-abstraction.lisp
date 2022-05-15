@@ -321,7 +321,7 @@
 
       (otherwise
        (let ((label (string-upcase (get-object-type-name (reference self))))
-             (font (om-def-font :normal :face "arial" :size 18 :style '(:bold))))
+             (font (om-make-font "Arial" 18 :style '(:bold))))
          (om-with-font font
                        (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                          (om-draw-string (- (/ (w frame) 2) (/ (om-string-size label font) 2))

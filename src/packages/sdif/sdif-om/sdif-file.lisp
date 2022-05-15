@@ -126,7 +126,7 @@ Lock the box ('b') to keep the current file.
          (max-t (list-max (mapcar 'fstream-desc-tmax (file-map self))))
          (font (om-def-font :small)))
     (om-with-font
-     (om-def-font :normal :face "arial" :size 36 :style '(:bold))
+     (om-make-font "Arial" 36 :style '(:bold))
      (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
        (om-draw-string (- (round w 2) 50) (+ y (max 30 (+ 14 (/ h 2)))) "SDIF")))
     (om-with-font

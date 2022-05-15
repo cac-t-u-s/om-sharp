@@ -1148,7 +1148,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 
                    (loop for e in (get-extras chord 'text-extra)
                          do (om-with-font
-                             (om-def-font :normal :face (font e) :size (/ fontsize 2))
+                             (om-make-font (font e) (/ fontsize 2))
                              (om-draw-string (+ x-pix (* (or (dx e) 0) unit))
                                              (+ y-min (* unit (+ 4 (or (dy e) 0))))
                                              (text e)))
