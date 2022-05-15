@@ -342,9 +342,9 @@
 
 
 (defparameter *def-font*
-  #+macosx '("Consolas" (11 12)) ;72 ppi
-  #+mswindows '("Segoe UI" (8 9))    ;96 ppi
-  #+linux '("Liberation Sans" (9 10)) ;96 ppi
+  #+macosx '("Consolas" (10 11 12))      ;72 ppi
+  #+mswindows '("Segoe UI" (7.5 8 9))    ;96 ppi
+  #+linux '("Liberation Sans" (8 9 10))  ;96 ppi
   )
 
 (defparameter *mono-font*
@@ -366,10 +366,12 @@
 (defparameter *fonts-table*
   (let ((def-face (car *def-font*))
         (sizes (cadr *def-font*)))
-    `((:normal ,(om-make-font def-face (nth 0 sizes)))
-      (:large ,(om-make-font def-face (nth 1 sizes)))
-      (:normal-b ,(om-make-font def-face (nth 0 sizes) :style '(:bold)))
-      (:large-b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
+    `((:small ,(om-make-font def-face (nth 0 sizes)))
+      (:small-b ,(om-make-font def-face (nth 0 sizes) :style '(:bold)))
+      (:normal ,(om-make-font def-face (nth 1 sizes)))
+      (:normal-b ,(om-make-font def-face (nth 1 sizes) :style '(:bold)))
+      (:large ,(om-make-font def-face (nth 2 sizes)))
+      (:large-b ,(om-make-font def-face (nth 2 sizes) :style '(:bold)))
       (:gui ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*))))
       (:gui-b ,(om-make-font (car *gui-font*) (nth 0 (cadr *gui-font*)) :style '(:bold)))
       (:gui-title ,(om-make-font (car *gui-font*) (nth 1 (cadr *gui-font*)) :style '(:bold)))
