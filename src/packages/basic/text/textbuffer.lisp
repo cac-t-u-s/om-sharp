@@ -148,7 +148,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 (defmethod draw-mini-view ((self textbuffer) (box TextBufferBox) x y w h &optional time)
   (let (; (display-cache (get-display-draw box))
-        (font (om-def-font :normal :size 11)))
+        (font (om-def-font :small)))
     (om-with-font
      font
      (loop for line in (list! (contents self))
