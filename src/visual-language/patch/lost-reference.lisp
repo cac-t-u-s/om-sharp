@@ -255,7 +255,7 @@ It was probably defined in some external file or library that is currently not l
       (om-make-color 0.9 0.7 0.5)
     (call-next-method)))
 
-(defmethod draw-patch-icon :after ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
+(defmethod draw-patch-icon :after ((self OMBoxAbstraction) icon &optional (offset-x 0) (offset-y 0))
   (when (lost-reference? self)
     (let ((x1 (+ offset-x 8)) (x2 (+ offset-x (- 24 4)))
           (y1 (+ offset-y 10)) (y2 (+ offset-y (- 24 0))))

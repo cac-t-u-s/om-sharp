@@ -330,7 +330,10 @@
          ))
       ))
 
-  (draw-patch-icon self)
+  (unless (icon frame)
+    (setf (icon frame) (om-load-picture-for-view (icon (reference self)) frame)))
+
+  (draw-patch-icon self (icon frame))
   t)
 
 
@@ -381,10 +384,9 @@
                   )))
 
 
-(defmethod draw-patch-icon ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
-  (let* ((abs (reference self))
-         (iconsize (if (is-persistant abs) 22 16)))
-    (om-draw-picture (icon abs) :x (+ 4 offset-x) :y (+ 6 offset-y) :w iconsize :h iconsize)
+(defmethod draw-patch-icon ((self OMBoxAbstraction) icon &optional (offset-x 0) (offset-y 0))
+  (let* ((iconsize (if (is-persistant (reference self)) 22 16)))
+    (om-draw-picture icon :x (+ 4 offset-x) :y (+ 6 offset-y) :w iconsize :h iconsize)
     ))
 
 

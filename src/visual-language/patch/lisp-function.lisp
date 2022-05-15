@@ -164,7 +164,7 @@
 (defclass OMBoxLisp (OMBoxAbstraction) ())
 (defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
 
-(defmethod draw-patch-icon :after ((self OMBoxLisp) &optional (offset-x 0) (offset-y 0))
+(defmethod draw-patch-icon :after ((self OMBoxLisp) icon &optional (offset-x 0) (offset-y 0))
   (when (error-flag (reference self))
     (om-with-fg-color (om-def-color :dark-red)
       (om-with-font

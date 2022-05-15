@@ -626,7 +626,7 @@
                  (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2)))
                                  "PATCH")))))
 
-  (draw-patch-icon self x y)
+  (draw-patch-icon self (icon (reference self)) x y)
   (draw-eval-buttons view self x y x 12)
   (draw-temporal-box-name self view x y w h)
 
