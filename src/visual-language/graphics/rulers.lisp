@@ -197,7 +197,7 @@
   (ruler-draw self))
 
 
-(defparameter *ruler-font* (om-def-font :normal :size 9))
+(defparameter *ruler-font* (om-def-font :normal :size 8))
 
 (defmethod ruler-draw ((self ruler-view))
   (let ((min-unit-size 40))

@@ -643,7 +643,7 @@
                                   :fill t :color (om-def-color :gray))
 
                     (om-draw-string (+ x1 1) (- oy 4) (format nil "~D" (py p))
-                                    :font (om-def-font :normal :size 9)
+                                    :font (om-def-font :normal :size 8)
                                     :color (om-def-color :white))
                     ))
             )
