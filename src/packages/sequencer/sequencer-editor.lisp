@@ -982,14 +982,13 @@ CMD-click to add boxes. Play contents, etc.
   ((metronome :accessor metronome :initarg :metronome :initform nil)))
 
 (defmethod om-draw-contents ((self tempo-view))
-  (let* ((fontsize 10)
-         (color (om-def-color :black)))
-    (om-draw-char 2 14 (tempo-note :quater)
-                  :font (om-make-font *score-font* fontsize)
+  (let* ((color (om-def-color :black)))
+    (om-draw-char 4 14 (tempo-note :quater)
+                  :font (om-make-font *score-font* 11)
                   :color color)
-    (om-draw-string 7 15
+    (om-draw-string 10 15
                     "="
-                    :font (om-def-font :gui :size fontsize)
+                    :font (om-def-font :small)
                     :color color)
     ))
 
@@ -1002,10 +1001,10 @@ CMD-click to add boxes. Play contents, etc.
     :value (tempo (metronome self))
     :border nil
     :decimals 0
-    :position (om-make-point 13 5)
-    :size (om-make-point 40 10)
+    :position (om-make-point 12 4)
+    :size (om-make-point 40 14)
     :fg-color (om-def-color :black)
-    :font (om-def-font :normal :size 9)
+    :font (om-def-font :small)
     :min-val 20 :max-val 400
     :change-fun #'(lambda (item)
                     (set-tempo (metronome self) (value item))))))
