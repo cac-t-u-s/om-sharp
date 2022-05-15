@@ -15,34 +15,6 @@
 
 (in-package :om)
 
-;===========================
-; Simple horizontal bar
-;===========================
-
-(defclass bar-item (om-item-view)
-  ((fg-color :accessor fg-color :initarg :fg-color :initform (om-def-color :black))
-   (thick :accessor thick :initarg :thick :initform 1)))
-
-(defmethod om-draw-contents ((self bar-item))
-  (call-next-method)
-  (om-with-line-size (thick self)
-    (om-with-fg-color (fg-color self)
-      (om-draw-line 0 0 (w self) 0))))
-
-;===========================
-; Just a picture
-;===========================
-
-(defclass picture-view (om-item-view)
-  ((pict :initform nil :initarg :pict :accessor pict)))
-
-(defmethod om-draw-contents ((self picture-view))
-  (call-next-method)
-  (when (pict self)
-    (om-draw-picture self
-                     (pict self) (om-make-point 0 0)
-                     (om-make-point (w self) (h self)))))
-
 ;;;=====================
 ;;; 3D-border view
 ;;;=====================
