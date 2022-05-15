@@ -152,13 +152,20 @@
 
 (defclass lock-view-area (om-item-view)
   ((editor :accessor editor :initarg :editor :initform nil)
-   (locked-icon :accessor locked-icon :initarg :locked-icon :initform :lock)
-   (unlocked-icon :accessor unlocked-icon :initarg :unlocked-icon :initform :unlock)
+   (locked-icon :accessor locked-icon :initarg :locked-icon :initform nil)
+   (unlocked-icon :accessor unlocked-icon :initarg :unlocked-icon :initform nil)
    ))
+
 
 (defmethod om-draw-contents ((self lock-view-area))
   (let ((w (min (w self) 18))
         (h (min (h self) 18)))
+
+    (unless (locked-icon self)
+      (setf (locked-icon self) (om-load-picture-for-view :lock self)))
+    (unless (unlocked-icon self)
+      (setf (unlocked-icon self) (om-load-picture-for-view :unlock self)))
+
     (om-draw-picture
      (if (lock (object (editor self))) (locked-icon self) (unlocked-icon self))
      :x (/ (- (w self) w) 2)
