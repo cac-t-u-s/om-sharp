@@ -620,9 +620,11 @@
                                    h time)
          (draw-mini-arrow (+ x 24) (+ y 9) 3 10 7 1)
          )))
-    (:hidden  (om-with-font (om-make-font "Arial" 18 :style '(:bold))
-                            (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                              (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2))) "PATCH")))))
+    (:hidden  (om-with-font
+               *box-label-font*
+               (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+                 (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2)))
+                                 "PATCH")))))
 
   (draw-patch-icon self x y)
   (draw-eval-buttons view self x y x 12)
@@ -640,13 +642,16 @@
 
 (defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
   (call-next-method)
+
   (case (display self)
     (:mini-view (draw-sequencer-mini-view (get-box-value self) self x y w h time))
     (:text (draw-mini-text (get-box-value self) self x y w h nil))
-    (:hidden  (om-with-font (om-def-font "Arial" 18 :style '(:bold))
-                            (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                              (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2)))
-                                              (string-upcase (type-of (get-box-value self))))))))
+    (:hidden  (om-with-font
+               *box-label-font*
+               (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+                 (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2)))
+                                 (string-upcase (type-of (get-box-value self))))))))
+
   (draw-temporal-box-name self view x y w h))
 
 

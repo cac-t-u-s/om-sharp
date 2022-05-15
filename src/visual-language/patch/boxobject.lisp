@@ -569,18 +569,18 @@
   (let ((frame (frame box))
         (str (if (eval-flag box)
                  ".oO__.."
-               (object-box-label object)))
-        (font (om-make-font "arial" 18 :style '(:bold))))
-    (multiple-value-bind (sw sh) (om-string-size str font)
+               (object-box-label object))))
+    (multiple-value-bind (sw sh) (om-string-size str *box-label-font*)
       (declare (ignore sw))
-      (let* ((lines (om-string-wrap str (- (w frame) 18) font))
+      (let* ((lines (om-string-wrap str (- (w frame) 18) *box-label-font*))
              (y0 (max 24 (- (+ 6 (/ (h frame) 2))
                             (round (* (1- (length lines)) sh) 2)))))
-        (om-with-font font
-                      (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
-                        (loop for line in lines for y = y0 then (+ y sh) do
-                              (om-draw-string 10 y line)
-                              )))
+        (om-with-font
+         *box-label-font*
+         (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
+           (loop for line in lines for y = y0 then (+ y sh) do
+                 (om-draw-string 10 y line)
+                 )))
         ))))
 
 

@@ -34,6 +34,12 @@
 ;;; POINTS/POSITIONS MANAGEMENT
 ;;;===================
 
+(defparameter *box-label-font* (om-make-font "Arial" 18 :style '(:bold)))
+
+;;;===================
+;;; POINTS/POSITIONS MANAGEMENT
+;;;===================
+
 (defmethod print-point (point)
   (if (om-point-p point)
       (let ((str (format nil "ompoint >>> x:~A y:~A" (om-point-x point) (om-point-y point))))
