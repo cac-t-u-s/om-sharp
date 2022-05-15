@@ -499,8 +499,7 @@
          (font-chooser
           (om-make-view 'font-chooser-view
                         :font (or (font-font (get-property object prop-id))
-                                  (and update (subtypep (type-of update) 'oa::om-graphic-object)
-                                       (om-get-font update)))
+                                  (get-default-value def))
                         :enabled (and (valid-property-p object prop-id)
                                       (get-property object prop-id)
                                       (font-? (get-property object prop-id)))
