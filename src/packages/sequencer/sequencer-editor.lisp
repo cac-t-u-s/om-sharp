@@ -1546,37 +1546,3 @@ CMD-click to add boxes. Play contents, etc.
         (call-next-method)
       (when (redo-stack ed)
         #'(lambda () (do-redo ed))))))
-
-
-#|
-;;; Future Box (Box maker selection rectangle)
-(defclass future-box (selection-rectangle) ())
-
-(defmethod om-draw-contents ((self future-box))
-  (let ((x (if (plusp (w self)) 0 -2))
-        (y (if (plusp (h self)) 0 -2))
-        (w (- (w self) (if (plusp (w self)) 1 -4)))
-        (h (- (h self) (if (plusp (h self)) 1 -4))))
-    (om-draw-rect x y w h :fill t :color (om-make-color 0.5 0.5 0.5 0.7))
-    (om-with-fg-color (om-make-color 0.6 0.2 0.2 0.7)
-      (om-with-line-size 2
-        (om-with-line '(4 4)
-          (om-draw-rect x y w h)))
-      (om-with-font (om-def-font :font4b)
-                    (om-draw-string w h "+")))))
-
-(defmethod om-view-click-handler ((self maquette-view) pos)
-  (let ((p0 pos))
-    (if (and (om-command-key-p))
-        (om-init-temp-graphics-motion self pos
-                                      (om-make-graphic-object 'future-box :position pos :size (om-make-point 4 4)
-                                                              :fg-color (om-def-color :green))
-
-                                      :release #'(lambda (view position)
-                                                   (print (list (om-point-x p0) (om-point-y p0)
-                                                                (om-point-x position) (om-point-y position)))))
-      (call-next-method))))
-|#
-
-
-
