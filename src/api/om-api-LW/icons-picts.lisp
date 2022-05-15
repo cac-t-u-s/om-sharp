@@ -35,6 +35,7 @@
 (export '(
           om-get-know-pict-types
           om-register-picture
+          om-load-picture-for-view
           om-pict-width
           om-pict-height
           om-draw-picture
@@ -55,6 +56,10 @@
 ;;; allows calling image by its name from then on
 (defun om-register-picture (name path)
   (gp:register-image-translation name (gp:read-external-image path)))
+
+
+(defun om-load-picture-for-view (id view)
+  (gp::load-image (om-get-view view) id))
 
 
 ;;; pict is a picture identifier
