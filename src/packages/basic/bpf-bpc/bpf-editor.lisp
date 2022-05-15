@@ -468,7 +468,7 @@
                                      :time (and foreground? (time-to-draw bpf editor pt i)))
 
                      (om-draw-string (+ x 2) (- origin-y 4) (format nil "~D" (om-point-y pt))
-                                     :font (om-def-font :normal :size 8)
+                                     :font (om-def-font :tiny)
                                      :color (om-def-color :white))
                      ))
              ))

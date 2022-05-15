@@ -60,7 +60,7 @@
               do
               (om-draw-line (- xr 4) (* y2 h) (+ xr 4) (* y2 h))
               (if (> y 0)
-                  (om-with-font (om-def-font :normal :size 8)
+                  (om-with-font (om-def-font :tiny)
                                 (om-draw-string xc (+ (* y2 h) 2)
                                                 (format nil "~1$" y)))))))))
 

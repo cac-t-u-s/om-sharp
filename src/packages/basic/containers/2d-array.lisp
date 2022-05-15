@@ -91,7 +91,7 @@
                (om-draw-line x (- y 1) x (+ y 1) :color (om-def-color :light-gray))))
 
         (om-with-font
-         (om-def-font :normal :size 8)
+         (om-def-font :tiny)
 
          (cond
 

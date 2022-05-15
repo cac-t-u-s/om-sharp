@@ -735,7 +735,7 @@ Use 'get-transformed-data' to export the data as transformed by the rotation and
             ;;; Y ranges are reversed !!
             (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
 
-          (let ((font (om-def-font :normal :size 8)))
+          (let ((font (om-def-font :tiny)))
             (om-with-font
              font
              (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
