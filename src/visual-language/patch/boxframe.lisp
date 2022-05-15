@@ -24,6 +24,7 @@
 ;;; A Frame whose object is an OMBox
 (defclass OMBoxFrame (OMSimpleFrame)
   ((icon-id :accessor icon-id :initform nil :initarg :icon-id)
+   (icon :accessor icon :initform nil)
    (icon-size :accessor icon-size :initform nil)))
 
 (defmethod get-help ((self OMBoxFrame)) (get-box-help (object self)))
@@ -594,16 +595,22 @@
       ;;; icon or main contents
       (or (box-draw box self)
           (if (icon-id self)
-              (case (box-draw-icon-pos box)
-                (:left (om-draw-picture (icon-id self) :x 2 :y 6 ; (- (h self) icon-size io-hspace)
+              (progn
+
+                (unless (icon self)
+                  (setf (icon self) (om-load-picture-for-view (icon-id self) self)))
+
+                (case (box-draw-icon-pos box)
+                  (:left (om-draw-picture (icon self) :x 2 :y 6 ; (- (h self) icon-size io-hspace)
                                        ; :w icon-size :h icon-size
-                                        :w (- (h self) 12) :h (- (h self) 12)
-                                        ))
-                (:top (let ((w2 (min (w self) (- (h self) icon-size (* io-hspace 2)))))
-                        (om-draw-picture (icon-id self)
-                                         :x (/ (- (w self) w2) 2)
-                                         :y 7 :w w2 :h w2)))
-                (otherwise nil))
+                                          :w (- (h self) 12) :h (- (h self) 12)
+                                          ))
+                  (:top (let ((w2 (min (w self) (- (h self) icon-size (* io-hspace 2)))))
+                          (om-draw-picture (icon self)
+                                           :x (/ (- (w self) w2) 2)
+                                           :y 7 :w w2 :h w2)))
+                  (otherwise nil)))
+
             (draw-name-as-icon box self))
           )
 
