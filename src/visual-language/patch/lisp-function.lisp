@@ -222,7 +222,7 @@
 (defmethod draw-mini-view ((self OMLispFunction) box x y w h &optional time)
   (let ((di 12))
     (om-with-font
-     (om-def-font :normal :size 10)
+     (om-def-font :small)
      (loop for line in (text self)
            for i = (+ y 18) then (+ i di)
            while (< i (- h 18)) do

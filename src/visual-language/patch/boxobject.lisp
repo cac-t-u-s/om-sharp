@@ -587,7 +587,7 @@
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
 
   (let ((type-str (string-upcase (type-of object)))
-        (type-font (om-def-font :normal-b :size 10)))
+        (type-font (om-def-font :small-b)))
 
     (om-draw-string (+ x (- w (om-string-size type-str type-font) 12))
                     (+ y 18)
@@ -596,7 +596,7 @@
                     :color (om-def-color :gray)))
 
   (om-with-font
-   (om-def-font :normal :size 10)
+   (om-def-font :small)
 
    (loop for i = (+ y 30) then (+ i 10)
          for sl in (ensure-cache-display-text box object)

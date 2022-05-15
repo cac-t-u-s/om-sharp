@@ -1027,7 +1027,7 @@ Press 'space' to play/stop the sound file.
         (om-with-font (om-def-font :normal-b)
                       (om-draw-string (+ x 6) (+ y 12) "File not loaded:" :wrap (- w 20)))
         (when (file-pathname self)
-          (om-with-font (om-def-font :normal :size 10)
+          (om-with-font (om-def-font :small)
                         (om-draw-string (+ x 6) (+ y 24) (namestring (file-pathname self)) :wrap (- w 20))))
         ))
 

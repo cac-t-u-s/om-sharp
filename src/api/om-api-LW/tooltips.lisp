@@ -131,7 +131,7 @@
 ;;;================================================
 
 (defvar *tt-process* nil)
-(defparameter *tt-font* (om-def-font :normal-b :size 10)) ; :face "Calibri")))
+(defparameter *tt-font* (om-def-font :small-b)) ; :face "Calibri")))
 
 ;;; call by OM-API motion handler
 (defmethod handle-tooltips-in-motion ((self t) position) nil)
