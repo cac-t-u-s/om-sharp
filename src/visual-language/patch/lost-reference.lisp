@@ -51,7 +51,9 @@ It was probably defined in some external file or library that is currently not l
 
 
 (defmethod box-draw ((self LostReferenceBox) frame)
-  (om-draw-picture :dead :x 2 :y 6 :w 18 :h 18)
+  (unless (icon frame)
+    (setf (icon frame) (om-load-picture-for-view :dead frame)))
+  (om-draw-picture (icon frame) :x 2 :y 6 :w 18 :h 18)
   t)
 
 
