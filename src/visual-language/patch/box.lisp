@@ -491,7 +491,12 @@
   (declare (ignore box))
   (loop for sl in (append (mapcar 'slot-name (remove-if-not 'slot-initargs (class-direct-instance-slots (class-of object))))
                           (additional-class-attributes object))
-        collect (list sl (get-slot-val object sl))))
+        collect (list sl
+                      (let ((val (get-slot-val object sl)))
+                        (if (and (listp val) (> (length val) 10))
+                            (append (first-n val 10) '("..."))
+                          val)))))
+
 
 ;;; to be redefined by objects if they have a specific draw/cache strategy
 (defmethod get-cache-display-for-draw ((object t) box) nil)

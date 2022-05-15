@@ -601,11 +601,7 @@
    (loop for i = (+ y 30) then (+ i 10)
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do
-         (let ((str (format nil "~A: ~A" (car sl) (cadr sl))))
-           (if (> (om-string-size str (om-def-font :normal :size 8)) (- w 10))
-               (om-draw-string (+ x 4) i (concatenate 'string (subseq str 0 (min (length str) (1- (round w 5)))) "..."))
-             (om-draw-string (+ x 4) i str))
-           ))
+         (om-draw-string (+ x 4) i (format nil "~A: ~A" (car sl) (cadr sl))))
    ))
 
 
