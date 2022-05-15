@@ -1174,7 +1174,7 @@
                           :text "--"
                           :fg-color (om-def-color :dark-gray)
                           :focus t  ;; prevents focus on other items :)
-                          :font (om-def-font :font3)))
+                          :font (om-def-font :font2)))
             ))
           )
 
