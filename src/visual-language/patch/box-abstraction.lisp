@@ -358,7 +358,7 @@
                       (+ ax b) (+ ay h))
                      :fill nil))
 
-  (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :normal-b) :color (om-make-color .5 .5 .5)))
+  (om-draw-string (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :normal-b) :color (om-make-color .5 .5 .5)))
 
 
 ;;; display reference instead of value
@@ -378,14 +378,15 @@
                         for i = 1 then (+ 1 i) do
                         (draw-mini-arrow (+ offset-x 24) (- y 9) 3 10 7 i)
                         (om-draw-string (+ offset-x 45) y (format nil "~A" v)))
-                  ))
-  )
+                  )))
+
 
 (defmethod draw-patch-icon ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 22 16)))
     (om-draw-picture (icon abs) :x (+ 4 offset-x) :y (+ 6 offset-y) :w iconsize :h iconsize)
     ))
+
 
 (defmethod minimum-size ((self OMBoxAbstraction))
   (multiple-value-bind (tw th)
@@ -396,5 +397,6 @@
                             (* (length (inputs self)) 10)
                             (* (box-n-outs self) 10))))
                    (round (max th (if (is-persistant (reference self)) 36 28))))))
+
 
 (defmethod maximum-size ((self OMBoxAbstraction)) (omp 200 200))

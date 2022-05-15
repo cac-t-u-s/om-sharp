@@ -49,6 +49,7 @@ It was probably defined in some external file or library that is currently not l
 (defmethod box-draw-text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
 (defmethod border ((self LostReferenceBox)) nil)
 
+
 (defmethod box-draw ((self LostReferenceBox) frame)
   (om-draw-picture :dead :x 2 :y 6 :w 18 :h 18)
   t)
