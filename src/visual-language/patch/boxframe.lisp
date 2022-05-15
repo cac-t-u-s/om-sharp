@@ -443,12 +443,8 @@
 
   (let ((view (om-make-graphic-object (get-box-frame-class self)
                                       :position (omp (box-x self) (box-y self))
-                ;:font (font-font (text-font self))
                                       :object self
                                       :icon-id (get-icon-id self))))
-
-    ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
-    ;                                     (default-size self)))
 
     (setf (frame self) view)
     (set-frame-areas view)
