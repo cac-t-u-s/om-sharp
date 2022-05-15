@@ -642,7 +642,7 @@
                     (om-draw-rect x1 oy (- x2 x1) (* fy (py p))
                                   :fill t :color (om-def-color :gray))
 
-                    (om-draw-string (- x 4) (- oy 4) (format nil "~D" (py p))
+                    (om-draw-string (+ x1 1) (- oy 4) (format nil "~D" (py p))
                                     :font (om-def-font :normal :size 9)
                                     :color (om-def-color :white))
                     ))
