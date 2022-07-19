@@ -60,9 +60,11 @@
             (unless (string-equal selected-device-type current-device-type)
               (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
               (juce::setDeviceType *juce-player* (get-pref-value :audio :driver)))
-            (set-audio-device))
-
-        (om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))))
+            (set-audio-device)
+	    (set-audio-settings))
+        
+	(om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))
+    ))
 
 
 (defun set-audio-device ()
@@ -71,6 +73,8 @@
 
     ;;; update the preference fields
     (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'set-audio-device)
+    (put-default-value (get-pref :audio :output))
+    (update-preference-window-item :audio :output)
 
     (unless (and (get-pref-value :audio :output)
                  (find (get-pref-value :audio :output) out-devices :test 'string-equal))
@@ -92,14 +96,16 @@
             (let ((pos (position selected-device out-devices :test 'string-equal)))
               (assert pos)
               (juce::setOutputDevice *juce-player* pos))
+	    
+	    (set-audio-settings))
 
-            (set-audio-settings))
+        (om-beep-msg "AUDIO: ERROR! Could not find any audio device."))
 
-        (om-beep-msg "AUDIO: ERROR! Could not find any audio device.")))))
-
+      (update-preference-window-item :audio :output))))
 
 
 (defun set-audio-settings ()
+      ;;; update the preference fields
   (let ((device-supported-out-channels (juce::getoutputchannelslist *juce-player*))
         (device-supported-sample-rates (juce::getsamplerates *juce-player*))
         (device-supported-buffer-sizes (juce::getbuffersizes *juce-player*)))
