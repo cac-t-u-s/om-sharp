@@ -22,7 +22,7 @@
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Driver")
 (add-preference :audio :driver "Type" nil nil nil 'set-audio-driver) ;; will be set at player startup
-(add-preference :audio :output "Output" nil nil nil 'set-audio-device) ;; will be set at player startup
+(add-preference :audio :output "Output" nil nil nil 'set-audio-settings)
 (add-preference-section :audio "Settings")
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'set-audio-settings)
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'set-audio-settings)
@@ -95,9 +95,7 @@
 
             (let ((pos (position selected-device out-devices :test 'string-equal)))
               (assert pos)
-              (juce::setOutputDevice *juce-player* pos))
-	    
-	    (set-audio-settings))
+              (juce::setOutputDevice *juce-player* pos)))
 
         (om-beep-msg "AUDIO: ERROR! Could not find any audio device."))
 
