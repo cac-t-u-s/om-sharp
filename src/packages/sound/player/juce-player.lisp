@@ -59,12 +59,13 @@
           (progn
             (unless (string-equal selected-device-type current-device-type)
               (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
-              (juce::setDeviceType *juce-player* (get-pref-value :audio :driver)))
-            (set-audio-device)
-	    (set-audio-settings))
+              (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
+	      (set-audio-settings)))
         
-	(om-beep-msg "AUDIO: ERROR! Could not find any audio driver.")))
-    ))
+	(om-beep-msg "AUDIO: ERROR! Could not find any audio driver."))
+      )))
+
+
 
 
 (defun set-audio-device ()
@@ -104,11 +105,15 @@
 
 (defun set-audio-settings ()
       ;;; update the preference fields
-  (let ((device-supported-out-channels (juce::getoutputchannelslist *juce-player*))
+
+  (let ((driver-supported-devices (juce::audio-driver-output-devices *juce-player* (get-pref-value :audio :driver)))
+	(device-supported-out-channels (juce::getoutputchannelslist *juce-player*))
         (device-supported-sample-rates (juce::getsamplerates *juce-player*))
         (device-supported-buffer-sizes (juce::getbuffersizes *juce-player*)))
 
     ;;; update the preference fields
+    (add-preference :audio :output "Output device" driver-supported-devices (car driver-supported-devices)
+		    nil 'set-audio-settings)
     (add-preference :audio :out-channels "Output Channels" device-supported-out-channels 2
                     nil 'set-audio-settings)
     (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates 44100
