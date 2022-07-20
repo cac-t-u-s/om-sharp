@@ -120,6 +120,14 @@
 
     ;;; check for conformity of current settings
     ;;; reset defaults if needed
+    
+    (unless (find (get-pref-value :audio :output) driver-supported-devices :test 'string-equal)
+      (put-default-value (get-pref :audio :output)))
+
+    (let ((pos (position (get-pref-value :audio :output) driver-supported-devices :test 'string-equal)))
+      (assert pos)
+      (juce::setOutputDevice *juce-player* pos))
+    
     (unless (find (get-pref-value :audio :out-channels) device-supported-out-channels :test '=)
       (put-default-value (get-pref :audio :out-channels)))
 
