@@ -137,12 +137,14 @@
 
     (juce::setbuffersize *juce-player* (get-pref-value :audio :buffersize))
 
+    (update-preference-window-item :audio :output)
     (update-preference-window-item :audio :out-channels)
     (update-preference-window-item :audio :samplerate)
     (update-preference-window-item :audio :buffersize)
 
-    (om-print (format nil "[out] ~s, ~D out channels / ~D. ~D Hz."
-                      (juce::getcurrentdevicename *juce-player*)
+    (om-print (format nil "[out] ~s, ~s, ~D out channels / ~D. ~D Hz."
+                      (juce::getcurrentdevicetype  *juce-player*)
+		      (juce::getcurrentdevicename *juce-player*)
                       (get-pref-value :audio :out-channels)
                       (juce::getoutputchannelscount *juce-player*)
                       (juce::getcurrentsamplerate *juce-player*))
