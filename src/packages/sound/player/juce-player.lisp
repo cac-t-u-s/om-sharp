@@ -69,11 +69,13 @@
       (if selected-device-type
 
           (progn
-            (unless (string-equal selected-device-type current-device-type)
+	    (unless (string-equal selected-device-type current-device-type)
               (om-print (format nil "Setting audio driver: \"~A\"" (get-pref-value :audio :driver)) "AUDIO")
               (juce::setDeviceType *juce-player* (get-pref-value :audio :driver))
-	      (set-audio-settings))
+	      )
 	    
+	    (set-audio-device)
+	    (set-audio-settings)
 	    (print-audio-settings))
         
 	(om-beep-msg "AUDIO: ERROR! Could not find any audio driver."))
