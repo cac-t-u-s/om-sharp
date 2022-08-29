@@ -124,14 +124,16 @@
         (device-supported-buffer-sizes (juce::getbuffersizes *juce-player*)))
 
     ;;; update the preference fields
-    (add-preference :audio :output "Output device" driver-supported-devices (car driver-supported-devices)
-		    nil 'set-audio-settings)
-    (add-preference :audio :out-channels "Output Channels" device-supported-out-channels 2
-                    nil 'set-audio-settings)
-    (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates 44100
-                    nil 'set-audio-settings)
-    (add-preference :audio :buffersize "Buffer Size" device-supported-buffer-sizes 512
-                    nil 'set-audio-settings)
+    (progn
+      
+      (add-preference :audio :output "Output device" driver-supported-devices (car driver-supported-devices)
+		      nil 'set-audio-settings)
+      (add-preference :audio :out-channels "Output Channels" device-supported-out-channels 2
+                      nil 'set-audio-settings)
+      (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates 44100
+                      nil 'set-audio-settings)
+      (add-preference :audio :buffersize "Buffer Size" device-supported-buffer-sizes 512
+                      nil 'set-audio-settings)
 
     ;;; check for conformity of current settings
     ;;; reset defaults if needed
