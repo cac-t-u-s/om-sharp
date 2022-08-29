@@ -52,6 +52,8 @@
   (let* ((device-types (juce::get-audio-drivers *juce-player*))
          (default-driver (car (remove nil device-types))))
 
+    (om-print (format nil "drivers detected: ~{~A~^, ~}" device-types) "AUDIO")
+
     ;;; update the preference fields with the current drivers
     (add-preference :audio :driver "Type" device-types default-driver nil 'set-audio-driver)
 
@@ -169,7 +171,7 @@
     (update-preference-window-item :audio :samplerate)
     (update-preference-window-item :audio :buffersize)
 
-    ))
+    )))
 
 
 ; (juce::getCurrentDeviceType *juce-player*)
