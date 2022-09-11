@@ -52,7 +52,7 @@
 
   (ensure-cache-display-draw box self) ;;; check if this is really needed...
 
-  (let* ((font (om-def-font :font1 :size 10))
+  (let* ((font (om-def-font :small))
          (n-lines (length (data self)))
          (inter-line 1)
          (v-margin 8)
