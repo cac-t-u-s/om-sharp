@@ -107,7 +107,11 @@
   (let ((lib (intern (string-upcase name) :keyword)))
     (eval `(cffi::define-foreign-library ,lib ,.spec))
     (print (format nil "Loading foreign library: ~A" name))
-    (cffi::load-foreign-library lib)))
+    (catch 'err
+        (handler-bind ((error #'(lambda (err)
+                              (print (format nil "~A:~A" (type-of err) err))
+                              (throw 'err nil))))
+          (cffi::load-foreign-library lib)))))
 
 (defvar *loaders* nil)
 
